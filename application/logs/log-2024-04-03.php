@@ -1,0 +1,30 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2024-04-03 01:10:46 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2024-04-03 01:10:46 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2024-04-03 01:10:46 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2024-04-03 01:10:46 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2024-04-03 01:10:48 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2024-04-03 03:10:19 --> 404 Page Not Found: Git/config
+ERROR - 2024-04-03 08:21:44 --> 404 Page Not Found: Faviconico/index
+ERROR - 2024-04-03 08:37:31 --> 404 Page Not Found: Git/config
+ERROR - 2024-04-03 09:30:55 --> 404 Page Not Found: Git/config
+ERROR - 2024-04-03 10:39:33 --> 404 Page Not Found: Faviconico/index
+ERROR - 2024-04-03 11:28:32 --> 404 Page Not Found: 13759201124/assets
+ERROR - 2024-04-03 11:28:32 --> 404 Page Not Found: 13759201124/assets
+ERROR - 2024-04-03 12:04:36 --> 404 Page Not Found: Env/index
+ERROR - 2024-04-03 12:09:37 --> 404 Page Not Found: Faviconico/index
+ERROR - 2024-04-03 13:33:33 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2024-04-03 13:46:21 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2024-04-03 13:46:24 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2024-04-03 13:50:38 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-04-03 14:35:49 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2024-04-03 15:11:14 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2024-04-03 16:37:24 --> 404 Page Not Found: ReportServer/index
+ERROR - 2024-04-03 17:48:27 --> 404 Page Not Found: Admin/assets
+ERROR - 2024-04-03 17:48:28 --> 404 Page Not Found: Admin/assets
+ERROR - 2024-04-03 19:33:20 --> 404 Page Not Found: Faviconico/index
+ERROR - 2024-04-03 19:38:27 --> 404 Page Not Found: Geoserver/web
+ERROR - 2024-04-03 19:39:35 --> 404 Page Not Found: Git/config
+ERROR - 2024-04-03 19:56:46 --> 404 Page Not Found: Wp-includes/js
+ERROR - 2024-04-03 19:56:55 --> 404 Page Not Found: Wp-includes/js

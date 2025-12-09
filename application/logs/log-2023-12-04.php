@@ -1,0 +1,30 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-12-04 02:54:57 --> 404 Page Not Found: Wp-loginphp/index
+ERROR - 2023-12-04 03:16:15 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-04 03:59:15 --> 404 Page Not Found: Admin/config.php
+ERROR - 2023-12-04 06:16:15 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-04 06:57:43 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-04 06:57:54 --> 404 Page Not Found: Adstxt/index
+ERROR - 2023-12-04 06:57:54 --> 404 Page Not Found: App-adstxt/index
+ERROR - 2023-12-04 09:50:14 --> 404 Page Not Found: Wp-includes/js
+ERROR - 2023-12-04 09:50:15 --> 404 Page Not Found: Wp-content/plugins
+ERROR - 2023-12-04 09:50:15 --> 404 Page Not Found: Wp-content/plugins
+ERROR - 2023-12-04 09:50:15 --> 404 Page Not Found: Magento_version/index
+ERROR - 2023-12-04 10:12:22 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-12-04 11:16:14 --> 404 Page Not Found: Ecp/Current
+ERROR - 2023-12-04 14:07:51 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-12-04 14:14:07 --> 404 Page Not Found: Version/index
+ERROR - 2023-12-04 15:20:09 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-04 16:51:05 --> 404 Page Not Found: Ab2g/index
+ERROR - 2023-12-04 16:51:06 --> 404 Page Not Found: Ab2h/index
+ERROR - 2023-12-04 16:51:12 --> 404 Page Not Found: T4/index
+ERROR - 2023-12-04 16:51:14 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-12-04 16:52:54 --> 404 Page Not Found: Wm5c/index
+ERROR - 2023-12-04 16:52:54 --> 404 Page Not Found: RkH8/index
+ERROR - 2023-12-04 16:52:56 --> 404 Page Not Found: Aab8/index
+ERROR - 2023-12-04 16:52:57 --> 404 Page Not Found: Jquery-331slimminjs/index
+ERROR - 2023-12-04 16:52:58 --> 404 Page Not Found: Aab9/index
+ERROR - 2023-12-04 16:52:59 --> 404 Page Not Found: Jquery-332slimminjs/index
+ERROR - 2023-12-04 22:58:07 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-12-04 23:06:20 --> 404 Page Not Found: Git/config

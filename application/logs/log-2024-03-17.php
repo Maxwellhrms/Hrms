@@ -1,0 +1,32 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2024-03-17 02:46:07 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-03-17 02:46:09 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-03-17 02:46:11 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-03-17 02:46:13 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-03-17 02:46:14 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-03-17 02:46:15 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-03-17 02:46:17 --> 404 Page Not Found: Query/index
+ERROR - 2024-03-17 02:46:18 --> 404 Page Not Found: Query/index
+ERROR - 2024-03-17 02:46:20 --> 404 Page Not Found: Query/index
+ERROR - 2024-03-17 02:46:21 --> 404 Page Not Found: Query/index
+ERROR - 2024-03-17 02:46:24 --> 404 Page Not Found: Query/index
+ERROR - 2024-03-17 02:46:28 --> 404 Page Not Found: Query/index
+ERROR - 2024-03-17 02:46:30 --> 404 Page Not Found: Resolve/index
+ERROR - 2024-03-17 02:46:32 --> 404 Page Not Found: Resolve/index
+ERROR - 2024-03-17 02:46:33 --> 404 Page Not Found: Resolve/index
+ERROR - 2024-03-17 02:46:35 --> 404 Page Not Found: Resolve/index
+ERROR - 2024-03-17 02:46:36 --> 404 Page Not Found: Resolve/index
+ERROR - 2024-03-17 02:46:38 --> 404 Page Not Found: Resolve/index
+ERROR - 2024-03-17 02:51:45 --> 404 Page Not Found: Script/index
+ERROR - 2024-03-17 02:51:46 --> 404 Page Not Found: Login/index
+ERROR - 2024-03-17 02:51:47 --> 404 Page Not Found: Manager/html
+ERROR - 2024-03-17 02:51:47 --> 404 Page Not Found: Users/sign_in
+ERROR - 2024-03-17 03:29:14 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2024-03-17 03:29:23 --> 404 Page Not Found: Adstxt/index
+ERROR - 2024-03-17 03:29:23 --> 404 Page Not Found: App-adstxt/index
+ERROR - 2024-03-17 10:09:22 --> 404 Page Not Found: Faviconico/index
+ERROR - 2024-03-17 10:13:58 --> 404 Page Not Found: Geoserver/web
+ERROR - 2024-03-17 10:15:09 --> 404 Page Not Found: Git/config
+ERROR - 2024-03-17 12:00:50 --> 404 Page Not Found: Env/index
+ERROR - 2024-03-17 15:08:18 --> 404 Page Not Found: Robotstxt/index

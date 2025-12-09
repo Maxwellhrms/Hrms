@@ -1,0 +1,33 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-08-30 00:16:48 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-08-30 01:36:25 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-30 03:10:36 --> 404 Page Not Found: Inputsphp/index
+ERROR - 2023-08-30 05:00:50 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-30 05:00:52 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-08-30 05:00:54 --> 404 Page Not Found: Well-known/security.txt
+ERROR - 2023-08-30 05:19:54 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-30 08:07:14 --> 404 Page Not Found: Actuator/health
+ERROR - 2023-08-30 12:23:07 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-08-30 13:21:42 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-30 13:29:34 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-08-30 17:56:44 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-30 17:56:45 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-30 18:07:54 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-30 18:36:30 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-08-30 21:36:35 --> 404 Page Not Found: Git/config
+ERROR - 2023-08-30 22:49:01 --> 404 Page Not Found: Vscode/sftp.json
+ERROR - 2023-08-30 22:49:02 --> 404 Page Not Found: About/index
+ERROR - 2023-08-30 22:49:02 --> 404 Page Not Found: Debug/default
+ERROR - 2023-08-30 22:49:03 --> 404 Page Not Found: V2/_catalog
+ERROR - 2023-08-30 22:49:04 --> 404 Page Not Found: Ecp/Current
+ERROR - 2023-08-30 22:49:04 --> 404 Page Not Found: Server-status/index
+ERROR - 2023-08-30 22:49:05 --> 404 Page Not Found: Loginaction/index
+ERROR - 2023-08-30 22:49:06 --> 404 Page Not Found: _all_dbs/index
+ERROR - 2023-08-30 22:49:06 --> 404 Page Not Found: DS_Store/index
+ERROR - 2023-08-30 22:49:07 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-30 22:49:08 --> 404 Page Not Found: Git/config
+ERROR - 2023-08-30 22:49:09 --> 404 Page Not Found: Configjson/index
+ERROR - 2023-08-30 22:49:09 --> 404 Page Not Found: Telescope/requests
+ERROR - 2023-08-30 23:49:23 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-30 23:59:37 --> 404 Page Not Found: Robotstxt/index

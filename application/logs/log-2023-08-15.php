@@ -1,0 +1,33 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-08-15 02:32:36 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-15 03:49:51 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-15 04:29:04 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-08-15 07:19:07 --> 404 Page Not Found: Ab2g/index
+ERROR - 2023-08-15 07:19:15 --> 404 Page Not Found: 400shtml/index
+ERROR - 2023-08-15 07:19:17 --> 404 Page Not Found: T4/index
+ERROR - 2023-08-15 07:19:19 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-08-15 08:01:19 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-15 08:01:19 --> 404 Page Not Found: 400shtml/index
+ERROR - 2023-08-15 08:32:06 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-15 08:32:07 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-15 12:27:46 --> 404 Page Not Found: Actuator/health
+ERROR - 2023-08-15 12:35:36 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-15 12:44:16 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-15 13:19:21 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-15 13:52:40 --> 404 Page Not Found: Aaa9/index
+ERROR - 2023-08-15 13:52:52 --> 404 Page Not Found: Aab8/index
+ERROR - 2023-08-15 14:29:16 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-15 14:29:17 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-15 14:29:20 --> 404 Page Not Found: Sitemapsxml/index
+ERROR - 2023-08-15 14:39:00 --> 404 Page Not Found: Aaa9/index
+ERROR - 2023-08-15 14:39:16 --> 404 Page Not Found: Aab8/index
+ERROR - 2023-08-15 15:19:16 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-08-15 16:41:07 --> 404 Page Not Found: Aaa9/index
+ERROR - 2023-08-15 16:41:14 --> 404 Page Not Found: Aab8/index
+ERROR - 2023-08-15 17:42:11 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-08-15 19:19:53 --> 404 Page Not Found: Aaa9/index
+ERROR - 2023-08-15 19:20:09 --> 404 Page Not Found: Aab8/index
+ERROR - 2023-08-15 20:41:23 --> 404 Page Not Found: Aaa9/index
+ERROR - 2023-08-15 20:41:35 --> 404 Page Not Found: Aab8/index
+ERROR - 2023-08-15 20:43:03 --> 404 Page Not Found: Version/index

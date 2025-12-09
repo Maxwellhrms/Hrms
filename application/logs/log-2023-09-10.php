@@ -1,0 +1,30 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-09-10 00:10:51 --> 404 Page Not Found: Sitemapsxml/index
+ERROR - 2023-09-10 00:50:46 --> 404 Page Not Found: Webclient/index
+ERROR - 2023-09-10 01:42:59 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-09-10 01:45:29 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-09-10 01:55:37 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-09-10 02:09:10 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-10 03:13:27 --> 404 Page Not Found: Atomxml/index
+ERROR - 2023-09-10 09:48:18 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-10 09:48:48 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-10 09:49:15 --> 404 Page Not Found: Manage/account
+ERROR - 2023-09-10 09:49:58 --> 404 Page Not Found: Manage/account
+ERROR - 2023-09-10 09:50:39 --> 404 Page Not Found: Admin/index.html
+ERROR - 2023-09-10 09:51:19 --> 404 Page Not Found: Admin/index.html
+ERROR - 2023-09-10 09:51:55 --> 404 Page Not Found: Indexhtml/index
+ERROR - 2023-09-10 09:52:46 --> 404 Page Not Found: Indexhtml/index
+ERROR - 2023-09-10 09:54:47 --> 404 Page Not Found: Cgi-bin/login.cgi
+ERROR - 2023-09-10 09:55:24 --> 404 Page Not Found: Cgi-bin/login.cgi
+ERROR - 2023-09-10 13:12:48 --> 404 Page Not Found: Sitemaptxt/index
+ERROR - 2023-09-10 13:17:44 --> 404 Page Not Found: Wp-loginphp/index
+ERROR - 2023-09-10 13:43:08 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-09-10 14:24:19 --> 404 Page Not Found: Admin/.git
+ERROR - 2023-09-10 14:51:38 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-09-10 15:37:50 --> 404 Page Not Found: App/.git
+ERROR - 2023-09-10 17:12:26 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-10 17:16:49 --> 404 Page Not Found: Geoserver/web
+ERROR - 2023-09-10 17:17:13 --> 404 Page Not Found: Git/config
+ERROR - 2023-09-10 18:10:37 --> 404 Page Not Found: Indexhtml/index
+ERROR - 2023-09-10 18:51:49 --> 404 Page Not Found: Env/index

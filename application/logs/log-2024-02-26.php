@@ -1,0 +1,30 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2024-02-26 00:12:35 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:12:35 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:12:35 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:12:35 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:12:35 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:12:55 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:12:55 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:12:55 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:12:57 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:12:57 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:13:15 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:13:15 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:13:15 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:13:17 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:13:17 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:13:34 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:13:34 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:13:34 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:13:36 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 00:13:36 --> 404 Page Not Found: Wwwmaxwellhrmsin/assets
+ERROR - 2024-02-26 02:04:07 --> 404 Page Not Found: Wp-loginphp/index
+ERROR - 2024-02-26 08:53:23 --> 404 Page Not Found: Env/index
+ERROR - 2024-02-26 11:17:10 --> 404 Page Not Found: Env/index
+ERROR - 2024-02-26 11:54:09 --> 404 Page Not Found: Faviconico/index
+ERROR - 2024-02-26 12:48:59 --> 404 Page Not Found: Faviconico/index
+ERROR - 2024-02-26 14:17:44 --> 404 Page Not Found: Env/index
+ERROR - 2024-02-26 14:17:46 --> 404 Page Not Found: 400shtml/index
+ERROR - 2024-02-26 15:26:33 --> 404 Page Not Found: Robotstxt/index

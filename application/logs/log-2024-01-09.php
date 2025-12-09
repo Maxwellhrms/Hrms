@@ -1,0 +1,32 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2024-01-09 02:57:20 --> 404 Page Not Found: Env/index
+ERROR - 2024-01-09 03:01:40 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2024-01-09 04:45:17 --> 404 Page Not Found: Ecp/Current
+ERROR - 2024-01-09 05:10:42 --> 404 Page Not Found: Wp-loginphp/index
+ERROR - 2024-01-09 07:26:40 --> 404 Page Not Found: Faviconico/index
+ERROR - 2024-01-09 07:47:16 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2024-01-09 09:37:23 --> 404 Page Not Found: Wp-content/plugins
+ERROR - 2024-01-09 11:19:26 --> 404 Page Not Found: Ab2g/index
+ERROR - 2024-01-09 11:19:27 --> 404 Page Not Found: Ab2h/index
+ERROR - 2024-01-09 11:19:27 --> 404 Page Not Found: Alivephp/index
+ERROR - 2024-01-09 11:19:33 --> 404 Page Not Found: T4/index
+ERROR - 2024-01-09 11:19:34 --> 404 Page Not Found: Faviconico/index
+ERROR - 2024-01-09 11:19:35 --> 404 Page Not Found: Teorema505/index
+ERROR - 2024-01-09 14:18:00 --> 404 Page Not Found: Faviconico/index
+ERROR - 2024-01-09 14:22:57 --> 404 Page Not Found: Geoserver/web
+ERROR - 2024-01-09 14:23:55 --> 404 Page Not Found: Git/config
+ERROR - 2024-01-09 14:35:47 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2024-01-09 14:35:50 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2024-01-09 14:35:51 --> 404 Page Not Found: Forgot-passwordhtml/index
+ERROR - 2024-01-09 14:35:52 --> 404 Page Not Found: Humanstxt/index
+ERROR - 2024-01-09 14:35:53 --> 404 Page Not Found: Securitytxt/index
+ERROR - 2024-01-09 14:35:54 --> 404 Page Not Found: Well-known/security.txt
+ERROR - 2024-01-09 14:35:55 --> 404 Page Not Found: Adstxt/index
+ERROR - 2024-01-09 15:22:35 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2024-01-09 16:11:44 --> 404 Page Not Found: Public/home
+ERROR - 2024-01-09 16:11:46 --> 404 Page Not Found: Static/admin
+ERROR - 2024-01-09 16:57:42 --> 404 Page Not Found: TelerikWebUIDialogHandleraspx/index
+ERROR - 2024-01-09 16:57:43 --> 404 Page Not Found: DesktopModules/Admin
+ERROR - 2024-01-09 17:53:09 --> 404 Page Not Found: Faviconico/index
+ERROR - 2024-01-09 20:27:12 --> 404 Page Not Found: Version/index

@@ -1,0 +1,7 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2022-04-18 10:32:12 --> 404 Page Not Found: Assets/js
+ERROR - 2022-04-18 10:32:12 --> 404 Page Not Found: Assets/js
+ERROR - 2022-04-18 10:32:12 --> 404 Page Not Found: Assets/js
+ERROR - 2022-04-18 10:32:12 --> 404 Page Not Found: Assets/css
+ERROR - 2022-04-18 16:45:07 --> Query error: Column 'mxauth_auth_comp_id' cannot be null - Invalid query: INSERT INTO `maxwell_emp_authorsations` (`mxauth_parent_log_id`, `mxauth_auth_type`, `mxauth_comp_id`, `mxauth_comp_name`, `mxauth_div_id`, `mxauth_div_name`, `mxauth_state_id`, `mxauth_state_name`, `mxauth_branch_id`, `mxauth_branch_name`, `mxauth_dept_id`, `mxauth_dept_name`, `mxauth_emp_code`, `mxauth_auth_comp_id`, `mxauth_auth_comp_name`, `mxauth_auth_div_id`, `mxauth_auth_div_name`, `mxauth_auth_state_id`, `mxauth_auth_state_name`, `mxauth_auth_branch_id`, `mxauth_auth_branch_name`, `mxauth_auth_dept_id`, `mxauth_auth_dept_name`, `mxauth_reporting_head_emp_code`, `mxauth_year_month`, `mxauth_joining_date`, `mxauth_status`, `mxauth_createdby`, `mxauth_createdtime`, `mxauth_created_ip`) VALUES (135, '3', '1', 'MAXWELL LOGISTICS PRIVATE LIMITED', '1', 'LOGISTICS ', '36', 'TELANGANA', '1', 'HEAD OFFICE', '16', NULL, 'M0979', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '202204', '2022-04-18', 1, '888666', '2022-04-18 04:04:07', '183.82.105.9')

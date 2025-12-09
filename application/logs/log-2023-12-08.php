@@ -1,0 +1,30 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-12-08 00:37:28 --> 404 Page Not Found: Version/index
+ERROR - 2023-12-08 01:04:50 --> 404 Page Not Found: Ep1v/index
+ERROR - 2023-12-08 01:04:54 --> 404 Page Not Found: GWqN/index
+ERROR - 2023-12-08 01:17:15 --> 404 Page Not Found: Logon/LogonPoint
+ERROR - 2023-12-08 02:32:17 --> 404 Page Not Found: Env/index
+ERROR - 2023-12-08 06:03:19 --> 404 Page Not Found: Actuator/health
+ERROR - 2023-12-08 07:07:45 --> 404 Page Not Found: Git/config
+ERROR - 2023-12-08 07:13:39 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-08 08:18:51 --> 404 Page Not Found: 13759201124/assets
+ERROR - 2023-12-08 08:18:51 --> 404 Page Not Found: 13759201124/assets
+ERROR - 2023-12-08 08:18:51 --> 404 Page Not Found: 13759201124/assets
+ERROR - 2023-12-08 08:18:51 --> 404 Page Not Found: 13759201124/assets
+ERROR - 2023-12-08 08:18:51 --> 404 Page Not Found: 13759201124/assets
+ERROR - 2023-12-08 11:23:21 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-12-08 11:28:36 --> 404 Page Not Found: Assets/ckeditor
+ERROR - 2023-12-08 11:28:45 --> 404 Page Not Found: Assets/ckeditor
+ERROR - 2023-12-08 11:28:45 --> 404 Page Not Found: Assets/ckeditor
+ERROR - 2023-12-08 11:28:55 --> 404 Page Not Found: Assets/ckeditor
+ERROR - 2023-12-08 11:28:55 --> 404 Page Not Found: Assets/ckeditor
+ERROR - 2023-12-08 11:29:02 --> 404 Page Not Found: Assets/ckeditor
+ERROR - 2023-12-08 11:29:02 --> 404 Page Not Found: Assets/ckeditor
+ERROR - 2023-12-08 15:32:39 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-08 19:50:46 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-12-08 19:55:39 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-12-08 23:55:08 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-12-08 23:55:08 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-12-08 23:55:08 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-12-08 23:56:08 --> 404 Page Not Found: Mediamughalcom/assets

@@ -1,0 +1,37 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-12-05 00:14:44 --> 404 Page Not Found: Wp-loginphp/index
+ERROR - 2023-12-05 03:12:41 --> 404 Page Not Found: Actuator/health
+ERROR - 2023-12-05 07:15:19 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-12-05 07:20:06 --> 404 Page Not Found: Geoserver/web
+ERROR - 2023-12-05 07:20:37 --> 404 Page Not Found: Git/config
+ERROR - 2023-12-05 09:24:52 --> 404 Page Not Found: Ep1v/index
+ERROR - 2023-12-05 09:24:54 --> 404 Page Not Found: GWqN/index
+ERROR - 2023-12-05 10:22:17 --> 404 Page Not Found: Query/index
+ERROR - 2023-12-05 11:06:03 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-05 11:06:04 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-12-05 11:06:05 --> 404 Page Not Found: Well-known/security.txt
+ERROR - 2023-12-05 12:59:35 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-12-05 14:26:01 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-05 14:39:20 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-05 14:39:30 --> 404 Page Not Found: Sitemaptxt/index
+ERROR - 2023-12-05 15:30:32 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-05 15:40:56 --> 404 Page Not Found: Sitemaptxt/index
+ERROR - 2023-12-05 15:58:54 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-05 15:58:55 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-12-05 15:58:56 --> 404 Page Not Found: Well-known/security.txt
+ERROR - 2023-12-05 19:08:28 --> 404 Page Not Found: Temporary_Listen_Addresses/index
+ERROR - 2023-12-05 19:08:29 --> 404 Page Not Found: Ews/exchanges
+ERROR - 2023-12-05 19:08:29 --> 404 Page Not Found: Ews/exchange%20
+ERROR - 2023-12-05 19:08:29 --> 404 Page Not Found: Ews/exchange
+ERROR - 2023-12-05 19:08:29 --> 404 Page Not Found: Ews/%20
+ERROR - 2023-12-05 19:08:30 --> 404 Page Not Found: Ews/ews
+ERROR - 2023-12-05 19:08:30 --> 404 Page Not Found: Ews/autodiscovers
+ERROR - 2023-12-05 19:08:30 --> 404 Page Not Found: Autodiscover/autodiscovers
+ERROR - 2023-12-05 19:08:30 --> 404 Page Not Found: Autodiscover/autodiscover%20
+ERROR - 2023-12-05 19:08:30 --> 404 Page Not Found: Autodiscover/autodiscoverrs
+ERROR - 2023-12-05 19:08:30 --> 404 Page Not Found: Autodiscove/index
+ERROR - 2023-12-05 19:17:26 --> 404 Page Not Found: Wp-loginphp/index
+ERROR - 2023-12-05 21:53:37 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-05 23:54:36 --> 404 Page Not Found: Ep1v/index
+ERROR - 2023-12-05 23:54:39 --> 404 Page Not Found: GWqN/index

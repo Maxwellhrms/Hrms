@@ -1,0 +1,32 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-06-14 00:52:38 --> 404 Page Not Found: Utils/.git
+ERROR - 2023-06-14 03:38:41 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-06-14 03:50:27 --> 404 Page Not Found: Autodiscover/Autodiscover.xml
+ERROR - 2023-06-14 04:51:42 --> 404 Page Not Found: Vendor/phpunit
+ERROR - 2023-06-14 05:41:31 --> 404 Page Not Found: Vendor/phpunit
+ERROR - 2023-06-14 05:49:17 --> 404 Page Not Found: Git/config
+ERROR - 2023-06-14 06:20:36 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-06-14 08:07:22 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-06-14 08:25:21 --> 404 Page Not Found: Env/index
+ERROR - 2023-06-14 09:39:39 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-06-14 09:39:40 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-06-14 09:39:41 --> 404 Page Not Found: Well-known/security.txt
+ERROR - 2023-06-14 11:12:54 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-06-14 11:39:43 --> 404 Page Not Found: Console/index
+ERROR - 2023-06-14 11:45:53 --> 404 Page Not Found: _ignition/execute-solution
+ERROR - 2023-06-14 12:39:15 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-06-14 12:43:16 --> 404 Page Not Found: Ecp/Current
+ERROR - 2023-06-14 12:45:28 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-06-14 13:48:06 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-06-14 14:58:27 --> 404 Page Not Found: Cgi-bin/.%2e
+ERROR - 2023-06-14 16:38:21 --> 404 Page Not Found: Actuator/gateway
+ERROR - 2023-06-14 16:43:44 --> 404 Page Not Found: Env/index
+ERROR - 2023-06-14 17:18:54 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-06-14 17:36:19 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-06-14 17:39:28 --> 404 Page Not Found: Geoserver/web
+ERROR - 2023-06-14 17:39:51 --> 404 Page Not Found: Git/config
+ERROR - 2023-06-14 19:47:22 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-06-14 20:02:32 --> 404 Page Not Found: Geoserver/index
+ERROR - 2023-06-14 20:54:30 --> 404 Page Not Found: IISStart/index
+ERROR - 2023-06-14 23:13:31 --> 404 Page Not Found: Faviconico/index

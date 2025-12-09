@@ -1,0 +1,33 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2024-04-01 01:07:51 --> 404 Page Not Found: Wp-loginphp/index
+ERROR - 2024-04-01 05:34:57 --> 404 Page Not Found: Faviconico/index
+ERROR - 2024-04-01 05:36:53 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2024-04-01 05:56:57 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2024-04-01 11:10:41 --> 404 Page Not Found: Version/index
+ERROR - 2024-04-01 13:33:49 --> 404 Page Not Found: Faviconico/index
+ERROR - 2024-04-01 14:19:50 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2024-04-01 15:52:28 --> 404 Page Not Found: Owa/auth
+ERROR - 2024-04-01 17:18:48 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-04-01 17:18:50 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-04-01 17:18:52 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-04-01 17:18:53 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-04-01 17:18:55 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-04-01 17:18:56 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-04-01 17:19:01 --> 404 Page Not Found: Query/index
+ERROR - 2024-04-01 17:19:02 --> 404 Page Not Found: Query/index
+ERROR - 2024-04-01 17:19:03 --> 404 Page Not Found: Query/index
+ERROR - 2024-04-01 17:19:07 --> 404 Page Not Found: Query/index
+ERROR - 2024-04-01 17:19:09 --> 404 Page Not Found: Query/index
+ERROR - 2024-04-01 17:19:11 --> 404 Page Not Found: Query/index
+ERROR - 2024-04-01 17:19:13 --> 404 Page Not Found: Resolve/index
+ERROR - 2024-04-01 17:19:15 --> 404 Page Not Found: Resolve/index
+ERROR - 2024-04-01 17:19:17 --> 404 Page Not Found: Resolve/index
+ERROR - 2024-04-01 17:19:19 --> 404 Page Not Found: Resolve/index
+ERROR - 2024-04-01 17:19:21 --> 404 Page Not Found: Resolve/index
+ERROR - 2024-04-01 17:19:22 --> 404 Page Not Found: Resolve/index
+ERROR - 2024-04-01 17:23:58 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2024-04-01 17:23:59 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2024-04-01 17:24:00 --> 404 Page Not Found: Well-known/security.txt
+ERROR - 2024-04-01 18:53:04 --> 404 Page Not Found: Well-known/security.txt
+ERROR - 2024-04-01 22:27:41 --> 404 Page Not Found: Env/index

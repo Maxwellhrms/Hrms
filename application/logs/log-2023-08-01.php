@@ -1,0 +1,36 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-08-01 04:40:02 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-08-01 06:37:44 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-01 07:02:29 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-01 08:04:00 --> 404 Page Not Found: Aaa9/index
+ERROR - 2023-08-01 08:04:14 --> 404 Page Not Found: Aab8/index
+ERROR - 2023-08-01 08:52:05 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-01 09:18:12 --> 404 Page Not Found: Epa/scripts
+ERROR - 2023-08-01 09:18:22 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-01 09:21:40 --> 404 Page Not Found: Aaa9/index
+ERROR - 2023-08-01 09:21:56 --> 404 Page Not Found: Aab8/index
+ERROR - 2023-08-01 09:34:35 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-01 09:34:35 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-01 12:31:41 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-08-01 12:48:16 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-08-01 13:43:36 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-01 15:14:38 --> 404 Page Not Found: Git/config
+ERROR - 2023-08-01 17:05:41 --> 404 Page Not Found: Phpinfophp/index
+ERROR - 2023-08-01 17:29:18 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-01 18:12:12 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-01 18:56:46 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-08-01 18:57:00 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-08-01 20:15:46 --> 404 Page Not Found: 400shtml/index
+ERROR - 2023-08-01 20:33:01 --> 404 Page Not Found: Remote/login
+ERROR - 2023-08-01 20:47:15 --> 404 Page Not Found: Assets/css
+ERROR - 2023-08-01 20:47:42 --> 404 Page Not Found: Assets/css
+ERROR - 2023-08-01 20:47:42 --> 404 Page Not Found: Assets/js
+ERROR - 2023-08-01 20:47:42 --> 404 Page Not Found: Assets/js
+ERROR - 2023-08-01 20:47:42 --> 404 Page Not Found: Assets/js
+ERROR - 2023-08-01 20:47:43 --> 404 Page Not Found: Assets/js
+ERROR - 2023-08-01 21:21:10 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-01 21:28:29 --> 404 Page Not Found: Git/config
+ERROR - 2023-08-01 21:43:44 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-01 22:13:51 --> 404 Page Not Found: _profiler/phpinfo
+ERROR - 2023-08-01 23:53:57 --> 404 Page Not Found: Env/index

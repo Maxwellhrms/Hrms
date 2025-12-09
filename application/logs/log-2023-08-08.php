@@ -1,0 +1,52 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-08-08 00:11:41 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-08 00:45:46 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-08 02:26:36 --> 404 Page Not Found: Nationphp/index
+ERROR - 2023-08-08 02:26:37 --> 404 Page Not Found: Is-bin/index
+ERROR - 2023-08-08 02:26:38 --> 404 Page Not Found: Is-bin/index
+ERROR - 2023-08-08 02:26:40 --> 404 Page Not Found: Newsphp/index
+ERROR - 2023-08-08 02:26:41 --> 404 Page Not Found: Load/index
+ERROR - 2023-08-08 02:26:42 --> 404 Page Not Found: New/login
+ERROR - 2023-08-08 02:26:43 --> 404 Page Not Found: Viwwwsogou/index
+ERROR - 2023-08-08 02:26:43 --> 404 Page Not Found: E3e7e71a0b28b5e96cc492e636722f73/4sVKAOvu3D
+ERROR - 2023-08-08 02:26:44 --> 404 Page Not Found: Jqueryjs/index
+ERROR - 2023-08-08 02:26:45 --> 404 Page Not Found: Wh/glass.php
+ERROR - 2023-08-08 02:26:46 --> 404 Page Not Found: Login/index
+ERROR - 2023-08-08 02:26:47 --> 404 Page Not Found: C/msdownload
+ERROR - 2023-08-08 02:26:47 --> 404 Page Not Found: C/msdownload
+ERROR - 2023-08-08 02:26:48 --> 404 Page Not Found: Fw6I/index
+ERROR - 2023-08-08 02:26:48 --> 404 Page Not Found: Fw6I/index
+ERROR - 2023-08-08 02:26:49 --> 404 Page Not Found: PBr8/index
+ERROR - 2023-08-08 02:26:49 --> 404 Page Not Found: 5sQc/index
+ERROR - 2023-08-08 02:26:50 --> 404 Page Not Found: Visu/ens
+ERROR - 2023-08-08 02:26:50 --> 404 Page Not Found: Visu/ens
+ERROR - 2023-08-08 03:10:02 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-08 03:10:03 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-08 03:26:00 --> 404 Page Not Found: Sitemapsxml/index
+ERROR - 2023-08-08 03:55:35 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-08-08 03:55:35 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-08-08 03:55:35 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-08-08 03:55:35 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-08-08 03:55:37 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-08-08 04:16:24 --> 404 Page Not Found: Sitemapsxml/index
+ERROR - 2023-08-08 08:00:20 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-08 08:20:00 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-08-08 08:37:44 --> 404 Page Not Found: Sitemapsxml/index
+ERROR - 2023-08-08 09:04:04 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-08-08 09:33:28 --> 404 Page Not Found: Sitemapsxml/index
+ERROR - 2023-08-08 10:30:55 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-08 13:07:31 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-08 13:20:38 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-08-08 15:14:13 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-08 15:14:14 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-08-08 15:14:16 --> 404 Page Not Found: Well-known/security.txt
+ERROR - 2023-08-08 15:24:09 --> 404 Page Not Found: Env/index
+ERROR - 2023-08-08 15:58:14 --> Severity: Warning --> filesize(): stat failed for /tmp/maxwell_sessiona2f99518770eda6ea2f196f9fc7e2c5016263341 /home/maxwellhrms/public_html/system/libraries/Session/drivers/Session_files_driver.php 212
+ERROR - 2023-08-08 15:58:14 --> Severity: Warning --> session_start(): Cannot send session cache limiter - headers already sent (output started at /home/maxwellhrms/public_html/system/core/Exceptions.php:271) /home/maxwellhrms/public_html/system/libraries/Session/Session.php 143
+ERROR - 2023-08-08 16:00:14 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-08-08 18:03:37 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-08-08 20:06:52 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-08-08 20:19:53 --> 404 Page Not Found: Wp-content/themes
+ERROR - 2023-08-08 20:19:53 --> 404 Page Not Found: Wp-plainphp/index
+ERROR - 2023-08-08 20:19:53 --> 404 Page Not Found: Txadlcyaphp/index

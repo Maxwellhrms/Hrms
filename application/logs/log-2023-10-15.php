@@ -1,0 +1,34 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-10-15 00:08:21 --> 404 Page Not Found: 400shtml/index
+ERROR - 2023-10-15 00:19:18 --> 404 Page Not Found: 400shtml/index
+ERROR - 2023-10-15 00:34:39 --> 404 Page Not Found: 400shtml/index
+ERROR - 2023-10-15 01:17:01 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-15 02:15:41 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-10-15 02:27:25 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-10-15 04:37:36 --> 404 Page Not Found: Wp-content/plugins
+ERROR - 2023-10-15 04:39:18 --> 404 Page Not Found: Wp-content/plugins
+ERROR - 2023-10-15 05:16:22 --> 404 Page Not Found: Git/config
+ERROR - 2023-10-15 06:12:17 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-10-15 06:12:18 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-10-15 06:12:18 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-10-15 06:12:18 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-10-15 06:12:18 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-10-15 06:12:44 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-10-15 06:12:44 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-10-15 06:12:46 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-10-15 06:12:46 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-10-15 06:12:46 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2023-10-15 07:07:53 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-15 14:17:08 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-10-15 14:36:31 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-15 15:02:42 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-10-15 15:07:41 --> 404 Page Not Found: Api/.env
+ERROR - 2023-10-15 16:32:39 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-10-15 16:54:07 --> 404 Page Not Found: Ecp/Current
+ERROR - 2023-10-15 16:56:22 --> 404 Page Not Found: Env/index
+ERROR - 2023-10-15 16:56:23 --> 404 Page Not Found: 400shtml/index
+ERROR - 2023-10-15 17:16:34 --> 404 Page Not Found: Login/index
+ERROR - 2023-10-15 17:44:21 --> 404 Page Not Found: Git/config
+ERROR - 2023-10-15 22:14:36 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-15 22:14:39 --> 404 Page Not Found: Sitemapxml/index

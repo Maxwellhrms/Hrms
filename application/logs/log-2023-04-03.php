@@ -1,0 +1,30 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-04-03 00:28:43 --> 404 Page Not Found: Actuator/gateway
+ERROR - 2023-04-03 00:56:52 --> 404 Page Not Found: J7tG/index
+ERROR - 2023-04-03 01:54:36 --> 404 Page Not Found: Env/index
+ERROR - 2023-04-03 03:14:52 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-04-03 05:51:21 --> 404 Page Not Found: Remote/fgt_lang
+ERROR - 2023-04-03 06:12:48 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-04-03 08:47:10 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-04-03 11:15:38 --> 404 Page Not Found: FD873AC4-CF86-4FED-84EC-4BD59C6F17A7/index
+ERROR - 2023-04-03 12:46:47 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-04-03 15:44:33 --> 404 Page Not Found: Env/index
+ERROR - 2023-04-03 15:55:28 --> 404 Page Not Found: Version/index
+ERROR - 2023-04-03 16:20:11 --> 404 Page Not Found: Env/index
+ERROR - 2023-04-03 16:50:37 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-04-03 16:53:23 --> 404 Page Not Found: Geoserver/web
+ERROR - 2023-04-03 16:53:56 --> 404 Page Not Found: Git/config
+ERROR - 2023-04-03 16:56:44 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-04-03 18:39:04 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-04-03 18:39:04 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-04-03 19:13:31 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-04-03 21:16:24 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-04-03 21:24:36 --> 404 Page Not Found: Maxwellhrms/index
+ERROR - 2023-04-03 21:24:36 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-04-03 21:28:53 --> 404 Page Not Found: Maxwellhrms/uploads
+ERROR - 2023-04-03 21:29:26 --> 404 Page Not Found: Maxwellhrms/uploads
+ERROR - 2023-04-03 21:29:26 --> 404 Page Not Found: Maxwellhrms/uploads
+ERROR - 2023-04-03 21:29:29 --> 404 Page Not Found: Maxwellhrms/uploads
+ERROR - 2023-04-03 22:49:00 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-04-03 23:47:49 --> 404 Page Not Found: Actuator/health

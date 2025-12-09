@@ -1,0 +1,36 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-12-28 02:55:25 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-28 02:55:26 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-12-28 02:55:27 --> 404 Page Not Found: Well-known/security.txt
+ERROR - 2023-12-28 04:53:10 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-28 04:53:11 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-28 05:54:18 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-12-28 05:58:52 --> 404 Page Not Found: Geoserver/web
+ERROR - 2023-12-28 06:00:25 --> 404 Page Not Found: Git/config
+ERROR - 2023-12-28 06:19:39 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-12-28 07:51:25 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-28 07:51:26 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-12-28 07:51:27 --> 404 Page Not Found: Well-known/security.txt
+ERROR - 2023-12-28 08:21:45 --> 404 Page Not Found: Debug/default
+ERROR - 2023-12-28 08:21:45 --> 404 Page Not Found: Web/debug
+ERROR - 2023-12-28 08:21:45 --> 404 Page Not Found: Frontend/web
+ERROR - 2023-12-28 08:21:45 --> 404 Page Not Found: Debug/default
+ERROR - 2023-12-28 08:42:51 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-28 08:42:51 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-28 11:00:26 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-12-28 11:02:52 --> 404 Page Not Found: Vendor/phpunit
+ERROR - 2023-12-28 11:02:54 --> 404 Page Not Found: Test/vendor
+ERROR - 2023-12-28 11:30:38 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-12-28 15:00:33 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-12-28 15:03:04 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-28 17:54:17 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-12-28 20:51:21 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-12-28 20:51:21 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-12-28 20:51:21 --> 404 Page Not Found: Axis2-admin/index
+ERROR - 2023-12-28 20:51:21 --> 404 Page Not Found: Axis2/index
+ERROR - 2023-12-28 20:51:22 --> 404 Page Not Found: Axis2/axis2-admin
+ERROR - 2023-12-28 21:20:20 --> 404 Page Not Found: Wp-loginphp/index
+ERROR - 2023-12-28 21:33:17 --> 404 Page Not Found: Wp-loginphp/index
+ERROR - 2023-12-28 22:57:52 --> 404 Page Not Found: Aaa9/index
+ERROR - 2023-12-28 22:57:56 --> 404 Page Not Found: Aab8/index

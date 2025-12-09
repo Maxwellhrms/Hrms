@@ -1,0 +1,31 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-11-29 04:45:51 --> 404 Page Not Found: Temporary_Listen_Addresses/index
+ERROR - 2023-11-29 04:45:51 --> 404 Page Not Found: Ews/exchanges
+ERROR - 2023-11-29 04:45:51 --> 404 Page Not Found: Ews/exchange%20
+ERROR - 2023-11-29 04:45:51 --> 404 Page Not Found: Ews/exchange
+ERROR - 2023-11-29 04:45:52 --> 404 Page Not Found: Ews/%20
+ERROR - 2023-11-29 04:45:52 --> 404 Page Not Found: Ews/ews
+ERROR - 2023-11-29 04:45:52 --> 404 Page Not Found: Ews/autodiscovers
+ERROR - 2023-11-29 04:45:52 --> 404 Page Not Found: Autodiscover/autodiscovers
+ERROR - 2023-11-29 04:45:52 --> 404 Page Not Found: Autodiscover/autodiscover%20
+ERROR - 2023-11-29 04:45:52 --> 404 Page Not Found: Autodiscover/autodiscoverrs
+ERROR - 2023-11-29 04:45:52 --> 404 Page Not Found: Autodiscove/index
+ERROR - 2023-11-29 06:17:28 --> 404 Page Not Found: Env/index
+ERROR - 2023-11-29 06:17:28 --> 404 Page Not Found: Env/index
+ERROR - 2023-11-29 10:43:36 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-11-29 12:42:30 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-11-29 15:19:12 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-11-29 15:19:59 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-11-29 15:20:08 --> 404 Page Not Found: Sitemap_indexxml/index
+ERROR - 2023-11-29 15:40:30 --> 404 Page Not Found: Sitemapsxml/index
+ERROR - 2023-11-29 16:28:05 --> 404 Page Not Found: Sitemap_indexxml/index
+ERROR - 2023-11-29 16:48:27 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-11-29 16:48:37 --> 404 Page Not Found: Sitemapsxml/index
+ERROR - 2023-11-29 19:50:59 --> 404 Page Not Found: Wp-loginphp/index
+ERROR - 2023-11-29 20:13:43 --> 404 Page Not Found: 13759201124/assets
+ERROR - 2023-11-29 20:13:43 --> 404 Page Not Found: 13759201124/assets
+ERROR - 2023-11-29 20:13:43 --> 404 Page Not Found: 13759201124/assets
+ERROR - 2023-11-29 20:13:43 --> 404 Page Not Found: 13759201124/assets
+ERROR - 2023-11-29 20:13:43 --> 404 Page Not Found: 13759201124/assets
+ERROR - 2023-11-29 23:14:11 --> 404 Page Not Found: Autodiscove/index

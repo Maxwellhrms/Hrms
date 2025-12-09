@@ -1,0 +1,30 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2024-03-13 01:42:23 --> 404 Page Not Found: Wp-loginphp/index
+ERROR - 2024-03-13 01:58:04 --> 404 Page Not Found: Wp-loginphp/index
+ERROR - 2024-03-13 06:04:30 --> 404 Page Not Found: Client/get_targets
+ERROR - 2024-03-13 07:23:21 --> 404 Page Not Found: 400shtml/index
+ERROR - 2024-03-13 11:28:47 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2024-03-13 11:28:48 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2024-03-13 11:28:52 --> 404 Page Not Found: Well-known/security.txt
+ERROR - 2024-03-13 13:41:53 --> 404 Page Not Found: Actuator/health
+ERROR - 2024-03-13 14:14:18 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2024-03-13 14:16:26 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2024-03-13 17:37:00 --> 404 Page Not Found: Well-known/traffic-advice
+ERROR - 2024-03-13 17:37:24 --> 404 Page Not Found: Env/index
+ERROR - 2024-03-13 17:47:28 --> 404 Page Not Found: Env/index
+ERROR - 2024-03-13 21:37:53 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-03-13 21:38:12 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-03-13 21:38:27 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-03-13 21:38:28 --> 404 Page Not Found: Dns-query/index
+ERROR - 2024-03-13 21:57:40 --> 404 Page Not Found: Maxwellhrmsin/assets
+ERROR - 2024-03-13 21:57:40 --> 404 Page Not Found: Maxwellhrmsin/assets
+ERROR - 2024-03-13 21:57:40 --> 404 Page Not Found: Maxwellhrmsin/assets
+ERROR - 2024-03-13 21:57:40 --> 404 Page Not Found: Maxwellhrmsin/assets
+ERROR - 2024-03-13 21:57:40 --> 404 Page Not Found: Maxwellhrmsin/assets
+ERROR - 2024-03-13 21:57:42 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2024-03-13 21:57:42 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2024-03-13 21:57:42 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2024-03-13 21:57:42 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2024-03-13 21:57:42 --> 404 Page Not Found: Mediamughalcom/assets
+ERROR - 2024-03-13 23:42:37 --> 404 Page Not Found: Owa/auth

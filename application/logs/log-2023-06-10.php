@@ -1,0 +1,36 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-06-10 00:44:31 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-06-10 00:44:32 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-06-10 00:44:35 --> 404 Page Not Found: Well-known/security.txt
+ERROR - 2023-06-10 02:37:55 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-06-10 02:51:24 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-06-10 04:47:32 --> 404 Page Not Found: Temporary_Listen_Addresses/index
+ERROR - 2023-06-10 07:38:53 --> 404 Page Not Found: Actuator/health
+ERROR - 2023-06-10 07:56:57 --> 404 Page Not Found: Env/index
+ERROR - 2023-06-10 08:33:47 --> 404 Page Not Found: Ab2g/index
+ERROR - 2023-06-10 08:33:48 --> 404 Page Not Found: Ab2h/index
+ERROR - 2023-06-10 08:33:55 --> 404 Page Not Found: T4/index
+ERROR - 2023-06-10 08:33:57 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-06-10 08:47:11 --> 404 Page Not Found: Autodiscover/Autodiscover.xml
+ERROR - 2023-06-10 09:27:57 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-06-10 09:40:04 --> 404 Page Not Found: Vendor/phpunit
+ERROR - 2023-06-10 12:42:34 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-06-10 12:48:41 --> 404 Page Not Found: Ecp/Current
+ERROR - 2023-06-10 12:51:22 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-06-10 12:58:03 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-06-10 13:38:03 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-06-10 13:51:01 --> 404 Page Not Found: Console/index
+ERROR - 2023-06-10 14:15:35 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-06-10 14:33:47 --> 404 Page Not Found: _ignition/execute-solution
+ERROR - 2023-06-10 15:50:14 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-06-10 15:54:38 --> 404 Page Not Found: Geoserver/web
+ERROR - 2023-06-10 15:56:54 --> 404 Page Not Found: Git/config
+ERROR - 2023-06-10 17:18:31 --> 404 Page Not Found: Cgi-bin/.%2e
+ERROR - 2023-06-10 19:00:28 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-06-10 19:07:08 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-06-10 19:30:52 --> 404 Page Not Found: Actuator/gateway
+ERROR - 2023-06-10 19:44:24 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-06-10 20:28:32 --> 404 Page Not Found: Geoserver/index
+ERROR - 2023-06-10 21:33:23 --> 404 Page Not Found: Env/index
+ERROR - 2023-06-10 21:38:33 --> 404 Page Not Found: Env/index

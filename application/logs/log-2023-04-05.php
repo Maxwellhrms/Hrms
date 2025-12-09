@@ -1,0 +1,34 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-04-05 00:44:27 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-04-05 01:06:50 --> 404 Page Not Found: Adstxt/index
+ERROR - 2023-04-05 01:07:18 --> 404 Page Not Found: Configjson/index
+ERROR - 2023-04-05 01:07:19 --> 404 Page Not Found: Env/index
+ERROR - 2023-04-05 01:07:19 --> 404 Page Not Found: Telescope/requests
+ERROR - 2023-04-05 01:07:20 --> 404 Page Not Found: Infophp/index
+ERROR - 2023-04-05 01:07:20 --> 404 Page Not Found: Git/config
+ERROR - 2023-04-05 01:07:21 --> 404 Page Not Found: Server-status/index
+ERROR - 2023-04-05 02:50:17 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-04-05 03:08:08 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-04-05 05:48:20 --> 404 Page Not Found: Static/js
+ERROR - 2023-04-05 06:55:50 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-04-05 06:55:51 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-04-05 08:50:52 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-04-05 09:30:05 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-04-05 09:32:57 --> 404 Page Not Found: Geoserver/web
+ERROR - 2023-04-05 09:33:41 --> 404 Page Not Found: Git/config
+ERROR - 2023-04-05 10:24:03 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-04-05 10:46:11 --> 404 Page Not Found: Ab2g/index
+ERROR - 2023-04-05 10:46:11 --> 404 Page Not Found: Ab2h/index
+ERROR - 2023-04-05 10:46:13 --> 404 Page Not Found: T4/index
+ERROR - 2023-04-05 10:46:14 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-04-05 13:44:54 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-04-05 15:21:15 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-04-05 16:10:46 --> 404 Page Not Found: Actuator/gateway
+ERROR - 2023-04-05 16:21:48 --> 404 Page Not Found: Owa/index
+ERROR - 2023-04-05 16:21:49 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-04-05 16:22:22 --> 404 Page Not Found: Webfig/index
+ERROR - 2023-04-05 16:22:58 --> 404 Page Not Found: Solr/index
+ERROR - 2023-04-05 16:23:43 --> 404 Page Not Found: Icons/sphere1.png
+ERROR - 2023-04-05 20:52:03 --> 404 Page Not Found: Git/config
+ERROR - 2023-04-05 23:45:57 --> 404 Page Not Found: Faviconico/index

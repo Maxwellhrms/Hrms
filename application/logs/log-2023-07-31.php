@@ -1,0 +1,31 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-07-31 01:27:48 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-31 02:42:33 --> 404 Page Not Found: HNAP1/index
+ERROR - 2023-07-31 05:55:01 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-07-31 05:55:01 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-07-31 06:11:13 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-07-31 06:11:15 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-07-31 06:17:14 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-07-31 06:17:26 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-31 06:47:16 --> 404 Page Not Found: Ab2g/index
+ERROR - 2023-07-31 06:47:18 --> 404 Page Not Found: Ab2h/index
+ERROR - 2023-07-31 09:44:38 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-31 09:44:48 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-31 09:44:56 --> 404 Page Not Found: Manage/account
+ERROR - 2023-07-31 09:45:10 --> 404 Page Not Found: Manage/account
+ERROR - 2023-07-31 09:45:23 --> 404 Page Not Found: Admin/index.html
+ERROR - 2023-07-31 09:45:37 --> 404 Page Not Found: Admin/index.html
+ERROR - 2023-07-31 09:45:49 --> 404 Page Not Found: Indexhtml/index
+ERROR - 2023-07-31 09:46:04 --> 404 Page Not Found: Indexhtml/index
+ERROR - 2023-07-31 09:46:44 --> 404 Page Not Found: Cgi-bin/login.cgi
+ERROR - 2023-07-31 09:46:57 --> 404 Page Not Found: Cgi-bin/login.cgi
+ERROR - 2023-07-31 11:02:30 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-31 12:21:53 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-07-31 12:21:54 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-07-31 15:56:37 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-07-31 16:49:45 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-31 20:11:38 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-07-31 20:11:38 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-07-31 21:41:07 --> 404 Page Not Found: Env/index
+ERROR - 2023-07-31 23:52:35 --> 404 Page Not Found: Robotstxt/index

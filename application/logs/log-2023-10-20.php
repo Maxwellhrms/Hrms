@@ -1,0 +1,36 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-10-20 00:40:32 --> 404 Page Not Found: 400shtml/index
+ERROR - 2023-10-20 04:37:41 --> 404 Page Not Found: ReportServer/index
+ERROR - 2023-10-20 04:54:52 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-10-20 06:44:21 --> 404 Page Not Found: Ecp/Current
+ERROR - 2023-10-20 09:17:31 --> 404 Page Not Found: Env/index
+ERROR - 2023-10-20 11:00:07 --> 404 Page Not Found: Aaa9/index
+ERROR - 2023-10-20 11:00:08 --> 404 Page Not Found: Aab8/index
+ERROR - 2023-10-20 12:09:39 --> 404 Page Not Found: Assets/other
+ERROR - 2023-10-20 12:09:39 --> 404 Page Not Found: _vti_pvt/service.pwd
+ERROR - 2023-10-20 12:09:39 --> 404 Page Not Found: V2/auth
+ERROR - 2023-10-20 12:09:39 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-20 12:09:39 --> 404 Page Not Found: Htaccess/index
+ERROR - 2023-10-20 12:09:39 --> 404 Page Not Found: Schema/index
+ERROR - 2023-10-20 12:09:39 --> 404 Page Not Found: Foobar-debugaspx/index
+ERROR - 2023-10-20 12:09:39 --> 404 Page Not Found: Oauth-credentialsjson/index
+ERROR - 2023-10-20 12:09:39 --> 404 Page Not Found: Service-account-credentialsjson/index
+ERROR - 2023-10-20 12:09:39 --> 404 Page Not Found: Examplehtaccess/index
+ERROR - 2023-10-20 12:09:40 --> 404 Page Not Found: _htaccess/index
+ERROR - 2023-10-20 12:09:40 --> 404 Page Not Found: Samplehtaccess/index
+ERROR - 2023-10-20 12:09:41 --> 404 Page Not Found: Ahtaccess/index
+ERROR - 2023-10-20 12:09:41 --> 404 Page Not Found: Htaccess_for_page_not_found_redirectshtaccess/index
+ERROR - 2023-10-20 13:18:35 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-10-20 13:22:20 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-10-20 14:12:41 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-20 14:40:03 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-20 14:40:16 --> 404 Page Not Found: Sitemapxmlgz/index
+ERROR - 2023-10-20 15:38:01 --> 404 Page Not Found: Sitemapxmlgz/index
+ERROR - 2023-10-20 16:39:16 --> 404 Page Not Found: Wp-content/plugins
+ERROR - 2023-10-20 18:13:21 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-20 18:13:22 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-20 19:11:26 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-20 19:11:26 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-20 19:19:07 --> 404 Page Not Found: Ecp/Current
+ERROR - 2023-10-20 23:32:08 --> 404 Page Not Found: Env/index

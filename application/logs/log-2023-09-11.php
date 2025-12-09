@@ -1,0 +1,35 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-09-11 00:00:09 --> 404 Page Not Found: Env/index
+ERROR - 2023-09-11 05:47:06 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-09-11 05:47:08 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-09-11 06:20:27 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-09-11 06:28:49 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-09-11 08:26:30 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-09-11 08:39:54 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-09-11 10:14:28 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-09-11 10:32:35 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-09-11 12:00:47 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-09-11 12:07:13 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-11 12:07:52 --> 404 Page Not Found: Sitemapxmlgz/index
+ERROR - 2023-09-11 12:11:42 --> 404 Page Not Found: Geoserver/web
+ERROR - 2023-09-11 12:12:11 --> 404 Page Not Found: Git/config
+ERROR - 2023-09-11 12:15:53 --> 404 Page Not Found: Sitemap_indexxml/index
+ERROR - 2023-09-11 13:23:10 --> 404 Page Not Found: Indexhtml/index
+ERROR - 2023-09-11 13:23:10 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-11 13:23:24 --> 404 Page Not Found: Indexhtml/index
+ERROR - 2023-09-11 13:23:24 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-11 14:21:52 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-09-11 15:13:59 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-09-11 15:14:03 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-09-11 16:32:47 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-11 18:21:27 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-09-11 19:02:10 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-09-11 19:11:49 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-11 19:13:38 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-11 19:34:29 --> 404 Page Not Found: Version/index
+ERROR - 2023-09-11 20:28:35 --> 404 Page Not Found: Env/index
+ERROR - 2023-09-11 20:28:35 --> 404 Page Not Found: 400shtml/index
+ERROR - 2023-09-11 20:30:55 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-11 23:11:14 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-11 23:11:16 --> 404 Page Not Found: Faviconico/index

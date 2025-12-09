@@ -1,0 +1,37 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-07-07 00:35:09 --> 404 Page Not Found: Geoserver/index
+ERROR - 2023-07-07 02:30:12 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-07 02:42:09 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-07-07 02:54:31 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-07-07 02:57:30 --> 404 Page Not Found: Ecp/Current
+ERROR - 2023-07-07 02:59:41 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-07-07 03:45:20 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-07-07 05:32:09 --> 404 Page Not Found: Git/config
+ERROR - 2023-07-07 06:06:05 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-07-07 07:56:04 --> 404 Page Not Found: Apple-touch-icon-120x120-precomposedpng/index
+ERROR - 2023-07-07 07:56:04 --> 404 Page Not Found: Apple-touch-icon-120x120png/index
+ERROR - 2023-07-07 07:56:04 --> 404 Page Not Found: Apple-touch-icon-precomposedpng/index
+ERROR - 2023-07-07 07:56:04 --> 404 Page Not Found: Apple-touch-iconpng/index
+ERROR - 2023-07-07 09:26:30 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-07-07 09:26:30 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-07-07 09:41:40 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-07 10:05:52 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-07 10:30:09 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-07-07 11:50:47 --> 404 Page Not Found: Export/daily_attendance_repor%20t
+ERROR - 2023-07-07 11:50:47 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-07 11:52:49 --> 404 Page Not Found: Env/index
+ERROR - 2023-07-07 11:57:14 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-07 12:01:19 --> 404 Page Not Found: Env/index
+ERROR - 2023-07-07 16:16:39 --> 404 Page Not Found: Autodiscover/Autodiscover.xml
+ERROR - 2023-07-07 17:00:31 --> 404 Page Not Found: Vendor/phpunit
+ERROR - 2023-07-07 18:45:32 --> 404 Page Not Found: Env/index
+ERROR - 2023-07-07 18:56:40 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-07 18:57:55 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-07 18:58:43 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-07-07 19:58:44 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-07-07 20:38:53 --> 404 Page Not Found: Ab2g/index
+ERROR - 2023-07-07 20:38:54 --> 404 Page Not Found: Ab2h/index
+ERROR - 2023-07-07 20:49:22 --> 404 Page Not Found: Actuator/gateway
+ERROR - 2023-07-07 23:06:41 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-07-07 23:06:41 --> 404 Page Not Found: Robotstxt/index

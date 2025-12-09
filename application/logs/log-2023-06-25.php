@@ -1,0 +1,32 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-06-25 01:07:37 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-06-25 02:31:33 --> 404 Page Not Found: Env/index
+ERROR - 2023-06-25 03:07:39 --> 404 Page Not Found: Ab2g/index
+ERROR - 2023-06-25 03:07:40 --> 404 Page Not Found: Ab2h/index
+ERROR - 2023-06-25 04:59:26 --> 404 Page Not Found: Git/config
+ERROR - 2023-06-25 04:59:45 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-06-25 05:03:47 --> 404 Page Not Found: Ecp/Current
+ERROR - 2023-06-25 05:06:26 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-06-25 06:19:23 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-06-25 06:59:28 --> 404 Page Not Found: HNAP1/index
+ERROR - 2023-06-25 07:32:08 --> 404 Page Not Found: Dns-query/index
+ERROR - 2023-06-25 09:57:00 --> 404 Page Not Found: Autodiscover/Autodiscover.xml
+ERROR - 2023-06-25 10:55:13 --> 404 Page Not Found: Autodiscover/autodiscover.json
+ERROR - 2023-06-25 11:52:51 --> 404 Page Not Found: Console/index
+ERROR - 2023-06-25 12:33:41 --> 404 Page Not Found: _ignition/execute-solution
+ERROR - 2023-06-25 13:40:22 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-06-25 14:17:12 --> 404 Page Not Found: Env/index
+ERROR - 2023-06-25 15:04:56 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-06-25 15:26:45 --> 404 Page Not Found: Git/config
+ERROR - 2023-06-25 15:54:29 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-06-25 16:05:07 --> 404 Page Not Found: Cgi-bin/.%2e
+ERROR - 2023-06-25 17:29:12 --> 404 Page Not Found: Actuator/gateway
+ERROR - 2023-06-25 19:50:35 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-06-25 19:57:17 --> 404 Page Not Found: KWcW/index
+ERROR - 2023-06-25 19:57:18 --> 404 Page Not Found: ATo9/index
+ERROR - 2023-06-25 19:57:19 --> 404 Page Not Found: Aab8/index
+ERROR - 2023-06-25 19:57:19 --> 404 Page Not Found: Jquery-331slimminjs/index
+ERROR - 2023-06-25 19:57:20 --> 404 Page Not Found: Aab9/index
+ERROR - 2023-06-25 19:57:21 --> 404 Page Not Found: Jquery-332slimminjs/index
+ERROR - 2023-06-25 22:34:45 --> 404 Page Not Found: Faviconico/index

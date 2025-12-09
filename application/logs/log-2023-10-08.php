@@ -1,0 +1,32 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-10-08 03:15:38 --> 404 Page Not Found: Users/sign_in
+ERROR - 2023-10-08 03:56:46 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-10-08 04:31:52 --> 404 Page Not Found: Wp-loginphp/index
+ERROR - 2023-10-08 05:06:31 --> 404 Page Not Found: Ecp/Current
+ERROR - 2023-10-08 06:13:35 --> 404 Page Not Found: Wsman/index
+ERROR - 2023-10-08 06:13:35 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-10-08 06:13:36 --> 404 Page Not Found: Dana-na/nc
+ERROR - 2023-10-08 06:13:36 --> 404 Page Not Found: Dana-cached/hc
+ERROR - 2023-10-08 06:13:36 --> 404 Page Not Found: Ecp/Current
+ERROR - 2023-10-08 06:13:36 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-10-08 06:13:37 --> 404 Page Not Found: RDWeb/index
+ERROR - 2023-10-08 06:13:37 --> 404 Page Not Found: Remote/index
+ERROR - 2023-10-08 06:13:40 --> 404 Page Not Found: Auth1html/index
+ERROR - 2023-10-08 06:13:40 --> 404 Page Not Found: Api/sonicos
+ERROR - 2023-10-08 06:13:40 --> 404 Page Not Found: SslvpnLoginhtml/index
+ERROR - 2023-10-08 06:13:40 --> 404 Page Not Found: Authhtml/index
+ERROR - 2023-10-08 06:13:40 --> 404 Page Not Found: Api/sonicos
+ERROR - 2023-10-08 06:19:10 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-10-08 07:46:19 --> 404 Page Not Found: Pagenotfoundhtml/index
+ERROR - 2023-10-08 08:15:32 --> 404 Page Not Found: Login/index
+ERROR - 2023-10-08 08:55:05 --> 404 Page Not Found: 400shtml/index
+ERROR - 2023-10-08 09:05:34 --> 404 Page Not Found: Pagenotfoundhtml/index
+ERROR - 2023-10-08 11:07:12 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-08 11:50:39 --> 404 Page Not Found: Env/index
+ERROR - 2023-10-08 13:10:20 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-08 17:07:36 --> 404 Page Not Found: Env/index
+ERROR - 2023-10-08 17:19:32 --> 404 Page Not Found: Owa/auth
+ERROR - 2023-10-08 18:40:54 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-08 21:09:15 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-10-08 22:25:19 --> 404 Page Not Found: Autodiscover/autodiscover.json

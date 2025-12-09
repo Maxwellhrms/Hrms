@@ -1,0 +1,36 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2023-09-28 01:15:37 --> 404 Page Not Found: Git/config
+ERROR - 2023-09-28 02:32:33 --> 404 Page Not Found: Env/index
+ERROR - 2023-09-28 03:26:40 --> 404 Page Not Found: Public/home
+ERROR - 2023-09-28 03:26:42 --> 404 Page Not Found: Static/admin
+ERROR - 2023-09-28 06:18:42 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-09-28 06:20:52 --> 404 Page Not Found: Ecp/Current
+ERROR - 2023-09-28 08:24:44 --> 404 Page Not Found: ReportServer/index
+ERROR - 2023-09-28 09:51:03 --> 404 Page Not Found: Chs/js
+ERROR - 2023-09-28 09:51:03 --> 404 Page Not Found: Public/stylesheets
+ERROR - 2023-09-28 09:51:03 --> 404 Page Not Found: Ips/index.php
+ERROR - 2023-09-28 09:51:04 --> 404 Page Not Found: Stylesheets/theme.css
+ERROR - 2023-09-28 09:51:04 --> 404 Page Not Found: Login/stylesheets
+ERROR - 2023-09-28 09:51:05 --> 404 Page Not Found: Customer/js
+ERROR - 2023-09-28 10:04:48 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-09-28 10:43:54 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2023-09-28 11:33:01 --> 404 Page Not Found: Env/index
+ERROR - 2023-09-28 11:38:38 --> 404 Page Not Found: Vendor/phpunit
+ERROR - 2023-09-28 11:55:32 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-28 11:59:19 --> 404 Page Not Found: Geoserver/web
+ERROR - 2023-09-28 11:59:34 --> 404 Page Not Found: Env/index
+ERROR - 2023-09-28 11:59:54 --> 404 Page Not Found: Git/config
+ERROR - 2023-09-28 13:35:47 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-09-28 14:45:55 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-28 15:07:42 --> 404 Page Not Found: Faviconico/index
+ERROR - 2023-09-28 15:36:34 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-09-28 15:36:35 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-09-28 16:14:55 --> 404 Page Not Found: Sitemaptxt/index
+ERROR - 2023-09-28 16:15:16 --> 404 Page Not Found: Api/v2
+ERROR - 2023-09-28 16:15:18 --> 404 Page Not Found: Api/v2
+ERROR - 2023-09-28 16:22:38 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-09-28 19:42:15 --> 404 Page Not Found: Git/config
+ERROR - 2023-09-28 19:50:52 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2023-09-28 22:36:20 --> 404 Page Not Found: Version/index
+ERROR - 2023-09-28 22:44:23 --> 404 Page Not Found: Autodiscove/index
