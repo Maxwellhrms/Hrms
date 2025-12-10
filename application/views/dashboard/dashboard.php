@@ -74,7 +74,7 @@
 						<div class="col-md-12 col-lg-6 col-xl-4 d-flex">
 							<div class="card flex-fill">
 								<div class="card-body innercontent">
-									<h4 class="card-title"> Developer Employees Summary <a href="<?php echo base_url().'dashboard/exporttoexcel?mdfn=employeescount_summary&name=employeescount_summary' ?>" style="float:right"><i class="far fa-file-excel" aria-hidden="true"></i></a></h4>
+									<h4 class="card-title">Employees Summary <a href="<?php echo base_url().'dashboard/exporttoexcel?mdfn=employeescount_summary&name=employeescount_summary' ?>" style="float:right"><i class="far fa-file-excel" aria-hidden="true"></i></a></h4>
 									<div class="statistics">
 										<div class="row">
 											<div class="col-md-4 col-4 text-center">
