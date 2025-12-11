@@ -58,6 +58,7 @@ if ((!empty($first_time) && !empty($every_days) )&&($first_time == 0 || $first_t
 			// CHECK POLICY COMPLETION
 			$this->load->model('Policy_model');
 			$pending = $this->Policy_model->pendingPolicies($user_id);
+			// echo $pending;exit();
 
 			if ($pending > 0) {
 				// redirect to policy page if not completed
@@ -665,6 +666,16 @@ $userdata = $this->input->post();
 	}
 	public function changepasswordsetup(){
 		//$this->checkissession();
+
+		/* CHECK IF ALL POLICIES COMPLETED */
+		$emp_id = $this->session->userdata('session_loginperson_id');
+		$pending = $this->Policy_model->pendingPolicies($emp_id);
+		if ($pending > 0) {
+			//redirect('userdashboard');
+			redirect(base_url() . 'userpolicies');
+			return;
+		}
+
 		$page = 2;
         $this->header($page);
         $data['controller'] = $this;
@@ -849,12 +860,12 @@ $userdata = $this->input->post();
 
 	public function UserPolicies()
 	{
-		/* 1️⃣ LOGIN CHECK */
+		/* LOGIN CHECK */
 		if (!$this->session->userdata('is_session_active')) {
 			return $this->load->view('logins/login');
 		}
 
-		/* 2️⃣ EMPLOYEE CHECK */
+		/* EMPLOYEE CHECK */
 		$emp_id = $this->session->userdata('session_loginperson_id');
 		if (!$emp_id) {
 			//ssredirect('login');
@@ -862,18 +873,18 @@ $userdata = $this->input->post();
 			return;
 		}
 
-		/* 3️⃣ LOAD DATA */
+		/* LOAD DATA */
 		$this->load->model('Policy_model');
 
 		$data['UsersData']   = $this->Policy_model->get_all_policies();
 		$data['acknowledged'] = $this->Policy_model->get_acknowledged_policy_ids($emp_id);
 		$data['acknowledged'] = array_column(
 			$data['acknowledged'],
-			'policy_id'
+			'policy_id_fk'
 		);
 
 
-		/* 4️⃣ CHECK IF ALL POLICIES COMPLETED */
+		/* CHECK IF ALL POLICIES COMPLETED */
 		$pending = $this->Policy_model->pendingPolicies($emp_id);
 		if ($pending === 0) {
 			//redirect('userdashboard');
@@ -881,7 +892,7 @@ $userdata = $this->input->post();
 			return;
 		}
 
-		/* 5️⃣ LOAD POLICY PAGE */
+		/* LOAD POLICY PAGE */
 		$page = 2;
 		$this->PolicyHeader($page);
 
@@ -891,7 +902,52 @@ $userdata = $this->input->post();
 		$this->PolicyFooter($page);
 	}
 
+	public function policies()
+	{
+		/* LOGIN CHECK */
+		if (!$this->session->userdata('is_session_active')) {
+			return $this->load->view('logins/login');
+		}
 
+		/*  EMPLOYEE CHECK */
+		$emp_id = $this->session->userdata('session_loginperson_id');
+		if (!$emp_id) {
+			//ssredirect('login');
+			redirect(base_url() . 'login');
+			return;
+		}
+
+		/* LOAD DATA */
+		$this->load->model('Policy_model');
+
+		$data['UsersData'] = $this->Policy_model->get_all_policies();
+		$data['acknowledged'] = $this->Policy_model->get_acknowledged_policy_ids($emp_id);
+
+		//echo "<pre>";print_r($data['acknowledged']);exit();
+
+		$data['acknowledged'] = array_column(
+			$data['acknowledged'],
+			'policy_id_fk'
+		);
+
+
+		/* CHECK IF ALL POLICIES COMPLETED */
+		$pending = $this->Policy_model->pendingPolicies($emp_id);
+		if ($pending > 0) {
+			//redirect('userdashboard');
+			redirect(base_url() . 'userpolicies');
+			return;
+		}
+
+		/* LOAD POLICY PAGE */
+		$page = 2;
+		$this->header($page);
+
+		$data['controller'] = $this;
+		$this->load->view('policy/user_policy', $data);
+
+		$this->footer($page);
+	}
 
 	public function acknowledge()
 	{
@@ -903,26 +959,26 @@ $userdata = $this->input->post();
 		$policy_id = $this->input->post('policy_id');
 
 		if (!$emp_id || !$policy_id) {
-			echo json_encode(['status'=>'error']);
+			echo json_encode(array('status'=>'error'));
 			return;
 		}
 
 		if ($this->Policy_model->is_already_acknowledged($emp_id, $policy_id)) {
-			echo json_encode([
+			echo json_encode(array(
 				'status' => 'already_acknowledged'
-			]);
+			));
 			return;
 		}
 
-		$this->Policy_model->save_acknowledgment([
+		$this->Policy_model->save_acknowledgment(array(
 			'mx_emp_id_fk' => $emp_id,
 			'policy_id_fk' => $policy_id,
 			'created' => date('Y-m-d H:i:s')
-		]);
+		));
 
-		echo json_encode([
+		echo json_encode(array(
 			'status' => 'success'
-		]);
+		));
 	}
 
 }

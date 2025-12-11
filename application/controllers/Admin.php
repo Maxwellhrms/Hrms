@@ -2830,4 +2830,69 @@ public function getemprequesttype(){
         $this->load->view('Salaries/misc_income_deductions', $data);
         $this->footer();
     }
+
+    public function UserPolicies() {
+        $this->verifylogin();
+        $this->header();
+        $this->load->model('Policies_model');
+
+        $data['policies'] = $this->Policies_model->getAll();
+        $this->load->view('policies/index', $data);
+        $this->footer();
+    }
+
+    public function AddPolicy()
+    {
+        $this->verifylogin();
+        $this->load->model('Policies_model');
+        if ($_POST) {
+            $data = array(
+                            "title"       => $this->input->post("title"),
+                            "description" => $this->input->post("description", false),
+                            "status"      => $this->input->post("status"),
+                            "created"     => date("Y-m-d H:i:s"),
+                            "updated"     => date("Y-m-d H:i:s")
+                    );
+            $this->Policies_model->insert($data);
+            //redirect("UserPolicies");
+            redirect(base_url() . 'admin/userpolicies');
+        }
+        $this->header();
+        $this->load->view("policies/form");
+        $this->footer();
+    }
+
+    public function EditPolicy($id)
+    {
+        $this->verifylogin();
+        $this->load->model('Policies_model');
+        $data['policy'] = $this->Policies_model->getById($id);
+
+        if ($_POST) {
+
+            $update = array(
+                "title"       => $this->input->post("title"),
+                "description" => $this->input->post("description", false),
+                "status"      => $this->input->post("status"),
+                "updated"     => date("Y-m-d H:i:s"),
+            );
+
+            $this->Policies_model->updateData($id, $update);
+            // redirect("UserPolicies");
+            redirect(base_url() . 'admin/userpolicies');
+        }
+        $this->header();
+        $this->load->view("policies/form", $data);
+        $this->footer();
+
+    }
+
+    public function DeletePolicy($id)
+    {
+        $this->verifylogin();
+        $this->load->model('Policies_model');
+        $this->Policies_model->delete($id);
+        //redirect("UserPolicies");
+        redirect(base_url() . 'admin/userpolicies');
+    }
 }

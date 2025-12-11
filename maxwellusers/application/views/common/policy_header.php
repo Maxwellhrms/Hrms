@@ -240,7 +240,7 @@
 				<div class="dropdown-menu">
 
 
-					<a class="dropdown-item" href="<?php echo base_url() ?>changepasswordsetup">Change Password</a>
+					<!--<a class="dropdown-item" href="<?php /*echo base_url() */?>changepasswordsetup">Change Password</a>-->
 					<a class="dropdown-item" href="<?php echo base_url() ?>logout">Logout</a>
 				</div>
 			</li>

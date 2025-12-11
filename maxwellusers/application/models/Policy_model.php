@@ -20,11 +20,12 @@ class Policy_model extends CI_Model {
 	 */
 	public function get_acknowledged_policy_ids($emp_id)
 	{
-		return  $this->db
+		$sql =  $this->db
 			->select('policy_id_fk')
 			->where('mx_emp_id_fk', $emp_id)
-			->get('maxwell_employees_policy_activity')
-			->result_array();
+			->get('maxwell_employees_policy_activity');
+		// echo $this->db->last_query();exit();
+			return $sql->result_array();
 
 		//return array_column($rows, 'policy_id_fk');
 	}
@@ -62,6 +63,8 @@ class Policy_model extends CI_Model {
 		$acknowledged = $this->db
 			->where('mx_emp_id_fk', $emp_id)
 			->count_all_results('maxwell_employees_policy_activity');
+
+		//echo $total."-----".$acknowledged;exit();
 
 		return max(0, $total - $acknowledged);
 	}
