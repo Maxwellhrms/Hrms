@@ -37,4 +37,84 @@ class Policies_model extends CI_Model {
         return $this->db->where("id", $id)->delete($this->table);
     }
 
+    public function get_total_active_policies()
+    {
+        return $this->db->where('status', 1)->count_all_results('maxwell_employees_policies');
+    }
+
+    public function get_acknowledgment_report()
+    {
+        // 1. Get Count of ALL Active Policies (The Target)
+        $total_policies = $this->get_total_active_policies();
+
+        // 2. Fetch Users with their Acknowledgment Stats
+        $this->db->select('
+            u.mxemp_emp_id,
+            u.mxemp_emp_fname,
+            u.mxemp_emp_lname,
+            u.mxemp_emp_email_id,
+            u.mxemp_emp_phone_no,
+            COUNT(DISTINCT a.policy_id_fk) as ack_count,
+            MAX(a.created) as last_ack_date
+        ');
+        $this->db->from('maxwell_employees_info u');
+        $this->db->join('maxwell_employees_policy_activity a', 'u.mxemp_emp_id = a.mx_emp_id_fk', 'left');
+        $this->db->group_by('u.mxemp_emp_id');
+
+        $query = $this->db->get();
+        $result = $query->result();
+
+        // 3. Post-process to calculate Status and Pending count
+        foreach ($result as $row) {
+            $row->total_policies = $total_policies;
+            $row->pending_count  = max(0, $total_policies - $row->ack_count);
+
+            // Determine Status for Filtering
+            if ($row->total_policies > 0 && $row->ack_count >= $row->total_policies) {
+                $row->status_label = 'Completed';
+            } elseif ($row->ack_count == 0 && $row->total_policies > 0) {
+                $row->status_label = 'Not Started';
+            } else {
+                $row->status_label = 'Pending';
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Fetches the status of all active policies for a specific employee.
+     */
+    public function get_employee_policy_breakdown($emp_id)
+    {
+        $active_policies_table = 'maxwell_employees_policies';
+        $activity_table = 'maxwell_employees_policy_activity';
+
+        // 1. Get all active policies (Master List)
+        $this->db->select('id, title');
+        $this->db->where('status', 1);
+        $master_policies = $this->db->get($active_policies_table)->result_array();
+
+        // 2. Get all policies acknowledged by the employee
+        $this->db->select('policy_id_fk');
+        $this->db->where('mx_emp_id_fk', $emp_id);
+        $acknowledged_ids = $this->db->get($activity_table)->result_array();
+
+        // Convert array of objects to a simpler array for quick lookup
+        $acknowledged_set = array_column($acknowledged_ids, 'policy_id_fk');
+
+        $report = [];
+        foreach ($master_policies as $policy) {
+            $policy_id = $policy['id'];
+            $is_acknowledged = in_array($policy_id, $acknowledged_set);
+
+            $report[] = array(
+                'policy_name' => $policy['title'],
+                'status'      => $is_acknowledged ? 'Acknowledged' : 'Pending',
+                'status_class' => $is_acknowledged ? 'text-success' : 'text-danger'
+            );
+        }
+
+        return $report;
+    }
 }

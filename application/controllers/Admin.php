@@ -2895,4 +2895,34 @@ public function getemprequesttype(){
         //redirect("UserPolicies");
         redirect(base_url() . 'admin/userpolicies');
     }
+
+    public function userPolicyReport()
+    {
+        $this->verifylogin();
+        $this->load->model('Policies_model');
+        $data['report'] = $this->Policies_model->get_acknowledgment_report();
+        $this->header();
+        $this->load->view('policies/report_view', $data);
+        $this->footer();
+    }
+
+    public function get_user_policies_ajax()
+    {
+        $this->load->model('Policies_model');
+        $emp_id = $this->input->post('emp_id');
+
+        if (!$emp_id) {
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array('success' => false, 'error' => 'Employee ID is required.')));
+        }
+
+        $data = $this->Policies_model->get_employee_policy_breakdown($emp_id);
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode(array('success' => true, 'policies' => $data)));
+    }
+
+
 }
