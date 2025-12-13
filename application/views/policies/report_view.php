@@ -6,19 +6,31 @@
     .custom-badge { padding: 5px 10px; border-radius: 4px; font-size: 0.85em; font-weight: 600; }
     .view-policy-details { cursor: pointer; text-decoration: none; }
     .view-policy-details:hover { text-decoration: underline; }
-    .container { margin-left: 250px; margin-top: 180px !important;}
+
+    /* Style for DataTables Buttons and layout requested by user image */
+    div.dt-buttons {
+        display: inline-block; /* Aligns buttons next to the length control */
+        margin-left: 10px;
+    }
+    .dataTables_filter {
+        text-align: right; /* Ensures search is aligned right */
+    }
 </style>
-<div class="container mt-4">
+<div class="page-wrapper" style="min-height: 358px;">
+    <div class="content container-fluid mt-4">
+        <div class="page-header">
 
-    <h2>Employee Policy Acknowledgment Report</h2>
-
-    <div class="filter-box">
+            <h2>Employee Policy Acknowledgment Report</h2>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="filter-box">
         <div class="row align-items-center">
             <div class="col-md-3">
                 <strong>Filter by Status:</strong>
             </div>
             <div class="col-md-4">
-                <select id="statusFilter" class="form-select">
+                <select id="statusFilter" class="form-select form-control select2">
                     <option value="">Show All</option>
                     <option value="Completed">Fully Acknowledged</option>
                     <option value="Pending">Pending / In Progress</option>
@@ -27,6 +39,8 @@
             </div>
         </div>
     </div>
+            </div>
+        </div>
 
     <table id="policyTable" class="table table-striped table-bordered" style="width:100%">
         <thead>
@@ -84,7 +98,7 @@
         <?php endforeach; ?>
         </tbody>
     </table>
-
+    </div>
 </div>
 
 <div class="modal fade" id="policyDetailModal" tabindex="-1" aria-labelledby="policyDetailModalLabel" aria-hidden="true">
@@ -92,7 +106,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="policyDetailModalLabel">Policy Status for <span id="employeeName"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"> X </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
 
@@ -119,24 +133,60 @@
 <script>
     $(document).ready(function() {
 
-        // 1. Initialize DataTable
+        // 1. Initialize DataTable with Buttons Configuration
         var table = $('#policyTable').DataTable({
-            "order": [[ 2, "asc" ]], // Default sort by Progress (Ack/Total)
+            "order": [[ 2, "asc" ]],
             "pageLength": 25,
             "language": {
                 "search": "Search Employee:"
-            }
+            },
+            // CUSTOM DOM CONFIGURATION to place buttons next to length control, and search to the right
+            dom:
+                "<'row'<'col-sm-12 col-md-6'lB><'col-sm-12 col-md-6'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+
+            // EXPORT BUTTONS CONFIGURATION
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Excel',
+                    title: 'Policy Acknowledgment Report',
+                    className: 'btn btn-default buttons-excel buttons-html5', // btn-sm for small buttons, me-1 for spacing
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'csvHtml5',
+                    text: 'CSV',
+                    title: 'Policy Acknowledgment Report',
+                    className: 'btn btn-default buttons-excel buttons-html5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: 'PDF',
+                    title: 'Policy Acknowledgment Report',
+                    className: 'btn btn-default buttons-excel buttons-html5',
+                    orientation: 'landscape',
+                    pageSize: 'LEGAL',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+            ]
         });
 
         // 2. Custom Filter Logic
         $('#statusFilter').on('change', function(){
             var filterValue = $(this).val();
-
-            // Column 4 is the Status column
             table.column(4).search(filterValue).draw();
         });
 
-        // 3. Handle click on employee name (Detail Modal)
+        // 3. Handle click on employee name (Detail Modal - AJAX)
         $('#policyTable').on('click', '.view-policy-details', function(e) {
             e.preventDefault();
 
@@ -154,7 +204,7 @@
 
             // AJAX Call to Controller
             $.ajax({
-                url: '<?= site_url('admin/get_user_policies_ajax') ?>',
+                url: '<?= site_url('policyreport/get_user_policies_ajax') ?>',
                 type: 'POST',
                 data: { emp_id: empId },
                 dataType: 'json',
@@ -176,7 +226,7 @@
                         `;
                         });
                         $('#policyListBody').html(html);
-                        $('#policyBreakdownTable').show(); // Show the table after data is loaded
+                        $('#policyBreakdownTable').show();
                     } else {
                         $('#policyListBody').html('<tr><td colspan="2" class="text-center text-muted">Error loading policy details or user has no data.</td></tr>');
                         $('#policyBreakdownTable').show();
@@ -192,6 +242,3 @@
 
     });
 </script>
-
-</body>
-</html>
