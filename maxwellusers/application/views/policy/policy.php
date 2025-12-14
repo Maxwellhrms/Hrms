@@ -4,110 +4,301 @@ $acknowledgedIds = isset($acknowledged) ? $acknowledged : [];
 ?>
 
 <style>
-	.policy-shell{max-width:1400px;margin:40px auto;padding:0 32px;height:calc(100vh - 100px);}
-	.policy-card{height:100%;display:flex;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 12px 36px rgba(0,0,0,.06);}
+	html, body {
+		height: 100%;
+		margin: 0;
+		padding: 0;
+		background-color: #f4f6f9;
+		overflow-y: hidden;
+	}
 
-	/* LEFT PANEL */
-	.policy-nav{width:34%;padding:28px;background:#fafbfd;border-right:1px solid #edf0f4;display:flex;flex-direction:column;}
-	.policy-nav h4{margin-bottom:6px;font-weight:700;}
-	.sub-text{font-size:13px;color:#6b7280;margin-bottom:20px;}
-	.policy-list{flex:1;overflow-y:auto;padding-right:8px;min-height:0;}
+	.policy-shell{
+		max-width:1400px;
+		margin:30px auto;
+		padding:0 16px;
+		height:calc(100vh - 60px);
+		overflow:hidden;
+	}
 
-	.policy-btn{width:100%;padding:14px 18px;border:none;border-radius:999px;background:#eef5ff;color:#113a73;font-weight:600;margin-bottom:14px;text-align:left;cursor:pointer; transition: all 0.2s;}
-	.policy-btn:hover { background: #dce9fc; }
+	.policy-card{
+		height:100%;
+		background:#fff;
+		border-radius:16px;
+		box-shadow:0 12px 36px rgba(0,0,0,.06);
+		display:flex; /* Default: Horizontal layout */
+		overflow:hidden;
+	}
 
-	/* Active State */
+	.policy-nav{
+		width: 30%;
+		background:#fafbfd;
+		border-right:1px solid #edf0f4;
+		padding:24px;
+		display:flex;
+		flex-direction:column;
+		height:100%;
+		flex-shrink:0;
+		overflow:hidden;
+	}
+	.policy-list{
+		flex:1;
+		overflow-y:auto;
+		padding-right:6px;
+	}
+	.policy-btn{
+		width:100%;
+		padding:14px 18px;
+		border:none;
+		border-radius:999px;
+		background:#eef5ff;
+		color:#113a73;
+		font-weight:600;
+		margin-bottom:12px;
+		text-align:left;
+		cursor:pointer;
+		transition:.2s;
+	}
+	.policy-btn:hover{background:#dce9fc;}
 	.policy-btn.active{background:#ff6b6b;color:#fff;}
-
-	/* Acknowledged State - REMOVED pointer-events:none so they remain clickable */
 	.policy-btn.acknowledged{background:#e6f9ee;color:#1f7a3f;}
-	.policy-btn.acknowledged.active{background:#1f7a3f;color:#fff;} /* Dark green if active & ack */
+	.policy-btn.acknowledged.active{background:#1f7a3f;color:#fff;}
 
-	/* RIGHT PANEL */
-	.policy-view{width:66%;padding:32px 44px;display:flex;flex-direction:column;height:100%;overflow:hidden;}
+	.policy-view{
+		width: 70%;
+		display:flex;
+		flex-direction:column;
+		height:100%;
+		padding:28px 34px;
+		overflow:hidden;
+	}
+
 	.policy-title{font-size:24px;font-weight:700;}
-	.progress-wrap{margin:18px 0 26px;}
-	.progress-bar{height:8px;background:#e6e8ec;border-radius:8px;overflow:hidden;}
-	.progress-fill{height:100%;background:#ff6b6b;width:0%;transition:width .4s ease;}
-	.progress-text{margin-top:6px;font-size:13px;color:#6b7280;}
-	.policy-content{flex:1;overflow-y:auto;padding-right:12px;line-height:1.7;}
 
-	.policy-footer{position:sticky;bottom:0;background:#fff;padding:16px 0;border-top:1px solid #edf0f4;display:flex;justify-content:space-between;align-items:center;min-height: 80px;}
-	.policy-footer button{background:#ff6b6b;border:none;color:#fff;padding:10px 22px;border-radius:999px;font-weight:700;cursor:pointer;}
-	.policy-footer button:disabled{background:#f3a5a5;cursor:not-allowed;}
+	:root {
+		--policy-footer-height: 80px;
+		--policy-footer-padding: 14px;
+	}
 
-	.success-badge{display:none;background:#e9fff1;color:#1f7a3f;font-size:13px;padding:6px 10px;border-radius:6px;margin-left:12px;}
+	.policy-content{
+		flex:1;
+		overflow-y:auto;
+		padding-right:10px;
+		line-height:1.7;
+		min-height: 0;
+		padding-bottom: calc(var(--policy-footer-height) + var(--policy-footer-padding));
+	}
+
+	.policy-footer{
+		flex-shrink:0;
+		position: sticky;
+		bottom: 0;
+
+		border-top:1px solid #edf0f4;
+		padding-top: var(--policy-footer-padding);
+		padding-bottom: var(--policy-footer-padding);
+		background: #fff;
+		margin-left: -34px;
+		margin-right: -34px;
+		padding-left: 34px;
+		padding-right: 34px;
+
+		min-height: calc(var(--policy-footer-height) - (var(--policy-footer-padding) * 2));
+
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+	}
+
+	.policy-footer button{
+		background:#ff6b6b;
+		border:none;
+		color:#fff;
+		padding:10px 22px;
+		border-radius:999px;
+		font-weight:700;
+		transition: background 0.2s;
+	}
+	.policy-footer button:disabled{background:#f3a5a5;}
+
+	.success-badge{
+		display:none;
+		background:#e9fff1;
+		color:#1f7a3f;
+		padding:6px 10px;
+		border-radius:6px;
+		font-size:13px;
+		font-weight:600;
+	}
+
+
+	@media(max-width:991px){
+		html, body {
+			overflow-y: auto;
+		}
+		.policy-shell{
+			height:100dvh;
+			margin:0;
+			padding:0;
+			min-height: 100dvh;
+		}
+		.policy-card{
+			height:100%;
+			border-radius:0;
+			box-shadow:none;
+			flex-direction:column;
+		}
+
+		.policy-nav{
+			width:100%;
+			max-height:25vh;
+			padding:15px;
+			border-right:none;
+			border-bottom:1px solid #edf0f4;
+			flex-shrink:0;
+		}
+		.policy-nav h4{font-size:18px;}
+		.policy-list{
+			max-height:20vh;
+			padding-right:0;
+		}
+		.policy-btn{
+			padding:10px 14px;
+			font-size:14px;
+		}
+
+		.policy-view{
+			width:100%;
+			flex:1;
+			padding:16px;
+			min-height:0;
+		}
+		.policy-title{font-size:20px;}
+
+		.policy-footer {
+			flex-direction: column;
+
+			margin-left: -16px;
+			margin-right: -16px;
+			padding-left: 16px;
+			padding-right: 16px;
+
+			padding-top: 10px;
+			padding-bottom: 10px;
+			min-height: 200px !important;
+		}
+
+		.policy-content {
+			padding-bottom: calc(var(--policy-footer-height) - 80px);
+			max-height: 35%;
+		}
+
+		#actionArea {
+			flex-direction: column;
+			align-items: center !important;
+			width: 100%;
+			gap: 10px;
+		}
+
+		#actionArea > label {
+			order: 2;
+		}
+
+		#actionArea > div {
+			order: 1;
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			gap: 10px;
+		}
+
+		#ackBtn {
+			width: 100%;
+		}
+
+		.success-badge {
+			width: 100%;
+			text-align: center;
+		}
+	}
 </style>
 
-<div class="policy-shell">
+<div class="policy-shell container-fluid">
 	<div class="policy-card">
 
 		<div class="policy-nav">
 			<h4>Employee Policies</h4>
-			<div class="sub-text">Read and acknowledge each policy</div>
+			<div class="text-muted mb-3 small">Read and acknowledge each policy</div>
 
 			<div class="policy-list">
 				<?php foreach($UsersData as $i=>$p):
-					$isAck = in_array($p->id, $acknowledgedIds);
+					$isAck = in_array($p->id,$acknowledgedIds);
+					$btnClass = $isAck ? 'acknowledged' : '';
 					?>
 					<button
-							class="policy-btn <?= $isAck ? 'acknowledged' : '' ?>"
+							class="policy-btn <?= $btnClass ?>"
 							data-index="<?= $i ?>"
 							data-id="<?= $p->id ?>"
-							data-title="<?= htmlspecialchars($p->title, ENT_QUOTES) ?>"
-							data-content="<?= htmlspecialchars($p->description, ENT_QUOTES) ?>"
+							data-title="<?= htmlspecialchars($p->title,ENT_QUOTES) ?>"
+							data-content="<?= htmlspecialchars($p->description,ENT_QUOTES) ?>"
 					>
-						<?= $isAck ? '✓ ' : '' ?><?= htmlspecialchars($p->title) ?>
+						<span style="margin-right:6px;"><?= $isAck ? '✓ ' : '○ ' ?></span><?= htmlspecialchars($p->title) ?>
 					</button>
-				<?php endforeach; ?>
+				<?php endforeach;?>
 			</div>
 		</div>
 
 		<div class="policy-view">
 
-			<div class="policy-title" id="policyTitle"></div>
+			<div class="policy-title" id="policyTitle">Select a policy to view...</div>
 
-			<div class="progress-wrap">
-				<div class="progress-bar">
-					<div class="progress-fill" id="progressFill"></div>
+			<div class="my-3">
+				<div class="progress" style="height:8px;">
+					<div class="progress-bar bg-danger" id="progressFill" style="width:0%;"></div>
 				</div>
-				<div class="progress-text" id="progressText"></div>
+				<div class="small text-muted mt-1" id="progressText">0 / 0 acknowledged</div>
 			</div>
 
-			<div class="policy-content" id="policyContent"></div>
+			<div class="policy-content" id="policyContent">
+				<p class="text-center text-muted pt-5">Please select a policy from the list on the left to begin the acknowledgement process.</p>
+			</div>
 
 			<div class="policy-footer">
-				<div id="actionArea" style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+
+				<div id="actionArea" class="d-flex justify-content-between align-items-center w-100">
 					<label>
 						<input type="checkbox" id="ackCheck" disabled>
 						I have read and understood this policy
 					</label>
-					<div>
-						<button id="ackBtn" disabled>Read full policy to continue</button>
+					<div class="d-flex align-items-center gap-2">
 						<span class="success-badge" id="successBadge">Acknowledged</span>
+						<button id="ackBtn" disabled>Read full policy to continue</button>
 					</div>
 				</div>
 
-				<div id="alreadyAckMsg" style="display:none; width:100%; text-align:center; color:#1f7a3f; font-weight:600; padding:10px; background:#e9fff1; border-radius:8px;">
+				<div id="alreadyAckMsg"
+					 class="text-center fw-semibold text-success p-2 rounded"
+					 style="display:none;background:#e9fff1;">
 					✅ You have already acknowledged this policy.
 				</div>
 
 			</div>
+
 		</div>
+
 	</div>
 </div>
 
 <script>
 	$(function(){
 
-		// 1. Force all IDs to Integers to prevent mismatch errors
-		const rawAckIds = <?= json_encode($acknowledgedIds) ?>;
-		const acknowledged = new Set(rawAckIds.map(id => parseInt(id)));
+		const rawAckIds = <?= json_encode(array_map('intval',$acknowledgedIds)) ?>;
+		const acknowledged = new Set(rawAckIds);
 		const total = <?= (int)$totalPolicies ?>;
 		const items = $('.policy-btn');
-
-		let canAcknowledge = false;
 		let current = 0;
+		let canAcknowledge = false;
+
 
 		function updateProgress(){
 			const done = acknowledged.size;
@@ -116,126 +307,122 @@ $acknowledgedIds = isset($acknowledged) ? $acknowledged : [];
 			$('#progressText').text(done+' / '+total+' acknowledged');
 		}
 
+		function enableAck(){
+			if(canAcknowledge) return;
+			canAcknowledge = true;
+			$('#ackCheck').prop('disabled',false);
+			$('#ackBtn').text('Acknowledge & Continue');
+		}
+
 		function loadPolicy(index){
 			const btn = items.eq(index);
-			const policyId = parseInt(btn.data('id')); // Force Integer
+			const pid = parseInt(btn.data('id'));
 
 			items.removeClass('active');
 			btn.addClass('active');
 			current = index;
 
 			$('#policyTitle').text(btn.data('title'));
-			$('#policyContent').html(btn.data('content')).scrollTop(0);
 
-			// Logic: Is this specific policy ID in our acknowledged Set?
-			if(acknowledged.has(policyId)){
-				// ALREADY DONE: Show message, hide buttons
+			const contentDiv = $('#policyContent');
+			// Set content and scroll to top (Requirement)
+			contentDiv.html(btn.data('content')).scrollTop(0);
+
+			if(acknowledged.has(pid)){
 				$('#actionArea').hide();
 				$('#alreadyAckMsg').show();
 				canAcknowledge = true;
-			} else {
-				// PENDING: Show buttons, hide message
-				$('#actionArea').css('display', 'flex');
+			}else{
+				$('#actionArea').show();
 				$('#alreadyAckMsg').hide();
-
-				// Reset "Read" state
 				canAcknowledge = false;
-				$('#ackCheck').prop({checked:false, disabled:true});
-				$('#ackBtn').show().prop('disabled',true).text('Read full policy to continue');
+				// Disable checkbox and button initially
+				$('#ackCheck').prop({checked:false,disabled:true});
+				$('#ackBtn').prop('disabled',true).text('Read full policy to continue').show();
 				$('#successBadge').hide();
+
+				setTimeout(function(){
+					if(contentDiv[0].scrollHeight <= contentDiv[0].clientHeight + 10){
+						enableAck();
+					}
+				}, 100);
 			}
 		}
 
-		// --- SCROLL DETECTION ---
-		$('#policyContent').on('scroll',function(){
-			if(canAcknowledge) return;
-			// Check if scrolled to bottom (with 5px buffer)
-			if(this.scrollTop + this.clientHeight >= this.scrollHeight - 5){
-				canAcknowledge = true;
-				$('#ackCheck').prop('disabled',false);
-				$('#ackBtn').text('Acknowledge & Continue');
-			}
-		});
 
-		// --- CHECKBOX TOGGLE ---
-		$('#ackCheck').on('change', function(){
-			$('#ackBtn').prop('disabled', !$(this).is(':checked'));
-		});
-
-		// --- SIDEBAR CLICK ---
 		items.on('click',function(){
 			loadPolicy($(this).data('index'));
 		});
 
-		// --- ACKNOWLEDGE BUTTON CLICK ---
-		$('#ackBtn').on('click',function(){
+		$('#policyContent').on('scroll',function(){
+			if(canAcknowledge) return;
+			// Check if user has scrolled to bottom
+			if(this.scrollTop + this.clientHeight >= this.scrollHeight - 5){
+				enableAck();
+			}
+		});
 
+		$('#ackCheck').on('change',function(){
+			$('#ackBtn').prop('disabled',!this.checked);
+		});
+
+		$('#ackBtn').on('click',function(){
 			if(!canAcknowledge || !$('#ackCheck').is(':checked')){
-				alert('Please read and accept this policy.');
+				alert('Please read the policy entirely and check the box to acknowledge.');
 				return;
 			}
 
 			const btn = items.eq(current);
-			const policyId = parseInt(btn.data('id')); // Force Integer
+			const pid = parseInt(btn.data('id'));
 
 			$('#ackBtn').prop('disabled',true).text('Saving...');
 			$('#ackCheck').prop('disabled',true);
 
-			$.post("<?= site_url('acknowledge') ?>", {policy_id: policyId}, function(res){
+			$.post("<?= site_url('acknowledge') ?>",{policy_id:pid},function(res){
 
 				if(res.status==='success' || res.status==='already_acknowledged'){
-
-					// 1. Update State
-					acknowledged.add(policyId);
+					acknowledged.add(pid);
 					updateProgress();
 
-					// 2. Visual Updates
 					btn.addClass('acknowledged');
+					btn.find('span:first').text('✓ ');
 					$('#successBadge').show();
 					$('#ackBtn').hide();
 
 					setTimeout(function(){
 
-						// 3. CRITICAL: Check if ALL are done
-						if(acknowledged.size >= total){
-							window.location.href = "<?= site_url('verifylogin') ?>";
+						if(acknowledged.size>=total){
+							window.location.href="<?= site_url('VerifyLogin') ?>";
 							return;
 						}
 
-						// 4. Find next pending policy
-						// We explicitly parse IDs to integers to ensure we don't accidentally find a "string" ID
 						let next = items.filter(function(){
-							const pId = parseInt($(this).data('id'));
-							return !acknowledged.has(pId);
+							return !acknowledged.has(parseInt($(this).data('id')));
 						}).first();
 
 						if(next.length > 0){
 							loadPolicy(next.data('index'));
 						} else {
-							// Fallback if filter fails but count is high
-							window.location.href = "<?= site_url('verifylogin') ?>";
+							window.location.href="<?= site_url('VerifyLogin') ?>";
 						}
-					}, 800);
+					},600);
 				}
 			},'json');
 		});
 
-		// --- INITIAL LOAD LOGIC ---
 
-		// 1. Find the first pending item (Integer comparison)
 		let firstPending = items.filter(function(){
 			return !acknowledged.has(parseInt($(this).data('id')));
 		}).first();
 
-		// 2. If valid pending item exists, open it.
-		if(firstPending.length > 0){
-			loadPolicy(firstPending.data('index'));
-		} else {
-			// 3. If NO pending items, redirect immediately
-			window.location.href = "<?= site_url('verifylogin') ?>";
+		firstPending.length
+			? loadPolicy(firstPending.data('index'))
+			: $('#policyTitle').text("All Policies Acknowledged!");
+
+		if (!firstPending.length && total > 0) {
+			window.location.href="<?= site_url('VerifyLogin') ?>";
 		}
 
 		updateProgress();
-
 	});
 </script>
