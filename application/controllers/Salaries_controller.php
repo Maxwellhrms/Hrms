@@ -1610,6 +1610,7 @@ $savePath = 'uploads/payslips/' . $customFileName;
                      $html_data .= "<th>ESI</th>";
                      $html_data .= "<th>NET PAY</th>";
                      $html_data .= "<th>PAID STATUS</th>";
+                     $html_data .= "<th>Date Created</th>";
                      $html_data .= "</tr>";
                      $html_data .= "</thead>";
                      $html_data .= "<tbody>";
@@ -1675,7 +1676,10 @@ $savePath = 'uploads/payslips/' . $customFileName;
                         $html_data .= "<td>$paysheet_data->mxsal_esi_emp_cont</td>";
                         $html_data .= "<td>$paysheet_data->mxsal_net_sal</td>";
                         if($paysheet_data->mxsal_paid_status_flag == 1){$paid_status = 'PAID';}else{$paid_status = 'UNPAID';}
+                        if(isset($paysheet_data->mxsal_createdtime) && !empty($paysheet_data->mxsal_createdtime))
+                        {$createdDt = $paysheet_data->mxsal_createdtime;}else{$createdDt = '-';}
                             $html_data .= "<td>$paid_status</td>";
+                            $html_data .= "<td>$createdDt</td>";
                         // $html_data .= "<td>".(int)$paysheet_data->mxsal_actual_tsp."</td>";
     
                         $html_data .= "</tr>";
@@ -2786,6 +2790,7 @@ else{ //---->NORAML PAYSHEET
                      $html_data .= "<th>CTC</th>";
                      $html_data .= "<th>PAID STATUS</th>";
                      $html_data .= "<th>attachment </th>";
+                     $html_data .= "<th>Date Created </th>";
                      $html_data .= "</tr>";
                      $html_data .= "</thead>";
                      $html_data .= "<tbody>";
@@ -2944,6 +2949,7 @@ else{ //---->NORAML PAYSHEET
                             $html_data .= "<td>$paid_status</td>";
 							$file_name_pdf = base_url() . "uploads/payslips/".$month."-".$year."-".$paysheet_data->mxsal_emp_code.".pdf";
                             $html_data .= "<td><a href='$file_name_pdf' target='_blank'>payslip</a></td>";
+                            $html_data .= "<td>$paysheet_data->mxsal_createdtime</td>";
                             $html_data .= "</tr>";
                             $sno = $sno + 1;
                      }

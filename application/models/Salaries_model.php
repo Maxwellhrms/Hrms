@@ -1149,7 +1149,7 @@ class Salaries_model extends Adminmodel
                     // echo $net_sal;exit;
                     
                    //-------------------LOAN MASTER
-                    $loan_amount = 0;
+                    $loan_amount = $total_loan_amount = 0;
                     $loan_array = $this->Loan_model->getloandetails($emp_comp_code, $emp_div_code=null, $emp_state_code=null, $emp_branch_code=null, $emp_code, $year_month);
                     // if($emp_code == 'M0832'){
                     //     print_r($loan_array);exit;
@@ -1170,7 +1170,7 @@ class Salaries_model extends Adminmodel
                                     // END new by sha(10-03-2025)
                                     if ($outstanding_amount >= $monthly_emi_amount) { //---->if oustanding(10000) greater than monthly emi(2000) we take monthly emi(2000)
                                         $loan_amount = $monthly_emi_amount;
-                                        
+                                        $total_loan_amount += $loan_amount;
                                         $new_oustanding_amount = $outstanding_amount - $loan_amount;
                                         $this->update_loan_master($new_oustanding_amount, $loan_amount, $primaryid, $emp_code);
                                         //-----------NEW BY SHABABU(26-06-2022)
@@ -1178,6 +1178,7 @@ class Salaries_model extends Adminmodel
                                         //-----------END NEW BY SHABABU(26-06-2022)
                                     } else if ($outstanding_amount < $monthly_emi_amount) { //------>if outstanding(1500) less than monthly EMI(2000) we take outstanding(1500)
                                         $loan_amount = $outstanding_amount;
+                                        $total_loan_amount += $loan_amount;
                                         $new_oustanding_amount = $outstanding_amount - $loan_amount;
                                         $this->update_loan_master($new_oustanding_amount, $loan_amount, $primaryid, $emp_code);
                                         //-----------NEW BY SHABABU(26-06-2022)
@@ -1205,9 +1206,9 @@ class Salaries_model extends Adminmodel
                         
                     }
                     // new by sha(10-03-2025)
-                    $total_deductions = $total_deductions + $loan_amount;
+                    $total_deductions = $total_deductions + $total_loan_amount;
                     if($net_sal > 0){
-                        $net_sal = $net_sal - $loan_amount;
+                        $net_sal = $net_sal - $total_loan_amount;
                     }
                     // new by sha(10-03-2025)
                     //-------------------END LOAN MASTER
@@ -1284,7 +1285,7 @@ class Salaries_model extends Adminmodel
                     $final_array['mxsal_emp_days_in_month'] = cal_days_in_month(CAL_GREGORIAN, $month, $year); //---->Get no of days in a month
                     $final_array['mxsal_incentive_amount'] = $incentive_amount;//----------->NEW BY SHABABU(20-06-2022);
                     $final_array['mxsal_miscelleneous_amount'] = $miscellenous_amount;
-                    $final_array['mxsal_loan_amount'] = $loan_amount;
+                    $final_array['mxsal_loan_amount'] = $total_loan_amount;
                     $final_array['mxsal_net_sal'] = rounding_number($net_sal,2);
                     
                     $final_array['mxsal_ctc'] = $ctc;
@@ -6808,40 +6809,41 @@ class Salaries_model extends Adminmodel
         $this->db->order_by('mx_loan_created_date');
         $loan_query = $this->db->get();
         // echo $this->db->last_query();exit;
-        $loan_res = $loan_query->row();
+        $loan_result_array = $loan_query->result();
         $log_count = $loan_query->num_rows();
         //print_r($loan_res);exit;
         if($log_count > 0){
-            $loan_log_id = $loan_res->mx_loan_id;
-            $loan_master_id = $loan_res->mx_loan_master_id;
-            $loan_transaction_id = $loan_res->mx_loan_transaction_id;
-            $loan_emi_amount = $loan_res->mx_loan_emi_amount;
-            
-            $loan_master_data = $this->db->select('mxemploan_emp_loan_outstanding_amt')->from('maxwell_emp_loan_master')->where('mxemploan_empcode',$emp_code)->where('mxemploan_pri_id',$loan_res->mx_loan_master_id)->get()->row();
-            // print_r($loan_master_data);exit;
-            $final_outstanding_amount = floatval($loan_master_data->mxemploan_emp_loan_outstanding_amt) + floatval($loan_emi_amount);
-            //-----------UPDATE MASTER OUTSTANDING AMOUNT
-            $up_master_array = array(
-                                        'mxemploan_emp_loan_outstanding_amt' => $final_outstanding_amount,
-                                        'mxemploan_status' => 1
-                               );
-            $this->db->where('mxemploan_pri_id',$loan_master_id);
-            $this->db->update('maxwell_emp_loan_master',$up_master_array);
-            //-----------END UPDATE MASTER OUTSTANDING AMOUNT
-           
-            //----------UPDATE LOAN TRANSACTION TABLE
-            $up_transaction_array = array('mxemploan_status' => 0);
-            $this->db->where('mxemploan_pri_id',$loan_transaction_id);
-            $this->db->update('maxwell_emp_loan_master_transaction',$up_transaction_array);
-            
-            //----------END UPDATE LOAN TRANSACTION TABLE
-            
-            //-----UPDATE LOAN LOG STATUS
-            $up_loan_log_array = array('mx_loan_status' => 0);
-            $this->db->where('mx_loan_id',$loan_log_id);
-            $this->db->update('maxwell_loan_sal_log',$up_loan_log_array);
-            
-            
+            foreach($loan_result_array as $loan_res) {
+                $loan_log_id = $loan_res->mx_loan_id;
+                $loan_master_id = $loan_res->mx_loan_master_id;
+                $loan_transaction_id = $loan_res->mx_loan_transaction_id;
+                $loan_emi_amount = $loan_res->mx_loan_emi_amount;
+
+                $loan_master_data = $this->db->select('mxemploan_emp_loan_outstanding_amt')->from('maxwell_emp_loan_master')->where('mxemploan_empcode', $emp_code)->where('mxemploan_pri_id', $loan_res->mx_loan_master_id)->get()->row();
+                // print_r($loan_master_data);exit;
+                $final_outstanding_amount = floatval($loan_master_data->mxemploan_emp_loan_outstanding_amt) + floatval($loan_emi_amount);
+                //-----------UPDATE MASTER OUTSTANDING AMOUNT
+                $up_master_array = array(
+                    'mxemploan_emp_loan_outstanding_amt' => $final_outstanding_amount,
+                    'mxemploan_status' => 1
+                );
+                $this->db->where('mxemploan_pri_id', $loan_master_id);
+                $this->db->update('maxwell_emp_loan_master', $up_master_array);
+                //-----------END UPDATE MASTER OUTSTANDING AMOUNT
+
+                //----------UPDATE LOAN TRANSACTION TABLE
+                $up_transaction_array = array('mxemploan_status' => 0);
+                $this->db->where('mxemploan_pri_id', $loan_transaction_id);
+                $this->db->update('maxwell_emp_loan_master_transaction', $up_transaction_array);
+
+                //----------END UPDATE LOAN TRANSACTION TABLE
+
+                //-----UPDATE LOAN LOG STATUS
+                $up_loan_log_array = array('mx_loan_status' => 0);
+                $this->db->where('mx_loan_id', $loan_log_id);
+                $this->db->update('maxwell_loan_sal_log', $up_loan_log_array);
+
+            }
         }
         //-----END UPDATE LOAN LOG STATUS
         if ($this->db->trans_status() === FALSE) {
@@ -8031,7 +8033,7 @@ class Salaries_model extends Adminmodel
                     // echo $net_sal;exit;
                     //-------------------LOAN MASTER
                     // echo "net_sal = ".$net_sal;exit;
-                    $loan_amount = 0;
+                    $loan_amount = $total_loan_amount = 0;
                     $loan_array = $this->Loan_model->getloandetails_sals($emp_comp_code, $emp_div_code=null, $emp_state_code=null, $emp_branch_code=null, $emp_code, $year_month);
                     // print_r($loan_array);exit;
                     if (count($loan_array) > 0 && $net_sal > 0) {
@@ -8048,6 +8050,7 @@ class Salaries_model extends Adminmodel
                                 if ($outstanding_amount >= $monthly_emi_amount) { //---->if oustanding(10000) greater than monthly emi(2000) we take monthly emi(2000)
                                    
                                     $loan_amount = $monthly_emi_amount;
+                                    $total_loan_amount += $loan_amount;
                                     $primaryid = $loan_data->mxemploan_pri_id;
                                     $new_oustanding_amount = $outstanding_amount - $loan_amount;
                                     $this->update_loan_master($new_oustanding_amount, $loan_amount, $primaryid, $emp_code);
@@ -8056,6 +8059,7 @@ class Salaries_model extends Adminmodel
                                     //-----------END NEW BY SHABABU(26-06-2022)
                                 } else if ($outstanding_amount < $monthly_emi_amount) { //------>if outstanding(1500) less than monthly EMI(2000) we take outstanding(1500)
                                     $loan_amount = $outstanding_amount;
+                                    $total_loan_amount += $loan_amount;
                                     $primaryid = $loan_data->mxemploan_pri_id;
                                     $new_oustanding_amount = $outstanding_amount - $loan_amount;
                                     $this->update_loan_master($new_oustanding_amount, $loan_amount, $primaryid, $emp_code);
@@ -8077,9 +8081,9 @@ class Salaries_model extends Adminmodel
                         }
                     }
                     // new by sha(10-03-2025)
-                    $total_deductions = $total_deductions + $loan_amount;
+                    $total_deductions = $total_deductions + $total_loan_amount;
                     if($net_sal > 0){
-                        $net_sal = $net_sal - $loan_amount;
+                        $net_sal = $net_sal - $total_loan_amount;
                     }
                     // new by sha(10-03-2025)
                     //-------------------END LOAN MASTER
@@ -8149,7 +8153,7 @@ class Salaries_model extends Adminmodel
                     $final_array['mxsal_emp_days_in_month'] = cal_days_in_month(CAL_GREGORIAN, $month, $year); //---->Get no of days in a month
                     $final_array['mxsal_incentive_amount'] = $incentive_amount;//----------->NEW BY SHABABU(20-06-2022);
                     $final_array['mxsal_miscelleneous_amount'] = $miscellenous_amount;
-                    $final_array['mxsal_loan_amount'] = $loan_amount;
+                    $final_array['mxsal_loan_amount'] = $total_loan_amount;
                     $final_array['mxsal_net_sal'] = rounding_number($net_sal,2);
                     
                     $final_array['mxsal_ctc'] = $ctc;
