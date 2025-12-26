@@ -14659,5 +14659,80 @@ public function saveemployeerequesttype($data){
         $qry = $query->result();
         return $qry;
     }
+
+
+    public function getAllEmployeesFullDetails($data)
+    {
+        // Employee Info
+        $this->db->select('mxemp_emp_autouniqueid, mxemp_emp_date_of_join, mxemp_emp_comp_code, mxemp_emp_division_code, mxemp_emp_branch_code, mxemp_emp_sub_branch_code, mxemp_emp_dept_code, mxemp_emp_grade_code, mxemp_emp_desg_code, mxemp_emp_state_code, mxemp_emp_type, mxemp_emp_type_name, mxemp_emp_id, mxemp_emp_fname, mxemp_emp_lname, mxemp_emp_img, mxemp_emp_gender, mxemp_emp_marital_status, mxemp_emp_bloodgroup, mxemp_emp_phone_no, mxemp_emp_alt_phn_no, mxemp_emp_email_id, mxemp_emp_date_of_birth, mxemp_emp_age, mxemp_emp_present_city, mxemp_emp_present_state, mxemp_emp_present_country, mxemp_emp_present_postalcode, mxemp_emp_current_salary, mxemp_emp_status, mxcp_name, mxdesg_name, mxdpt_name, mxd_name, mxb_name, mxgrd_name, mxemp_emp_resignation_status, mxemp_emp_resignation_reason, mxemp_emp_resignation_date, mxemp_emp_resignation_relieving_date, mxemp_emp_resignation_relieving_settlement_date, mxst_state, mxemp_ty_name, mxemp_emp_employee_lic_no, mxemp_emp_gratuity, gratuity_lic_amt, gratuity_lic_vch, gratuity_status, gratuity_amt_disb_from_maxwell, gratuity_disb_on, gratuity_chq_no, post_exit_cont, prop_return, vch_attachment, chq_attachment, gratuity_created, gratuity_updated');
+        $this->db->from('maxwell_employees_info');
+        $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
+        $this->db->join('maxwell_designation_master', 'mxdesg_id = mxemp_emp_desg_code', 'INNER');
+        $this->db->join('maxwell_department_master', 'mxdpt_id = mxemp_emp_dept_code', 'INNER');
+        $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');
+        $this->db->join('maxwell_branch_master', 'mxb_id = mxemp_emp_branch_code', 'INNER');
+        $this->db->join('maxwell_grade_master', 'mxgrd_id = mxemp_emp_grade_code', 'INNER');
+        $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
+        $this->db->join('maxwell_employee_type_master', 'mxemp_ty_id = mxemp_emp_type', 'INNER');
+
+        if (!empty($data['cmpname'])) {
+            $this->db->where('mxemp_emp_comp_code', $data['cmpname']);
+        }
+        if (!empty($data['divname'])) {
+            $this->db->where('mxemp_emp_division_code', $data['divname']);
+        }
+        if (!empty($data['brname'])) {
+            $this->db->where('mxemp_emp_branch_code', $data['brname']);
+        }
+        if (!empty($data['emptype'])) {
+            $this->db->where('mxemp_emp_type', $data['emptype']);
+        }
+        if (!empty($data['cmpstate'])) {
+            $this->db->where('mxemp_emp_state_code', $data['cmpstate']);
+        }
+        if (!empty($data['empgender'])) {
+            $this->db->where('mxemp_emp_gender', $data['empgender']);
+        }
+
+        if (!empty($data['empmonth'])) {
+            $this->db->where('MONTH(mxemp_emp_date_of_join)', $data['empmonth']);
+        }
+        if (!empty($data['empyear'])) {
+            $this->db->where('YEAR(mxemp_emp_date_of_join)', $data['empyear']);
+        }
+        if (!empty($data['emp_id'])) {
+            $this->db->where('mxemp_emp_id', $data['emp_id']);
+        }
+        // print_r($data);exit;
+        if (isset($data['empstatus']) && $data['empstatus'] != "ALL") {
+            if($data['empstatus'] == "RWNP"){
+                $this->db->where('mxemp_emp_resignation_status', 'R');
+                $this->db->where('mxemp_emp_is_without_notice_period', 1);
+            }else if($data['empstatus'] == "RNP"){
+                $this->db->where('mxemp_emp_resignation_status', 'R');
+                $this->db->where('mxemp_emp_is_without_notice_period', 0);
+            }else{
+                $this->db->where('mxemp_emp_resignation_status', $data['empstatus']);
+            }
+        }else if($data['empstatus'] == "ALL"){//----->FOR ALL DONT KEEP ANY RESIGN STATUS
+        }else{
+            $this->db->where('mxemp_emp_resignation_status !=', 'R');
+        }
+
+        $this->db->where('mxemp_emp_status', 1);
+
+        // if ($data['empstatus'] == 100) {
+        //     $st = 1;
+        //     $this->db->where('mxemp_emp_status', $st);
+        // } elseif ($data['empstatus'] == 200) {
+        //     $st = 1;
+        //     $this->db->where('mxemp_emp_resignation_status', $st);
+        // }
+        $this->db->order_by('mxemp_emp_id', 'asc');
+        $query1 = $this->db->get();
+        // echo $this->db->last_query();exit;
+        $returnarray = $query1->result();
+        return $returnarray;
+    }
     
 }
