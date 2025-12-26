@@ -14664,7 +14664,7 @@ public function saveemployeerequesttype($data){
     public function getAllEmployeesFullDetails($data)
     {
         // Employee Info
-        $this->db->select('mxemp_emp_autouniqueid, mxemp_emp_date_of_join, mxemp_emp_comp_code, mxemp_emp_division_code, mxemp_emp_branch_code, mxemp_emp_sub_branch_code, mxemp_emp_dept_code, mxemp_emp_grade_code, mxemp_emp_desg_code, mxemp_emp_state_code, mxemp_emp_type, mxemp_emp_type_name, mxemp_emp_id, mxemp_emp_fname, mxemp_emp_lname, mxemp_emp_img, mxemp_emp_gender, mxemp_emp_marital_status, mxemp_emp_bloodgroup, mxemp_emp_phone_no, mxemp_emp_alt_phn_no, mxemp_emp_email_id, mxemp_emp_date_of_birth, mxemp_emp_age, mxemp_emp_present_city, mxemp_emp_present_state, mxemp_emp_present_country, mxemp_emp_present_postalcode, mxemp_emp_current_salary, mxemp_emp_status, mxcp_name, mxdesg_name, mxdpt_name, mxd_name, mxb_name, mxgrd_name, mxemp_emp_resignation_status, mxemp_emp_resignation_reason, mxemp_emp_resignation_date, mxemp_emp_resignation_relieving_date, mxemp_emp_resignation_relieving_settlement_date, mxst_state, mxemp_ty_name, mxemp_emp_employee_lic_no, mxemp_emp_gratuity, gratuity_lic_amt, gratuity_lic_vch, gratuity_status, gratuity_amt_disb_from_maxwell, gratuity_disb_on, gratuity_chq_no, post_exit_cont, prop_return, vch_attachment, chq_attachment, gratuity_created, gratuity_updated');
+        $this->db->select('mxemp_emp_autouniqueid, mxemp_emp_date_of_join, mxemp_emp_comp_code, mxemp_emp_division_code, mxemp_emp_branch_code, mxemp_emp_sub_branch_code, mxemp_emp_dept_code, mxemp_emp_grade_code, mxemp_emp_desg_code, mxemp_emp_state_code, mxemp_emp_type, mxemp_emp_type_name, mxemp_emp_id, mxemp_emp_fname, mxemp_emp_lname, mxemp_emp_img, mxemp_emp_gender, mxemp_emp_marital_status, mxemp_emp_bloodgroup, mxemp_emp_phone_no, mxemp_emp_alt_phn_no, mxemp_emp_email_id, mxemp_emp_date_of_birth, mxemp_emp_age, mxemp_emp_present_city, mxemp_emp_present_state, mxemp_emp_present_country, mxemp_emp_present_postalcode, mxemp_emp_current_salary, mxemp_emp_status, mxcp_name, mxdesg_name, mxdpt_name, mxd_name, mxb_name, mxgrd_name, mxemp_emp_resignation_status, mxemp_emp_resignation_reason, mxemp_emp_resignation_date, mxemp_emp_resignation_relieving_date, mxemp_emp_resignation_relieving_settlement_date, mxst_state, mxemp_ty_name, mxemp_emp_employee_lic_no, mxemp_emp_gratuity, gratuity_lic_amt, gratuity_lic_vch, gratuity_status, gratuity_amt_disb_from_maxwell, gratuity_disb_on, gratuity_chq_no, post_exit_cont, prop_return, vch_attachment, chq_attachment, gratuity_created, gratuity_updated,mxpsc_percentage AS basic_percentage,mxpsc_emptype_name');
         $this->db->from('maxwell_employees_info');
         $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
         $this->db->join('maxwell_designation_master', 'mxdesg_id = mxemp_emp_desg_code', 'INNER');
@@ -14674,6 +14674,7 @@ public function saveemployeerequesttype($data){
         $this->db->join('maxwell_grade_master', 'mxgrd_id = mxemp_emp_grade_code', 'INNER');
         $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
         $this->db->join('maxwell_employee_type_master', 'mxemp_ty_id = mxemp_emp_type', 'INNER');
+        $this->db->join('maxwell_pay_structure_child', 'mxemp_emp_type = mxpsc_emptype_id  AND mxpsc_inc_head_name = "BASIC"', 'INNER');
 
         if (!empty($data['cmpname'])) {
             $this->db->where('mxemp_emp_comp_code', $data['cmpname']);
@@ -14730,7 +14731,7 @@ public function saveemployeerequesttype($data){
         // }
         $this->db->order_by('mxemp_emp_id', 'asc');
         $query1 = $this->db->get();
-        // echo $this->db->last_query();exit;
+         // echo $this->db->last_query();exit;
         $returnarray = $query1->result();
         return $returnarray;
     }
