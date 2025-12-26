@@ -2900,7 +2900,10 @@ public function getemprequesttype(){
     {
         $this->verifylogin();
         $this->load->model('Policies_model');
-        $data['report'] = $this->Policies_model->get_acknowledgment_report();
+        $empstatus = $this->input->get('empstatus') ? $this->input->get('empstatus') : "ALL";
+
+        $data['report'] = $this->Policies_model->get_acknowledgment_report($empstatus);
+        $data['current_status'] = $empstatus;
         $this->header();
         $this->load->view('policies/report_view', $data);
         $this->footer();
@@ -2980,7 +2983,7 @@ public function getemprequesttype(){
             'last_updated' => $current_time
         );
 
-        
+
         if (!empty($_FILES['vch_attach']['name'])) {
             $config['file_name'] = $emp_id . "_vch_" . $file_timestamp;
             $this->upload->initialize($config);

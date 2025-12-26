@@ -4,14 +4,43 @@
     .locked-bg {background-color: #f4f4f4 !important; font-style: italic; color: #666;}
     .update-btn {padding: 2px 8px; font-size: 12px;}
 
-    .dt-buttons {display: flex !important; align-items: center; float: left; gap: 20px; margin-bottom: 15px; background: transparent !important;}
-    .dataTables_filter { display: flex; align-items: center; justify-content: flex-end; margin-bottom: 15px; }
+    .dt-buttons {display: flex !important;flex-direction: column;gap: 10px;margin-bottom: 15px;
+        background: transparent !important;width: 100%;
+    }
 
-    #filterWrapper {display: flex; align-items: center; margin: 0 !important; float: none !important; background: transparent !important; border: none !important; padding: 0 !important;}
-    #filterWrapper label {margin-bottom: 0; font-weight: bold; font-size: 13px; color: #333; white-space: nowrap;}
+    button.dt-button.btn-warning {background-image: none !important;background-color: #f39c12 !important;
+        border: 1px solid #e08e0b !important;color: white !important;height: 34px;
+        display: flex;align-items: center;justify-content: center;
+    }
 
-    button.dt-button, div.dt-button, a.dt-button { background-image: none !important; }
+    #filterWrapper {display: flex !important;flex-direction: column;gap: 8px;background: transparent !important;
+        border: none !important;width: 100%;
+    }
+
+    #filterWrapper label {margin: 5px 0 0 0;font-weight: bold;font-size: 13px;color: #333 !important;
+        background: transparent !important;
+    }
+
+    #filterWrapper input[type="date"] {
+        width: 100% !important;
+    }
+
+    #clearDates {height: 34px;display: flex;align-items: center;justify-content: center;width: 100%;}
+    .dataTables_filter {display: flex;width: 100%;margin-bottom: 15px;}
+    .dataTables_filter label { width: 100%; }
+    .dataTables_filter input {width: 100% !important;margin-left: 0 !important;height: 34px;}
+
     .audit-created, .audit-updated { font-size: 12px; color: #888; white-space: nowrap; }
+
+    @media (min-width: 768px) {
+        .dt-buttons {flex-direction: row;align-items: center;width: auto;float: left;}
+        #filterWrapper {flex-direction: row;align-items: center;width: auto;}
+        #filterWrapper input[type="date"] { width: 140px !important; }
+        button.dt-button.btn-warning, #clearDates { width: auto !important; padding: 0 15px; }
+        .dataTables_filter { width: auto; float: right; justify-content: flex-end; }
+        .dataTables_filter label { width: auto; }
+        .dataTables_filter input { width: 200px !important; margin-left: 5px !important; }
+    }
 </style>
 
 <div class="col-md-12 col-sm-12 col-12">
@@ -50,6 +79,7 @@
                 <th>Last Drawn Salary</th>
                 <th>Basic (Est.)</th>
                 <th>Gratuity Amount</th>
+                <th>Is Gratuity Applicable?</th>
                 <th>Date of Exit</th>
                 <th>Reason</th>
                 <th class="locked-bg">Gratuity Amount from LIC</th>
@@ -82,7 +112,7 @@
                     elseif ($doj_ts >= strtotime('2022-02-01')) { $doj_scheme = '2022-02-01'; $scheme_reason = "Joined In/after Feb 2022. Adjusted to (01-Feb-2022)."; }
                     else { $doj_scheme = $actual_doj; $scheme_reason = "Standard calculation based on actual DOJ."; }
 
-                    $doj_obj = new DateTime($doj_scheme);
+                    $doj_obj = new DateTime($actual_doj);
                     $relieving_date = !empty($emp->mxemp_emp_resignation_relieving_date) ? $emp->mxemp_emp_resignation_relieving_date : date('Y-m-d');
                     $doe_obj = new DateTime($relieving_date);
                     $interval = $doj_obj->diff($doe_obj);
@@ -93,9 +123,18 @@
                     elseif ($actual_months == 6) { $years_for_formula = $actual_years + 0.5; $display_yrs = $actual_years . " Yrs 06 Mths"; }
                     else { $years_for_formula = $actual_years + 1; $display_yrs = ($actual_years + 1) . " (Rounded Up)"; }
 
-                    $basic_salary = $emp->mxemp_emp_current_salary * 0.5;
-                    $gratuity_amount = ($basic_salary / 26) * 15 * $years_for_formula;
+                    $basic_salary = ($emp->mxemp_emp_current_salary * $emp->basic_percentage)/100;
+                    $gratuity_amount = round(($basic_salary / 26) * 15 * $years_for_formula);
                     $date_of_exit = !empty($emp->mxemp_emp_resignation_relieving_date) ? $emp->mxemp_emp_resignation_relieving_date : "-";
+
+
+                    // Calculation for Is Gratuity Applicable
+                    $doj_obj = new DateTime($actual_doj);
+                    $today_date = date('Y-m-d H:i:s');
+                    $today_obj = new DateTime($today_date);
+                    $grat_applicable_interval = $doj_obj->diff($today_obj);
+                    $grat_applicable_years = $interval->y;
+
                     ?>
                     <tr id="row_<?php echo $eid; ?>">
                         <td><?php echo $i++; ?></td>
@@ -120,6 +159,10 @@
                         <td><?php echo number_format($emp->mxemp_emp_current_salary, 2); ?></td>
                         <td><?php echo number_format($basic_salary, 2); ?></td>
                         <td><?php echo number_format($gratuity_amount, 2); ?></td>
+                        <td data-toggle="tooltip" title="<?php echo "Gratuity applicable 5 years past Date of Joining"; ?>" style="cursor:help; background-color: #fdf5e6;">
+                                <i class="fa fa-info-circle text-info" style="font-size: 10px;"></i>
+                            <?php echo ($grat_applicable_years >=5)? "Yes":"No"; ?>
+                        </td>
                         <td><?php echo $date_of_exit; ?></td>
                         <td><?php echo $emp->mxemp_emp_resignation_reason; ?></td>
 
@@ -260,7 +303,6 @@
 
         $("#filterWrapper").appendTo(".dt-buttons").show();
 
-        // Custom Search for "Created At" Date Range (Column Index 31)
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             var min = $('#dateFrom').val();
             var max = $('#dateTo').val();
@@ -270,7 +312,6 @@
 
             if (createdAtStr === "--" || createdAtStr === "") return false;
 
-            // Extract YYYY-MM-DD from the timestamp 'YYYY-MM-DD HH:MM:SS'
             var createdAt = createdAtStr.split(' ')[0];
 
             if (min !== "" && createdAt < min) return false;
@@ -279,12 +320,10 @@
             return true;
         });
 
-        // Trigger redraw on date change
         $('#dateFrom, #dateTo').on('change', function() {
             table.draw();
         });
 
-        // Reset dates
         $('#clearDates').on('click', function() {
             $('#dateFrom, #dateTo').val('');
             table.draw();
