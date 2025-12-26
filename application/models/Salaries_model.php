@@ -6778,7 +6778,30 @@ class Salaries_model extends Adminmodel
         // print_r($res);exit;
         $table_name = $res[0]->mxemp_ty_table_name;
         //---------END GET TABLE NAME BASED ON EMP_TYPE
-        
+
+
+        /*  CONDITION TO CHECK IF THE NEXT MONTH SALARY GENERATED
+        Condition: If target is October and November exists, cannot delete October.
+        */
+        $selected_year_month = $data['yearmonth'];
+        $current_target_ts = strtotime('01-' . $selected_year_month);
+        $target_db_format = date('Ym', $current_target_ts);
+
+        $next_month_db_format = date('Ym', strtotime('+1 month', $current_target_ts));
+        $this->db->where('mxsal_emp_code', $emp_code);
+        $this->db->where('mxsal_year_month', $next_month_db_format);
+        $this->db->where('mxsal_status', 1);
+        $next_exists = $this->db->count_all_results($table_name);
+
+        if($next_exists > 0){
+            $msg = "Cannot delete ".date('F Y', $current_target_ts)." salary because ".date('F Y', strtotime('+1 month', $current_target_ts))." salary is already generated.";
+            getjsondata(0, $msg);
+            return;
+        }
+
+
+        /*  END OF CONDITION TO CHECK IF THE NEXT MONTH SALARY GENERATED  */
+
         //------CHECK DATA IN SAL
         $this->db->select();
         $this->db->from($table_name);

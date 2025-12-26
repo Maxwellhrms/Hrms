@@ -2924,5 +2924,90 @@ public function getemprequesttype(){
             ->set_output(json_encode(array('success' => true, 'policies' => $data)));
     }
 
+    public function gratuity()
+    {
+        $this->verifylogin();
+        $this->header();
+        $data['states'] = $this->Adminmodel->getstates_master();
+        $data['emptype'] = $this->Adminmodel->getemployeetypemaster();
+        $data['cmpmaster'] = $this->Adminmodel->getcompany_master();
+        $this->load->view('employee/gratuitylist', $data);
+        $this->footer();
+    }
+
+    public function employee_gratuity_ajax() {
+        $this->verifylogin();
+        $userdata = $this->input->post();
+        $data['employeelist'] = $this->Adminmodel->getAllEmployeesFullDetails($userdata);
+        //echo "<pre>";print_r( $data['employeelist']); exit;
+        $this->load->view('employee/gratuityfilterlist', $data);
+    }
+
+    public function update_gratuity_details() {
+        $emp_id = $this->input->post('emp_id');
+        $current_time = date('Y-m-d H:i:s');
+        $file_timestamp = date('YmdHis');
+
+        $existing = $this->db->select('gratuity_created')
+            ->where('mxemp_emp_id', $emp_id)
+            ->get('maxwell_employees_info')
+            ->row();
+
+        $data = array(
+            'gratuity_lic_amt' => $this->input->post('lic_amt'),
+            'gratuity_amt_disb_from_maxwell' => $this->input->post('maxwell_disb_amt'),
+            'gratuity_lic_vch' => $this->input->post('lic_vch'),
+            'gratuity_status'  => $this->input->post('status'),
+            'gratuity_disb_on' => $this->input->post('disb_date'),
+            'gratuity_chq_no'  => $this->input->post('cheque_no'),
+            'post_exit_cont'   => $this->input->post('contact'),
+            'prop_return'      => $this->input->post('property'),
+            'gratuity_updated' => $current_time
+        );
+
+        if (empty($existing->gratuity_created)) {
+            $data['gratuity_created'] = $current_time;
+        }
+
+        // Basic Upload Configuration
+        $config['upload_path']   = './uploads/employeegratuity/';
+        $config['allowed_types'] = 'jpg|jpeg|png|pdf';
+        // Removed encrypt_name to allow our custom file_name to take effect
+        $this->load->library('upload', $config);
+
+        $response = array(
+            'status' => 'success',
+            'last_updated' => $current_time
+        );
+
+        
+        if (!empty($_FILES['vch_attach']['name'])) {
+            $config['file_name'] = $emp_id . "_vch_" . $file_timestamp;
+            $this->upload->initialize($config);
+
+            if ($this->upload->do_upload('vch_attach')) {
+                $fileData = $this->upload->data();
+                $data['vch_attachment'] = $fileData['file_name'];
+                $response['vch_attachment'] = $fileData['file_name'];
+            }
+        }
+
+
+        if (!empty($_FILES['chq_attach']['name'])) {
+            $config['file_name'] = $emp_id . "_chq_" . $file_timestamp;
+            $this->upload->initialize($config);
+
+            if ($this->upload->do_upload('chq_attach')) {
+                $fileData = $this->upload->data();
+                $data['chq_attachment'] = $fileData['file_name'];
+                $response['chq_attachment'] = $fileData['file_name'];
+            }
+        }
+
+        $this->db->where('mxemp_emp_id', $emp_id);
+        $this->db->update('maxwell_employees_info', $data);
+
+        echo json_encode($response);
+    }
 
 }
