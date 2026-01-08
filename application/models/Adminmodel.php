@@ -108,7 +108,7 @@ $end_year1_88=$end_year1."-03";
 if($bonus_sal=='sal_no_bonus')
 {
 	$subquery = $this->db
-    ->select('mxsal_emp_code')
+    ->select('mxsal_emp_code,mxsal_bonus_percentage_amount')
     ->from('mxsal_m')
     ->where('mxsal_basic >', 21000)  // your condition, adjust as needed
 	//->like('mxsal_year_month', $start_year1) 
@@ -123,7 +123,7 @@ if($bonus_sal=='sal_no_bonus')
 }elseif($bonus_sal=='sal_bonus')
 {
 	$subquery = $this->db
-    ->select('mxsal_emp_code')
+    ->select('mxsal_emp_code,mxsal_bonus_percentage_amount')
     ->from('mxsal_m')
     ->where('mxsal_basic <', 21000)  // your condition, adjust as needed
 	//->like('mxsal_year_month', $start_year1)
@@ -136,7 +136,7 @@ if($bonus_sal=='sal_no_bonus')
 else 
 {
 	$subquery = $this->db
-    ->select('mxsal_emp_code')
+    ->select('mxsal_emp_code,mxsal_bonus_percentage_amount')
     ->from('mxsal_m')   
 //->like('mxsal_year_month', $start_year1)	
 ->where('mxsal_year_month >=', $start_year1_99)
@@ -156,6 +156,7 @@ $this->db->select('
     maxwell_employees_info.mxemp_emp_id,
     maxwell_employees_info.mxemp_emp_fname,
     maxwell_employees_info.mxemp_emp_resignation_status,
+    maxwell_employees_info.mxemp_emp_is_without_notice_period,
     maxwell_employees_info.mxemp_emp_resignation_date,
     maxwell_employees_info.mxemp_emp_resignation_relieving_settlement_date,
     maxwell_division_master.mxd_name,
@@ -167,7 +168,7 @@ $this->db->from('maxwell_employees_info');
 $this->db->join('maxwell_division_master', 'maxwell_division_master.mxd_id = maxwell_employees_info.mxemp_emp_division_code');
 $this->db->join('maxwell_branch_master', 'maxwell_branch_master.mxb_id = maxwell_employees_info.mxemp_emp_branch_code');
 
-$this->db->join("($subquery) as latest_sal", 'latest_sal.mxsal_emp_code = maxwell_employees_info.mxemp_emp_id');
+$this->db->join("($subquery) as latest_sal", 'latest_sal.mxsal_emp_code = maxwell_employees_info.mxemp_emp_id AND latest_sal.mxsal_bonus_percentage_amount > 0');
 //$this->db->join('mxsal_m as sal', 'sal.mxsal_emp_code = latest_sal.mxsal_emp_code ', 'left');
 
 if($bonus_status)
@@ -178,8 +179,37 @@ if($bonus_status)
          AND update_bonus_status.finacial_month_year = '$month_year1' ");
 }
 
-$this->db->where('maxwell_employees_info.mxemp_emp_division_code', '1');
+$divisionId = $data['userdata']['divisonid'];
+$stateId = $data['userdata']['stateid'];
+$branchId = $data['userdata']['branchid'];
+if(isset($divisionId) && !empty($divisionId)) {
+    $this->db->where('maxwell_employees_info.mxemp_emp_division_code', $divisionId);
+}
+
+if(isset($stateId) && !empty($stateId)) {
+    $this->db->where('maxwell_employees_info.mxemp_emp_state_code', $stateId);
+}
+
+if(isset($branchId) && !empty($branchId)) {
+    $this->db->where('maxwell_employees_info.mxemp_emp_branch_code', $branchId);
+}
+
 $this->db->where('maxwell_employees_info.mxemp_emp_type', '4');
+
+if (isset($data['userdata']['empstatus']) && $data['userdata']['empstatus'] != "ALL") {
+    if($data['userdata']['empstatus'] == "RWNP"){
+        $this->db->where('maxwell_employees_info.mxemp_emp_resignation_status', 'R');
+        $this->db->where('maxwell_employees_info.mxemp_emp_is_without_notice_period', 1);
+    }else if($data['userdata']['empstatus'] == "RNP"){
+        $this->db->where('maxwell_employees_info.mxemp_emp_resignation_status', 'R');
+        $this->db->where('maxwell_employees_info.mxemp_emp_is_without_notice_period', 0);
+    }else{
+        $this->db->where('maxwell_employees_info.mxemp_emp_resignation_status', $data['userdata']['empstatus']);
+    }
+}else if($data['userdata']['empstatus'] == "ALL"){//----->FOR ALL DONT KEEP ANY RESIGN STATUS
+}else{
+    $this->db->where('maxwell_employees_info.mxemp_emp_resignation_status !=', 'R');
+}
 
 // Resignation relieving date condition
 /*$this->db->group_start();
@@ -201,6 +231,10 @@ $this->db->group_end();
 $this->db->order_by('maxwell_employees_info.mxemp_emp_id', 'ASC');
 
 $query = $this->db->get();
+
+         /*  echo $this->db->last_query();
+         echo "<Pre>";print_r($data);
+         exit;*/
 $employees = $query->result();	
 
 /*
@@ -252,6 +286,7 @@ foreach ($employees as $emp) {
     $emp_id = $emp->mxemp_emp_id;
     $emp_name = $emp->mxemp_emp_fname;
     $mxemp_emp_resignation_status = $emp->mxemp_emp_resignation_status;
+    $mxemp_emp_is_without_notice_period = $emp->mxemp_emp_is_without_notice_period;
     $mxemp_emp_resignation_date = $emp->mxemp_emp_resignation_date;
     $mxemp_emp_resignation_relieving_settlement_date = $emp->mxemp_emp_resignation_relieving_settlement_date;
     $mxd_name = $emp->mxd_name;
@@ -269,26 +304,43 @@ foreach ($employees as $emp) {
   }
   
   
-  $bonus_status='0';
-  $remarks='0';
-  $finacial_month_year='0';
-	$sql6 = " SELECT bonus_status,remarks,finacial_month_year FROM `update_bonus_status` WHERE emp_code='$emp_id' AND finacial_month_year = '$month_year1'  ";
+  $bonus_status='Bonus Payable';
+  if(date('Y',strtotime($end_date1)) == date('Y') && date('m',strtotime($end_date1)) <= '03') {
+      $bonus_status='Current Year Bonus';
+  } elseif(date('Y',strtotime($start_date1)) == date('Y') && date('m',strtotime($start_date1)) > '03') {
+      $bonus_status='Bonus Payable';
+  }
+  $remarks='';
+  $bonus_created_at=$bonus_created_by=$bonus_updated_at=$bonus_updated_by='-N/A-';
+  $finacial_month_year=str_replace('~@~',' to ',$month_year1);
+	$sql6 = " SELECT bonus_status,remarks,finacial_month_year,created_at,created_by,updated_at,updated_by FROM `update_bonus_status` WHERE emp_code='$emp_id' AND finacial_month_year = '$month_year1'  ";
  $result6 = $this->db->query($sql6);
   $lastrowofareq6=$result6->result_array();
   $oldLead_id6=$result6->num_rows() ;
-  if($oldLead_id6>0){ 
-	$bonus_status=$lastrowofareq6['0']['bonus_status'];	
+  if($oldLead_id6>0){
+	$bonus_status=$lastrowofareq6['0']['bonus_status'];
+      //echo "<pre>".$sql6."  ".$bonus_status;print_r($lastrowofareq6);//exit();
+    if($bonus_status == "bonus_payable") { $bonus_status = 'Bonus Payable';}
+    elseif($bonus_status == "paid") { $bonus_status = 'Paid';}
+    elseif($bonus_status == "unpaid_bonus") { $bonus_status = 'Unpaid Bonus';}
+    elseif($bonus_status == "bonus_payable") { $bonus_status = 'Bonus Payable';}
+
 	$remarks=$lastrowofareq6['0']['remarks'];	
-	$finacial_month_year=$lastrowofareq6['0']['finacial_month_year'];	
-	
+	$finacial_month_year=str_replace('~@~',' to ',$lastrowofareq6['0']['finacial_month_year']);
+      $bonus_created_at = !empty($lastrowofareq6['0']['created_at']) ? $lastrowofareq6['0']['created_at'] : '-N/A-';
+      $bonus_created_by = !empty($lastrowofareq6['0']['created_by']) ? $lastrowofareq6['0']['created_by'] : '-N/A-';
+      $bonus_updated_at = !empty($lastrowofareq6['0']['updated_at']) ? $lastrowofareq6['0']['updated_at'] : '-N/A-';
+      $bonus_updated_by = !empty($lastrowofareq6['0']['updated_by']) ? $lastrowofareq6['0']['updated_by'] : '-N/A-';
+
   }
   
   
 
-    $row = [
+    $row = array(
         'emp_code' => $emp_id,
         'emp_name' => $emp_name,
         'mxemp_emp_resignation_status' => $mxemp_emp_resignation_status,
+        'mxemp_emp_is_without_notice_period' => $mxemp_emp_is_without_notice_period,
         'mxemp_emp_resignation_date' => $mxemp_emp_resignation_date,
         'mxemp_emp_resignation_relieving_settlement_date' => $mxemp_emp_resignation_relieving_settlement_date,
         'mxd_name' => $mxd_name,
@@ -297,10 +349,11 @@ foreach ($employees as $emp) {
         'remarks' => $remarks,
         'finacial_month_year' => $finacial_month_year,
         'tot_loan' => $tot_loan_amt,
-        'bonus_status' => $bonus_status,
-        'remarks' => $remarks,
-        'finacial_month_year' => $finacial_month_year,
-    ];
+        'bon_created_at' => $bonus_created_at,
+        'bon_created_by' => $bonus_created_by,
+        'bon_updated_at' => $bonus_updated_at,
+        'bon_updated_by' => $bonus_updated_by,
+        );
 
     $total_bonus = 0;
     $total_bonus_arres = 0;

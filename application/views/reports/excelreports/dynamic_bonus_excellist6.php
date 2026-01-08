@@ -8,24 +8,25 @@
                         <div class="col-sm-12">
                             <div class="card mb-0">					
                                 <div class="card-header">
-									<h4 class="card-title mb-0">Preview List</h4>
+									<h4 class="card-title mb-0">Update Bonus Status</h4>
 								</div>
                                 <div class="card-body">	
 								<div class="row">
 								<div class="col-md-3">
-								Status:<select class="form-control" name="status" id="status" >
-<option value="">select</option>								
-<option value="current_year_bonus">current year bonus</option>								
-<option value="unpaid_bonus">unpaid bonus</option>								
-<option value="bonus_payable">bonus payable</option>								
-<option value="paid">paid</option>								
+								Status:
+                                <select class="form-control" name="status" id="status" >
+                                    <option value="">Select Status</option>
+                                    <option value="current_year_bonus">Current Year Bonus</option>
+                                    <option value="unpaid_bonus">Unpaid Bonus</option>
+                                    <option value="bonus_payable">Bonus Payable</option>
+                                    <option value="paid">Paid</option>
 								</select >									
 								</div>
 								<div class="col-md-3">
 								Remarks:<input type="text" name="remarks" id="remarks" class="form-control" />									
 								</div>
 								<div class="col-md-3">
-								pasword:<input type="text" name="password_user" id="password_user" class="form-control" />									
+								Pasword:<input type="password" name="password_user" id="password_user" class="form-control" />
 								</div>
 								
 								<div class="col-md-3">
@@ -39,12 +40,12 @@
 											<thead>
 												<tr>
 												<th><input type="checkbox" id="select-all" /></th>
-												<th>finace year</th>
-												<th>status</th>
+												<th>Finace Year</th>
+												<th>Emp Status</th>
 												<th>DOL</th>
-												<th>bonus paid on</th>
-												<th>manuall status</th>
-												<th>remarks</th>
+												<th>Bonus Paid on</th>
+												<th>Manual Status</th>
+												<th>Remarks</th>
 												<th>Division</th>
 												<th>Branch</th>
 												<th>Emp Code</th>
@@ -75,8 +76,13 @@
 												<th>Mar Main</th>
 												<th>Mar Arrears</th>
 												<th>BONUS PAYABLE</th>
+												<th>Loan Amount</th>
 												<th>Staff Adv RECOVERY</th>
-												<th>Payable</th>
+												<th>Payable / Paid</th>
+                                                <th>Created By</th>
+                                                <th>Created On</th>
+                                                <th>Updated By</th>
+												<th>Updated On</th>
 												</tr>
 											</thead>
                                             <tbody>
@@ -110,13 +116,23 @@
 													$bonus_status=$commm['bonus_status'];
 													$total_bonus=$commm['total_bonus'];
 													$tot_loan=$commm['tot_loan'];
- //print_r($commm['emp_code']);die;													?> 
+ //print_r($commm['emp_code']);die;													?>
                                                     <tr>
-				<td><input type="checkbox" name="emp_check[]" value="<?php echo $commm['emp_code']; ?>" /></td>
-									<td><?php echo $commm['finacial_month_year'];  ?></td>
-							<td><?php echo $commm['mxemp_emp_resignation_status'];  ?></td>
-							<td><?php echo $commm['mxemp_emp_resignation_date'];  ?></td>
-			<td><?php echo $commm['mxemp_emp_resignation_relieving_settlement_date'];  ?></td>
+				                                        <td><input type="checkbox" name="emp_check[]" value="<?php echo $commm['emp_code']; ?>" /></td>
+                                                        <td><?php echo $commm['finacial_month_year'];  ?></td>
+                                                        <td> <?php if($commm['mxemp_emp_resignation_status'] == 'R' && $commm['mxemp_emp_is_without_notice_period'] == 0){
+                                                                echo "<span style='color: #fc030f'> RESIGNED<span style='color: #4287f5'> (With Notice Period)</span></span>";
+                                                            }if($commm['mxemp_emp_resignation_status'] == 'R' && $commm['mxemp_emp_is_without_notice_period'] == 1){
+                                                                echo "<span style='color: #fc030f'> RESIGNED<span style='color: #42f5e9'> (With Out Notice Period)</span> </span>";
+                                                            }else if($commm['mxemp_emp_resignation_status'] == 'W'){
+                                                                echo "<span style='color: #1e7e34'> WORKING</span>";
+                                                            }else if($commm['mxemp_emp_resignation_status'] == 'N'){
+                                                                echo "<span style='color: #A52A2A'> NOTICE PERIOD</span>";
+                                                            }?>
+                                                            <?php //echo $commm['mxemp_emp_resignation_status'];  ?>
+                                                        </td>
+							                            <td><?php echo $commm['mxemp_emp_resignation_date'];  ?></td>
+                                                        <td><?php echo $commm['mxemp_emp_resignation_relieving_settlement_date'];  ?></td>
 							<td><?php echo $bonus_status;  ?></td>
 							<td><?php echo $commm['remarks'];  ?></td>
 							<td><?php echo $commm['mxd_name'];  ?></td>
@@ -147,25 +163,51 @@
 							<td><?php echo $commm['feb_bonusarres'];  ?></td>
 							<td><?php echo $commm['mar_bonus'];  ?></td>
 							<td><?php echo $commm['mar_bonusarres'];  ?></td>
-							<td><?php echo $total_bonus;  ?></td>
-							<td><?php 
-							if($total_bonus>0)
-							{echo $tot_loan;}else{ echo "0"; }
+							<td><?php echo "<span style='color: #1e7e34'>".$total_bonus."</span>";  ?></td>
+							<td><?php echo "<span style='color: #A52A2A'>".$tot_loan."</span>";  ?></td>
+                                <?php
+                                        $tooltip = "If Bonus Payable < Loan Amount, 50% of Bonus to be recovered as Staff Advance,  Bonus Payable > Loan Amount and ( 50% Bonus is less than Loan Amt )  50% of Bonus to be recovered as Staff Advance,  IF Bonus Payable > Loan Amount and ( 50% Bonus is greater than Loan Amt )  Total Loan Amount to be recovered as Staff Advance";
+                                ?>
+							<td data-toggle="tooltip" title="<?php echo $tooltip ?>" style="cursor:help; background-color: #fdf5e6;">
+                                <i class="fa fa-info-circle text-info" style="font-size: 10px;"></i>
+                                <?php
+                                $advRecovery = 0;
+                                /* If bonus >= Loan Amount, 50 % of Loan to be recovered as Staff Advance */
+                                if($total_bonus >= $tot_loan) {
+                                    $advRecovery_temp =   round(($tot_loan * 50)/100, 2);
+                                    if($tot_loan < $advRecovery_temp) {
+                                        $advRecovery = $tot_loan;
+                                    } else {
+                                        $advRecovery = $advRecovery_temp;
+                                    }
+                                }
+
+                                /* if its Bonus < Staff Adv, 50% of Bonus to be recovered as Staff Advance*/
+                                if($total_bonus < $tot_loan) {
+                                    $advRecovery =   round(($total_bonus * 50)/100,2);
+                                }
+                                if($advRecovery>0)
+                                {
+                                    echo "<span style='color: #fc030f'>".$advRecovery."</span>";}else{ echo "0";
+                                }
 							
 							?></td>
 							<td><?php 
-							if( !empty($commm['mxemp_emp_resignation_relieving_settlement_date']) &&  $total_bonus>0)
+							//if( !empty($commm['mxemp_emp_resignation_relieving_settlement_date']) &&  $total_bonus>0)
+							if( $total_bonus>0)
 							{
-								$diffrence_tot=$total_bonus-$tot_loan;
-							echo ($diffrence_tot > 0) ? $diffrence_tot : 0;
+                                $diffrence_tot=$total_bonus-$advRecovery;
+							echo ($diffrence_tot > 0) ? "<span style='color: #1e7e34'>".$diffrence_tot."</span>" : 0;
 							}else{
 								echo "0";
 							}
 							 
 							
 							?></td>
-														
-                                                                
+                                                        <td><?php echo $commm['bon_created_by'];  ?></td>
+                                                        <td><?php echo $commm['bon_created_at'];  ?></td>
+                                                        <td><?php echo $commm['bon_updated_by'];  ?></td>
+                                                        <td><?php echo $commm['bon_updated_at'];  ?></td>
                                                         
                                                     </tr>
                                                 <?php } ?>   
@@ -184,6 +226,7 @@
    
  <script>
 $(document).ready(function() {
+    $('[data-toggle="tooltip"]').tooltip();
     var table = $('#dataTables-example2').DataTable({
                             dom: 'Bfrtip',
                             "destroy": true, //use for reinitialize datatable

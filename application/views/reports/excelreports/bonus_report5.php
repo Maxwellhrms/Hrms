@@ -1,4 +1,4 @@
-<?php echo $controller1->mastersfilters_paystructure($ym='Y',$cmp='Y',$div='Y',$stateid='Y',$branch='Y',$emplid='N',$grade='N',$empjoin='N',$categ='N',$day='N',$from ='N',$to ='N',$emp_type='N'); ?>
+<?php echo $controller1->mastersfilters_paystructure($ym='Y',$cmp='Y',$div='Y',$stateid='Y',$branch='Y',$emplid='N',$grade='N',$empjoin='N',$categ='N',$day='N',$from ='N',$to ='N',$emp_type='N',$is_quaterly='N',$emp_status='Y'); ?>
 <!--  7 variables -->
 <div class="bonus-report-loader"></div>
 <div id="excellist"> </div>
@@ -67,6 +67,7 @@ $("form#commonform").submit(function(e) {
             var day = $("#day").val();
             var bonus_status = $("#bonus_status").val();
             var bonus_sal = $("#bonus_sal").val();
+            var empstatus = $("#empstatus").val();
             var radiotype = $('input[name=radiotype]:checked').val();
             var empid = $("#attndempid").val();
             var mainurl = baseurl+'export/bonus_report_list5';
@@ -76,7 +77,7 @@ $("form#commonform").submit(function(e) {
                 url: mainurl,
                 type: "post",
                 async: false,
-                data: {'month_year': month_year,'companyid': company_id, 'divisonid': div_id,'stateid':state_id,'branchid':branch_id,'employeeid':empid,'filter':'1','day':day,'is_finanical':is_finanical,'is_finanical_all':is_finanical_all,'bonus_status':bonus_status,'bonus_sal':bonus_sal},
+                data: {'month_year': month_year,'companyid': company_id, 'divisonid': div_id,'stateid':state_id,'branchid':branch_id,'employeeid':empid,'filter':'1','day':day,'is_finanical':is_finanical,'is_finanical_all':is_finanical_all,'bonus_status':bonus_status,'bonus_sal':bonus_sal,'empstatus':empstatus},
                 success: function (data) {
                     var isValidJSON = isValidJSONString(data);
                     // alert(isValidJSON);
