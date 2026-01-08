@@ -527,9 +527,9 @@ $data['common'] = $this->Adminmodel->getemployeedetailstosetsession3($data);
      public function bonus()
     {
         $this->header();
-        $data['title']= "bonus Register";
+        $data['title']= "Bonus Register";
         $data['titlehead']= "MAXWELL LOGISTICS PRIVATE LIMITED";
-        $data['excelheading']= "bonus Register";
+        $data['excelheading']= "Bonus Register";
         $data['check']="";
         $data['controller1'] = $this;
         $this->load->view('reports/excelreports/bonus_report5',$data); 
@@ -573,10 +573,12 @@ $data['common'] = $this->Adminmodel->getemployeedetailstosetsession3($data);
   $oldLead_id5=$result5->num_rows() ;
   if($oldLead_id5>0){ 
 	//$stafftblid_cross_check=$lastrowofareq5['0']['id'];
-	$data=$this->db->query("UPDATE update_bonus_status SET  bonus_status='$status',remarks='$remarks'  WHERE  emp_code = '$emp_code' and finacial_month_year= '$finacial_month_year'  ");
+      $dateTime = date('Y-m-d H:i:s');
+	$data=$this->db->query("UPDATE update_bonus_status SET  bonus_status='$status',remarks='$remarks', updated_by='$user_id',updated_at='$dateTime' WHERE  emp_code = '$emp_code' and finacial_month_year= '$finacial_month_year'  ");
   }
   else{
- $data=$this->db->query("INSERT INTO update_bonus_status (emp_code, bonus_status, finacial_month_year,remarks)VALUES ('$emp_code', '$status', '$finacial_month_year', '$remarks');");
+      $dateTime = date('Y-m-d H:i:s');
+ $data=$this->db->query("INSERT INTO update_bonus_status (emp_code, bonus_status, finacial_month_year,remarks,created_by,created_at)VALUES ('$emp_code', '$status', '$finacial_month_year', '$remarks','$user_id','$dateTime');");
   }
 
         }
@@ -657,6 +659,7 @@ $data['common'] = $this->Adminmodel->getemployeedetailstosetsession4($data);
                              );
          $data['is_attendance'] = 1;//----->FOR GETTING ATTENDANCE TABLE DATA IN PAYSHEET
 $data['common'] = $this->Adminmodel->getemployeedetailstosetsession_bonus5($data);
+
         $this->load->view('reports/excelreports/dynamic_bonus_excellist6',$data);
    }
  

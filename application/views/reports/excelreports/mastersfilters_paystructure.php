@@ -66,11 +66,11 @@
 						<div class="col-sm-6 col-md-3 finacial_month_year_div_status" style="display:none"> 
 							<div class="form-group form-focus select-focus">
 								<select class="form-control" name="f_status" id="f_status" >
-<option value="">select</option>								
-<option value="current_year_bonus">current year bonus</option>								
-<option value="unpaid_bonus">unpaid bonus</option>								
-<option value="bonus_payable">bonus payable</option>								
-<option value="paid">paid</option>								
+                                    <option value="">Select</option>
+                                    <option value="current_year_bonus">current year bonus</option>
+                                    <option value="unpaid_bonus">unpaid bonus</option>
+                                    <option value="bonus_payable">bonus payable</option>
+                                    <option value="paid">paid</option>
 								</select >
 								<label class="focus-label">Status</label>
 							</div>
@@ -243,9 +243,9 @@
 								<select class="select select2" style="width: 100%" name="bonus_status" id="bonus_status"> 
 									<option value="">Select Status </option>
                                     <option value="current_year_bonus">current year bonus</option>								
-<option value="unpaid_bonus">unpaid bonus</option>								
-<option value="bonus_payable">bonus payable</option>								
-<option value="paid">paid</option>	
+                                    <option value="unpaid_bonus">unpaid bonus</option>
+                                    <option value="bonus_payable">bonus payable</option>
+                                    <option value="paid">paid</option>
                                 </select>
 								<label class="focus-label">Select Status</label>
 							</div>
@@ -285,6 +285,23 @@
 								<label class="focus-label">Employee Code</label>
 							</div>
 						</div>
+                        <?php } ?>
+                        <?php if($emp_status == 'Y'){ ?>
+                            <div class="col-sm-6 col-md-3">
+                                <div class="form-group form-focus select-focus">
+                                    <select class="select2 form-control" name="empstatus" id="empstatus">
+                                        <option value="ALL">Select Status</option>
+                                        <option value="ALL">ALL</option>
+                                        <option value="W">WORKING</option>
+                                        <option value="N">NOTICE PERIOD</option>
+                                        <option value="RNP">RESIGNED(With Notice Period)</option>
+                                        <option value="RWNP">RESIGNED(Without Notice Period)</option>
+                                        <option value="R">RESIGNED</option>
+                                    </select>
+                                    <label class="focus-label">Status</label>
+                                    <span class="formerror" id="empstatuserror"></span>
+                                </div>
+                            </div>
                         <?php } ?>
 						<div class="col-sm-6 col-md-3">  
 							<button id="searchemployeefilterdata" class="btn btn-success btn-block" > Search </button>  

@@ -88,7 +88,7 @@ class Common extends CI_Controller {
         $data['emp_type'] = $emp_type;//---->NEW BY SHABABU(31-07-2022)
 		$this->load->view('reports/excelreports/masterfilters',$data);	
 	}
-	public function mastersfilters_paystructure($ym,$cmd,$div,$stateid,$branch,$emplid,$grade,$empjoin,$categ,$day,$from ='N',$to ='N',$emp_type='N',$is_quaterly='N'){  
+	public function mastersfilters_paystructure($ym,$cmd,$div,$stateid,$branch,$emplid,$grade,$empjoin,$categ,$day,$from ='N',$to ='N',$emp_type='N',$is_quaterly='N',$emp_status='N'){
         $data['cmpmaster'] = $this->Adminmodel->getcompany_master();
         $data['cmd'] = $cmd;
         $data['ym'] = $ym;
@@ -104,6 +104,7 @@ class Common extends CI_Controller {
         $data['to'] = $to;
         $data['emp_type'] = $emp_type;//---->NEW BY SHABABU(31-07-2022)
         $data['is_quaterly'] = $is_quaterly;//---->NEW BY SHABABU(24-12-2024)
+        $data['emp_status'] = $emp_status; //---->NEW BY Varaprasad(07-01-2026)
 		$this->load->view('reports/excelreports/mastersfilters_paystructure',$data);	
 	}
 
