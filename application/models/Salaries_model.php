@@ -4093,7 +4093,7 @@ class Salaries_model extends Adminmodel
                 
                 //-------------GETTING ALL ARRAYS
                 $employees_array = $this->getemployeesinfo_fandf($user_data);
-                // print_r($employees_array);exit;
+                 // echo "<pre>";print_r($employees_array);exit;
                 $emp_type_id = $employees_array[0]->mxemp_emp_type;
                 $table_names_array = $this->getemployeetypemasterdetails($emp_type_id, $cmp_id);
                 $column_names_array = $this->get_income_types($income_id = null, $cmp_id, $emp_type_id);
@@ -4783,7 +4783,9 @@ class Salaries_model extends Adminmodel
                                                             $bns_bonus_perc = $bns_data->mxbns_bonus_perc;
                                                             $bns_max_bonus_limit = $bns_data->mxbns_max_bns;
                                                             $bns_round_type = $bns_data->mxbns_bonus_perc_round_type;
-                                                            if (floatval($rate_basic_sal) <= floatval($bns_applicability_on_rate_basic)) { // rateof_basic <= 21000                                                                
+                                                            // echo $rate_basic_sal." --- ".$bns_applicability_on_rate_basic;exit();
+                                                            if (floatval($rate_basic_sal) <= floatval($bns_applicability_on_rate_basic)) { // rateof_basic <= 21000
+                                                                 // echo $actual_basic." --- ".$bns_round_type;exit();
                                                                 if (floatval($actual_basic) <= floatval($bns_max_bonus_limit)) {
                                                                     $bonus_amount = rounding_number($actual_basic, $bns_round_type);
                                                                 } else {
@@ -4799,6 +4801,7 @@ class Salaries_model extends Adminmodel
                                             }
                                         }
                                         $bonus_amount = rounding_number($bonus_amount,$bns_round_type);
+                                        //echo "  => ".$bonus_amount;exit();
                                                             
                                         //---------------END BONUS CALCULATION
                                         // print_r($gratuity_array);exit;
@@ -5246,7 +5249,7 @@ class Salaries_model extends Adminmodel
                         $gatuity_amount = $sal_data[0]->gratuity_amount;
                         $bns_amount = $sal_data[0]->bonus;
                         // echo $gatuity_amount;exit;
-                        // echo $final_array['mxsal_gratuity_amount'];exit;
+                         // echo $final_array['mxsal_bonus']." --> ".$bns_amount;exit;
                         $final_array['mxsal_gratuity_amount'] = $final_array['mxsal_gratuity_amount'] + $gatuity_amount;
                         $final_array['mxsal_bonus'] = $final_array['mxsal_bonus'] + $bns_amount;
                         // echo $final_array['mxsal_gratuity_amount'];exit;

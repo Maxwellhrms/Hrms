@@ -306,25 +306,55 @@
 											</div>
 										</div>
 										<!---------TOTAL-->
-										
+
+                                        <?php
+                                        $this->db->select("*");
+                                        $this->db->from("maxwell_fandf_for_left_employee");
+                                        $this->db->where("mxfandf_left_emp_code",$emp_data[0]->mxemp_emp_id);
+                                        $qry = $this->db->get();
+                                        $res = $qry->result();
+                                        $num_rows = $qry->num_rows();
+                                        if($num_rows >0)
+                                        {
+                                            $salary_structure['mxsal_fandf_flag']=1;
+                                        }
+                                        ?>
+
 									<div class="col-sm-6">
 											<div>
 												<h4 class="m-b-10"><strong>Company Benifites</strong></h4>
 												<table class="table table-bordered">
 													<tbody>
 														<tr>
-															<td><strong>Bonus</strong> <span class="float-right"><?php echo $salary_structure['mxsal_bonus'];?></span></td>
+															<td><strong>Bonus</strong> <span class="float-right" style="color: green;">
+                                                                    <?php
+                                                                    $lastYearBonus = ($salary_structure['mxsal_fandf_flag'] == 0) ? $salary_structure['mxsal_bonus'] : 0;
+                                                                    echo $lastYearBonus;
+                                                                    ?>
+                                                                </span></td>
 														</tr>
 														<tr>														
-															<td><strong>Bonus Payable</strong> <span class="float-right"><?php echo $salary_structure_fandf[0]['total_bonus'];?></span></td>
+															<td><strong>Bonus Payable</strong> <span class="float-right" style="color: green"><?php echo $salary_structure_fandf[0]['total_bonus'];?></span></td>
 														</tr>
-														<td><strong>Loan (<?php echo $loan_array['loan_approved']; ?>/ <?php echo $loan_array['outstanding_amount']; ?>) (<?php echo $loan_array['completed_tenure_months']; ?>/<?php echo $loan_array['total_tenure_months']; ?>) (Pending - <?php echo $loan_array['remaining_tenure_months']; ?>)</strong> <span class="float-right"><?php echo $salary_structure['mxsal_loan_amount'];?></span></td>
-														
+														<td><strong>Loan (<?php echo $loan_array['loan_approved']; ?>/ <?php echo $loan_array['outstanding_amount']; ?>) (<?php echo $loan_array['completed_tenure_months']; ?>/<?php echo $loan_array['total_tenure_months']; ?>) (Pending - <?php echo $loan_array['remaining_tenure_months']; ?>)</strong> <span class="float-right" style="color: red"><?php echo $salary_structure['mxsal_loan_amount'];?></span></td>
+
+                                                        <?php
+                                                        // Calculation for Is Gratuity Applicable
+                                                        $doj_obj = new DateTime($emp_data[0]->mxemp_emp_date_of_join);
+                                                        $today_date = date('Y-m-d H:i:s');
+                                                        $today_obj = new DateTime($today_date);
+                                                        $grat_applicable_interval = $doj_obj->diff($today_obj);
+                                                        $grat_applicable_years = $grat_applicable_interval->y;
+                                                        ?>
 														<tr>
-															<td><strong>Gratuity</strong> <span class="float-right"><?php echo $salary_structure['mxsal_gratuity_amount'];?></span></td>
+															<td><strong>Gratuity</strong> <span class="float-right" style="color: green;">
+                                                                    <?php
+                                                                    $finalGratuityAmount =  ($grat_applicable_years >=5)? $salary_structure['mxsal_gratuity_amount'] : 0;
+                                                                    echo $finalGratuityAmount?>
+                                                                </span></td>
 														</tr>
 														<tr>
-															<td><strong>Total</strong> <span class="float-right"><strong><?php echo $salary_structure['mxsal_bonus'] + $salary_structure['mxsal_gratuity_amount']+$salary_structure['mxsal_loan_amount']; ?> </strong></span></td>
+															<td><strong>Total</strong> <span class="float-right"><strong><?php echo $lastYearBonus + $salary_structure_fandf[0]['total_bonus'] + $finalGratuityAmount-$salary_structure['mxsal_loan_amount']; ?> </strong></span></td>
 														</tr>
 													</tbody>
 												</table>
@@ -405,20 +435,6 @@
 										
 										<div class="col-sm-12">
 										    <?php
-											
-											
-											$this->db->select("*");
-        $this->db->from("maxwell_fandf_for_left_employee");
-        $this->db->where("mxfandf_left_emp_code",$emp_data[0]->mxemp_emp_id);
-        $qry = $this->db->get();
-        $res = $qry->result();
-		$num_rows = $qry->num_rows();
-		if($num_rows >0)
-		{
-			$salary_structure['mxsal_fandf_flag']=1;
-		}
-		
-		
 										if($salary_structure['mxsal_fandf_flag'] == 0){
 											//echo '<button type="submit" id="generate_fandf_btn" class="btn btn-success">Generate</button>';
 											echo '<button type="submit" id="fandfdetails_left_form" class="btn btn-success">Generate</button>';
