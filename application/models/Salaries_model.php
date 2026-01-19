@@ -6742,7 +6742,8 @@ class Salaries_model extends Adminmodel
 			
 			
 			$emp_info_array = array(
-                                    "bonus_status" => "paid"
+                                    "bonus_status" => "paid",
+                                    "remarks" => "Paid in F and F"
                               );
             $this->db->where("emp_code",$emp_code);
             $this->db->update("update_bonus_status",$emp_info_array);
