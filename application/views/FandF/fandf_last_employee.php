@@ -224,7 +224,7 @@
 														<tr>
 															<td><strong>Previous Year Bonus</strong> <span class="float-right" style="color: green;">
                                                                  <?php
-                                                                 $lastYearBonus = ($emp_data['mxemp_emp_is_fandf_completed'] == 0) ? $salary_structure['previousYearBonus'] : 0;
+                                                                 $lastYearBonus = $salary_structure['previousYearBonus'];
                                                                  $loanAmount = $loan_array['emi_amount'];
 
                                                                  $advRecovery = 0;
@@ -263,7 +263,7 @@
 														<tr>														
 															<td><strong>Bonus Payable</strong> <span class="float-right" style="color: green;">
                                                                     <?php
-                                                                    $currentYearBonus = ($emp_data['mxemp_emp_is_fandf_completed'] == 0) ? $salary_structure_fandf[0]['total_bonus'] : 0;
+                                                                    $currentYearBonus = $salary_structure_fandf[0]['total_bonus'];
                                                                     $loanAmount = $loan_array['emi_amount'];
 
                                                                     $advRecovery = 0;
@@ -319,7 +319,11 @@
 														<td><strong>Loan (<?php echo $loan_array['loan_approved']; ?>/ <?php echo $loan_array['outstanding_amount']; ?>) (<?php echo $loan_array['completed_tenure_months']; ?>/<?php echo $loan_array['total_tenure_months']; ?>) (Pending - <?php echo $loan_array['remaining_tenure_months']; ?>)</strong> <span class="float-right" style="color: red;"><?php echo $salary_structure['mxsal_loan_amount'];?></span></td>
 														</tr>
 														<tr>
-                                                            <td><strong>Total</strong> <span class="float-right"><strong><?php echo $lastYearBonus + $salary_structure_fandf[0]['total_bonus'] + $finalGratuityAmount-$salary_structure['mxsal_loan_amount']; ?> </strong></span></td>
+                                                            <td><strong>Total</strong> <span class="float-right"><strong>
+                                                                    <?php
+                                                                    echo $lastYearDiffrence_tot + $currentYearDiffrence_tot + $finalGratuityAmount - $salary_structure['mxsal_loan_amount'];
+                                                                    ?>
+                                                                    </strong></span></td>
 														</tr>
 													</tbody>
 												</table>
