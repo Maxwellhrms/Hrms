@@ -4524,7 +4524,7 @@ $textaligntop = array(
 
     public function yearlyleave_list(){
         $userdata = $this->input->post();
-        $res['authresult']=$this->export->yearlyleave_list($userdata); 
+        $res['authresult']=$this->export->yearlyleave_list($userdata);
         if( $res['authresult']['status'] != 200){
             echo $res['authresult']['description']; exit;
         }
@@ -5021,10 +5021,32 @@ $textaligntop = array(
 		$this->footer();	
 	}
     // END NEW BY SHABABU(23-03-2025)
-    
-    
-    
-    
+
+
+    /* Employees Leave Report */
+
+    public function employeesleavereport(){
+        $this->verifylogin();
+        $this->header();
+        $data['title']="Employees Leave Report";
+        $data['titlehead']= "Employees Leave Report";
+        $data['excelheading']= "Employees Leave Report";
+        $data['check']="";
+        $data['controller1'] = $this;
+        $this->load->view('reports/excelreports/employees_leave_report',$data);
+        $this->footer();
+    }
+
+    public function employeesleavereport_ajax(){
+        $userdata = $this->input->post();
+        /*$res['authresult']=$this->export->yearlyleave_list($userdata);
+        if( $res['authresult']['status'] != 200){
+            echo $res['authresult']['description']; exit;
+        }
+        $newarr['common'] = $res['authresult']['leave_encashment'];*/
+        $newarr['common'] = array();
+        $this->load->view('reports/excelreports/dynamicexcellist',$newarr);
+    }
     
     
     
@@ -5180,5 +5202,7 @@ $textaligntop = array(
         $data['values'] = $arr_data;
     }  
     */
+
+
 }
 ?>

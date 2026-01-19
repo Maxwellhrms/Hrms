@@ -306,25 +306,126 @@
 											</div>
 										</div>
 										<!---------TOTAL-->
-										
+
+
+
 									<div class="col-sm-6">
 											<div>
 												<h4 class="m-b-10"><strong>Company Benifites</strong></h4>
 												<table class="table table-bordered">
 													<tbody>
 														<tr>
-															<td><strong>Bonus</strong> <span class="float-right"><?php echo $salary_structure['mxsal_bonus'];?></span></td>
+															<td><strong>Previous Year Bonus</strong> <span class="float-right" style="color: green;">
+                                                                    <?php
+                                                                    $lastYearBonus = ($emp_data['mxemp_emp_is_fandf_completed'] == 0) ? $salary_structure['previousYearBonus'] : 0;
+                                                                    $loanAmount = $loan_array['emi_amount'];
+
+                                                                    $advRecovery = 0;
+                                                                    /* If bonus >= Loan Amount, 50 % of Loan to be recovered as Staff Advance */
+                                                                    if($lastYearBonus >= $loanAmount) {
+                                                                        $advRecovery_temp =   round(($loanAmount * 50)/100, 2);
+                                                                        if($loanAmount < $advRecovery_temp) {
+                                                                            $advRecovery = $loanAmount;
+                                                                        } else {
+                                                                            $advRecovery = $advRecovery_temp;
+                                                                        }
+                                                                    }
+
+                                                                    /* if its Bonus < Staff Adv, 50% of Bonus to be recovered as Staff Advance*/
+                                                                    if($lastYearBonus < $loanAmount) {
+                                                                        $advRecovery =   round(($lastYearBonus * 50)/100,2);
+                                                                    }
+                                                                    if($advRecovery>0) {
+                                                                        $advRecovery = $advRecovery;
+                                                                    }else{
+                                                                        $advRecovery = 0;
+                                                                    }
+
+                                                                    if( $lastYearBonus>0)
+                                                                    {
+                                                                        $lastYearDiffrence_tot = $lastYearBonus-$advRecovery;
+                                                                        $lastYearDiffrence_tot =  ($lastYearDiffrence_tot > 0) ? $lastYearDiffrence_tot : 0;
+                                                                    }else{
+                                                                        $lastYearDiffrence_tot = 0;
+                                                                    }
+
+                                                                    echo $lastYearDiffrence_tot;
+                                                                    ?>
+                                                                </span></td>
 														</tr>
 														<tr>														
-															<td><strong>Bonus Payable</strong> <span class="float-right"><?php echo $salary_structure_fandf[0]['total_bonus'];?></span></td>
+															<td><strong>Bonus Payable</strong>
+                                                                <span class="float-right" style="color: green">
+                                                                    <?php
+                                                                    $currentYearBonus = ($emp_data['mxemp_emp_is_fandf_completed'] == 0) ? $salary_structure_fandf[0]['total_bonus'] : 0;
+                                                                    $loanAmount = $loan_array['emi_amount'];
+
+                                                                    $advRecovery = 0;
+                                                                    /* If bonus >= Loan Amount, 50 % of Loan to be recovered as Staff Advance */
+                                                                    if($currentYearBonus >= $loanAmount) {
+                                                                        $advRecovery_temp =   round(($loanAmount * 50)/100, 2);
+                                                                        if($loanAmount < $advRecovery_temp) {
+                                                                            $advRecovery = $loanAmount;
+                                                                        } else {
+                                                                            $advRecovery = $advRecovery_temp;
+                                                                        }
+                                                                    }
+
+                                                                    /* if its Bonus < Staff Adv, 50% of Bonus to be recovered as Staff Advance*/
+                                                                    if($currentYearBonus < $loanAmount) {
+                                                                        $advRecovery =   round(($currentYearBonus * 50)/100,2);
+                                                                    }
+                                                                    if($advRecovery>0) {
+                                                                        $advRecovery = $advRecovery;
+                                                                    }else{
+                                                                        $advRecovery = 0;
+                                                                    }
+
+                                                                    if( $currentYearBonus>0)
+                                                                    {
+                                                                        $currentYearDiffrence_tot = $currentYearBonus-$advRecovery;
+                                                                        $currentYearDiffrence_tot =  ($currentYearDiffrence_tot > 0) ? $currentYearDiffrence_tot : 0;
+                                                                    }else{
+                                                                        $currentYearDiffrence_tot = 0;
+                                                                    }
+
+                                                                    echo $currentYearDiffrence_tot;
+                                                                    ?>
+
+                                                                </span></td>
 														</tr>
-														<td><strong>Loan (<?php echo $loan_array['loan_approved']; ?>/ <?php echo $loan_array['outstanding_amount']; ?>) (<?php echo $loan_array['completed_tenure_months']; ?>/<?php echo $loan_array['total_tenure_months']; ?>) (Pending - <?php echo $loan_array['remaining_tenure_months']; ?>)</strong> <span class="float-right"><?php echo $salary_structure['mxsal_loan_amount'];?></span></td>
-														
+														<td><strong>Loan (<?php echo $loan_array['loan_approved']; ?>/ <?php echo $loan_array['outstanding_amount']; ?>) (<?php echo $loan_array['completed_tenure_months']; ?>/<?php echo $loan_array['total_tenure_months']; ?>) (Pending - <?php echo $loan_array['remaining_tenure_months']; ?>)</strong> <span class="float-right" style="color: red"><?php echo $salary_structure['mxsal_loan_amount'];?></span></td>
+
+                                                        <?php
+                                                        // Calculation for Is Gratuity Applicable
+                                                        $doj_obj = new DateTime($emp_data[0]->mxemp_emp_date_of_join);
+                                                        $today_date = date('Y-m-d H:i:s');
+                                                        $today_obj = new DateTime($today_date);
+                                                        $grat_applicable_interval = $doj_obj->diff($today_obj);
+                                                        $grat_applicable_years = $grat_applicable_interval->y;
+                                                        ?>
 														<tr>
-															<td><strong>Gratuity</strong> <span class="float-right"><?php echo $salary_structure['mxsal_gratuity_amount'];?></span></td>
+															<td><strong>Gratuity</strong> <span class="float-right" style="color: green;">
+                                                                    <?php
+                                                                    if($emp_data['mxemp_emp_is_fandf_completed'] == 0) {
+                                                                        $finalGratuityAmount = ($grat_applicable_years >= 5) ? $salary_structure['mxsal_gratuity_amount'] : 0;
+                                                                        echo $finalGratuityAmount;
+                                                                    } else {
+                                                                        echo "0";
+                                                                    }?>
+                                                                </span></td>
 														</tr>
 														<tr>
-															<td><strong>Total</strong> <span class="float-right"><strong><?php echo $salary_structure['mxsal_bonus'] + $salary_structure['mxsal_gratuity_amount']+$salary_structure['mxsal_loan_amount']; ?> </strong></span></td>
+															<td><strong>Total</strong>
+                                                            <span class="float-right"><strong>
+                                                                    <?php
+                                                                    if($emp_data['mxemp_emp_is_fandf_completed'] == 0) {
+                                                                     echo $lastYearDiffrence_tot + $currentYearDiffrence_tot + $finalGratuityAmount - $salary_structure['mxsal_loan_amount'];
+                                                                    } else {
+                                                                        echo "0";
+                                                                    }
+                                                                     ?>
+                                                                </strong></span></td>
 														</tr>
 													</tbody>
 												</table>
@@ -405,21 +506,18 @@
 										
 										<div class="col-sm-12">
 										    <?php
-											
-											
-											$this->db->select("*");
-        $this->db->from("maxwell_fandf_for_left_employee");
-        $this->db->where("mxfandf_left_emp_code",$emp_data[0]->mxemp_emp_id);
-        $qry = $this->db->get();
-        $res = $qry->result();
-		$num_rows = $qry->num_rows();
-		if($num_rows >0)
-		{
-			$salary_structure['mxsal_fandf_flag']=1;
-		}
-		
-		
-										if($salary_structure['mxsal_fandf_flag'] == 0){
+                                            $this->db->select("*");
+                                            $this->db->from("maxwell_fandf_for_left_employee");
+                                            $this->db->where("mxfandf_left_emp_code", $emp_data[0]->mxemp_emp_id);
+                                            $qry = $this->db->get();
+                                            $res = $qry->result();
+                                            $num_rows = $qry->num_rows();
+                                            if ($num_rows > 0) {
+                                                $salary_structure['mxsal_fandf_flag'] = 1;
+                                            }
+
+
+                                            if($salary_structure['mxsal_fandf_flag'] == 0){
 											//echo '<button type="submit" id="generate_fandf_btn" class="btn btn-success">Generate</button>';
 											echo '<button type="submit" id="fandfdetails_left_form" class="btn btn-success">Generate</button>';
 											echo '<input type="hidden" name="btn_flag" value="insert">';

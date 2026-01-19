@@ -59,6 +59,15 @@ class Fullandfinalsettlement extends Common {
          //echo $relive_date;exit;
         $salary_structure = $this->Salaries_model->generate_fandf_data($emp_code,$final_date,$cmp_id);
         $data['salary_structure'] = $salary_structure;
+
+        // calculate the Previous Year Bonus based on Resignation date
+        $resignationDate = $data['emp_data'][0]->mxemp_emp_resignation_date;
+        $resignDate = date('Y-m', strtotime($resignationDate));
+        //echo $resignDate." --- ".$emp_code;exit();
+        $data['salary_structure']['previousYearBonus'] = 0;
+        if($data['emp_data'][0]->mxemp_emp_is_fandf_completed == 0) {
+            $data['salary_structure']['previousYearBonus'] = $this->Adminmodel->calculatePreviousYearBonus($emp_code, $resignDate);
+        }
 		
 		$loan_details=$this->Loan_model->getloandetails_payslip($emp_code);
 		$sum_loan_amt=$loan_details[0]->mxemploan_emp_loan_outstanding_amt;
@@ -156,6 +165,15 @@ class Fullandfinalsettlement extends Common {
         // echo $relive_date;exit;
         $salary_structure = $this->Salaries_model->generate_fandf_data($emp_code,$final_date,$cmp_id);
         $data['salary_structure'] = $salary_structure;
+
+        // calculate the Previous Year Bonus based on Resignation date
+        $resignationDate = $data['emp_data'][0]->mxemp_emp_resignation_date;
+        $resignDate = date('Y-m', strtotime($resignationDate));
+        //echo $resignDate." --- ".$emp_code;exit();
+        $data['salary_structure']['previousYearBonus'] = 0;
+        if($data['emp_data'][0]->mxemp_emp_is_fandf_completed == 0) {
+            $data['salary_structure']['previousYearBonus'] = $this->Adminmodel->calculatePreviousYearBonus($emp_code, $resignDate);
+        }
 		
 		$salary_structure_fandf = $this->Adminmodel->getemployeedetailstosetsession_bonus5_fandf($emp_code,$final_date,$cmp_id);
         $data['salary_structure_fandf'] = $salary_structure_fandf;

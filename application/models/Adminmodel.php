@@ -14788,5 +14788,57 @@ public function saveemployeerequesttype($data){
         $returnarray = $query1->result();
         return $returnarray;
     }
+
+
+    public function calculatePreviousYearBonus($empCode, $resignDate) {
+
+        $totalBonus = 0;
+        $bonusArray = array();
+        $dateArr = explode('-', $resignDate);
+        $resignYear = $dateArr[0];
+        $resignMonth = $dateArr[1];
+
+        $financialYear = '';
+        $lastPreviousYear = date("Y",strtotime("-2 year"));
+        $previousYear = date("Y",strtotime("-1 year"));
+        $currentyear = date('Y');
+        $Yearmonth1 = $Yearmonth2 = '';
+        if($resignMonth >= '04' && $resignMonth<= '09' && $resignYear == $currentyear) {
+            $financialYear = $previousYear."-04-01~@~".$currentyear."-03-31";
+            $Yearmonth1 = $previousYear."04";
+            $Yearmonth2 = $currentyear."03";
+        } elseif($resignMonth > '09' && $resignMonth<= '12' && $resignYear == $currentyear) {
+            $financialYear = $previousYear."-04-01~@~".$currentyear."-03-31";
+            $Yearmonth1 = $previousYear."04";
+            $Yearmonth2 = $currentyear."03";
+        }  elseif($resignMonth > '09' && $resignMonth<= '12' && $resignYear <= $previousYear) {
+            $financialYear = $lastPreviousYear."-04-01~@~".$previousYear."-03-31";
+            $Yearmonth1 = $lastPreviousYear."04";
+            $Yearmonth2 = $previousYear."03";
+        } elseif($resignMonth > '01' && $resignMonth<= '03' && $resignYear == $currentyear) {
+            $financialYear = $lastPreviousYear."-04-01~@~".$previousYear."-03-31";
+            $Yearmonth1 = $lastPreviousYear."04";
+            $Yearmonth2 = $previousYear."03";
+        }
+
+        $sql = " SELECT bonus_status FROM `update_bonus_status` WHERE emp_code='$empCode' AND finacial_month_year = '$financialYear'  ";
+        //echo $sql;exit();
+        $resObj = $this->db->query($sql);
+        $resArray = $resObj->result_array();
+        $resRows = $resObj->num_rows() ;
+
+        if($resRows > 0) {
+            $bonus_status = $resArray['0']['bonus_status'];
+
+            if($bonus_status != 'paid') {
+                $qry = " SELECT sum(mxsal_bonus_percentage_amount) as total_bonus FROM `mxsal_m` WHERE mxsal_emp_code='$empCode' AND mxsal_year_month >= '$Yearmonth1' AND mxsal_year_month <= '$Yearmonth2'";
+                //echo $qry;exit();
+                $result5 = $this->db->query($qry);
+                $bonusArray = $result5->result_array();
+                $totalBonus = round($bonusArray[0]['total_bonus']);
+            }
+        }
+        return $totalBonus;
+    }
     
 }
