@@ -225,12 +225,79 @@
 															<td><strong>Previous Year Bonus</strong> <span class="float-right" style="color: green;">
                                                                  <?php
                                                                  $lastYearBonus = ($emp_data['mxemp_emp_is_fandf_completed'] == 0) ? $salary_structure['previousYearBonus'] : 0;
-                                                                 echo $lastYearBonus;
+                                                                 $loanAmount = $loan_array['emi_amount'];
+
+                                                                 $advRecovery = 0;
+                                                                 /* If bonus >= Loan Amount, 50 % of Loan to be recovered as Staff Advance */
+                                                                 if($lastYearBonus >= $loanAmount) {
+                                                                     $advRecovery_temp =   round(($loanAmount * 50)/100, 2);
+                                                                     if($loanAmount < $advRecovery_temp) {
+                                                                         $advRecovery = $loanAmount;
+                                                                     } else {
+                                                                         $advRecovery = $advRecovery_temp;
+                                                                     }
+                                                                 }
+
+                                                                 /* if its Bonus < Staff Adv, 50% of Bonus to be recovered as Staff Advance*/
+                                                                 if($lastYearBonus < $loanAmount) {
+                                                                     $advRecovery =   round(($lastYearBonus * 50)/100,2);
+                                                                 }
+                                                                 if($advRecovery>0) {
+                                                                     $advRecovery = $advRecovery;
+                                                                 }else{
+                                                                     $advRecovery = 0;
+                                                                 }
+
+                                                                 if( $lastYearBonus>0)
+                                                                 {
+                                                                     $lastYearDiffrence_tot = $lastYearBonus-$advRecovery;
+                                                                     $lastYearDiffrence_tot =  ($lastYearDiffrence_tot > 0) ? $lastYearDiffrence_tot : 0;
+                                                                 }else{
+                                                                     $lastYearDiffrence_tot = 0;
+                                                                 }
+
+                                                                 echo $lastYearDiffrence_tot;
                                                                  ?>
                                                                 </span></td>
 														</tr>
 														<tr>														
-															<td><strong>Bonus Payable</strong> <span class="float-right" style="color: green;"><?php echo $salary_structure_fandf[0]['total_bonus'];?></span></td>
+															<td><strong>Bonus Payable</strong> <span class="float-right" style="color: green;">
+                                                                    <?php
+                                                                    $currentYearBonus = ($emp_data['mxemp_emp_is_fandf_completed'] == 0) ? $salary_structure_fandf[0]['total_bonus'] : 0;
+                                                                    $loanAmount = $loan_array['emi_amount'];
+
+                                                                    $advRecovery = 0;
+                                                                    /* If bonus >= Loan Amount, 50 % of Loan to be recovered as Staff Advance */
+                                                                    if($currentYearBonus >= $loanAmount) {
+                                                                        $advRecovery_temp =   round(($loanAmount * 50)/100, 2);
+                                                                        if($loanAmount < $advRecovery_temp) {
+                                                                            $advRecovery = $loanAmount;
+                                                                        } else {
+                                                                            $advRecovery = $advRecovery_temp;
+                                                                        }
+                                                                    }
+
+                                                                    /* if its Bonus < Staff Adv, 50% of Bonus to be recovered as Staff Advance*/
+                                                                    if($currentYearBonus < $loanAmount) {
+                                                                        $advRecovery =   round(($currentYearBonus * 50)/100,2);
+                                                                    }
+                                                                    if($advRecovery>0) {
+                                                                        $advRecovery = $advRecovery;
+                                                                    }else{
+                                                                        $advRecovery = 0;
+                                                                    }
+
+                                                                    if( $currentYearBonus>0)
+                                                                    {
+                                                                        $currentYearDiffrence_tot = $currentYearBonus-$advRecovery;
+                                                                        $currentYearDiffrence_tot =  ($currentYearDiffrence_tot > 0) ? $currentYearDiffrence_tot : 0;
+                                                                    }else{
+                                                                        $currentYearDiffrence_tot = 0;
+                                                                    }
+
+                                                                    echo $currentYearDiffrence_tot;
+                                                                    ?>
+                                                                </span></td>
 														</tr>
                                                         <?php
                                                         // Calculation for Is Gratuity Applicable
@@ -241,7 +308,8 @@
                                                         $grat_applicable_years = $grat_applicable_interval->y;
                                                         ?>
 														<tr>
-															<td><strong>Gratuity</strong> <span class="float-right" style="color: green;">
+															<td><strong>Gratuity</strong>
+                                                                <span class="float-right" style="color: green;">
                                                                     <?php
                                                                     $finalGratuityAmount =  ($grat_applicable_years >=5)? $salary_structure['mxsal_gratuity_amount'] : 0;
                                                                     echo $finalGratuityAmount?>
