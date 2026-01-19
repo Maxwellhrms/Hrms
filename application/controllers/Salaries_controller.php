@@ -2896,7 +2896,7 @@ else{ //---->NORAML PAYSHEET
 							
 							$emp_code=$paysheet_data->mxsal_emp_code;
 							$tot_loan_amt='';
-							$sql5 = " SELECT sum(mxemploan_emp_loan_debited_amt) as tot_loan_amt FROM `maxwell_emp_loan_master` WHERE `mxemploan_empcode` LIKE '$emp_code' and mxemploan_emp_loan_outstanding_amt>0 ";
+							$sql5 = " SELECT sum(mxemploan_emp_loan_debited_amt) as tot_loan_amt FROM `maxwell_emp_loan_master` WHERE `mxemploan_empcode` LIKE '$emp_code' and mxemploan_emp_loan_outstanding_amt > 0 AND mxemploan_status = 1 ";
  $result5 = $this->db->query($sql5);
   $lastrowofareq5=$result5->result_array();
   $oldLead_id5=$result5->num_rows() ;

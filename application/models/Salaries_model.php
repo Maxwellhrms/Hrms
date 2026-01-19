@@ -6733,9 +6733,10 @@ class Salaries_model extends Adminmodel
                             
         $res_fandf_left = $this->db->insert("maxwell_fandf_for_left_employee ", $fandf_left_array);
         if($res_fandf_left){
-        
+            $todayDt = date('Y-m-d H:i:s');
             $emp_info_array = array(
-                                    "mxemp_emp_is_fandf_completed" => 1
+                                    "mxemp_emp_is_fandf_completed" => 1,
+                                    "mxemp_emp_resignation_relieving_settlement_date" => $todayDt
                               );
             $this->db->where("mxemp_emp_id",$emp_code);
             $this->db->update("maxwell_employees_info",$emp_info_array);
@@ -6743,7 +6744,9 @@ class Salaries_model extends Adminmodel
 			
 			$emp_info_array = array(
                                     "bonus_status" => "paid",
-                                    "remarks" => "Paid in F and F"
+                                    "remarks" => "Paid in F and F",
+                                    "updated_by" => $this->session->userdata('user_id'),
+                                    "updated_at" => $todayDt
                               );
             $this->db->where("emp_code",$emp_code);
             $this->db->update("update_bonus_status",$emp_info_array);

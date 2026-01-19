@@ -317,7 +317,7 @@
 														<tr>
 															<td><strong>Previous Year Bonus</strong> <span class="float-right" style="color: green;">
                                                                     <?php
-                                                                    $lastYearBonus = ($emp_data['mxemp_emp_is_fandf_completed'] == 0) ? $salary_structure['previousYearBonus'] : 0;
+                                                                    $lastYearBonus = $salary_structure['previousYearBonus'];
                                                                     $loanAmount = $loan_array['emi_amount'];
 
                                                                     $advRecovery = 0;
@@ -357,7 +357,7 @@
 															<td><strong>Bonus Payable</strong>
                                                                 <span class="float-right" style="color: green">
                                                                     <?php
-                                                                    $currentYearBonus = ($emp_data['mxemp_emp_is_fandf_completed'] == 0) ? $salary_structure_fandf[0]['total_bonus'] : 0;
+                                                                    $currentYearBonus = $salary_structure_fandf[0]['total_bonus'];
                                                                     $loanAmount = $loan_array['emi_amount'];
 
                                                                     $advRecovery = 0;
@@ -407,23 +407,16 @@
 														<tr>
 															<td><strong>Gratuity</strong> <span class="float-right" style="color: green;">
                                                                     <?php
-                                                                    if($emp_data['mxemp_emp_is_fandf_completed'] == 0) {
                                                                         $finalGratuityAmount = ($grat_applicable_years >= 5) ? $salary_structure['mxsal_gratuity_amount'] : 0;
                                                                         echo $finalGratuityAmount;
-                                                                    } else {
-                                                                        echo "0";
-                                                                    }?>
+                                                                    ?>
                                                                 </span></td>
 														</tr>
 														<tr>
 															<td><strong>Total</strong>
                                                             <span class="float-right"><strong>
                                                                     <?php
-                                                                    if($emp_data['mxemp_emp_is_fandf_completed'] == 0) {
                                                                      echo $lastYearDiffrence_tot + $currentYearDiffrence_tot + $finalGratuityAmount - $salary_structure['mxsal_loan_amount'];
-                                                                    } else {
-                                                                        echo "0";
-                                                                    }
                                                                      ?>
                                                                 </strong></span></td>
 														</tr>

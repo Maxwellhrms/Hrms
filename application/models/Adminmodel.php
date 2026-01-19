@@ -294,7 +294,7 @@ foreach ($employees as $emp) {
    
 	
 	$tot_loan_amt='0';
-	$sql5 = " SELECT sum(mxemploan_emp_loan_debited_amt) as tot_loan_amt FROM `maxwell_emp_loan_master` WHERE `mxemploan_empcode` LIKE '$emp_id' and mxemploan_emp_loan_outstanding_amt>0 ";
+	$sql5 = " SELECT sum(mxemploan_emp_loan_debited_amt) as tot_loan_amt FROM `maxwell_emp_loan_master` WHERE `mxemploan_empcode` LIKE '$emp_id' and mxemploan_emp_loan_outstanding_amt>0  AND mxemploan_status = 1";
  $result5 = $this->db->query($sql5);
   $lastrowofareq5=$result5->result_array();
   $oldLead_id5=$result5->num_rows() ;
@@ -824,7 +824,7 @@ foreach ($employees as $emp) {
    
 	
 	$tot_loan_amt='0';
-	$sql5 = " SELECT sum(mxemploan_emp_loan_debited_amt) as tot_loan_amt FROM `maxwell_emp_loan_master` WHERE `mxemploan_empcode` LIKE '$emp_id' and mxemploan_emp_loan_outstanding_amt>0 ";
+	$sql5 = " SELECT sum(mxemploan_emp_loan_debited_amt) as tot_loan_amt FROM `maxwell_emp_loan_master` WHERE `mxemploan_empcode` LIKE '$emp_id' and mxemploan_emp_loan_outstanding_amt>0  AND mxemploan_status = 1";
  $result5 = $this->db->query($sql5);
   $lastrowofareq5=$result5->result_array();
   $oldLead_id5=$result5->num_rows() ;
