@@ -1141,7 +1141,8 @@ class Export_paysheet extends Common
             
        
     }
-    public function generate_paysheet() {
+
+    public function generate_paysheet_bkp() {
        
         $userdata = $this->input->post();
         $date = $userdata['date'];
@@ -1374,7 +1375,7 @@ $objDrawing->setWorksheet($sheet);
             foreach ($paysheet_array as $paysheetData) {
                 $leaves_data = $this->Salaries_model->get_leaves_count_data($paysheetData->mxsal_emp_code, $year . "_" . $month);
     
-                $present_days = $leaves_data[0]->Present + $leaves_data[0]->First_Half_Present + $leaves_data[0]->Second_Half_Present + $leaves_data[0]->First_Half_Present_Cl_Applied + $leaves_data[0]->Second_Half_Present_Cl_Applied + $leaves_data[0]->First_Half_Present_Sl_Applied + $leaves_data[0]->Second_Half_Present_Sl_Applied + $leaves_data[0]->First_Half_Present_El_Applied + $leaves_data[0]->Second_Half_Present_El_Applied;
+                $present_days = $leaves_data[0]->Present + $leaves_data[0]->First_Half_Present + $leaves_data[0]->Second_Half_Present +  $leaves_data[0]->regulation_full_day + $leaves_data[0]->First_Half_regulation + $leaves_data[0]->Second_Half_regulation + $leaves_data[0]->First_Half_Shortleave + $leaves_data[0]->Second_Half_Shortleave +  $leaves_data[0]->ot_full_day + $leaves_data[0]->First_Half_ot + $leaves_data[0]->Second_Half_ot;
     
                 $wo = $leaves_data[0]->Week_Off;
                 $PH = $leaves_data[0]->Public_Holiday + $leaves_data[0]->First_Half_Public_Holiday + $leaves_data[0]->Second_Half_Public_Holiday;
@@ -1701,7 +1702,605 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
             getjsondata(0,$message);
         }
     }
-    
 
+    public function generate_paysheet() {
+        $userdata = $this->input->post();
+        $date = $userdata['date'];
+        $ex = explode("-", $date);
+        $month = $ex[0];
+        $year = $ex[1];
+        $company = $userdata['company'];
+        $divison = $userdata['divison'];
+        $state = $userdata['state'];
+        $branch = $userdata['branch'];
+        $emptype = $userdata['emptype'];
+
+        $exportType = $userdata['export_type'];
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+        $paysheet_array = $this->Salaries_model->getPaysheet($date, $company, $divison, $state, $branch, $emptype, '', '');
+
+        if (count($paysheet_array) > 0) {
+            /*$divisionName = $paysheet_array[0]->mxd_name;
+            $branchCode = $paysheet_array[0]->mxb_short_code;
+            $branchName = $paysheet_array[0]->mxb_name;*/
+
+            $divisionName = "ALL OVER INDIA";
+            if($divison != 0 && $divison != null) {
+                $divisionName = $paysheet_array[0]->mxd_name;
+            }
+
+            $branchCode = "";
+            $branchName = "All BRANCHES";
+            if($branch != 0 && $branch != null) {
+                $branchCode = $paysheet_array[0]->mxb_short_code;
+                $branchName = $paysheet_array[0]->mxb_name;
+            }
+
+            $monthYearName = date('F - Y', strtotime('01-' . $date));
+
+            $objPHPExcel = new PHPExcel();
+            $sheet = $objPHPExcel->getActiveSheet();
+
+            $borderStyle = [
+                'borders' => [
+                    'allborders' => [
+                        'style' => PHPExcel_Style_Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ],
+            ];
+
+            $rowIndex = 1;
+
+            // FIRST ROW
+            $sheet->mergeCells('A' . $rowIndex . ':B' . $rowIndex);
+            $sheet->setCellValue('A' . $rowIndex, 'DIVISION');
+            $sheet->mergeCells('C' . $rowIndex . ':F' . $rowIndex);
+            $sheet->setCellValue($r='C' . $rowIndex, $divisionName);
+            $sheet->getStyle($r)->getAlignment()->setWrapText(true);
+            $sheet->mergeCells('G' . $rowIndex . ':V' . $rowIndex);
+            $sheet->setCellValue('G' . $rowIndex, 'PAY SHEET FOR ON ROLL EMPLOYEES');
+            $sheet->mergeCells('W' . $rowIndex . ':AH' . $rowIndex);
+            $sheet->setCellValue('W' . $rowIndex, 'MAXWELL-F03/HRD/PAYS/00');
+
+            $sheet->getStyle('A' . $rowIndex . ':AH' . $rowIndex)->applyFromArray($borderStyle);
+            $rowIndex++;
+
+            // SECOND ROW
+            $sheet->mergeCells('A' . $rowIndex . ':B' . $rowIndex);
+            $sheet->setCellValue('A' . $rowIndex, "PAYSHEET FOR:\nTOTAL WORKING DAYS:\nCompany PF Code:");
+            $sheet->getStyle('A' . $rowIndex)->getAlignment()->setWrapText(true);
+            $sheet->getStyle('A' . $rowIndex)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
+
+            $sheet->mergeCells('C' . $rowIndex . ':F' . $rowIndex);
+            $sheet->setCellValue($r='C' . $rowIndex, $monthYearName . "\n" . $daysInMonth . "  \n AP/HYD/59887");
+            $sheet->getStyle('C' . $rowIndex)->getAlignment()->setWrapText(true);
+            $sheet->getStyle('C' . $rowIndex)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
+
+            $sheet->mergeCells('G' . $rowIndex . ':V' . $rowIndex);
+            $objDrawing = new PHPExcel_Worksheet_Drawing();
+            $objDrawing->setName('Logo');
+            $objDrawing->setPath('assets/img/logo.png');
+            $objDrawing->setHeight(40);
+            $objDrawing->setCoordinates('M' . $rowIndex);
+            $objDrawing->setWorksheet($sheet);
+
+            $sheet->setCellValue('G' . $rowIndex, 'MAXWELL LOGISTICS PRIVATE LIMITED');
+            $sheet->getStyle('G' . ($rowIndex))->getFont()->setBold(true)->setSize(14);
+            $sheet->getStyle('G' . $rowIndex . ':V' . $rowIndex)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $sheet->mergeCells('W' . $rowIndex . ':AB' . $rowIndex);
+            $sheet->setCellValue('W' . $rowIndex, "BRANCH CODE:\nBRANCH NAME:\nPaysheet Generated Dt:");
+            $sheet->getStyle('W' . $rowIndex)->getAlignment()->setWrapText(true);
+            $sheet->getStyle('W' . $rowIndex)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
+
+            $sheet->mergeCells('AC' . $rowIndex . ':AH' . $rowIndex);
+            $sheet->setCellValue('AC' . $rowIndex, $branchCode . "\n" . $branchName . "\n");
+            $sheet->getStyle('AC' . $rowIndex)->getAlignment()->setWrapText(true);
+            $sheet->getStyle('AC' . $rowIndex)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
+            $sheet->getRowDimension($rowIndex)->setRowHeight(50);
+
+            $sheet->getStyle('A' . $rowIndex . ':AH' . $rowIndex)->applyFromArray($borderStyle);
+            $rowIndex++;
+
+            // THIRD ROW (HEADER)
+            $sheet->mergeCells('A' . $rowIndex . ':A' . ($rowIndex + 2));
+            $sheet->setCellValue('A' . $rowIndex, 'EMP CODE/ UAN NO');
+            $sheet->mergeCells('B' . $rowIndex . ':B' . ($rowIndex + 2));
+            $sheet->setCellValue('B' . $rowIndex, 'EMP NAME');
+            $sheet->mergeCells('C' . $rowIndex . ':D' . ($rowIndex + 2));
+            $sheet->setCellValue('C' . $rowIndex, 'NO. OF DAYS WORKED');
+            $sheet->mergeCells('E' . $rowIndex . ':E' . ($rowIndex + 2));
+            $sheet->setCellValue('E' . $rowIndex, 'SUNDAYS');
+            $sheet->mergeCells('F' . $rowIndex . ':F' . ($rowIndex + 2));
+            $sheet->setCellValue('F' . $rowIndex, 'PH/OH');
+            $sheet->mergeCells('G' . $rowIndex . ':J' . $rowIndex);
+            $sheet->setCellValue('G' . $rowIndex, 'LEAVE WITH PAY');
+            $sheet->mergeCells('G' . ($rowIndex + 1) . ':G' . ($rowIndex + 2));
+            $sheet->setCellValue('G' . ($rowIndex + 1), 'EL');
+            $sheet->mergeCells('H' . ($rowIndex + 1) . ':H' . ($rowIndex + 2));
+            $sheet->setCellValue('H' . ($rowIndex + 1), 'CL');
+            $sheet->mergeCells('I' . ($rowIndex + 1) . ':I' . ($rowIndex + 2));
+            $sheet->setCellValue('I' . ($rowIndex + 1), 'SL');
+            $sheet->mergeCells('J' . ($rowIndex + 1) . ':J' . ($rowIndex + 2));
+            $sheet->setCellValue('J' . ($rowIndex + 1), 'ML');
+            $sheet->mergeCells('K' . $rowIndex . ':K' . ($rowIndex + 2));
+            $sheet->setCellValue('K' . $rowIndex, 'LOP');
+            $sheet->mergeCells('L' . $rowIndex . ':L' . ($rowIndex + 2));
+            $sheet->setCellValue('L' . $rowIndex, 'PAY DAYS');
+            $sheet->mergeCells('M' . $rowIndex . ':O' . $rowIndex);
+            $sheet->setCellValue('M' . $rowIndex, 'RATE OF');
+            $sheet->mergeCells('M' . ($rowIndex + 1) . ':M' . ($rowIndex + 2));
+            $sheet->setCellValue('M' . ($rowIndex + 1), 'BASIC');
+            $sheet->mergeCells('N' . ($rowIndex + 1) . ':N' . ($rowIndex + 2));
+            $sheet->setCellValue('N' . ($rowIndex + 1), 'HRA');
+            $sheet->mergeCells('O' . ($rowIndex + 1) . ':O' . ($rowIndex + 2));
+            $sheet->setCellValue('O' . ($rowIndex + 1), 'OTHER');
+            $sheet->mergeCells('P' . $rowIndex . ':R' . $rowIndex);
+            $sheet->setCellValue('P' . $rowIndex, 'EARNINGS');
+            $sheet->mergeCells('P' . ($rowIndex + 1) . ':P' . ($rowIndex + 2));
+            $sheet->setCellValue('P' . ($rowIndex + 1), 'BASIC');
+            $sheet->mergeCells('Q' . ($rowIndex + 1) . ':Q' . ($rowIndex + 2));
+            $sheet->setCellValue('Q' . ($rowIndex + 1), 'HRA');
+            $sheet->mergeCells('R' . ($rowIndex + 1) . ':R' . ($rowIndex + 2));
+            $sheet->setCellValue('R' . ($rowIndex + 1), 'MISC. INCOME');
+            $sheet->mergeCells('S' . $rowIndex . ':S' . ($rowIndex + 2));
+            $sheet->setCellValue('S' . $rowIndex, 'TOTAL EARNINGS');
+            $sheet->mergeCells('T' . $rowIndex . ':Z' . $rowIndex);
+            $sheet->setCellValue('T' . $rowIndex, 'DEDUCTIONS');
+            $sheet->mergeCells('T' . ($rowIndex + 1) . ':T' . ($rowIndex + 2));
+            $sheet->setCellValue('T' . ($rowIndex + 1), 'PF');
+            $sheet->mergeCells('U' . ($rowIndex + 1) . ':U' . ($rowIndex + 2));
+            $sheet->setCellValue('U' . ($rowIndex + 1), 'ESI');
+            $sheet->mergeCells('V' . ($rowIndex + 1) . ':V' . ($rowIndex + 2));
+            $sheet->setCellValue('V' . ($rowIndex + 1), 'PR. TAX');
+            $sheet->mergeCells('W' . ($rowIndex + 1) . ':W' . ($rowIndex + 2));
+            $sheet->setCellValue('W' . ($rowIndex + 1), 'TDS');
+            $sheet->mergeCells('X' . ($rowIndex + 1) . ':X' . ($rowIndex + 2));
+            $sheet->setCellValue('X' . ($rowIndex + 1), 'LWF');
+            $sheet->mergeCells('Y' . ($rowIndex + 1) . ':Y' . ($rowIndex + 2));
+            $sheet->setCellValue('Y' . ($rowIndex + 1), 'MISC DEDUCTIONS');
+            $sheet->mergeCells('Z' . ($rowIndex + 1) . ':Z' . ($rowIndex + 2));
+            $sheet->setCellValue('Z' . ($rowIndex + 1), 'STF AD');
+            $sheet->mergeCells('AA' . $rowIndex . ':AB' . ($rowIndex + 2));
+            $sheet->setCellValue('AA' . $rowIndex, 'TOTAL DEDUCTIONS');
+            $sheet->mergeCells('AC' . $rowIndex . ':AC' . ($rowIndex + 2));
+            $sheet->setCellValue('AC' . $rowIndex, 'NET AMT PAID');
+            $sheet->mergeCells('AD' . $rowIndex . ':AD' . ($rowIndex + 2));
+            $sheet->setCellValue('AD' . $rowIndex, 'PAYMENT STATUS');
+            $sheet->mergeCells('AE' . $rowIndex . ':AH' . $rowIndex);
+            $sheet->setCellValue('AE' . $rowIndex, 'BALANCE');
+            $sheet->mergeCells('AE' . ($rowIndex + 1) . ':AE' . ($rowIndex + 2));
+            $sheet->setCellValue('AE' . ($rowIndex + 1), 'Staff Adv');
+            $sheet->mergeCells('AF' . ($rowIndex + 1) . ':AF' . ($rowIndex + 2));
+            $sheet->setCellValue('AF' . ($rowIndex + 1), 'EL');
+            $sheet->mergeCells('AG' . ($rowIndex + 1) . ':AG' . ($rowIndex + 2));
+            $sheet->setCellValue('AG' . ($rowIndex + 1), 'CL');
+            $sheet->mergeCells('AH' . ($rowIndex + 1) . ':AH' . ($rowIndex + 2));
+            $sheet->setCellValue('AH' . ($rowIndex + 1), 'SL');
+
+            $sheet->getStyle('A' . $rowIndex . ':AH' . ($rowIndex + 2))->applyFromArray($borderStyle);
+            $sheet->getStyle('A' . $rowIndex . ':AH' . ($rowIndex + 2))->getAlignment()->setWrapText(true);
+
+            $rowIndex += 3;
+
+            $totalRateOfBasic = $totalRateOfHra = $totalRateOfOther = $totalEarningsBasic = $totalEarningsHra = $totalEarningsMicInc = $totalEarningsGross = $totalDeductionPf = $totalDeductionEsi = $totalDeductionPt = $totalDeductionTds = $totalDeductionLwf = $totalDeductionMiscDed = $totalDeductionStfAdv = $totalNetSal = $totalDeductions = 0;
+            $sheet->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1, 5);
+
+            foreach ($paysheet_array as $paysheetData) {
+                $leaves_data = $this->Salaries_model->get_leaves_count_data($paysheetData->mxsal_emp_code, $year . "_" . $month);
+                $present_days = $leaves_data[0]->Present + $leaves_data[0]->First_Half_Present + $leaves_data[0]->Second_Half_Present +  $leaves_data[0]->regulation_full_day + $leaves_data[0]->First_Half_regulation + $leaves_data[0]->Second_Half_regulation + $leaves_data[0]->First_Half_Shortleave + $leaves_data[0]->Second_Half_Shortleave +  $leaves_data[0]->ot_full_day + $leaves_data[0]->First_Half_ot + $leaves_data[0]->Second_Half_ot;
+                $wo = $leaves_data[0]->Week_Off;
+                $PH = $leaves_data[0]->Public_Holiday + $leaves_data[0]->First_Half_Public_Holiday + $leaves_data[0]->Second_Half_Public_Holiday;
+                $OH = $leaves_data[0]->Optional_Holiday + $leaves_data[0]->First_Half_Optional_Holiday + $leaves_data[0]->Second_Half_Optional_Holiday;
+                $CL = $leaves_data[0]->Casualleave + $leaves_data[0]->First_Half_Casualleave + $leaves_data[0]->Second_Half_Casualleave;
+                $SL = $leaves_data[0]->Sickleave + $leaves_data[0]->First_Half_Sickleave + $leaves_data[0]->Second_Half_Sickleave;
+                $EL = $leaves_data[0]->Earnedleave + $leaves_data[0]->First_Half_Earnedleave + $leaves_data[0]->Second_Half_Earnedleave;
+                $ML = $leaves_data[0]->Meternityleave + $leaves_data[0]->First_Half_Meternityleave + $leaves_data[0]->Second_Half_Meternityleave;
+                $LOP = $leaves_data[0]->Absent + $leaves_data[0]->First_Half_Absent + $leaves_data[0]->Second_Half_Absent;
+                $public_holiday = $PH + $OH;
+                $total_days = $present_days + $wo + $public_holiday + $CL + $SL + $EL;
+
+                // Forced String for long numbers to prevent scientific notation
+                $sheet->setCellValueExplicit('A' . $rowIndex, $paysheetData->mxsal_emp_code, PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('A' . ($rowIndex + 1), $paysheetData->mxemp_emp_uan_number, PHPExcel_Cell_DataType::TYPE_STRING);
+
+                $sheet->setCellValue('B' . $rowIndex, $paysheetData->mxemp_emp_fname . ' ' . $paysheetData->mxemp_emp_lname);
+                $sheet->setCellValue('B' . ($rowIndex + 1), 'SIGN OF EMP');
+                $sheet->getRowDimension($rowIndex + 1)->setRowHeight(30);
+
+                $sheet->mergeCells('C' . $rowIndex . ':D' . ($rowIndex + 1));
+                $sheet->setCellValue('C' . $rowIndex, $present_days);
+                $sheet->mergeCells('E' . $rowIndex . ':E' . ($rowIndex + 1));
+                $sheet->setCellValue('E' . $rowIndex, $wo);
+                $sheet->mergeCells('F' . $rowIndex . ':F' . ($rowIndex + 1));
+                $sheet->setCellValue('F' . $rowIndex, $public_holiday);
+                $sheet->mergeCells('G' . $rowIndex . ':G' . ($rowIndex + 1));
+                $sheet->setCellValue('G' . $rowIndex, $EL);
+                $sheet->mergeCells('H' . $rowIndex . ':H' . ($rowIndex + 1));
+                $sheet->setCellValue('H' . $rowIndex, $CL);
+                $sheet->mergeCells('I' . $rowIndex . ':I' . ($rowIndex + 1));
+                $sheet->setCellValue('I' . $rowIndex, $SL);
+                $sheet->mergeCells('J'.$rowIndex.':J'.($rowIndex + 1));
+                $sheet->setCellValue('J'.$rowIndex, $ML);
+                $sheet->mergeCells('K'.$rowIndex.':K'.($rowIndex + 1));
+                $sheet->setCellValue('K'.$rowIndex, $LOP);
+                $sheet->mergeCells('L'.$rowIndex.':L'.($rowIndex + 1));
+                $sheet->setCellValue('L'.$rowIndex, $total_days);
+
+                $totalRateOfBasic += $paysheetData->mxsal_basic;
+                $sheet->mergeCells('M'.$rowIndex.':M'.($rowIndex + 1));
+                $sheet->setCellValue('M'.$rowIndex, $paysheetData->mxsal_basic);
+                $totalRateOfHra += $paysheetData->mxsal_hra;
+                $sheet->mergeCells('N'.$rowIndex.':N'.($rowIndex + 1));
+                $sheet->setCellValue('N'.$rowIndex, $paysheetData->mxsal_hra);
+                $totalRateOfOther += $paysheetData->mxsal_variable_pay_sha;
+                $sheet->mergeCells('O'.$rowIndex.':O'.($rowIndex + 1));
+                $sheet->setCellValue('O'.$rowIndex, $paysheetData->mxsal_variable_pay_sha);
+
+                $totalEarningsBasic += $paysheetData->mxsal_actual_basic;
+                $sheet->mergeCells('P'.$rowIndex.':P'.($rowIndex + 1));
+                $sheet->setCellValue('P'.$rowIndex, $paysheetData->mxsal_actual_basic);
+                $totalEarningsHra += $paysheetData->mxsal_actual_hra;
+                $sheet->mergeCells('Q'.$rowIndex.':Q'.($rowIndex + 1));
+                $sheet->setCellValue('Q'.$rowIndex, $paysheetData->mxsal_actual_hra);
+                $totalEarningsMicInc += $paysheetData->mxsal_incentive_amount;
+                $sheet->mergeCells('R'.$rowIndex.':R'.($rowIndex + 1));
+                $sheet->setCellValue('R'.$rowIndex, $paysheetData->mxsal_incentive_amount);
+
+                $totalEarningsGross += $paysheetData->mxsal_actual_gross;
+                $sheet->mergeCells('S'.$rowIndex.':S'.($rowIndex + 1));
+                $sheet->setCellValue('S'.$rowIndex, $paysheetData->mxsal_actual_gross);
+
+                $totalDeductionPf += $paysheetData->mxsal_pf_emp_cont;
+                $sheet->mergeCells('T'.$rowIndex.':T'.($rowIndex + 1));
+                $sheet->setCellValue('T'.$rowIndex, $paysheetData->mxsal_pf_emp_cont);
+                $totalDeductionEsi += $paysheetData->mxsal_esi_emp_cont;
+                $sheet->mergeCells('U'.$rowIndex.':U'.($rowIndex + 1));
+                $sheet->setCellValue('U'.$rowIndex, $paysheetData->mxsal_esi_emp_cont);
+                $totalDeductionPt += $paysheetData->mxsal_pt;
+                $sheet->mergeCells('V'.$rowIndex.':V'.($rowIndex + 1));
+                $sheet->setCellValue('V'.$rowIndex, $paysheetData->mxsal_pt);
+                $totalDeductionTds += $paysheetData->mxsal_tds_amount;
+                $sheet->mergeCells('W'.$rowIndex.':W'.($rowIndex + 1));
+                $sheet->setCellValue('W'.$rowIndex, $paysheetData->mxsal_tds_amount);
+                $totalDeductionLwf += $paysheetData->mxsal_lwf_emp_cont;
+                $sheet->mergeCells('X'.$rowIndex.':X'.($rowIndex + 1));
+                $sheet->setCellValue('X'.$rowIndex, $paysheetData->mxsal_lwf_emp_cont);
+                $totalDeductionMiscDed += $paysheetData->mxsal_miscelleneous_amount;
+                $sheet->mergeCells('Y'.$rowIndex.':Y'.($rowIndex + 1));
+                $sheet->setCellValue('Y'.$rowIndex, $paysheetData->mxsal_miscelleneous_amount);
+                $totalDeductionStfAdv += $paysheetData->mxsal_loan_amount;
+                $sheet->mergeCells('Z'.$rowIndex.':Z'.($rowIndex + 1));
+                $sheet->setCellValue('Z'.$rowIndex, $paysheetData->mxsal_loan_amount);
+
+                $totalDeductions += $paysheetData->mxsal_total_ded;
+                $sheet->mergeCells('AA'.$rowIndex.':AB'.($rowIndex + 1));
+                $sheet->setCellValue('AA'.$rowIndex, $paysheetData->mxsal_total_ded);
+
+                $totalNetSal += $paysheetData->mxsal_net_sal;
+                $sheet->mergeCells('AC'.$rowIndex.':AC'.($rowIndex + 1));
+                $sheet->setCellValue('AC'.$rowIndex, $paysheetData->mxsal_net_sal);
+
+                $paidStatus = $paysheetData->mxsal_paid_status_flag == 1 ? "PAID" : "UNPAID";
+                $sheet->mergeCells('AD'.$rowIndex.':AD'.($rowIndex + 1));
+                $sheet->setCellValue('AD'.$rowIndex, $paidStatus);
+
+                $CurrentEL=$leaves_data[0]->CurrentEL;
+                $CurrentCL=$leaves_data[0]->CurrentCL;
+                $CurrentSL=$leaves_data[0]->CurrentSL;
+                $loan_details=$this->Loan_model->getloandetails_payslip($paysheetData->mxsal_emp_code);
+                $sum_loan_amt = isset($loan_details[0]) ? $loan_details[0]->mxemploan_emp_loan_outstanding_amt : 0;
+                $clean_value = str_replace(["\r", "\n"], '', trim($sum_loan_amt));
+
+                $sheet->mergeCells('AE'.$rowIndex.':AE'.($rowIndex + 1));
+                $sheet->setCellValueExplicit('AE'.$rowIndex, $clean_value, PHPExcel_Cell_DataType::TYPE_STRING);
+
+                $sheet->mergeCells('AF'.$rowIndex.':AF'.($rowIndex + 1));
+                $sheet->setCellValue('AF'.$rowIndex, $CurrentEL);
+                $sheet->mergeCells('AG'.$rowIndex.':AG'.($rowIndex + 1));
+                $sheet->setCellValue('AG'.$rowIndex, $CurrentCL);
+                $sheet->mergeCells('AH'.$rowIndex.':AH'.($rowIndex + 1));
+                $sheet->setCellValue('AH'.$rowIndex, $CurrentSL);
+
+                $rowIndex += 2;
+            }
+
+            $rowIndex += 1;
+            $sheet->setCellValue('A'.$rowIndex, 'TOTAL');
+            $sheet->setCellValue('M'.$rowIndex, $totalRateOfBasic);
+            $sheet->setCellValue('N'.$rowIndex, $totalRateOfHra);
+            $sheet->setCellValue('O'.$rowIndex, $totalRateOfOther);
+            $sheet->setCellValue('P'.$rowIndex, $totalEarningsBasic);
+            $sheet->setCellValue('Q'.$rowIndex, $totalEarningsHra);
+            $sheet->setCellValue('R'.$rowIndex, $totalEarningsMicInc);
+            $sheet->setCellValue('S'.$rowIndex, $totalEarningsGross);
+            $sheet->setCellValue('T'.$rowIndex, $totalDeductionPf);
+            $sheet->setCellValue('U'.$rowIndex, $totalDeductionEsi);
+            $sheet->setCellValue('V'.$rowIndex, $totalDeductionPt);
+            $sheet->setCellValue('W'.$rowIndex, $totalDeductionTds);
+            $sheet->setCellValue('X'.$rowIndex, $totalDeductionLwf);
+            $sheet->setCellValue('Y'.$rowIndex, $totalDeductionMiscDed);
+            $sheet->setCellValue('Z'.$rowIndex, $totalDeductionStfAdv);
+            $sheet->setCellValue('AA'.$rowIndex, $totalDeductions);
+            $sheet->setCellValue('AC'.$rowIndex, $totalNetSal);
+
+            // --- EXPERTISE CHALLENGE: SMART AUTO-EXPAND FIX ---
+            $minWidths = [
+                'A' => 16, 'B' => 28, 'C' => 10, 'D' => 10, 'E' => 8, 'F' => 8,
+                'G' => 6, 'H' => 6, 'I' => 6, 'J' => 6, 'K' => 8, 'L' => 10,
+                'M' => 12, 'N' => 12, 'O' => 12, 'P' => 12, 'Q' => 12, 'R' => 12,
+                'S' => 16, 'T' => 10, 'U' => 10, 'V' => 10, 'W' => 10, 'X' => 10,
+                'Y' => 14, 'Z' => 12, 'AA' => 16, 'AB' => 16, 'AC' => 16, 'AD' => 14,
+                'AE' => 12, 'AF' => 8, 'AG' => 8, 'AH' => 8
+            ];
+
+            foreach (range('A', 'Z') as $columnID) {
+                $sheet->getColumnDimension($columnID)->setAutoSize(true);
+                $objPHPExcel->getActiveSheet()->calculateColumnWidths();
+                $currentWidth = $sheet->getColumnDimension($columnID)->getWidth();
+                $min = isset($minWidths[$columnID]) ? $minWidths[$columnID] : 10;
+                if ($currentWidth < $min) {
+                    $sheet->getColumnDimension($columnID)->setAutoSize(false)->setWidth($min);
+                } else {
+                    $sheet->getColumnDimension($columnID)->setWidth($currentWidth + 2);
+                }
+            }
+            foreach (range('A', 'H') as $char) {
+                $columnID = 'A' . $char;
+                $sheet->getColumnDimension($columnID)->setAutoSize(true);
+                $objPHPExcel->getActiveSheet()->calculateColumnWidths();
+                $currentWidth = $sheet->getColumnDimension($columnID)->getWidth();
+                $min = isset($minWidths[$columnID]) ? $minWidths[$columnID] : 10;
+                if ($currentWidth < $min) {
+                    $sheet->getColumnDimension($columnID)->setAutoSize(false)->setWidth($min);
+                } else {
+                    $sheet->getColumnDimension($columnID)->setWidth($currentWidth + 2);
+                }
+            }
+            // --- END SMART EXPAND ---
+
+            $sheet->getStyle('A1:AH'.$rowIndex)->applyFromArray($borderStyle);
+
+            $styleArray = array(
+                'borders' => array(
+                    'allborders' => array('style' => PHPExcel_Style_Border::BORDER_NONE)
+                )
+            );
+
+            $sheet->getStyle('A'.($rowIndex-1).':AH'.($rowIndex - 1))->applyFromArray($styleArray);
+            $sheet->getStyle('A'.$rowIndex.':AH'.$rowIndex)->applyFromArray($styleArray);
+
+            ini_set('max_execution_time', 300);
+            if ($exportType == 'pdf') {
+                PHPExcel_Settings::setPdfRenderer(PHPExcel_Settings::PDF_RENDERER_TCPDF, APPPATH . 'libraries/tcpdf/');
+                $filename = 'paysheet_'.$date.'.pdf';
+                $objPHPExcel->getActiveSheet()->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE)->setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_LEGAL);
+                $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'PDF');
+                header('Content-Type: application/pdf');
+            } else {
+                $filename = 'paysheet_'.$date.'.xlsx';
+                $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+                header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            }
+
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+            $objWriter->save('php://output');
+            exit;
+
+        } else {
+            header('Content-Type: application/json');
+            getjsondata(0,"No data found try other");
+        }
+    }
+
+    public function generate_paysheet_pdf_pure() {
+        while (ob_get_level()) { ob_end_clean(); }
+        ini_set('memory_limit', '1024M');
+
+        $userdata = $this->input->post();
+        $date = $userdata['date'];
+        $ex = explode("-", $date);
+        $month = $ex[0]; $year = $ex[1];
+        $divison = $userdata['divison'];
+        $branch = $userdata['branch'];
+
+        $paysheet_array = $this->Salaries_model->getPaysheet($date, $userdata['company'], $divison, $userdata['state'], $branch, $userdata['emptype'], '', '');
+        if (empty($paysheet_array)) { die("No data found."); }
+
+        require_once(APPPATH . 'libraries/tcpdf/tcpdf.php');
+
+        $divisionName = ($divison != 0 && $divison != null) ? $paysheet_array[0]->mxd_name : "ALL OVER INDIA";
+
+        $branchCodeLabel = "";
+        $branchName = "All BRANCHES";
+        if($branch != 0 && $branch != null && !empty($paysheet_array[0]->mxb_short_code)) {
+            $branchCodeLabel = '<b>BRANCH CODE:</b> ' . $paysheet_array[0]->mxb_short_code . '<br>';
+            $branchName = $paysheet_array[0]->mxb_name;
+        }
+
+        $monthYearName = date('F - Y', strtotime('01-' . $date));
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $generatedDate = date('d-m-Y H:i:s');
+
+        $pdf = new TCPDF('L', 'mm', 'LEGAL', true, 'UTF-8', false);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 10);
+        $pdf->AddPage();
+
+        if (file_exists('assets/img/logo.png')) {
+            $pdf->Image('assets/img/logo.png', 160, 5, 40, '', 'PNG', '', 'T', false, 300, 'C', false, false, 0, false, false, false);
+        }
+        $pdf->Ln(18);
+        $pdf->SetFont('helvetica', '', 6);
+
+        // Precise widths to maximize Legal Landscape space
+        $w = [
+            'code'   => 50,
+            'name'   => 80,
+            'days'   => 20,
+            'sun'    => 12,
+            'ph'     => 12,
+            'lv'     => 12,
+            'lop'    => 12,
+            'pday'   => 20,
+            'rate'   => 35,
+            'earn'   => 35,
+            'tot_e'  => 52, // Extra wide for grand totals
+            'pf_tds' => 42,
+            'esi_pt' => 28,
+            'lwf_mi' => 32,
+            'stf_ad' => 38,
+            'tot_d'  => 52, // Extra wide for grand totals
+            'net'    => 40, // 2-row wrap enabled
+            'status' => 30, // Tightened
+            'bal_sa' => 38, // Single line for 5+ digits Staff Adv
+            'bal_lv' => 18
+        ];
+
+        $html = '
+    <table border="0.5" cellpadding="3" style="width: 100%;">
+        <thead>
+            <tr bgcolor="#eeeeee">
+                <td colspan="4" width="'.($w['code'] + $w['name'] + $w['days'] + $w['sun']).'">
+                    <b>DIVISION:</b> '.$divisionName.'<br>
+                    <b>Company PF Code:</b> AP/HYD/59887
+                </td>
+                <td colspan="15" width="'.($w['ph'] + ($w['lv']*4) + $w['lop'] + $w['pday'] + ($w['rate']*3) + ($w['earn']*3) + $w['tot_e']).'" align="center">
+                    <span style="font-size:12px;"><b>MAXWELL LOGISTICS PRIVATE LIMITED</b></span><br>
+                    <span style="font-size:10px;"><b>PAY SHEET ('.$monthYearName.')</b></span><br>
+                    <b>No. of days in Month:</b> '.$daysInMonth.'
+                </td>
+                <td colspan="13" align="right" width="'.(($w['esi_pt']*2) + ($w['pf_tds']*2) + $w['lwf_mi']*2 + $w['stf_ad'] + $w['tot_d'] + $w['net'] + $w['status'] + $w['bal_sa'] + ($w['bal_lv']*3)+5).'">
+                    <b>MAXWELL-F03/HRD/PAYS/00</b><br>
+                    '.$branchCodeLabel.'
+                    <b>BRANCH NAME:</b> '.$branchName.'<br>
+                    <b>Generated:</b> '.$generatedDate.'
+                </td>
+            </tr>
+            <tr style="background-color:#dfdfdf; font-weight:bold; text-align:center;">
+                <th rowspan="2" width="'.$w['code'].'">EMP CODE/<br>UAN NO</th>
+                <th rowspan="2" width="'.$w['name'].'">EMP NAME</th>
+                <th rowspan="2" width="'.$w['days'].'">NO. OF DAYS<br>WORKED</th>
+                <th rowspan="2" width="'.$w['sun'].'">SUNDAYS</th>
+                <th rowspan="2" width="'.$w['ph'].'">PH/OH</th>
+                <th colspan="4" width="'.($w['lv']*4).'">LEAVE WITH PAY</th>
+                <th rowspan="2" width="'.$w['lop'].'">LOP</th>
+                <th rowspan="2" width="'.$w['pday'].'">PAY DAYS</th>
+                <th colspan="3" width="'.($w['rate']*3).'">RATE OF</th>
+                <th colspan="3" width="'.($w['earn']*3).'">EARNINGS</th>
+                <th rowspan="2" width="'.$w['tot_e'].'">TOTAL EARNINGS</th>
+                <th colspan="7" width="'.(($w['esi_pt']*2) + ($w['pf_tds']*2) + $w['lwf_mi']*2 + $w['stf_ad']).'">DEDUCTIONS</th>
+                <th rowspan="2" width="'.$w['tot_d'].'">TOTAL DEDUCTIONS</th>
+                <th rowspan="2" width="'.$w['net'].'">NET AMT<br>PAID</th>
+                <th rowspan="2" width="'.$w['status'].'">PAYMENT STATUS</th>
+                <th colspan="4" width="'.($w['bal_sa'] + ($w['bal_lv']*3) +5).'">BALANCE</th>
+            </tr>
+            <tr style="background-color:#dfdfdf; font-weight:bold; text-align:center;">
+                <th width="'.$w['lv'].'">EL</th><th width="'.$w['lv'].'">CL</th><th width="'.$w['lv'].'">SL</th><th width="'.$w['lv'].'">ML</th>
+                <th width="'.$w['rate'].'">BASIC</th><th width="'.$w['rate'].'">HRA</th><th width="'.$w['rate'].'">OTHER</th>
+                <th width="'.$w['earn'].'">BASIC</th><th width="'.$w['earn'].'">HRA</th><th width="'.$w['earn'].'">MISC. INCOME</th>
+                <th width="'.$w['pf_tds'].'">PF</th>
+                <th width="'.$w['esi_pt'].'">ESI</th>
+                <th width="'.$w['esi_pt'].'">PR. TAX</th>
+                <th width="'.$w['pf_tds'].'">TDS</th>
+                <th width="'.$w['lwf_mi'].'">LWF</th>
+                <th width="'.$w['lwf_mi'].'">MISC DEDUCTIONS</th>
+                <th width="'.$w['stf_ad'].'">STF AD</th>
+                <th width="'.$w['bal_sa'].'">Staff Adv</th><th width="'.($w['bal_lv']+5).'">EL</th><th width="'.$w['bal_lv'].'">CL</th><th width="'.$w['bal_lv'].'">SL</th>
+            </tr>
+        </thead>
+        <tbody>';
+
+        $t = ['r_bs'=>0,'r_hr'=>0,'r_ot'=>0,'e_bs'=>0,'e_hr'=>0,'e_mi'=>0,'e_gr'=>0,'d_pf'=>0,'d_es'=>0,'d_pt'=>0,'d_td'=>0,'d_lw'=>0,'d_mi'=>0,'d_st'=>0,'t_de'=>0,'t_ne'=>0,'b_st'=>0];
+
+        foreach ($paysheet_array as $pData) {
+            $lv_data = $this->Salaries_model->get_leaves_count_data($pData->mxsal_emp_code, $year . "_" . $month);
+            $lv = $lv_data[0];
+            $present = $lv->Present + $lv->First_Half_Present +  $lv->Second_Half_Present + $lv->regulation_full_day +  $lv->First_Half_regulation  +  $lv->Second_Half_regulation  + $lv->First_Half_Shortleave + $lv->Second_Half_Shortleave  + $lv->ot_full_day + $lv->First_Half_ot + $lv->Second_Half_ot;
+            $ph_oh = $lv->Public_Holiday + $lv->Optional_Holiday;
+            $pay_days = $present + $lv->Week_Off + $ph_oh + $lv->Casualleave + $lv->Sickleave + $lv->Earnedleave;
+            $loan = $this->Loan_model->getloandetails_payslip($pData->mxsal_emp_code);
+            $loan_bal = isset($loan[0]) ? (float)$loan[0]->mxemploan_emp_loan_outstanding_amt : 0;
+            $paidStatus = $pData->mxsal_paid_status_flag == 1 ? "PAID" : "UNPAID";
+
+            $html .= '<tr>
+            <td width="'.$w['code'].'">'.$pData->mxsal_emp_code.'<br>'.$pData->mxemp_emp_uan_number.'</td>
+            <td height="45" width="'.$w['name'].'">'.$pData->mxemp_emp_fname.' '.$pData->mxemp_emp_lname.'<br><i>SIGN OF EMP:</i><br><br><br>________________</td>
+            <td width="'.$w['days'].'" align="center">'.$present.'</td>
+            <td width="'.$w['sun'].'" align="center">'.$lv->Week_Off.'</td>
+            <td width="'.$w['ph'].'" align="center">'.$ph_oh.'</td>
+            <td width="'.$w['lv'].'" align="center">'.$lv->Earnedleave.'</td>
+            <td width="'.$w['lv'].'" align="center">'.$lv->Casualleave.'</td>
+            <td width="'.$w['lv'].'" align="center">'.$lv->Sickleave.'</td>
+            <td width="'.$w['lv'].'" align="center">'.$lv->Meternityleave.'</td>
+            <td width="'.$w['lop'].'" align="center">'.$lv->Absent.'</td>
+            <td width="'.$w['pday'].'" align="center">'.$pay_days.'</td>
+            <td width="'.$w['rate'].'" align="right">'.number_format($pData->mxsal_basic,0).'</td>
+            <td width="'.$w['rate'].'" align="right">'.number_format($pData->mxsal_hra,0).'</td>
+            <td width="'.$w['rate'].'" align="right">'.number_format($pData->mxsal_variable_pay_sha,0).'</td>
+            <td width="'.$w['earn'].'" align="right">'.number_format($pData->mxsal_actual_basic,0).'</td>
+            <td width="'.$w['earn'].'" align="right">'.number_format($pData->mxsal_actual_hra,0).'</td>
+            <td width="'.$w['earn'].'" align="right">'.number_format($pData->mxsal_incentive_amount,0).'</td>
+            <td width="'.$w['tot_e'].'" align="right"><b>'.number_format($pData->mxsal_actual_gross,0).'</b></td>
+            <td width="'.$w['pf_tds'].'" align="right">'.number_format($pData->mxsal_pf_emp_cont,0).'</td>
+            <td width="'.$w['esi_pt'].'" align="right">'.number_format($pData->mxsal_esi_emp_cont,0).'</td>
+            <td width="'.$w['esi_pt'].'" align="right">'.number_format($pData->mxsal_pt,0).'</td>
+            <td width="'.$w['pf_tds'].'" align="right">'.number_format($pData->mxsal_tds_amount,0).'</td>
+            <td width="'.$w['lwf_mi'].'" align="right">'.number_format($pData->mxsal_lwf_emp_cont,0).'</td>
+            <td width="'.$w['lwf_mi'].'" align="right">'.number_format($pData->mxsal_miscelleneous_amount,0).'</td>
+            <td width="'.$w['stf_ad'].'" align="right">'.number_format($pData->mxsal_loan_amount,0).'</td>
+            <td width="'.$w['tot_d'].'" align="right">'.number_format($pData->mxsal_total_ded,0).'</td>
+            <td width="'.$w['net'].'" align="right" bgcolor="#ffffcc"><b>'.number_format($pData->mxsal_net_sal,0).'</b></td>
+            <td width="'.$w['status'].'" align="center">'.$paidStatus.'</td>
+            <td width="'.$w['bal_sa'].'" align="right">'.number_format($loan_bal,0).'</td>
+            <td width="'.($w['bal_lv'] + 5).'" align="center">'.$lv->CurrentEL.'</td>
+            <td width="'.$w['bal_lv'].'" align="center">'.$lv->CurrentCL.'</td>
+            <td width="'.$w['bal_lv'].'" align="center">'.$lv->CurrentSL.'</td>
+        </tr>';
+
+            $t['r_bs'] += $pData->mxsal_basic; $t['r_hr'] += $pData->mxsal_hra; $t['r_ot'] += $pData->mxsal_variable_pay_sha;
+            $t['e_bs'] += $pData->mxsal_actual_basic; $t['e_hr'] += $pData->mxsal_actual_hra; $t['e_mi'] += $pData->mxsal_incentive_amount; $t['e_gr'] += $pData->mxsal_actual_gross;
+            $t['d_pf'] += $pData->mxsal_pf_emp_cont; $t['d_es'] += $pData->mxsal_esi_emp_cont; $t['d_pt'] += $pData->mxsal_pt; $t['d_td'] += $pData->mxsal_tds_amount;
+            $t['d_lw'] += $pData->mxsal_lwf_emp_cont; $t['d_mi'] += $pData->mxsal_miscelleneous_amount; $t['d_st'] += $pData->mxsal_loan_amount;
+            $t['t_de'] += $pData->mxsal_total_ded; $t['t_ne'] += $pData->mxsal_net_sal; $t['b_st'] += $loan_bal;
+        }
+
+        $html .= '</tbody>
+    <tfoot>
+        <tr style="background-color:#eeeeee; font-weight:bold; text-align:right;">
+            <td colspan="11" align="center">TOTAL</td>
+            <td width="'.$w['rate'].'">'.number_format($t['r_bs'],0).'</td>
+            <td width="'.$w['rate'].'">'.number_format($t['r_hr'],0).'</td>
+            <td width="'.$w['rate'].'">'.number_format($t['r_ot'],0).'</td>
+            <td width="'.$w['earn'].'">'.number_format($t['e_bs'],0).'</td>
+            <td width="'.$w['earn'].'">'.number_format($t['e_hr'],0).'</td>
+            <td width="'.$w['earn'].'">'.number_format($t['e_mi'],0).'</td>
+            <td width="'.$w['tot_e'].'">'.number_format($t['e_gr'],0).'</td>
+            <td width="'.$w['pf_tds'].'">'.number_format($t['d_pf'],0).'</td>
+            <td width="'.$w['esi_pt'].'">'.number_format($t['d_es'],0).'</td>
+            <td width="'.$w['esi_pt'].'">'.number_format($t['d_pt'],0).'</td>
+            <td width="'.$w['pf_tds'].'">'.number_format($t['d_td'],0).'</td>
+            <td width="'.$w['lwf_mi'].'">'.number_format($t['d_lw'],0).'</td>
+            <td width="'.$w['lwf_mi'].'">'.number_format($t['d_mi'],0).'</td>
+            <td width="'.$w['stf_ad'].'">'.number_format($t['d_st'],0).'</td>
+            <td width="'.$w['tot_d'].'">'.number_format($t['t_de'],0).'</td>
+            <td width="'.$w['net'].'" bgcolor="#ffffcc">'.number_format($t['t_ne'],0).'</td>
+            <td width="'.$w['status'].'"></td>
+            <td width="'.$w['bal_sa'].'">'.number_format($t['b_st'],0).'</td>
+            <td colspan="3" width="'.(($w['bal_lv']*3)+5).'"></td>
+        </tr>
+    </tfoot>
+    </table>';
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+        ob_clean();
+        $pdf->Output('paysheet_'.$date.'.pdf', 'D');
+        exit;
+    }
 
 }

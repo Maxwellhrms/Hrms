@@ -1539,7 +1539,7 @@ class Salaries_model extends Adminmodel
             // $this->db->where("mxsal_emp_code", 'm0009');
         
         $this->db->where("mxsal_status", 1);
-		$this->db->order_by("mxgrd_name", "ASC"); 
+		$this->db->order_by("mxsal_basic", "DESC");
         $qry_2 = $this->db->get();
         // echo $this->db->last_query();exit;
 		//mxgrd_name
@@ -1676,8 +1676,8 @@ class Salaries_model extends Adminmodel
                 -- End SHORT LEAVE History
                 -- Present History
                 sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'PR' then 1 else 0 end) AS Present,
-                sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'AB' then 0.5 else 0 end) AS First_Half_Present,
-                sum(case when mx_attendance_first_half = 'AB' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present,
+                sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half != 'PR' then 0.5 else 0 end) AS First_Half_Present,
+                sum(case when mx_attendance_first_half != 'PR' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present,
                 
                 sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'CL' then 0.5 else 0 end) AS First_Half_Present_Cl_Applied,
                 sum(case when mx_attendance_first_half = 'CL' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present_Cl_Applied,

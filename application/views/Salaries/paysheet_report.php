@@ -99,8 +99,8 @@
 
                             </div>
                             <div class="text-right">
-                                <button type="button" onclick="processpaysheet(this)"  data-type="excell" class="btn btn-primary">Export Excell</button>
-                                <!--<button type="button" onclick="processpaysheet(this)" data-type="pdf" class="btn btn-primary">Export PDF</button>-->
+                                <button type="button" onclick="processpaysheet(this)"  data-type="excell" class="btn btn-primary">Export Excel</button>
+                                <button type="button" onclick="processpaysheet(this)" data-type="pdf" class="btn btn-primary">Export PDF</button>
                             </div>
                         </form>
                         <div id="table_div">

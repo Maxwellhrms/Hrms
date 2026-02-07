@@ -213,7 +213,7 @@ function load_esi_branches(esi_comp_id, esi_div_id, esi_state_id, esi_selected_b
 
 
 //-----------------paysheeet generate
-function processpaysheet(button) {
+function processpaysheet_bkp(button) {
 
     var yearmonth = $("#yearmonth").val();
     if (yearmonth == 0 || yearmonth == "") {
@@ -232,31 +232,31 @@ function processpaysheet(button) {
         $('#cmpnameerror').html("");
     }
     var esi_div_id = $("#esi_div_id").val();
-    if (esi_div_id == 0 || esi_div_id == "") {
+   /* if (esi_div_id == 0 || esi_div_id == "") {
         $("#esi_div_id").focus();
         $('#esi_div_id_error').html("Please Select Division Name");
         return false;
     } else {
         $('#esi_div_id_error').html("");
-    }
+    } */
 
     var esi_state_id = $("#esi_state_id").val();
-    if (esi_state_id == 0 || esi_state_id == "") {
+    /* if (esi_state_id == 0 || esi_state_id == "") {
         $("#esi_state_id").focus();
         $('#esi_state_id_error').html("Please Select State");
         return false;
     } else {
         $('#esi_state_id_error').html("");
-    }
+    } */
 
     var esi_branch_id = $("#esi_branch_id").val();
-    if (esi_branch_id == 0 || esi_branch_id == "") {
+    /* if (esi_branch_id == 0 || esi_branch_id == "") {
         $("#esi_branch_id").focus();
         $('#esi_branch_id_error').html("Please Select Branch");
         return false;
     } else {
         $('#esi_branch_id_error').html("");
-    }
+    }*/
 
     var emptype = $("#emptype").val();
     if (emptype == 0 || emptype == "") {
@@ -308,6 +308,7 @@ function processpaysheet(button) {
                             reader.readAsText(data); // Read the blob as text
                         } else if (contentType && (contentType.indexOf('application/pdf') !== -1 || contentType.indexOf('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') !== -1)) {
                             console.log("2");
+                            console.log(" EXPORT TYPE : ", export_type);
                             // Handle file download (PDF or Excel)
                             let filename = "paysheet"; // Default filename
                             if (export_type == 'pdf') {
@@ -382,3 +383,117 @@ function processpaysheet(button) {
 
 
 //--------------end paysheeet generate
+
+function processpaysheet(button) {
+
+    var yearmonth = $("#yearmonth").val();
+    if (yearmonth == 0 || yearmonth == "") {
+        $("#yearmonth").focus();
+        $('#yearmontherror').html("Please Select Date");
+        return false;
+    } else {
+        $('#yearmontherror').html("");
+    }
+    var esi_company_id = $("#esi_company_id").val();
+    if (esi_company_id == 0 || esi_company_id == "") {
+        $("#esi_company_id").focus();
+        $('#cmpnameerror').html("Please Select Company Name");
+        return false;
+    } else {
+        $('#cmpnameerror').html("");
+    }
+    var esi_div_id = $("#esi_div_id").val();
+    /* if (esi_div_id == 0 || esi_div_id == "") {
+         $("#esi_div_id").focus();
+         $('#esi_div_id_error').html("Please Select Division Name");
+         return false;
+     } else {
+         $('#esi_div_id_error').html("");
+     } */
+
+    var esi_state_id = $("#esi_state_id").val();
+    /* if (esi_state_id == 0 || esi_state_id == "") {
+        $("#esi_state_id").focus();
+        $('#esi_state_id_error').html("Please Select State");
+        return false;
+    } else {
+        $('#esi_state_id_error').html("");
+    } */
+
+    var esi_branch_id = $("#esi_branch_id").val();
+    /* if (esi_branch_id == 0 || esi_branch_id == "") {
+        $("#esi_branch_id").focus();
+        $('#esi_branch_id_error').html("Please Select Branch");
+        return false;
+    } else {
+        $('#esi_branch_id_error').html("");
+    }*/
+
+    var emptype = $("#emptype").val();
+    if (emptype == 0 || emptype == "") {
+        $("#emptype").focus();
+        $('#emptypeerror').html("Please Select Employee Type");
+        return false;
+    } else {
+        $('#emptypeerror').html("");
+    }
+
+
+
+    let export_type = button.getAttribute('data-type');
+
+
+    $.ajax({
+        url: baseurl + 'Export_paysheet/checkDataExist',
+        type: 'POST',
+        async:false,
+
+        data: { date: yearmonth, company: esi_company_id, divison: esi_div_id, state: esi_state_id, branch: esi_branch_id, emptype: emptype},
+        success: function (data, status, xhr) {
+            var parsedData = JSON.parse(data);
+            // console.log(parsedData);
+            if(parsedData.status == 0){
+                alert(parsedData.message);
+                return false;
+            }else{
+                var downloadUrl = (export_type === 'pdf')
+                    ? baseurl + 'Export_paysheet/generate_paysheet_pdf_pure'
+                    : baseurl + 'Export_paysheet/generate_paysheet';
+
+                // Create a temporary form to submit the POST data
+                var mapForm = document.createElement("form");
+                mapForm.target = "_blank"; // Opens in new tab/triggers download
+                mapForm.method = "POST";
+                mapForm.action = downloadUrl;
+
+                var inputs = {
+                    date: yearmonth,
+                    company: esi_company_id,
+                    divison: esi_div_id,
+                    state: esi_state_id,
+                    branch: esi_branch_id,
+                    emptype: emptype,
+                    export_type: export_type
+                };
+
+                Object.keys(inputs).forEach(function(key) {
+                    var mapInput = document.createElement("input");
+                    mapInput.type = "hidden";
+                    mapInput.name = key;
+                    mapInput.value = inputs[key];
+                    mapForm.appendChild(mapInput);
+                });
+
+                document.body.appendChild(mapForm);
+                mapForm.submit();
+                document.body.removeChild(mapForm);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error:', error);
+        }
+    });
+
+
+
+}
