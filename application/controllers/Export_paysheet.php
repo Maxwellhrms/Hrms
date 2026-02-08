@@ -2113,7 +2113,6 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
         require_once(APPPATH . 'libraries/tcpdf/tcpdf.php');
 
         $divisionName = ($divison != 0 && $divison != null) ? $paysheet_array[0]->mxd_name : "ALL OVER INDIA";
-
         $branchCodeLabel = "";
         $branchName = "All BRANCHES";
         if($branch != 0 && $branch != null && !empty($paysheet_array[0]->mxb_short_code)) {
@@ -2138,8 +2137,9 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
         $pdf->Ln(18);
         $pdf->SetFont('helvetica', '', 6);
 
-        // Precise widths to maximize Legal Landscape space
+        // Widths adjusted: sno increased to 22 for 3-digit side-by-side display
         $w = [
+            'sno'    => 22,
             'code'   => 50,
             'name'   => 80,
             'days'   => 20,
@@ -2150,73 +2150,76 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
             'pday'   => 20,
             'rate'   => 35,
             'earn'   => 35,
-            'tot_e'  => 52, // Extra wide for grand totals
+            'tot_e'  => 52,
             'pf_tds' => 42,
             'esi_pt' => 28,
+            'lwf'    => 12,
             'lwf_mi' => 32,
             'stf_ad' => 38,
-            'tot_d'  => 52, // Extra wide for grand totals
-            'net'    => 40, // 2-row wrap enabled
-            'status' => 30, // Tightened
-            'bal_sa' => 38, // Single line for 5+ digits Staff Adv
+            'tot_d'  => 52,
+            'net'    => 40,
+            'status' => 30,
+            'bal_sa' => 38,
             'bal_lv' => 18
         ];
 
         $html = '
-    <table border="0.5" cellpadding="3" style="width: 100%;">
-        <thead>
-            <tr bgcolor="#eeeeee">
-                <td colspan="4" width="'.($w['code'] + $w['name'] + $w['days'] + $w['sun']).'">
-                    <b>DIVISION:</b> '.$divisionName.'<br>
-                    <b>Company PF Code:</b> AP/HYD/59887
-                </td>
-                <td colspan="15" width="'.($w['ph'] + ($w['lv']*4) + $w['lop'] + $w['pday'] + ($w['rate']*3) + ($w['earn']*3) + $w['tot_e']).'" align="center">
-                    <span style="font-size:12px;"><b>MAXWELL LOGISTICS PRIVATE LIMITED</b></span><br>
-                    <span style="font-size:10px;"><b>PAY SHEET ('.$monthYearName.')</b></span><br>
-                    <b>No. of days in Month:</b> '.$daysInMonth.'
-                </td>
-                <td colspan="13" align="right" width="'.(($w['esi_pt']*2) + ($w['pf_tds']*2) + $w['lwf_mi']*2 + $w['stf_ad'] + $w['tot_d'] + $w['net'] + $w['status'] + $w['bal_sa'] + ($w['bal_lv']*3)+5).'">
-                    <b>MAXWELL-F03/HRD/PAYS/00</b><br>
-                    '.$branchCodeLabel.'
-                    <b>BRANCH NAME:</b> '.$branchName.'<br>
-                    <b>Generated:</b> '.$generatedDate.'
-                </td>
-            </tr>
-            <tr style="background-color:#dfdfdf; font-weight:bold; text-align:center;">
-                <th rowspan="2" width="'.$w['code'].'">EMP CODE/<br>UAN NO</th>
-                <th rowspan="2" width="'.$w['name'].'">EMP NAME</th>
-                <th rowspan="2" width="'.$w['days'].'">NO. OF DAYS<br>WORKED</th>
-                <th rowspan="2" width="'.$w['sun'].'">SUNDAYS</th>
-                <th rowspan="2" width="'.$w['ph'].'">PH/OH</th>
-                <th colspan="4" width="'.($w['lv']*4).'">LEAVE WITH PAY</th>
-                <th rowspan="2" width="'.$w['lop'].'">LOP</th>
-                <th rowspan="2" width="'.$w['pday'].'">PAY DAYS</th>
-                <th colspan="3" width="'.($w['rate']*3).'">RATE OF</th>
-                <th colspan="3" width="'.($w['earn']*3).'">EARNINGS</th>
-                <th rowspan="2" width="'.$w['tot_e'].'">TOTAL EARNINGS</th>
-                <th colspan="7" width="'.(($w['esi_pt']*2) + ($w['pf_tds']*2) + $w['lwf_mi']*2 + $w['stf_ad']).'">DEDUCTIONS</th>
-                <th rowspan="2" width="'.$w['tot_d'].'">TOTAL DEDUCTIONS</th>
-                <th rowspan="2" width="'.$w['net'].'">NET AMT<br>PAID</th>
-                <th rowspan="2" width="'.$w['status'].'">PAYMENT STATUS</th>
-                <th colspan="4" width="'.($w['bal_sa'] + ($w['bal_lv']*3) +5).'">BALANCE</th>
-            </tr>
-            <tr style="background-color:#dfdfdf; font-weight:bold; text-align:center;">
-                <th width="'.$w['lv'].'">EL</th><th width="'.$w['lv'].'">CL</th><th width="'.$w['lv'].'">SL</th><th width="'.$w['lv'].'">ML</th>
-                <th width="'.$w['rate'].'">BASIC</th><th width="'.$w['rate'].'">HRA</th><th width="'.$w['rate'].'">OTHER</th>
-                <th width="'.$w['earn'].'">BASIC</th><th width="'.$w['earn'].'">HRA</th><th width="'.$w['earn'].'">MISC. INCOME</th>
-                <th width="'.$w['pf_tds'].'">PF</th>
-                <th width="'.$w['esi_pt'].'">ESI</th>
-                <th width="'.$w['esi_pt'].'">PR. TAX</th>
-                <th width="'.$w['pf_tds'].'">TDS</th>
-                <th width="'.$w['lwf_mi'].'">LWF</th>
-                <th width="'.$w['lwf_mi'].'">MISC DEDUCTIONS</th>
-                <th width="'.$w['stf_ad'].'">STF AD</th>
-                <th width="'.$w['bal_sa'].'">Staff Adv</th><th width="'.($w['bal_lv']+5).'">EL</th><th width="'.$w['bal_lv'].'">CL</th><th width="'.$w['bal_lv'].'">SL</th>
-            </tr>
-        </thead>
-        <tbody>';
+<table border="0.5" cellpadding="3" style="width: 100%;">
+    <thead>
+        <tr bgcolor="#eeeeee">
+            <td colspan="5" width="'.($w['sno'] + $w['code'] + $w['name'] + $w['days'] + $w['sun']).'">
+                <b>DIVISION:</b> '.$divisionName.'<br>
+                <b>Company PF Code:</b> AP/HYD/59887
+            </td>
+            <td colspan="26" width="'.($w['ph'] + ($w['lv']*4) + $w['lop'] + $w['pday'] + ($w['rate']*3) + ($w['earn']*3) + $w['tot_e'] + ($w['esi_pt']*2) + ($w['pf_tds']*2) + $w['lwf'] + $w['lwf_mi'] + $w['stf_ad'] + $w['tot_d'] + $w['net']).'" align="center">
+                <span style="font-size:12px;"><b>MAXWELL LOGISTICS PRIVATE LIMITED</b></span><br>
+                <span style="font-size:10px;"><b>PAY SHEET ('.$monthYearName.')</b></span><br>
+                <b>No. of days in Month:</b> '.$daysInMonth.'
+            </td>
+            <td colspan="4" align="right" width="'.($w['status'] + $w['bal_sa'] + ($w['bal_lv']*3) + 5).'">
+                <b>MAXWELL-F03/HRD/PAYS/00</b><br>
+                '.$branchCodeLabel.'
+                <b>BRANCH NAME:</b> '.$branchName.'<br>
+                <b>Generated:</b> '.$generatedDate.'
+            </td>
+        </tr>
+        <tr style="background-color:#dfdfdf; font-weight:bold; text-align:center;">
+            <th rowspan="2" width="'.$w['sno'].'">S.No</th>
+            <th rowspan="2" width="'.$w['code'].'">EMP CODE/<br>UAN NO</th>
+            <th rowspan="2" width="'.$w['name'].'">EMP NAME</th>
+            <th rowspan="2" width="'.$w['days'].'">NO. OF DAYS<br>WORKED</th>
+            <th rowspan="2" width="'.$w['sun'].'">SUNDAYS</th>
+            <th rowspan="2" width="'.$w['ph'].'">PH/OH</th>
+            <th colspan="4" width="'.($w['lv']*4).'">LEAVE WITH PAY</th>
+            <th rowspan="2" width="'.$w['lop'].'">LOP</th>
+            <th rowspan="2" width="'.$w['pday'].'">PAY DAYS</th>
+            <th colspan="3" width="'.($w['rate']*3).'">RATE OF</th>
+            <th colspan="3" width="'.($w['earn']*3).'">EARNINGS</th>
+            <th rowspan="2" width="'.$w['tot_e'].'">TOTAL EARNINGS</th>
+            <th colspan="8" width="'.(($w['esi_pt']*2) + ($w['pf_tds']*2) + $w['lwf'] + $w['lwf_mi'] + $w['stf_ad']).'">DEDUCTIONS</th>
+            <th rowspan="2" width="'.$w['tot_d'].'">TOTAL DEDUCTIONS</th>
+            <th rowspan="2" width="'.$w['net'].'">NET AMT<br>PAID</th>
+            <th rowspan="2" width="'.$w['status'].'">PAYMENT STATUS</th>
+            <th colspan="4" width="'.($w['bal_sa'] + ($w['bal_lv']*3) +5).'">BALANCE</th>
+        </tr>
+        <tr style="background-color:#dfdfdf; font-weight:bold; text-align:center;">
+            <th width="'.$w['lv'].'">EL</th><th width="'.$w['lv'].'">CL</th><th width="'.$w['lv'].'">SL</th><th width="'.$w['lv'].'">ML</th>
+            <th width="'.$w['rate'].'">BASIC</th><th width="'.$w['rate'].'">HRA</th><th width="'.$w['rate'].'">OTHER</th>
+            <th width="'.$w['earn'].'">BASIC</th><th width="'.$w['earn'].'">HRA</th><th width="'.$w['earn'].'">MISC. INCOME</th>
+            <th width="'.$w['pf_tds'].'">PF</th>
+            <th width="'.$w['esi_pt'].'">ESI</th>
+            <th width="'.$w['esi_pt'].'">PR. TAX</th>
+            <th width="'.$w['pf_tds'].'">TDS</th>
+            <th width="'.$w['lwf'].'">LWF</th>
+            <th width="'.$w['lwf_mi'].'">MISC DEDUCTIONS</th>
+            <th width="'.$w['stf_ad'].'">STF AD</th>
+            <th width="'.$w['bal_sa'].'">Staff Adv</th><th width="'.($w['bal_lv']+5).'">EL</th><th width="'.$w['bal_lv'].'">CL</th><th width="'.$w['bal_lv'].'">SL</th>
+        </tr>
+    </thead>
+    <tbody>';
 
         $t = ['r_bs'=>0,'r_hr'=>0,'r_ot'=>0,'e_bs'=>0,'e_hr'=>0,'e_mi'=>0,'e_gr'=>0,'d_pf'=>0,'d_es'=>0,'d_pt'=>0,'d_td'=>0,'d_lw'=>0,'d_mi'=>0,'d_st'=>0,'t_de'=>0,'t_ne'=>0,'b_st'=>0];
+        $i = 1;
 
         foreach ($paysheet_array as $pData) {
             $lv_data = $this->Salaries_model->get_leaves_count_data($pData->mxsal_emp_code, $year . "_" . $month);
@@ -2229,6 +2232,7 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
             $paidStatus = $pData->mxsal_paid_status_flag == 1 ? "PAID" : "UNPAID";
 
             $html .= '<tr>
+            <td width="'.$w['sno'].'" align="center">'.$i++.'</td>
             <td width="'.$w['code'].'">'.$pData->mxsal_emp_code.'<br>'.$pData->mxemp_emp_uan_number.'</td>
             <td height="45" width="'.$w['name'].'">'.$pData->mxemp_emp_fname.' '.$pData->mxemp_emp_lname.'<br><i>SIGN OF EMP:</i><br><br><br>________________</td>
             <td width="'.$w['days'].'" align="center">'.$present.'</td>
@@ -2251,7 +2255,7 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
             <td width="'.$w['esi_pt'].'" align="right">'.number_format($pData->mxsal_esi_emp_cont,0).'</td>
             <td width="'.$w['esi_pt'].'" align="right">'.number_format($pData->mxsal_pt,0).'</td>
             <td width="'.$w['pf_tds'].'" align="right">'.number_format($pData->mxsal_tds_amount,0).'</td>
-            <td width="'.$w['lwf_mi'].'" align="right">'.number_format($pData->mxsal_lwf_emp_cont,0).'</td>
+            <td width="'.$w['lwf'].'" align="right">'.number_format($pData->mxsal_lwf_emp_cont,0).'</td>
             <td width="'.$w['lwf_mi'].'" align="right">'.number_format($pData->mxsal_miscelleneous_amount,0).'</td>
             <td width="'.$w['stf_ad'].'" align="right">'.number_format($pData->mxsal_loan_amount,0).'</td>
             <td width="'.$w['tot_d'].'" align="right">'.number_format($pData->mxsal_total_ded,0).'</td>
@@ -2271,36 +2275,35 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
         }
 
         $html .= '</tbody>
-    <tfoot>
-        <tr style="background-color:#eeeeee; font-weight:bold; text-align:right;">
-            <td colspan="11" align="center">TOTAL</td>
-            <td width="'.$w['rate'].'">'.number_format($t['r_bs'],0).'</td>
-            <td width="'.$w['rate'].'">'.number_format($t['r_hr'],0).'</td>
-            <td width="'.$w['rate'].'">'.number_format($t['r_ot'],0).'</td>
-            <td width="'.$w['earn'].'">'.number_format($t['e_bs'],0).'</td>
-            <td width="'.$w['earn'].'">'.number_format($t['e_hr'],0).'</td>
-            <td width="'.$w['earn'].'">'.number_format($t['e_mi'],0).'</td>
-            <td width="'.$w['tot_e'].'">'.number_format($t['e_gr'],0).'</td>
-            <td width="'.$w['pf_tds'].'">'.number_format($t['d_pf'],0).'</td>
-            <td width="'.$w['esi_pt'].'">'.number_format($t['d_es'],0).'</td>
-            <td width="'.$w['esi_pt'].'">'.number_format($t['d_pt'],0).'</td>
-            <td width="'.$w['pf_tds'].'">'.number_format($t['d_td'],0).'</td>
-            <td width="'.$w['lwf_mi'].'">'.number_format($t['d_lw'],0).'</td>
-            <td width="'.$w['lwf_mi'].'">'.number_format($t['d_mi'],0).'</td>
-            <td width="'.$w['stf_ad'].'">'.number_format($t['d_st'],0).'</td>
-            <td width="'.$w['tot_d'].'">'.number_format($t['t_de'],0).'</td>
-            <td width="'.$w['net'].'" bgcolor="#ffffcc">'.number_format($t['t_ne'],0).'</td>
-            <td width="'.$w['status'].'"></td>
-            <td width="'.$w['bal_sa'].'">'.number_format($t['b_st'],0).'</td>
-            <td colspan="3" width="'.(($w['bal_lv']*3)+5).'"></td>
-        </tr>
-    </tfoot>
-    </table>';
+<tfoot>
+    <tr style="background-color:#eeeeee; font-weight:bold; text-align:right;">
+        <td colspan="12" align="center">TOTAL</td>
+        <td width="'.$w['rate'].'">'.number_format($t['r_bs'],0).'</td>
+        <td width="'.$w['rate'].'">'.number_format($t['r_hr'],0).'</td>
+        <td width="'.$w['rate'].'">'.number_format($t['r_ot'],0).'</td>
+        <td width="'.$w['earn'].'">'.number_format($t['e_bs'],0).'</td>
+        <td width="'.$w['earn'].'">'.number_format($t['e_hr'],0).'</td>
+        <td width="'.$w['earn'].'">'.number_format($t['e_mi'],0).'</td>
+        <td width="'.$w['tot_e'].'">'.number_format($t['e_gr'],0).'</td>
+        <td width="'.$w['pf_tds'].'">'.number_format($t['d_pf'],0).'</td>
+        <td width="'.$w['esi_pt'].'">'.number_format($t['d_es'],0).'</td>
+        <td width="'.$w['esi_pt'].'">'.number_format($t['d_pt'],0).'</td>
+        <td width="'.$w['pf_tds'].'">'.number_format($t['d_td'],0).'</td>
+        <td width="'.$w['lwf'].'">'.number_format($t['d_lw'],0).'</td>
+        <td width="'.$w['lwf_mi'].'">'.number_format($t['d_mi'],0).'</td>
+        <td width="'.$w['stf_ad'].'">'.number_format($t['d_st'],0).'</td>
+        <td width="'.$w['tot_d'].'">'.number_format($t['t_de'],0).'</td>
+        <td width="'.$w['net'].'" bgcolor="#ffffcc">'.number_format($t['t_ne'],0).'</td>
+        <td width="'.$w['status'].'"></td>
+        <td width="'.$w['bal_sa'].'">'.number_format($t['b_st'],0).'</td>
+        <td colspan="3" width="'.(($w['bal_lv']*3)+5).'"></td>
+    </tr>
+</tfoot>
+</table>';
 
         $pdf->writeHTML($html, true, false, true, false, '');
         ob_clean();
         $pdf->Output('paysheet_'.$date.'.pdf', 'D');
         exit;
     }
-
 }
