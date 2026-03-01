@@ -384,7 +384,9 @@ function processpaysheet_bkp(button) {
 
 //--------------end paysheeet generate
 
-function processpaysheet(button) {
+
+// ----------------- UDPATED BY VARAPRASAD ----------------------- //
+function processpaysheet_bkp2(button) {
 
     var yearmonth = $("#yearmonth").val();
     if (yearmonth == 0 || yearmonth == "") {
@@ -438,9 +440,11 @@ function processpaysheet(button) {
         $('#emptypeerror').html("");
     }
 
-
+    var esi_branch_id = $("#esi_branch_id").val();
 
     let export_type = button.getAttribute('data-type');
+
+    var paysheet_category = $('input[name="paysheet_type"]:checked').val();
 
 
     $.ajax({
@@ -473,7 +477,8 @@ function processpaysheet(button) {
                     state: esi_state_id,
                     branch: esi_branch_id,
                     emptype: emptype,
-                    export_type: export_type
+                    export_type: export_type,
+                    paysheet: paysheet_category,
                 };
 
                 Object.keys(inputs).forEach(function(key) {
@@ -496,4 +501,81 @@ function processpaysheet(button) {
 
 
 
+}
+
+function processpaysheet(button) {
+    var yearmonth = $("#yearmonth").val();
+    var esi_company_id = $("#esi_company_id").val();
+    var esi_div_id = $("#esi_div_id").val();
+    var esi_state_id = $("#esi_state_id").val();
+    var esi_branch_id = $("#esi_branch_id").val();
+    var emptype = $("#emptype").val();
+    let export_type = button.getAttribute('data-type');
+
+    // Get the radio value
+    var paysheet_category = $('input[name="paysheet_type"]:checked').val();
+
+    // Validation
+    if (!yearmonth || !esi_company_id || !emptype) {
+        alert("Please select Month, Company, and Employee Type");
+        return false;
+    }
+
+    $.ajax({
+        url: baseurl + 'Export_paysheet/checkDataExist',
+        type: 'POST',
+        data: {
+            date: yearmonth,
+            company: esi_company_id,
+            divison: esi_div_id,
+            state: esi_state_id,
+            branch: esi_branch_id,
+            emptype: emptype,
+            paysheet: paysheet_category // Pass the radio choice here
+        },
+        success: function (response) {
+            var parsedData = JSON.parse(response);
+
+            if (parsedData.status == 1) {
+                // DATA EXISTS - Now and ONLY now do we open the new tab
+                var downloadUrl = (export_type === 'pdf')
+                    ? baseurl + 'Export_paysheet/generate_paysheet_pdf_pure'
+                    : baseurl + 'Export_paysheet/generate_paysheet';
+
+                var mapForm = document.createElement("form");
+                mapForm.target = "_blank";
+                mapForm.method = "POST";
+                mapForm.action = downloadUrl;
+
+                var inputs = {
+                    date: yearmonth,
+                    company: esi_company_id,
+                    divison: esi_div_id,
+                    state: esi_state_id,
+                    branch: esi_branch_id,
+                    emptype: emptype,
+                    export_type: export_type,
+                    paysheet: paysheet_category // Send to export too
+                };
+
+                Object.keys(inputs).forEach(function(key) {
+                    var mapInput = document.createElement("input");
+                    mapInput.type = "hidden";
+                    mapInput.name = key;
+                    mapInput.value = inputs[key];
+                    mapForm.appendChild(mapInput);
+                });
+
+                document.body.appendChild(mapForm);
+                mapForm.submit();
+                document.body.removeChild(mapForm);
+            } else {
+                // NO DATA - Show alert on current page, no tab opens
+                alert(parsedData.message);
+            }
+        },
+        error: function () {
+            alert("Error verifying data existence.");
+        }
+    });
 }

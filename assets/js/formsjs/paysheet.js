@@ -300,4 +300,69 @@ function processpaysheet() {
 }
 
 
+// Open Modal and Populate Data
+$(document).on('click', '.edit-pay-status', function() {
+    var id = $(this).data('id');
+    var name = $(this).data('name');
+    var code = $(this).data('code');
+    var current = $(this).data('current');
+
+    $('#edit_mxsal_id').val(id);
+    $('#emp_display_info').text("Edit Status for " + name + " (" + code + ")");
+    $('#new_pay_status').val(current);
+    $('#payStatusModal').modal('show');
+});
+
+// Update Status via AJAX
+$(document).on('click', '.edit-pay-status', function() {
+    var id = $(this).data('id');
+    var empType = $(this).data('emptype'); // Capture the type ID
+    var name = $(this).data('name');
+    var code = $(this).data('code');
+    var current = $(this).data('current');
+
+    $('#edit_mxsal_id').val(id);
+    $('#edit_emp_type').val(empType); // Store type in hidden input
+    $('#emp_display_info').text("Edit Status for " + name + " (" + code + ")");
+    $('#new_pay_status').val(current);
+    $('#payStatusModal').modal('show');
+});
+
+$('#updateStatusBtn').click(function() {
+    var sal_id = $('#edit_mxsal_id').val();
+    var emp_type = $('#edit_emp_type').val();
+    var status_val = $('#new_pay_status').val();
+    var btn = $(this);
+
+    btn.prop('disabled', true).text('Updating...');
+
+    $.ajax({
+        url: baseurl + 'salaries_controller/update_paysheet_status',
+        type: 'POST',
+        data: {
+            id: sal_id,
+            status: status_val,
+            emptype: emp_type // Passing emptype to backend
+        },
+        dataType: 'json',
+        success: function(res) {
+            if(res.status == 'success') {
+                var label = (status_val == 1) ?
+                    '<span class="badge badge-success">PAID</span>' :
+                    '<span class="badge badge-danger">UNPAID</span>';
+
+                // Re-build the link with updated current status
+                var link = " <a href='javascript:void(0)' class='edit-pay-status ml-1' data-id='"+sal_id+"' data-emptype='"+emp_type+"' data-name='"+res.emp_name+"' data-code='"+res.emp_code+"' data-current='"+status_val+"'><i class='fa fa-edit text-primary'></i></a>";
+
+                $('#status_container_' + sal_id).html(label + link);
+                $('#payStatusModal').modal('hide');
+            } else {
+                alert('Error: ' + (res.message || 'Update failed'));
+            }
+        },
+        error: function() { alert('Server error occurred.'); },
+        complete: function() { btn.prop('disabled', false).text('Update Status'); }
+    });
+});
+
 //--------------end paysheeet generate
