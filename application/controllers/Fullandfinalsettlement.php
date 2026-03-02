@@ -72,12 +72,12 @@ class Fullandfinalsettlement extends Common {
 		$loan_details=$this->Loan_model->getloandetails_payslip($emp_code);
 		$sum_loan_amt=$loan_details[0]->mxemploan_emp_loan_outstanding_amt;
 		$data['salary_structure']['mxsal_loan_amount']=$sum_loan_amt;
-		
-		//echo '<pre>';
+
+        //echo '<pre>'; 
         //print_r($data['salary_structure']['mxsal_loan_amount']);exit;
 		$salary_structure_fandf = $this->Adminmodel->getemployeedetailstosetsession_bonus5_fandf($emp_code,$final_date,$cmp_id);
         $data['salary_structure_fandf'] = $salary_structure_fandf;
-        
+
         $column_names_array = $this->Adminmodel->get_income_types($income_id = null, $cmp_id, $emp_type_id);
         $data['column_names_array'] = $column_names_array;
         //------------------LOAN

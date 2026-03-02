@@ -95,7 +95,27 @@
                                     </div>
                                     <span class="formerror" id="emptypeerror"></span>
                                 </div>
-                           																		
+
+                                <div class="col-sm-6 col-md-3">
+                                    <div class="form-group row">
+                                        <div class="col-lg-12">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="paysheet_type" id="paysheet_regular" value="paysheet" checked>
+                                                <label class="form-check-label" for="paysheet_regular">
+                                                    Paysheet
+                                                </label>
+                                            </div>
+                                            <br />
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="paysheet_type" id="paysheet_supplementary" value="supplementary_paysheet">
+                                                <label class="form-check-label" for="paysheet_supplementary">
+                                                    Supplementary Paysheet
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
 
                             </div>
                             <div class="text-right">

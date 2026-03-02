@@ -1105,13 +1105,9 @@ $dompdf->stream($emp_code."fandfslip.pdf", array("Attachment" => false));
         $saltype = $this->input->post("saltype");
         $emp_code = ($this->input->post("emp_code") != null)?$this->input->post("emp_code"):"";
         // echo "comp =".$company.", divi =".$divison.", state = ".$state.", branch =".$branch.", emptype =".$emptype;exit;
-       
-		
-		
-		
-		
-		
-		
+
+
+        //------PAYSLIP
 		if(isset($_REQUEST['paysheet']) && $_REQUEST['paysheet'] == "payslip"){ 
             $paysheet_array = $this->Salaries_model->getPaysheet($date,$company,$divison,$state,$branch,$emptype,$saltype,$emp_code);
         
@@ -1547,14 +1543,6 @@ $savePath = 'uploads/payslips/' . $customFileName;
 		}
 		
       }
-		
-		
-		
-		
-		
-		
-		
-		
 
         //------PAYSHEET
         if(isset($_REQUEST['paysheet']) && $_REQUEST['paysheet'] == "supplementary_paysheet"){
@@ -1690,7 +1678,8 @@ $savePath = 'uploads/payslips/' . $customFileName;
                      $html_data .= "</table>";
                      $html_data .= "</div>";
                      echo $html_data;exit;
-                }else if($professionals_flag == 1){
+                }
+                else if($professionals_flag == 1){
                      $html_data = "<div class=\"table-responsive\">";
                      $html_data .= "<table class=\"datatable table table-stripped mb-0\" id=\"dataTables-example\">";
                      $html_data .= "<thead>";
@@ -1799,7 +1788,8 @@ $savePath = 'uploads/payslips/' . $customFileName;
                      $html_data .= "</table>";
                      $html_data .= "</div>";
                      echo $html_data;exit;
-                }else if($directors_flag == 1){
+                }
+                else if($directors_flag == 1){
                      $html_data = "<div class=\"table-responsive\">";
                      $html_data .= "<table class=\"datatable table table-stripped mb-0\" id=\"dataTables-example\">";
                      $html_data .= "<thead>";
@@ -2000,7 +1990,8 @@ $savePath = 'uploads/payslips/' . $customFileName;
                      $html_data .= "</table>";
                      $html_data .= "</div>";
                      echo $html_data;exit;
-                }else{
+                }
+                else{
                      $html_data = "<div class=\"table-responsive\">";
                      $html_data .= "<table class=\"datatable table table-stripped mb-0\" id=\"dataTables-example\">";
                      $html_data .= "<thead>";
@@ -2218,367 +2209,71 @@ $savePath = 'uploads/payslips/' . $customFileName;
             // echo "bye";exit;
         }else{echo 402;exit;}
         }
-else{ //---->NORAML PAYSHEET
+        else{ //---->NORAML PAYSHEET
             $paysheet_array = $this->Salaries_model->getPaysheet($date,$company,$divison,$state,$branch,$emptype,$saltype,$emp_code);
             // print_r($paysheet_array);exit;
             if(count($paysheet_array) > 0){
             $emp_type_data = $this->Adminmodel->getemployeetypemasterdetails($emptype, $company);
             // print_r($emp_type_data);exit;
             
-            if(count($emp_type_data) > 0){
-                $directors_flag = $emp_type_data[0]->mxemp_ty_is_director;
-                $professionals_flag = $emp_type_data[0]->mxemp_ty_is_professionals;
-                $trainees_flag = $emp_type_data[0]->mxemp_ty_is_trainees;
-                
-                $emp_type_name = $emp_type_data[0]->mxemp_ty_name;
-                // echo $professionals_flag;exit;
-                if($trainees_flag == 1){ //---------TRAINEE
-                     $html_data = "<div class=\"table-responsive\">";
-                     $html_data .= "<table class=\"datatable table table-stripped mb-0\" id=\"dataTables-example\">";
-                     $html_data .= "<thead>";
-                     $html_data .= "<tr>";
-                     $html_data .= "<th>Sno</th>";
-                     $html_data .= "<th>Month</th>"; 
-                    //  $html_data .= "<th>Company Name</th>";
-                     $html_data .= "<th>Division</th>";
-                     $html_data .= "<th>Branch</th>";
-                     $html_data .= "<th>State</th>"; 
-                     $html_data .= "<th>Emp Id</th>";
-                     $html_data .= "<th>Name</th>";
-                     $html_data .= "<th>Department</th>"; 
-                     $html_data .= "<th>Designation</th>";
-                     $html_data .= "<th>UAN No</th>";
-                     $html_data .= "<th>PF No</th>";
-                     $html_data .= "<th>ESI No</th>";
-                     $html_data .= "<th>BANK Name</th>";
-                     $html_data .= "<th>A/C NO</th>";
-                     $html_data .= "<th>Branch Name</th>";
-                     $html_data .= "<th>IFSC Code</th>";
-                     $html_data .= "<th>Email Id</th>";
-                    //  $html_data .= "<th>Gratuity No</th>";
-                     $html_data .= "<th>Type of Employement</th>";
-                     $html_data .= "<th>Days in Month</th>"; 
-                     $html_data .= "<th>Present Days</th>"; 
-                     $html_data .= "<th>Sundays</th>";
-                     $html_data .= "<th>Public/Optional Holidays</th>";
-                     $html_data .= "<th>SL With Pay</th>";
-                    $html_data .= "<th>LOP</th>";
-                    $html_data .= "<th>Total Days</th>";
-                    $html_data .= "<th>STIPEND PER MONTH</th>";
-            
-                    //--------------NET INCOME HEADS
-                    $incm_heads = $this->Adminmodel->get_income_types($income_id = null, $company, $emptype,$is_variablepay = null);
-                    foreach($incm_heads as $inc_data){
-                        //   print_r($inc_data);exit;
-                        $html_data .= "<th>$inc_data->mxincm_name</th>";                
-                    }
-                    //--------------END NET INCOME HEADS
-                     $html_data .= "<th>ESI</th>";
-                     $html_data .= "<th>NET PAY</th>";
-                     $html_data .= "<th>PAID STATUS</th>";
-                     $html_data .= "</tr>";
-                     $html_data .= "</thead>";
-                     $html_data .= "<tbody>";
-                     
-                     $sno = 1;
-                    foreach($paysheet_array as $paysheet_data){
-                        //  print_r($paysheet_data);exit;
-                        $html_data .= "<tr>";
-                        $html_data .= "<td>$sno</td>";
-                        $html_data .= "<td>$paysheet_data->mxsal_year_month</td>";
-                        // $html_data .= "<td>$paysheet_data->mxcp_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxd_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxb_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxst_state</td>";
-                        $html_data .= "<td>$paysheet_data->mxsal_emp_code</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_fname $paysheet_data->mxemp_emp_lname</td>";
-                        $html_data .= "<td>$paysheet_data->mxdpt_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxdesg_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_uan_number</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_pf_number</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_esi_number</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_bank_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_bank_acc_no</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_bank_branch_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_bank_ifsci_no</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_email_id</td>";
-                        // $html_data .= "<td>$paysheet_data->mxcp_gratuity_reg_no</td>";
-                        $html_data .= "<td>$emp_type_name</td>";
-                        $leaves_data =  $this->Salaries_model->get_leaves_count_data($paysheet_data->mxsal_emp_code,$year."_".$month);
-                        // print_r($leaves_data);exit;
-                        $html_data .= "<td>$paysheet_data->mxsal_emp_days_in_month</td>";
-                        $present_days = $leaves_data[0]->Present + $leaves_data[0]->First_Half_Present + $leaves_data[0]->Second_Half_Present + $leaves_data[0]->First_Half_Present_Cl_Applied + $leaves_data[0]->Second_Half_Present_Cl_Applied + $leaves_data[0]->First_Half_Present_Sl_Applied + $leaves_data[0]->Second_Half_Present_Sl_Applied + $leaves_data[0]->First_Half_Present_El_Applied + $leaves_data[0]->Second_Half_Present_El_Applied;
-                        $html_data .= "<td>$present_days</td>";
-                        
-                        $wo = $leaves_data[0]->Week_Off;
-                        $html_data .= "<td>".$wo."</td>";
-    
-                        $PH = $leaves_data[0]->Public_Holiday + $leaves_data[0]->First_Half_Public_Holiday + $leaves_data[0]->Second_Half_Public_Holiday;
-                        $OH = $leaves_data[0]->Optional_Holiday + $leaves_data[0]->First_Half_Optional_Holiday + $leaves_data[0]->Second_Half_Optional_Holiday;
-                        // $CL = $leaves_data[0]->Casualleave + $leaves_data[0]->First_Half_Casualleave + $leaves_data[0]->Second_Half_Casualleave; 
-                        $SL = $leaves_data[0]->Sickleave + $leaves_data[0]->First_Half_Sickleave + $leaves_data[0]->Second_Half_Sickleave; 
-                        // $EL = $leaves_data[0]->Earnedleave + $leaves_data[0]->First_Half_Earnedleave + $leaves_data[0]->Second_Half_Earnedleave; 
-                        //----------NEW BY SHABABU(12-06-2022)
-                        // $ML = $leaves_data[0]->Meternityleave + $leaves_data[0]->First_Half_Meternityleave + $leaves_data[0]->Second_Half_Meternityleave; 
-                        //----------NEW BY SHABABU(12-06-2022)
-                        $LOP = $leaves_data[0]->Absent + $leaves_data[0]->First_Half_Absent + $leaves_data[0]->Second_Half_Absent; 
-                        $public_holiday = $PH + $OH;
-                        $html_data .= "<td>".$public_holiday."</td>";
-                        $html_data .= "<td>$SL</td>";//---->SL WITH PAY
-                       
-    
-                        // $html_data .= "<td>$CL</td>";//-->cl
-                        // $html_data .= "<td>$SL</td>";//--->sl
-                        // $html_data .= "<td>$EL</td>";//-->EL
-                        $html_data .= "<td>$LOP</td>";//--->LOP                 
-                        $total_days = $present_days + $wo + $public_holiday+$SL;
-                        $html_data .= "<td>$total_days</td>";//--->TOTAL DAYS
-                        $html_data .= "<td>".(int)$paysheet_data->mxsal_gross_sal."</td>";
-                        // //--------------------------NET INCOME HEADS
-                        // foreach($incm_heads as $inc_data){
-                        //     //   print_r($inc_data);exit;
-                        //     $col_name = $inc_data->mxincm_emp_col_name;
-                        //     $html_data .= "<td>".$paysheet_data->$col_name."</td>";                
-                        // }
-                            $html_data .= "<td>".(int)$paysheet_data->mxsal_actual_tsp."</td>";                
-                        // //--------------------------END NET INCOME HEADS
-                           
-                        $html_data .= "<td>$paysheet_data->mxsal_esi_emp_cont</td>";
-                        $html_data .= "<td>$paysheet_data->mxsal_net_sal</td>";
-                        // $html_data .= "<td>".(int)$paysheet_data->mxsal_actual_tsp."</td>";
-                        if($paysheet_data->mxsal_paid_status_flag == 1){$paid_status = 'PAID';}else{$paid_status = 'UNPAID';}
-                        $html_data .= "<td>$paid_status</td>";
-    
-                        $html_data .= "</tr>";
-                        $sno = $sno + 1;
-                    }
-             
-                     $html_data .= "</tbody>";
-                     $html_data .= "</table>";
-                     $html_data .= "</div>";
-                     echo $html_data;exit;
-                }else if($professionals_flag == 1){
-                     $html_data = "<div class=\"table-responsive\">";
-                     $html_data .= "<table class=\"datatable table table-stripped mb-0\" id=\"dataTables-example\">";
-                     $html_data .= "<thead>";
-                     $html_data .= "<tr>";
-                     $html_data .= "<th>Sno</th>";
-                     $html_data .= "<th>Month</th>"; 
-                    //  $html_data .= "<th>Company Name</th>";
-                     $html_data .= "<th>Division</th>";
-                     $html_data .= "<th>Branch</th>";
-                     $html_data .= "<th>State</th>"; 
-                     $html_data .= "<th>Emp Id</th>";
-                     $html_data .= "<th>Name</th>";
-                     $html_data .= "<th>Department</th>"; 
-                     $html_data .= "<th>Designation</th>";
-                     $html_data .= "<th>BANK Name</th>";
-                     $html_data .= "<th>A/C NO</th>";
-                     $html_data .= "<th>Branch Name</th>";
-                     $html_data .= "<th>IFSC Code</th>";
-                     $html_data .= "<th>Email Id</th>";
-                    //  $html_data .= "<th>UAN No</th>";
-                    //  $html_data .= "<th>PF No</th>";
-                    //  $html_data .= "<th>ESI No</th>";
-                    //  $html_data .= "<th>Gratuity No</th>";
-                     $html_data .= "<th>Type of Employement</th>";
-                     $html_data .= "<th>Days in Month</th>"; 
-                     $html_data .= "<th>Present Days</th>"; 
-                     $html_data .= "<th>Sundays</th>";
-                     $html_data .= "<th>Public/Optional Holidays</th>";
-                     $html_data .= "<th>CL Adjustment</th>";
-                     $html_data .= "<th>LOP</th>";
-                    $html_data .= "<th>Total Days</th>";
-                    $html_data .= "<th>RATE OF CONSULTANCY CHARGES PER MONTH</th>";
-            
-                    //--------------NET INCOME HEADS
-                    $incm_heads = $this->Adminmodel->get_income_types($income_id = null, $company, $emptype,$is_variablepay = null);
-                    foreach($incm_heads as $inc_data){
-                        //   print_r($inc_data);exit;
-                        $html_data .= "<th>$inc_data->mxincm_name</th>";                
-                    }
-                    //--------------END NET INCOME HEADS
-                     $html_data .= "<th>TDS</th>";
-                     $html_data .= "<th>NET AMOUNT</th>";
-                     $html_data .= "</tr>";
-                     $html_data .= "</thead>";
-                     $html_data .= "<tbody>";
-                     
-                     $sno = 1;
-                    foreach($paysheet_array as $paysheet_data){
-                        //  print_r($paysheet_data);exit;
-                        $html_data .= "<tr>";
-                        $html_data .= "<td>$sno</td>";
-                        $html_data .= "<td>$paysheet_data->mxsal_year_month</td>";
-                        // $html_data .= "<td>$paysheet_data->mxcp_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxd_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxb_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxst_state</td>";
-                        $html_data .= "<td>$paysheet_data->mxsal_emp_code</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_fname $paysheet_data->mxemp_emp_lname</td>";
-                        $html_data .= "<td>$paysheet_data->mxdpt_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxdesg_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_bank_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_bank_acc_no</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_bank_branch_name</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_bank_ifsci_no</td>";
-                        $html_data .= "<td>$paysheet_data->mxemp_emp_email_id</td>";
-                        // $html_data .= "<td>$paysheet_data->mxemp_emp_uan_number</td>";
-                        // $html_data .= "<td>$paysheet_data->mxemp_emp_pf_number</td>";
-                        // $html_data .= "<td>$paysheet_data->mxemp_emp_esi_number</td>";
-                        // $html_data .= "<td>$paysheet_data->mxcp_gratuity_reg_no</td>";
-                        $html_data .= "<td>$emp_type_name</td>";
-                        $leaves_data =  $this->Salaries_model->get_leaves_count_data($paysheet_data->mxsal_emp_code,$year."_".$month);
-                        // print_r($leaves_data);exit;
-                        $html_data .= "<td>$paysheet_data->mxsal_emp_days_in_month</td>";
-                        $present_days = $leaves_data[0]->Present + $leaves_data[0]->First_Half_Present + $leaves_data[0]->Second_Half_Present + $leaves_data[0]->First_Half_Present_Cl_Applied + $leaves_data[0]->Second_Half_Present_Cl_Applied + $leaves_data[0]->First_Half_Present_Sl_Applied + $leaves_data[0]->Second_Half_Present_Sl_Applied + $leaves_data[0]->First_Half_Present_El_Applied + $leaves_data[0]->Second_Half_Present_El_Applied;
-                        $html_data .= "<td>$present_days</td>";
-                        
-                        $wo = $leaves_data[0]->Week_Off;
-                        $html_data .= "<td>".$wo."</td>";
-    
-                        $PH = $leaves_data[0]->Public_Holiday + $leaves_data[0]->First_Half_Public_Holiday + $leaves_data[0]->Second_Half_Public_Holiday;
-                        $OH = $leaves_data[0]->Optional_Holiday + $leaves_data[0]->First_Half_Optional_Holiday + $leaves_data[0]->Second_Half_Optional_Holiday;
-                        $CL = $leaves_data[0]->Casualleave + $leaves_data[0]->First_Half_Casualleave + $leaves_data[0]->Second_Half_Casualleave; 
-                        // $SL = $leaves_data[0]->Sickleave + $leaves_data[0]->First_Half_Sickleave + $leaves_data[0]->Second_Half_Sickleave; 
-                        // $EL = $leaves_data[0]->Earnedleave + $leaves_data[0]->First_Half_Earnedleave + $leaves_data[0]->Second_Half_Earnedleave; 
-                        //----------NEW BY SHABABU(12-06-2022)
-                        // $ML = $leaves_data[0]->Meternityleave + $leaves_data[0]->First_Half_Meternityleave + $leaves_data[0]->Second_Half_Meternityleave; 
-                        //----------NEW BY SHABABU(12-06-2022)
-                        $LOP = $leaves_data[0]->Absent + $leaves_data[0]->First_Half_Absent + $leaves_data[0]->Second_Half_Absent; 
-                        $public_holiday = $PH + $OH;
-                        $html_data .= "<td>".$public_holiday."</td>";
-                        // $html_data .= "<td>$SL</td>";//---->SL WITH PAY
-                       
-    
-                        $html_data .= "<td>$CL</td>";//-->cl
-                        // $html_data .= "<td>$SL</td>";//--->sl
-                        // $html_data .= "<td>$EL</td>";//-->EL
-                        $html_data .= "<td>$LOP</td>";//--->LOP                 
-                        $total_days = $present_days + $wo + $public_holiday+$CL;
-                        // if($paysheet_data->mxsal_emp_code == 'MC0007'){
-                        //     echo $total_days;exit;
-                        // }
-                        $html_data .= "<td>$total_days</td>";//--->TOTAL DAYS
-                        $html_data .= "<td>".(int)$paysheet_data->mxsal_gross_sal."</td>";
-                        // //--------------------------NET INCOME HEADS
-                        // foreach($incm_heads as $inc_data){
-                        //     //   print_r($inc_data);exit;
-                        //     $col_name = $inc_data->mxincm_emp_col_name;
-                        //     $html_data .= "<td>".$paysheet_data->$col_name."</td>";                
-                        // }
-                        $html_data .= "<td>".(int)$paysheet_data->mxsal_actual_prof_charges."</td>";                
-                        // //--------------------------END NET INCOME HEADS
-                           
-                        $html_data .= "<td>".(int)$paysheet_data->mxsal_tds_amount."</td>";
-                        $html_data .= "<td>$paysheet_data->mxsal_net_sal</td>";
-                        // $html_data .= "<td>".(int)$paysheet_data->mxsal_actual_tsp."</td>";
-    
-                        $html_data .= "</tr>";
-                        $sno = $sno + 1;
-                    }
-             
-                     $html_data .= "</tbody>";
-                     $html_data .= "</table>";
-                     $html_data .= "</div>";
-                     echo $html_data;exit;
-                }else if($directors_flag == 1){
-                     $html_data = "<div class=\"table-responsive\">";
-                     $html_data .= "<table class=\"datatable table table-stripped mb-0\" id=\"dataTables-example\">";
-                     $html_data .= "<thead>";
-                     $html_data .= "<tr>";
-                     $html_data .= "<th>Sno</th>";
-                     $html_data .= "<th>Month</th>"; 
-                    //  $html_data .= "<th>Company Name</th>";
-                     $html_data .= "<th>Division</th>";
-                     $html_data .= "<th>Branch</th>";
-                     $html_data .= "<th>State</th>"; 
-                     $html_data .= "<th>Emp Id</th>";
-                     $html_data .= "<th>Name</th>";
-                     $html_data .= "<th>Department</th>"; 
-                     $html_data .= "<th>Designation</th>";
-                     $html_data .= "<th>UAN No</th>";
-                     $html_data .= "<th>PF No</th>";
-                     $html_data .= "<th>ESI No</th>";
-                     $html_data .= "<th>BANK Name</th>";
-                     $html_data .= "<th>A/C NO</th>";
-                     $html_data .= "<th>Branch Name</th>";
-                     $html_data .= "<th>IFSC Code</th>";
-                     $html_data .= "<th>Email Id</th>";
-                    //  $html_data .= "<th>Gratuity No</th>";
-                     $html_data .= "<th>Days in Month</th>"; 
-                     $html_data .= "<th>Present Days</th>"; 
-                     $html_data .= "<th>Sundays</th>";
-                     $html_data .= "<th>Public/Optional Holidays</th>";
-                     $html_data .= "<th>Others</th>";
-                     $html_data .= "<th>CL</th>";
-                     $html_data .= "<th>SL</th>";
-                     $html_data .= "<th>EL</th>";                                            
-                     $html_data .= "<th>LOP</th>";
-                     $html_data .= "<th>Total Days</th>";
-                    //  $html_data .= "<th>BASIC</th>";
-                    //  $html_data .= "<th>HRA</th>";
-                    //--------------NET INCOME HEADS
-                    $incm_heads = $this->Adminmodel->get_income_types($income_id = null, $company, $emptype,$is_variablepay = null);
-                    foreach($incm_heads as $inc_data){
-                        //   print_r($inc_data);exit;
-                        $html_data .= "<th>$inc_data->mxincm_name</th>";                
-                    }
-                    //--------------END NET INCOME HEADS
-        
-                    
-        
-                    //  $html_data .= "<th>OA</th>";
-                    //------------------------ACTUAL INCOME HEADS
-                    $html_data .= "<th>BASIC</th>";
-                    // $html_data .= "<th>HRA</th>";
-                    //------------------------END ACTUAL INCOME HEADS
-                    //---------------VARIABLE PAYS
-                    $variable_heads_array = $this->Adminmodel->get_income_types($income_id = null, $company, $emptype,$is_variablepay = 1);
-                    $year_month = date("Ym",strtotime("01-".$date));
-                    $filtered_variable_heads_array = $this->Salaries_model->get_variable_heads_data_from_sal_table($variable_heads_array,$year_month,$emptype);
-                   //  print_r($variable_heads);exit;
-                   foreach($filtered_variable_heads_array as $filtered_variable_data){
-                    //   $html_data .= "<th>$filtered_variable_data->mxincm_name</th>";//--------->commeneted By Shababu(30-07-2022)
-                       
-                   }
-                    //---------------END VARIABLE PAYS
-        
-        
-                    //  $html_data .= "<th>OA</th>";                                        
-                     $html_data .= "<th>TOTAL REMUNERATION</th>";//---->GROSS
-                     $html_data .= "<th>PF</th>";
-                    //  $html_data .= "<th>ESI</th>";
-                    //  $html_data .= "<th>PT</th>";
-                    //  $html_data .= "<th>LWF</th>";
-                    //  $html_data .= "<th>LOAN</th>";
-                    //  $html_data .= "<th>ADVANCE</th>";
-                     $html_data .= "<th>TDS</th>";
-                    //  $html_data .= "<th>MISC DED</th>";
-                    //  $html_data .= "<th>TOTAL DEDUCTION</th>";
-                     $html_data .= "<th>NET PAY</th>";
-                     $html_data .= "<th>PF WAGE</th>";
-                     $html_data .= "<th>EPS WAGE</th>";
-                     $html_data .= "<th>EDLI WAGE</th>";
-                     $html_data .= "<th>PF CON</th>";
-                     $html_data .= "<th>EPS</th>";
-                     $html_data .= "<th>EDLI</th>";
-                     $html_data .= "<th>PF Admin</th>";
-                    //  $html_data .= "<th>Esi Wages</th>";
-                    //  $html_data .= "<th>Esi Company</th>";
-                    //  $html_data .= "<th>Bonus</th>";
-                     $html_data .= "<th>Gratuity</th>";
-                    
-                     $html_data .= "<th>LTA</th>";
-                     $html_data .= "<th>MEDICLAIM</th>";
-                     $html_data .= "<th>CTC</th>";
-                     $html_data .= "<th>PAID STATUS</th>";
-                     $html_data .= "</tr>";
-                     $html_data .= "</thead>";
-                     $html_data .= "<tbody>";
-                     $sno = 1;
-                     foreach($paysheet_array as $paysheet_data){
-                        //  print_r($paysheet_data);exit;
+                if(count($emp_type_data) > 0){
+                    $directors_flag = $emp_type_data[0]->mxemp_ty_is_director;
+                    $professionals_flag = $emp_type_data[0]->mxemp_ty_is_professionals;
+                    $trainees_flag = $emp_type_data[0]->mxemp_ty_is_trainees;
+
+                    $emp_type_name = $emp_type_data[0]->mxemp_ty_name;
+                    // echo $professionals_flag;exit;
+                    if($trainees_flag == 1){ //---------TRAINEE
+                         $html_data = "<div class=\"table-responsive\">";
+                         $html_data .= "<table class=\"datatable table table-stripped mb-0\" id=\"dataTables-example\">";
+                         $html_data .= "<thead>";
+                         $html_data .= "<tr>";
+                         $html_data .= "<th>Sno</th>";
+                         $html_data .= "<th>Month</th>";
+                        //  $html_data .= "<th>Company Name</th>";
+                         $html_data .= "<th>Division</th>";
+                         $html_data .= "<th>Branch</th>";
+                         $html_data .= "<th>State</th>";
+                         $html_data .= "<th>Emp Id</th>";
+                         $html_data .= "<th>Name</th>";
+                         $html_data .= "<th>Department</th>";
+                         $html_data .= "<th>Designation</th>";
+                         $html_data .= "<th>UAN No</th>";
+                         $html_data .= "<th>PF No</th>";
+                         $html_data .= "<th>ESI No</th>";
+                         $html_data .= "<th>BANK Name</th>";
+                         $html_data .= "<th>A/C NO</th>";
+                         $html_data .= "<th>Branch Name</th>";
+                         $html_data .= "<th>IFSC Code</th>";
+                         $html_data .= "<th>Email Id</th>";
+                        //  $html_data .= "<th>Gratuity No</th>";
+                         $html_data .= "<th>Type of Employement</th>";
+                         $html_data .= "<th>Days in Month</th>";
+                         $html_data .= "<th>Present Days</th>";
+                         $html_data .= "<th>Sundays</th>";
+                         $html_data .= "<th>Public/Optional Holidays</th>";
+                         $html_data .= "<th>SL With Pay</th>";
+                        $html_data .= "<th>LOP</th>";
+                        $html_data .= "<th>Total Days</th>";
+                        $html_data .= "<th>STIPEND PER MONTH</th>";
+
+                        //--------------NET INCOME HEADS
+                        $incm_heads = $this->Adminmodel->get_income_types($income_id = null, $company, $emptype,$is_variablepay = null);
+                        foreach($incm_heads as $inc_data){
+                            //   print_r($inc_data);exit;
+                            $html_data .= "<th>$inc_data->mxincm_name</th>";
+                        }
+                        //--------------END NET INCOME HEADS
+                         $html_data .= "<th>ESI</th>";
+                         $html_data .= "<th>NET PAY</th>";
+                         $html_data .= "<th>PAID STATUS</th>";
+                         $html_data .= "</tr>";
+                         $html_data .= "</thead>";
+                         $html_data .= "<tbody>";
+
+                         $sno = 1;
+                        foreach($paysheet_array as $paysheet_data){
+                            //  print_r($paysheet_data);exit;
                             $html_data .= "<tr>";
                             $html_data .= "<td>$sno</td>";
                             $html_data .= "<td>$paysheet_data->mxsal_year_month</td>";
@@ -2599,204 +2294,130 @@ else{ //---->NORAML PAYSHEET
                             $html_data .= "<td>$paysheet_data->mxemp_emp_bank_ifsci_no</td>";
                             $html_data .= "<td>$paysheet_data->mxemp_emp_email_id</td>";
                             // $html_data .= "<td>$paysheet_data->mxcp_gratuity_reg_no</td>";
+                            $html_data .= "<td>$emp_type_name</td>";
                             $leaves_data =  $this->Salaries_model->get_leaves_count_data($paysheet_data->mxsal_emp_code,$year."_".$month);
                             // print_r($leaves_data);exit;
                             $html_data .= "<td>$paysheet_data->mxsal_emp_days_in_month</td>";
                             $present_days = $leaves_data[0]->Present + $leaves_data[0]->First_Half_Present + $leaves_data[0]->Second_Half_Present + $leaves_data[0]->First_Half_Present_Cl_Applied + $leaves_data[0]->Second_Half_Present_Cl_Applied + $leaves_data[0]->First_Half_Present_Sl_Applied + $leaves_data[0]->Second_Half_Present_Sl_Applied + $leaves_data[0]->First_Half_Present_El_Applied + $leaves_data[0]->Second_Half_Present_El_Applied;
                             $html_data .= "<td>$present_days</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_present_days</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_emp_weak_offs</td>";
+
                             $wo = $leaves_data[0]->Week_Off;
                             $html_data .= "<td>".$wo."</td>";
-        
+
                             $PH = $leaves_data[0]->Public_Holiday + $leaves_data[0]->First_Half_Public_Holiday + $leaves_data[0]->Second_Half_Public_Holiday;
                             $OH = $leaves_data[0]->Optional_Holiday + $leaves_data[0]->First_Half_Optional_Holiday + $leaves_data[0]->Second_Half_Optional_Holiday;
-                            $CL = $leaves_data[0]->Casualleave + $leaves_data[0]->First_Half_Casualleave + $leaves_data[0]->Second_Half_Casualleave; 
-                            $SL = $leaves_data[0]->Sickleave + $leaves_data[0]->First_Half_Sickleave + $leaves_data[0]->Second_Half_Sickleave; 
-                            $EL = $leaves_data[0]->Earnedleave + $leaves_data[0]->First_Half_Earnedleave + $leaves_data[0]->Second_Half_Earnedleave; 
+                            // $CL = $leaves_data[0]->Casualleave + $leaves_data[0]->First_Half_Casualleave + $leaves_data[0]->Second_Half_Casualleave;
+                            $SL = $leaves_data[0]->Sickleave + $leaves_data[0]->First_Half_Sickleave + $leaves_data[0]->Second_Half_Sickleave;
+                            // $EL = $leaves_data[0]->Earnedleave + $leaves_data[0]->First_Half_Earnedleave + $leaves_data[0]->Second_Half_Earnedleave;
                             //----------NEW BY SHABABU(12-06-2022)
-                            // $ML = $leaves_data[0]->Meternityleave + $leaves_data[0]->First_Half_Meternityleave + $leaves_data[0]->Second_Half_Meternityleave; 
+                            // $ML = $leaves_data[0]->Meternityleave + $leaves_data[0]->First_Half_Meternityleave + $leaves_data[0]->Second_Half_Meternityleave;
                             //----------NEW BY SHABABU(12-06-2022)
-                            $LOP = $leaves_data[0]->Absent + $leaves_data[0]->First_Half_Absent + $leaves_data[0]->Second_Half_Absent; 
+                            $LOP = $leaves_data[0]->Absent + $leaves_data[0]->First_Half_Absent + $leaves_data[0]->Second_Half_Absent;
                             $public_holiday = $PH + $OH;
                             $html_data .= "<td>".$public_holiday."</td>";
-                            $html_data .= "<td>0</td>";//---->others Not using now
-                           
-        
-                            $html_data .= "<td>$CL</td>";//-->cl
-                            $html_data .= "<td>$SL</td>";//--->sl
-                            $html_data .= "<td>$EL</td>";//-->EL
-                            $html_data .= "<td>$LOP</td>";//--->LOP                 
-                            $total_days = $present_days + $wo + $public_holiday + $CL + $SL + $EL;
+                            $html_data .= "<td>$SL</td>";//---->SL WITH PAY
+
+
+                            // $html_data .= "<td>$CL</td>";//-->cl
+                            // $html_data .= "<td>$SL</td>";//--->sl
+                            // $html_data .= "<td>$EL</td>";//-->EL
+                            $html_data .= "<td>$LOP</td>";//--->LOP
+                            $total_days = $present_days + $wo + $public_holiday+$SL;
                             $html_data .= "<td>$total_days</td>";//--->TOTAL DAYS
-                            //--------------------------NET INCOME HEADS
-                            foreach($incm_heads as $inc_data){
-                                //   print_r($inc_data);exit;
-                                $col_name = $inc_data->mxincm_emp_col_name;
-                                $html_data .= "<th>".$paysheet_data->$col_name."</th>";                
-                            }
-                            //--------------------------END NET INCOME HEADS
-        
-                    
-        
-                            // $html_data .= "<td>$paysheet_data->mxsal_basic</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_hra</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_other_allowances</td>";
-                            //--------------------------ACTUAL INCOME HEADS                    
-                            $html_data .= "<td>$paysheet_data->mxsal_actual_basic</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_actual_hra</td>";
-                            //--------------------------END ACTUAL INCOME HEADS
-        
-        
-                            //--------------------------VARIABLE PAYS
-                            foreach($filtered_variable_heads_array as $filtered_variable_data){
-                                $variable_pay_col_name = $filtered_variable_data->mxincm_emp_col_name;
-                                // $html_data .= "<th>".$paysheet_data->$variable_pay_col_name."</th>";//--------->commeneted By Shababu(30-07-2022)                        
-                            }
-                            //--------------------------END VARIABLE PAYS        
-                            // $html_data .= "<td></td>";//--->ACTUAL OA
-                            $html_data .= "<td>$paysheet_data->mxsal_actual_gross</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_pf_emp_cont</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_esi_emp_cont</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_pt</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_lwf_emp_cont</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_loan_amount</td>";
-                            // $html_data .= "<td></td>";//--->ADVANCE
-                            $html_data .= "<td>$paysheet_data->mxsal_tds_amount</td>";//--->TDS
-                            // $html_data .= "<td>$paysheet_data->mxsal_miscelleneous_amount</td>";//--->MISC DED
-                            // $html_data .= "<td>$paysheet_data->mxsal_total_ded</td>";//--->TOTAL DEDUCTIONS
+                            $html_data .= "<td>".(int)$paysheet_data->mxsal_gross_sal."</td>";
+                            // //--------------------------NET INCOME HEADS
+                            // foreach($incm_heads as $inc_data){
+                            //     //   print_r($inc_data);exit;
+                            //     $col_name = $inc_data->mxincm_emp_col_name;
+                            //     $html_data .= "<td>".$paysheet_data->$col_name."</td>";
+                            // }
+                                $html_data .= "<td>".(int)$paysheet_data->mxsal_actual_tsp."</td>";
+                            // //--------------------------END NET INCOME HEADS
+
+                            $html_data .= "<td>$paysheet_data->mxsal_esi_emp_cont</td>";
                             $html_data .= "<td>$paysheet_data->mxsal_net_sal</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_actual_basic</td>";//---->PF WAGE
-                            $html_data .= "<td>$paysheet_data->mxsal_eps_wages</td>";//---->EPS WAGE
-                            $html_data .= "<td>$paysheet_data->mxsal_edli_wages</td>";//---->EDLI WAGE
-                            $html_data .= "<td>$paysheet_data->mxsal_pf_comp_cont</td>";//--->comp cont pf
-                            $html_data .= "<td>$paysheet_data->mxsal_pf_pension_cont</td>";//--->PF pension cont
-                            $html_data .= "<td>$paysheet_data->mxsal_pf_edli</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_pf_admin</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_gross_sal</td>";//--->ESI WAGES AS GROSS
-                            // $html_data .= "<td>$paysheet_data->mxsal_actual_gross</td>";//--->ESI WAGES AS ACTUAL GROSS
-                            // $html_data .= "<td>$paysheet_data->mxsal_esi_wages</td>";//--->ESI WAGES AS ACTUAL GROSS
-                            // $html_data .= "<td>$paysheet_data->mxsal_esi_comp_cont</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_bonus</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_gratuity_amount</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_lta_amount</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_mediclaim_amount</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_ctc</td>";
-                            if($paysheet_data->mxsal_paid_status_flag == 1){$paid_status = 'PAID';}else{$paid_status = 'UNPAID';}
-                            $html_data .= "<td>$paid_status</td>";
+                            // $html_data .= "<td>".(int)$paysheet_data->mxsal_actual_tsp."</td>";
+
+                            if($paysheet_data->mxsal_paid_status_flag == 1){
+                                $status_label = '<span class="badge badge-success">PAID</span>';
+                            } else {
+                                $status_label = '<span class="badge badge-danger">UNPAID</span>';
+                            }
+
+
+                            $status_container = "<div id='status_container_".$paysheet_data->mxsal_id."'>";
+                            $status_container .= $status_label;
+                            $status_container .= " <a href='javascript:void(0)' class='edit-pay-status ml-1' 
+                                                    data-id='".$paysheet_data->mxsal_id."' 
+                                                    data-emptype='".$emptype."' 
+                                                    data-name='".$paysheet_data->mxemp_emp_fname." ".$paysheet_data->mxemp_emp_lname."' 
+                                                    data-code='".$paysheet_data->mxsal_emp_code."' 
+                                                    data-current='".$paysheet_data->mxsal_paid_status_flag."'>
+                                                    <i class='fa fa-edit text-primary'></i>
+                                                  </a>";
+                            $status_container .= "</div>";
+
+                            $html_data .= "<td>$status_container</td>";
+
                             $html_data .= "</tr>";
                             $sno = $sno + 1;
-                     }
-                     
-                     $html_data .= "</tbody>";
-                     $html_data .= "</table>";
-                     $html_data .= "</div>";
-                     echo $html_data;exit;
-                }else{
-                     $html_data = "<div class=\"table-responsive\">";
-                     $html_data .= "<table class=\"datatable table table-stripped mb-0\" id=\"dataTables-example\">";
-                     $html_data .= "<thead>";
-                     $html_data .= "<tr>";
-                     $html_data .= "<th>Sno</th>";
-                     $html_data .= "<th>Month</th>"; 
-                    //  $html_data .= "<th>Company Name</th>";
-                     $html_data .= "<th>Division</th>";
-                     $html_data .= "<th>Branch</th>";
-                     $html_data .= "<th>State</th>"; 
-                     $html_data .= "<th>Emp Id</th>";
-                     $html_data .= "<th>Name</th>";
-                     $html_data .= "<th>Department</th>"; 
-                     $html_data .= "<th>Designation</th>";
-                     $html_data .= "<th>UAN No</th>";
-                     $html_data .= "<th>PF No</th>";
-                     $html_data .= "<th>ESI No</th>";
-                     $html_data .= "<th>BANK Name</th>";
-                     $html_data .= "<th>A/C NO</th>";
-                     $html_data .= "<th>Branch Name</th>";
-                     $html_data .= "<th>IFSC Code</th>";
-                     $html_data .= "<th>Email Id</th>";
-                    //  $html_data .= "<th>Gratuity No</th>";
-                     $html_data .= "<th>Days in Month</th>"; 
-                     $html_data .= "<th>Present Days</th>"; 
-                     $html_data .= "<th>Sundays</th>";
-                     $html_data .= "<th>Public/Optional Holidays</th>";
-                     $html_data .= "<th>Others</th>";
-                     $html_data .= "<th>CL</th>";
-                     $html_data .= "<th>SL</th>";
-                     $html_data .= "<th>EL</th>";                                            
-                     $html_data .= "<th>ML</th>";                                            
-                     $html_data .= "<th>LOP</th>";
-                     $html_data .= "<th>Total Days</th>";
-                    //  $html_data .= "<th>BASIC</th>";
-                    //  $html_data .= "<th>HRA</th>";
-                    //--------------NET INCOME HEADS
-                    $incm_heads = $this->Adminmodel->get_income_types($income_id = null, $company, $emptype,$is_variablepay = null);
-                    foreach($incm_heads as $inc_data){
-                        //   print_r($inc_data);exit;
-                        $html_data .= "<th>$inc_data->mxincm_name</th>";                
+                        }
+
+                         $html_data .= "</tbody>";
+                         $html_data .= "</table>";
+                         $html_data .= "</div>";
+                         echo $html_data;exit;
                     }
-                    //--------------END NET INCOME HEADS
-        
-                    
-        
-                    //  $html_data .= "<th>OA</th>";
-                    //------------------------ACTUAL INCOME HEADS
-                    $html_data .= "<th>BASIC</th>";
-                    $html_data .= "<th>HRA</th>";
-                    //------------------------END ACTUAL INCOME HEADS
-                    //---------------VARIABLE PAYS
-                    $variable_heads_array = $this->Adminmodel->get_income_types($income_id = null, $company, $emptype,$is_variablepay = 1);
-                    $year_month = date("Ym",strtotime("01-".$date));
-                    $filtered_variable_heads_array = $this->Salaries_model->get_variable_heads_data_from_sal_table($variable_heads_array,$year_month,$emptype);
-                   //  print_r($variable_heads);exit;
-                   foreach($filtered_variable_heads_array as $filtered_variable_data){
-                    //   $html_data .= "<th>$filtered_variable_data->mxincm_name</th>";//--------->commeneted By Shababu(30-07-2022)
-                       
-                   }
-                    //---------------END VARIABLE PAYS
-        
-        
-                    //  $html_data .= "<th>OA</th>"; 
-                    $html_data .= "<th>MISC.INCOME</th>";//---->NEW BY SHABABU(20-07-2022)
-                     $html_data .= "<th>GROSS</th>";
-                     $html_data .= "<th>PF</th>";
-                     $html_data .= "<th>ESI</th>";
-                     $html_data .= "<th>PT</th>";
-                     $html_data .= "<th>LWF EMP</th>";
-                     $html_data .= "<th>LOAN</th>";
-                     $html_data .= "<th>ADVANCE</th>";
-                     $html_data .= "<th>TDS</th>";
-                     $html_data .= "<th>MISC DED</th>";
-                     $html_data .= "<th>TOTAL DEDUCTION</th>";
-                     $html_data .= "<th>NET PAY</th>";
-                     $html_data .= "<th>PF WAGE</th>";
-                     $html_data .= "<th>EPS WAGE</th>";
-                     $html_data .= "<th>EDLI WAGE</th>";
-                     $html_data .= "<th>PF CON</th>";
-                     $html_data .= "<th>EPS</th>";
-                     $html_data .= "<th>EDLI</th>";
-                     $html_data .= "<th>PF Admin</th>";
-                     $html_data .= "<th>Esi Wages</th>";
-                     $html_data .= "<th>Esi Company</th>";
-                     $html_data .= "<th>Bonus</th>";
-                     $html_data .= "<th>Bonus Payable</th>";
-                     
-                     $html_data .= "<th>LWF COMP</th>";
-                     $html_data .= "<th>Gratuity</th>";
-                    
-        
-                     $html_data .= "<th>LTA</th>";
-                     $html_data .= "<th>MEDICLAIM</th>";
-                     $html_data .= "<th>CTC</th>";
-                     $html_data .= "<th>PAID STATUS</th>";
-                     $html_data .= "<th>attachment </th>";
-                     $html_data .= "<th>Date Created </th>";
-                     $html_data .= "</tr>";
-                     $html_data .= "</thead>";
-                     $html_data .= "<tbody>";
-                     $sno = 1;
-                     foreach($paysheet_array as $paysheet_data){
-                        //  print_r($paysheet_data);exit;
+                    else if($professionals_flag == 1){
+                         $html_data = "<div class=\"table-responsive\">";
+                         $html_data .= "<table class=\"datatable table table-stripped mb-0\" id=\"dataTables-example\">";
+                         $html_data .= "<thead>";
+                         $html_data .= "<tr>";
+                         $html_data .= "<th>Sno</th>";
+                         $html_data .= "<th>Month</th>";
+                        //  $html_data .= "<th>Company Name</th>";
+                         $html_data .= "<th>Division</th>";
+                         $html_data .= "<th>Branch</th>";
+                         $html_data .= "<th>State</th>";
+                         $html_data .= "<th>Emp Id</th>";
+                         $html_data .= "<th>Name</th>";
+                         $html_data .= "<th>Department</th>";
+                         $html_data .= "<th>Designation</th>";
+                         $html_data .= "<th>BANK Name</th>";
+                         $html_data .= "<th>A/C NO</th>";
+                         $html_data .= "<th>Branch Name</th>";
+                         $html_data .= "<th>IFSC Code</th>";
+                         $html_data .= "<th>Email Id</th>";
+                        //  $html_data .= "<th>UAN No</th>";
+                        //  $html_data .= "<th>PF No</th>";
+                        //  $html_data .= "<th>ESI No</th>";
+                        //  $html_data .= "<th>Gratuity No</th>";
+                         $html_data .= "<th>Type of Employement</th>";
+                         $html_data .= "<th>Days in Month</th>";
+                         $html_data .= "<th>Present Days</th>";
+                         $html_data .= "<th>Sundays</th>";
+                         $html_data .= "<th>Public/Optional Holidays</th>";
+                         $html_data .= "<th>CL Adjustment</th>";
+                         $html_data .= "<th>LOP</th>";
+                        $html_data .= "<th>Total Days</th>";
+                        $html_data .= "<th>RATE OF CONSULTANCY CHARGES PER MONTH</th>";
+
+                        //--------------NET INCOME HEADS
+                        $incm_heads = $this->Adminmodel->get_income_types($income_id = null, $company, $emptype,$is_variablepay = null);
+                        foreach($incm_heads as $inc_data){
+                            //   print_r($inc_data);exit;
+                            $html_data .= "<th>$inc_data->mxincm_name</th>";
+                        }
+                        //--------------END NET INCOME HEADS
+                         $html_data .= "<th>TDS</th>";
+                         $html_data .= "<th>NET AMOUNT</th>";
+                         $html_data .= "</tr>";
+                         $html_data .= "</thead>";
+                         $html_data .= "<tbody>";
+
+                         $sno = 1;
+                        foreach($paysheet_array as $paysheet_data){
+                            //  print_r($paysheet_data);exit;
                             $html_data .= "<tr>";
                             $html_data .= "<td>$sno</td>";
                             $html_data .= "<td>$paysheet_data->mxsal_year_month</td>";
@@ -2808,165 +2429,631 @@ else{ //---->NORAML PAYSHEET
                             $html_data .= "<td>$paysheet_data->mxemp_emp_fname $paysheet_data->mxemp_emp_lname</td>";
                             $html_data .= "<td>$paysheet_data->mxdpt_name</td>";
                             $html_data .= "<td>$paysheet_data->mxdesg_name</td>";
-                            $html_data .= "<td>$paysheet_data->mxemp_emp_uan_number</td>";
-                            $html_data .= "<td>$paysheet_data->mxemp_emp_pf_number</td>";
-                            $html_data .= "<td>$paysheet_data->mxemp_emp_esi_number</td>";
                             $html_data .= "<td>$paysheet_data->mxemp_emp_bank_name</td>";
                             $html_data .= "<td>$paysheet_data->mxemp_emp_bank_acc_no</td>";
                             $html_data .= "<td>$paysheet_data->mxemp_emp_bank_branch_name</td>";
                             $html_data .= "<td>$paysheet_data->mxemp_emp_bank_ifsci_no</td>";
                             $html_data .= "<td>$paysheet_data->mxemp_emp_email_id</td>";
+                            // $html_data .= "<td>$paysheet_data->mxemp_emp_uan_number</td>";
+                            // $html_data .= "<td>$paysheet_data->mxemp_emp_pf_number</td>";
+                            // $html_data .= "<td>$paysheet_data->mxemp_emp_esi_number</td>";
                             // $html_data .= "<td>$paysheet_data->mxcp_gratuity_reg_no</td>";
-                            // $leaves_data =  $this->Salaries_model->get_leaves_count_data($paysheet_data->mxsal_emp_code,$year."_".$month);
+                            $html_data .= "<td>$emp_type_name</td>";
+                            $leaves_data =  $this->Salaries_model->get_leaves_count_data($paysheet_data->mxsal_emp_code,$year."_".$month);
                             // print_r($leaves_data);exit;
                             $html_data .= "<td>$paysheet_data->mxsal_emp_days_in_month</td>";
-                            // $present_days = $leaves_data[0]->Present + $leaves_data[0]->First_Half_Present + $leaves_data[0]->Second_Half_Present + $leaves_data[0]->First_Half_Present_Cl_Applied + $leaves_data[0]->Second_Half_Present_Cl_Applied + $leaves_data[0]->First_Half_Present_Sl_Applied + $leaves_data[0]->Second_Half_Present_Sl_Applied + $leaves_data[0]->First_Half_Present_El_Applied + $leaves_data[0]->Second_Half_Present_El_Applied;
-                            // $html_data .= "<td>$present_days</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_present_days_from_attendance</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_present_days</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_emp_weak_offs</td>";
-                            // $wo = $leaves_data[0]->Week_Off;
-                            // $html_data .= "<td>".$wo."</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_sundays_from_attendance</td>";
-        
-                            // $PH = $leaves_data[0]->Public_Holiday + $leaves_data[0]->First_Half_Public_Holiday + $leaves_data[0]->Second_Half_Public_Holiday;
-                            // $OH = $leaves_data[0]->Optional_Holiday + $leaves_data[0]->First_Half_Optional_Holiday + $leaves_data[0]->Second_Half_Optional_Holiday;
-                            // $CL = $leaves_data[0]->Casualleave + $leaves_data[0]->First_Half_Casualleave + $leaves_data[0]->Second_Half_Casualleave; 
-                            // $SL = $leaves_data[0]->Sickleave + $leaves_data[0]->First_Half_Sickleave + $leaves_data[0]->Second_Half_Sickleave; 
+                            $present_days = $leaves_data[0]->Present + $leaves_data[0]->First_Half_Present + $leaves_data[0]->Second_Half_Present + $leaves_data[0]->First_Half_Present_Cl_Applied + $leaves_data[0]->Second_Half_Present_Cl_Applied + $leaves_data[0]->First_Half_Present_Sl_Applied + $leaves_data[0]->Second_Half_Present_Sl_Applied + $leaves_data[0]->First_Half_Present_El_Applied + $leaves_data[0]->Second_Half_Present_El_Applied;
+                            $html_data .= "<td>$present_days</td>";
+
+                            $wo = $leaves_data[0]->Week_Off;
+                            $html_data .= "<td>".$wo."</td>";
+
+                            $PH = $leaves_data[0]->Public_Holiday + $leaves_data[0]->First_Half_Public_Holiday + $leaves_data[0]->Second_Half_Public_Holiday;
+                            $OH = $leaves_data[0]->Optional_Holiday + $leaves_data[0]->First_Half_Optional_Holiday + $leaves_data[0]->Second_Half_Optional_Holiday;
+                            $CL = $leaves_data[0]->Casualleave + $leaves_data[0]->First_Half_Casualleave + $leaves_data[0]->Second_Half_Casualleave;
+                            // $SL = $leaves_data[0]->Sickleave + $leaves_data[0]->First_Half_Sickleave + $leaves_data[0]->Second_Half_Sickleave;
                             // $EL = $leaves_data[0]->Earnedleave + $leaves_data[0]->First_Half_Earnedleave + $leaves_data[0]->Second_Half_Earnedleave;
-                            // //----------NEW BY SHABABU(12-06-2022)
-                            // $ML = $leaves_data[0]->Meternityleave + $leaves_data[0]->First_Half_Meternityleave + $leaves_data[0]->Second_Half_Meternityleave; 
-                            // //----------NEW BY SHABABU(12-06-2022)
-                            // $LOP = $leaves_data[0]->Absent + $leaves_data[0]->First_Half_Absent + $leaves_data[0]->Second_Half_Absent; 
-                            // $public_holiday = $PH + $OH;
-                            // $html_data .= "<td>".$public_holiday."</td>";
-                            $public_holiday = $paysheet_data->mxsal_public_holidays_from_attendance + $paysheet_data->mxsal_optional_holidays_from_attendance;
+                            //----------NEW BY SHABABU(12-06-2022)
+                            // $ML = $leaves_data[0]->Meternityleave + $leaves_data[0]->First_Half_Meternityleave + $leaves_data[0]->Second_Half_Meternityleave;
+                            //----------NEW BY SHABABU(12-06-2022)
+                            $LOP = $leaves_data[0]->Absent + $leaves_data[0]->First_Half_Absent + $leaves_data[0]->Second_Half_Absent;
+                            $public_holiday = $PH + $OH;
                             $html_data .= "<td>".$public_holiday."</td>";
-                            $html_data .= "<td>0</td>";//---->others Not using now
-                           
-        
-                            // $html_data .= "<td>$CL</td>";//-->cl
+                            // $html_data .= "<td>$SL</td>";//---->SL WITH PAY
+
+
+                            $html_data .= "<td>$CL</td>";//-->cl
                             // $html_data .= "<td>$SL</td>";//--->sl
                             // $html_data .= "<td>$EL</td>";//-->EL
-                            // $html_data .= "<td>$ML</td>";//---->ML
-                            // $html_data .= "<td>$LOP</td>";//--->LOP                 
-                            $html_data .= "<td>$paysheet_data->mxsal_cl_from_attendance</td>";//-->cl
-                            $html_data .= "<td>$paysheet_data->mxsal_sl_from_attendance</td>";//--->sl
-                            $html_data .= "<td>$paysheet_data->mxsal_el_from_attendance</td>";//-->EL
-                            $html_data .= "<td>$paysheet_data->mxsal_ml_from_attendance</td>";//---->ML
-                            $html_data .= "<td>$paysheet_data->mxsal_lop_from_attendance</td>";//--->LOP
-                            
-                            
-                            
-                            // $total_days = $present_days + $wo + $public_holiday + $CL + $SL + $EL + $ML;
-                            // $html_data .= "<td>$total_days</td>";//--->TOTAL DAYS
-                            $html_data .= "<td>$paysheet_data->mxsal_total_days_from_attendance</td>";//--->TOTAL DAYS
-                            //--------------------------NET INCOME HEADS
-                            foreach($incm_heads as $inc_data){
-                                //   print_r($inc_data);exit;
-                                $col_name = $inc_data->mxincm_emp_col_name;
-                                $html_data .= "<th>".$paysheet_data->$col_name."</th>";                
-                            }
-                            //--------------------------END NET INCOME HEADS
-        
-                    
-        
-                            // $html_data .= "<td>$paysheet_data->mxsal_basic</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_hra</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_other_allowances</td>";
-                            //--------------------------ACTUAL INCOME HEADS                    
-                            $html_data .= "<td>$paysheet_data->mxsal_actual_basic</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_actual_hra</td>";
-                            //--------------------------END ACTUAL INCOME HEADS
-        
-        
-                            //--------------------------VARIABLE PAYS
-                            foreach($filtered_variable_heads_array as $filtered_variable_data){
-                                $variable_pay_col_name = $filtered_variable_data->mxincm_emp_col_name;
-                                // $html_data .= "<th>".$paysheet_data->$variable_pay_col_name."</th>";//--------->commeneted By Shababu(30-07-2022)                        
-                            }
-                            //--------------------------END VARIABLE PAYS        
-                            // $html_data .= "<td></td>";//--->ACTUAL OA
-                            $html_data .= "<td>$paysheet_data->mxsal_incentive_amount</td>";// MISC.INCOME---------->NEW BY SHABABU(20-06-2022)
-                            $html_data .= "<td>$paysheet_data->mxsal_actual_gross</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_pf_emp_cont</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_esi_emp_cont</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_pt</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_lwf_emp_cont</td>";
-							
-							$emp_code=$paysheet_data->mxsal_emp_code;
-							$tot_loan_amt='';
-							$sql5 = " SELECT sum(mxemploan_emp_loan_debited_amt) as tot_loan_amt FROM `maxwell_emp_loan_master` WHERE `mxemploan_empcode` LIKE '$emp_code' and mxemploan_emp_loan_outstanding_amt > 0 AND mxemploan_status = 1 ";
- $result5 = $this->db->query($sql5);
-  $lastrowofareq5=$result5->result_array();
-  $oldLead_id5=$result5->num_rows() ;
-  if($oldLead_id5>0){ 
-	$tot_loan_amt=$lastrowofareq5['0']['tot_loan_amt'];
-  }
-  
- $mxsal_actual_gross= $paysheet_data->mxsal_actual_gross;
- if($mxsal_actual_gross==0)
- {
-	 $tot_loan_amt=0;
- }
-                            $html_data .= "<td>$paysheet_data->mxsal_loan_amount</td>";
-                            // $html_data .= "<td>$tot_loan_amt</td>";
-                            $html_data .= "<td></td>";//--->ADVANCE
-                            $html_data .= "<td>$paysheet_data->mxsal_tds_amount</td>";//--->TDS
-                            $html_data .= "<td>$paysheet_data->mxsal_miscelleneous_amount</td>";//--->MISC DED
-							$mxsal_total_ded=$paysheet_data->mxsal_total_ded;
-							$mxsal_loan_amount=$paysheet_data->mxsal_loan_amount;
-							$mxsal_total_ded=$mxsal_total_ded-$mxsal_loan_amount;
-							$mxsal_total_ded=$mxsal_total_ded+$tot_loan_amt;
-							
-                            //$html_data .= "<td>$paysheet_data->mxsal_total_ded</td>";//--->TOTAL DEDUCTIONS
-                            $html_data .= "<td>$mxsal_total_ded</td>";//--->TOTAL DEDUCTIONS
-							$mxsal_actual_gross=$paysheet_data->mxsal_actual_gross;
-							$mxsal_net_sal=$mxsal_actual_gross-$mxsal_total_ded;
-							$mxsal_net_sal=round($mxsal_net_sal);
-                            //$html_data .= "<td>$paysheet_data->mxsal_net_sal</td>";
-                            $html_data .= "<td>$mxsal_net_sal</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_actual_basic</td>";//---->PF WAGE
-                            $html_data .= "<td>$paysheet_data->mxsal_eps_wages</td>";//---->EPS WAGE
-                            $html_data .= "<td>$paysheet_data->mxsal_edli_wages</td>";//---->EDLI WAGE
-                            $html_data .= "<td>$paysheet_data->mxsal_pf_comp_cont</td>";//--->comp cont pf
-                            $html_data .= "<td>$paysheet_data->mxsal_pf_pension_cont</td>";//--->PF pension cont
-                            $html_data .= "<td>$paysheet_data->mxsal_pf_edli</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_pf_admin</td>";
-                            // $html_data .= "<td>$paysheet_data->mxsal_gross_sal</td>";//--->ESI WAGES AS GROSS
-                            // $html_data .= "<td>$paysheet_data->mxsal_actual_gross</td>";//--->ESI WAGES AS ACTUAL GROSS
-                            $html_data .= "<td>$paysheet_data->mxsal_esi_wages</td>";//--->ESI WAGES AS ACTUAL GROSS
-                            $html_data .= "<td>$paysheet_data->mxsal_esi_comp_cont</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_bonus</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_bonus_percentage_amount</td>";//---BONUS PAYABLE//--->NEW BY SHABABU(20-06-2022)
-                            $html_data .= "<td>$paysheet_data->mxsal_lwf_comp_cont</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_gratuity_amount</td>";
-                            
-                            $html_data .= "<td>$paysheet_data->mxsal_lta_amount</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_mediclaim_amount</td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_ctc</td>";
-                            if($paysheet_data->mxsal_paid_status_flag == 1){$paid_status = 'PAID';}else{$paid_status = 'UNPAID';}
-                            $html_data .= "<td>$paid_status</td>";
-							$file_name_pdf = base_url() . "uploads/payslips/".$month."-".$year."-".$paysheet_data->mxsal_emp_code.".pdf";
-                            $html_data .= "<td><a href='$file_name_pdf' target='_blank'>payslip</a></td>";
-                            $html_data .= "<td>$paysheet_data->mxsal_createdtime</td>";
+                            $html_data .= "<td>$LOP</td>";//--->LOP
+                            $total_days = $present_days + $wo + $public_holiday+$CL;
+                            // if($paysheet_data->mxsal_emp_code == 'MC0007'){
+                            //     echo $total_days;exit;
+                            // }
+                            $html_data .= "<td>$total_days</td>";//--->TOTAL DAYS
+                            $html_data .= "<td>".(int)$paysheet_data->mxsal_gross_sal."</td>";
+                            // //--------------------------NET INCOME HEADS
+                            // foreach($incm_heads as $inc_data){
+                            //     //   print_r($inc_data);exit;
+                            //     $col_name = $inc_data->mxincm_emp_col_name;
+                            //     $html_data .= "<td>".$paysheet_data->$col_name."</td>";
+                            // }
+                            $html_data .= "<td>".(int)$paysheet_data->mxsal_actual_prof_charges."</td>";
+                            // //--------------------------END NET INCOME HEADS
+
+                            $html_data .= "<td>".(int)$paysheet_data->mxsal_tds_amount."</td>";
+                            $html_data .= "<td>$paysheet_data->mxsal_net_sal</td>";
+                            // $html_data .= "<td>".(int)$paysheet_data->mxsal_actual_tsp."</td>";
+
                             $html_data .= "</tr>";
                             $sno = $sno + 1;
-                     }
-                     
-                     $html_data .= "</tbody>";
-                     $html_data .= "</table>";
-                     $html_data .= "</div>";
-                     echo $html_data;exit;
-            }
-            }
-            // echo "bye";exit;
-        }else{echo 402;exit;}
+                        }
+
+                         $html_data .= "</tbody>";
+                         $html_data .= "</table>";
+                         $html_data .= "</div>";
+                         echo $html_data;exit;
+                    }
+                    else if($directors_flag == 1){
+                         $html_data = "<div class=\"table-responsive\">";
+                         $html_data .= "<table class=\"datatable table table-stripped mb-0\" id=\"dataTables-example\">";
+                         $html_data .= "<thead>";
+                         $html_data .= "<tr>";
+                         $html_data .= "<th>Sno</th>";
+                         $html_data .= "<th>Month</th>";
+                        //  $html_data .= "<th>Company Name</th>";
+                         $html_data .= "<th>Division</th>";
+                         $html_data .= "<th>Branch</th>";
+                         $html_data .= "<th>State</th>";
+                         $html_data .= "<th>Emp Id</th>";
+                         $html_data .= "<th>Name</th>";
+                         $html_data .= "<th>Department</th>";
+                         $html_data .= "<th>Designation</th>";
+                         $html_data .= "<th>UAN No</th>";
+                         $html_data .= "<th>PF No</th>";
+                         $html_data .= "<th>ESI No</th>";
+                         $html_data .= "<th>BANK Name</th>";
+                         $html_data .= "<th>A/C NO</th>";
+                         $html_data .= "<th>Branch Name</th>";
+                         $html_data .= "<th>IFSC Code</th>";
+                         $html_data .= "<th>Email Id</th>";
+                        //  $html_data .= "<th>Gratuity No</th>";
+                         $html_data .= "<th>Days in Month</th>";
+                         $html_data .= "<th>Present Days</th>";
+                         $html_data .= "<th>Sundays</th>";
+                         $html_data .= "<th>Public/Optional Holidays</th>";
+                         $html_data .= "<th>Others</th>";
+                         $html_data .= "<th>CL</th>";
+                         $html_data .= "<th>SL</th>";
+                         $html_data .= "<th>EL</th>";
+                         $html_data .= "<th>LOP</th>";
+                         $html_data .= "<th>Total Days</th>";
+                        //  $html_data .= "<th>BASIC</th>";
+                        //  $html_data .= "<th>HRA</th>";
+                        //--------------NET INCOME HEADS
+                        $incm_heads = $this->Adminmodel->get_income_types($income_id = null, $company, $emptype,$is_variablepay = null);
+                        foreach($incm_heads as $inc_data){
+                            //   print_r($inc_data);exit;
+                            $html_data .= "<th>$inc_data->mxincm_name</th>";
+                        }
+                        //--------------END NET INCOME HEADS
+
+
+
+                        //  $html_data .= "<th>OA</th>";
+                        //------------------------ACTUAL INCOME HEADS
+                        $html_data .= "<th>BASIC</th>";
+                        // $html_data .= "<th>HRA</th>";
+                        //------------------------END ACTUAL INCOME HEADS
+                        //---------------VARIABLE PAYS
+                        $variable_heads_array = $this->Adminmodel->get_income_types($income_id = null, $company, $emptype,$is_variablepay = 1);
+                        $year_month = date("Ym",strtotime("01-".$date));
+                        $filtered_variable_heads_array = $this->Salaries_model->get_variable_heads_data_from_sal_table($variable_heads_array,$year_month,$emptype);
+                       //  print_r($variable_heads);exit;
+                       foreach($filtered_variable_heads_array as $filtered_variable_data){
+                        //   $html_data .= "<th>$filtered_variable_data->mxincm_name</th>";//--------->commeneted By Shababu(30-07-2022)
+
+                       }
+                        //---------------END VARIABLE PAYS
+
+
+                        //  $html_data .= "<th>OA</th>";
+                         $html_data .= "<th>TOTAL REMUNERATION</th>";//---->GROSS
+                         $html_data .= "<th>PF</th>";
+                        //  $html_data .= "<th>ESI</th>";
+                        //  $html_data .= "<th>PT</th>";
+                        //  $html_data .= "<th>LWF</th>";
+                        //  $html_data .= "<th>LOAN</th>";
+                        //  $html_data .= "<th>ADVANCE</th>";
+                         $html_data .= "<th>TDS</th>";
+                        //  $html_data .= "<th>MISC DED</th>";
+                        //  $html_data .= "<th>TOTAL DEDUCTION</th>";
+                         $html_data .= "<th>NET PAY</th>";
+                         $html_data .= "<th>PF WAGE</th>";
+                         $html_data .= "<th>EPS WAGE</th>";
+                         $html_data .= "<th>EDLI WAGE</th>";
+                         $html_data .= "<th>PF CON</th>";
+                         $html_data .= "<th>EPS</th>";
+                         $html_data .= "<th>EDLI</th>";
+                         $html_data .= "<th>PF Admin</th>";
+                        //  $html_data .= "<th>Esi Wages</th>";
+                        //  $html_data .= "<th>Esi Company</th>";
+                        //  $html_data .= "<th>Bonus</th>";
+                         $html_data .= "<th>Gratuity</th>";
+
+                         $html_data .= "<th>LTA</th>";
+                         $html_data .= "<th>MEDICLAIM</th>";
+                         $html_data .= "<th>CTC</th>";
+                         $html_data .= "<th>PAID STATUS</th>";
+                         $html_data .= "</tr>";
+                         $html_data .= "</thead>";
+                         $html_data .= "<tbody>";
+                         $sno = 1;
+                         foreach($paysheet_array as $paysheet_data){
+                            //  print_r($paysheet_data);exit;
+                                $html_data .= "<tr>";
+                                $html_data .= "<td>$sno</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_year_month</td>";
+                                // $html_data .= "<td>$paysheet_data->mxcp_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxd_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxb_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxst_state</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_emp_code</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_fname $paysheet_data->mxemp_emp_lname</td>";
+                                $html_data .= "<td>$paysheet_data->mxdpt_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxdesg_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_uan_number</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_pf_number</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_esi_number</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_bank_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_bank_acc_no</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_bank_branch_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_bank_ifsci_no</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_email_id</td>";
+                                // $html_data .= "<td>$paysheet_data->mxcp_gratuity_reg_no</td>";
+                                $leaves_data =  $this->Salaries_model->get_leaves_count_data($paysheet_data->mxsal_emp_code,$year."_".$month);
+                                // print_r($leaves_data);exit;
+                                $html_data .= "<td>$paysheet_data->mxsal_emp_days_in_month</td>";
+                                $present_days = $leaves_data[0]->Present + $leaves_data[0]->First_Half_Present + $leaves_data[0]->Second_Half_Present + $leaves_data[0]->First_Half_Present_Cl_Applied + $leaves_data[0]->Second_Half_Present_Cl_Applied + $leaves_data[0]->First_Half_Present_Sl_Applied + $leaves_data[0]->Second_Half_Present_Sl_Applied + $leaves_data[0]->First_Half_Present_El_Applied + $leaves_data[0]->Second_Half_Present_El_Applied;
+                                $html_data .= "<td>$present_days</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_present_days</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_emp_weak_offs</td>";
+                                $wo = $leaves_data[0]->Week_Off;
+                                $html_data .= "<td>".$wo."</td>";
+
+                                $PH = $leaves_data[0]->Public_Holiday + $leaves_data[0]->First_Half_Public_Holiday + $leaves_data[0]->Second_Half_Public_Holiday;
+                                $OH = $leaves_data[0]->Optional_Holiday + $leaves_data[0]->First_Half_Optional_Holiday + $leaves_data[0]->Second_Half_Optional_Holiday;
+                                $CL = $leaves_data[0]->Casualleave + $leaves_data[0]->First_Half_Casualleave + $leaves_data[0]->Second_Half_Casualleave;
+                                $SL = $leaves_data[0]->Sickleave + $leaves_data[0]->First_Half_Sickleave + $leaves_data[0]->Second_Half_Sickleave;
+                                $EL = $leaves_data[0]->Earnedleave + $leaves_data[0]->First_Half_Earnedleave + $leaves_data[0]->Second_Half_Earnedleave;
+                                //----------NEW BY SHABABU(12-06-2022)
+                                // $ML = $leaves_data[0]->Meternityleave + $leaves_data[0]->First_Half_Meternityleave + $leaves_data[0]->Second_Half_Meternityleave;
+                                //----------NEW BY SHABABU(12-06-2022)
+                                $LOP = $leaves_data[0]->Absent + $leaves_data[0]->First_Half_Absent + $leaves_data[0]->Second_Half_Absent;
+                                $public_holiday = $PH + $OH;
+                                $html_data .= "<td>".$public_holiday."</td>";
+                                $html_data .= "<td>0</td>";//---->others Not using now
+
+
+                                $html_data .= "<td>$CL</td>";//-->cl
+                                $html_data .= "<td>$SL</td>";//--->sl
+                                $html_data .= "<td>$EL</td>";//-->EL
+                                $html_data .= "<td>$LOP</td>";//--->LOP
+                                $total_days = $present_days + $wo + $public_holiday + $CL + $SL + $EL;
+                                $html_data .= "<td>$total_days</td>";//--->TOTAL DAYS
+                                //--------------------------NET INCOME HEADS
+                                foreach($incm_heads as $inc_data){
+                                    //   print_r($inc_data);exit;
+                                    $col_name = $inc_data->mxincm_emp_col_name;
+                                    $html_data .= "<th>".$paysheet_data->$col_name."</th>";
+                                }
+                                //--------------------------END NET INCOME HEADS
+
+
+
+                                // $html_data .= "<td>$paysheet_data->mxsal_basic</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_hra</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_other_allowances</td>";
+                                //--------------------------ACTUAL INCOME HEADS
+                                $html_data .= "<td>$paysheet_data->mxsal_actual_basic</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_actual_hra</td>";
+                                //--------------------------END ACTUAL INCOME HEADS
+
+
+                                //--------------------------VARIABLE PAYS
+                                foreach($filtered_variable_heads_array as $filtered_variable_data){
+                                    $variable_pay_col_name = $filtered_variable_data->mxincm_emp_col_name;
+                                    // $html_data .= "<th>".$paysheet_data->$variable_pay_col_name."</th>";//--------->commeneted By Shababu(30-07-2022)
+                                }
+                                //--------------------------END VARIABLE PAYS
+                                // $html_data .= "<td></td>";//--->ACTUAL OA
+                                $html_data .= "<td>$paysheet_data->mxsal_actual_gross</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_pf_emp_cont</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_esi_emp_cont</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_pt</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_lwf_emp_cont</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_loan_amount</td>";
+                                // $html_data .= "<td></td>";//--->ADVANCE
+                                $html_data .= "<td>$paysheet_data->mxsal_tds_amount</td>";//--->TDS
+                                // $html_data .= "<td>$paysheet_data->mxsal_miscelleneous_amount</td>";//--->MISC DED
+                                // $html_data .= "<td>$paysheet_data->mxsal_total_ded</td>";//--->TOTAL DEDUCTIONS
+                                $html_data .= "<td>$paysheet_data->mxsal_net_sal</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_actual_basic</td>";//---->PF WAGE
+                                $html_data .= "<td>$paysheet_data->mxsal_eps_wages</td>";//---->EPS WAGE
+                                $html_data .= "<td>$paysheet_data->mxsal_edli_wages</td>";//---->EDLI WAGE
+                                $html_data .= "<td>$paysheet_data->mxsal_pf_comp_cont</td>";//--->comp cont pf
+                                $html_data .= "<td>$paysheet_data->mxsal_pf_pension_cont</td>";//--->PF pension cont
+                                $html_data .= "<td>$paysheet_data->mxsal_pf_edli</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_pf_admin</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_gross_sal</td>";//--->ESI WAGES AS GROSS
+                                // $html_data .= "<td>$paysheet_data->mxsal_actual_gross</td>";//--->ESI WAGES AS ACTUAL GROSS
+                                // $html_data .= "<td>$paysheet_data->mxsal_esi_wages</td>";//--->ESI WAGES AS ACTUAL GROSS
+                                // $html_data .= "<td>$paysheet_data->mxsal_esi_comp_cont</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_bonus</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_gratuity_amount</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_lta_amount</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_mediclaim_amount</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_ctc</td>";
+                             if($paysheet_data->mxsal_paid_status_flag == 1){
+                                 $status_label = '<span class="badge badge-success">PAID</span>';
+                             } else {
+                                 $status_label = '<span class="badge badge-danger">UNPAID</span>';
+                             }
+
+// Wrapper for live DOM update, passing the current $emptype for Directors
+                             $status_container = "<div id='status_container_".$paysheet_data->mxsal_id."'>";
+                             $status_container .= $status_label;
+                             $status_container .= " <a href='javascript:void(0)' class='edit-pay-status ml-1' 
+                                                    data-id='".$paysheet_data->mxsal_id."' 
+                                                    data-emptype='".$emptype."' 
+                                                    data-name='".$paysheet_data->mxemp_emp_fname." ".$paysheet_data->mxemp_emp_lname."' 
+                                                    data-code='".$paysheet_data->mxsal_emp_code."' 
+                                                    data-current='".$paysheet_data->mxsal_paid_status_flag."'>
+                                                    <i class='fa fa-edit text-primary'></i>
+                                                  </a>";
+                             $status_container .= "</div>";
+
+                             $html_data .= "<td>$status_container</td>";
+                                $html_data .= "</tr>";
+                                $sno = $sno + 1;
+                         }
+
+                         $html_data .= "</tbody>";
+                         $html_data .= "</table>";
+                         $html_data .= "</div>";
+                         echo $html_data;exit;
+                    }
+                    else{ // For Employee
+                         $html_data = "<div class=\"table-responsive\">";
+                         $html_data .= "<table class=\"datatable table table-stripped mb-0\" id=\"dataTables-example\">";
+                         $html_data .= "<thead>";
+                         $html_data .= "<tr>";
+                         $html_data .= "<th>Sno</th>";
+                         $html_data .= "<th>Month</th>";
+                        //  $html_data .= "<th>Company Name</th>";
+                         $html_data .= "<th>Division</th>";
+                         $html_data .= "<th>Branch</th>";
+                         $html_data .= "<th>State</th>";
+                         $html_data .= "<th>Emp Id</th>";
+                         $html_data .= "<th>Name</th>";
+                         $html_data .= "<th>Department</th>";
+                         $html_data .= "<th>Designation</th>";
+                         $html_data .= "<th>UAN No</th>";
+                         $html_data .= "<th>PF No</th>";
+                         $html_data .= "<th>ESI No</th>";
+                         $html_data .= "<th>BANK Name</th>";
+                         $html_data .= "<th>A/C NO</th>";
+                         $html_data .= "<th>Branch Name</th>";
+                         $html_data .= "<th>IFSC Code</th>";
+                         $html_data .= "<th>Email Id</th>";
+                        //  $html_data .= "<th>Gratuity No</th>";
+                         $html_data .= "<th>Days in Month</th>";
+                         $html_data .= "<th>Present Days</th>";
+                         $html_data .= "<th>Sundays</th>";
+                         $html_data .= "<th>Public/Optional Holidays</th>";
+                         $html_data .= "<th>Others</th>";
+                         $html_data .= "<th>CL</th>";
+                         $html_data .= "<th>SL</th>";
+                         $html_data .= "<th>EL</th>";
+                         $html_data .= "<th>ML</th>";
+                         $html_data .= "<th>LOP</th>";
+                         $html_data .= "<th>Total Days</th>";
+                        //  $html_data .= "<th>BASIC</th>";
+                        //  $html_data .= "<th>HRA</th>";
+                        //--------------NET INCOME HEADS
+                        $incm_heads = $this->Adminmodel->get_income_types($income_id = null, $company, $emptype,$is_variablepay = null);
+                        foreach($incm_heads as $inc_data){
+                            //   print_r($inc_data);exit;
+                            $html_data .= "<th>$inc_data->mxincm_name</th>";
+                        }
+                        //--------------END NET INCOME HEADS
+
+
+
+                        //  $html_data .= "<th>OA</th>";
+                        //------------------------ACTUAL INCOME HEADS
+                        $html_data .= "<th>BASIC</th>";
+                        $html_data .= "<th>HRA</th>";
+                        //------------------------END ACTUAL INCOME HEADS
+                        //---------------VARIABLE PAYS
+                        $variable_heads_array = $this->Adminmodel->get_income_types($income_id = null, $company, $emptype,$is_variablepay = 1);
+                        $year_month = date("Ym",strtotime("01-".$date));
+                        $filtered_variable_heads_array = $this->Salaries_model->get_variable_heads_data_from_sal_table($variable_heads_array,$year_month,$emptype);
+                       //  print_r($variable_heads);exit;
+                       foreach($filtered_variable_heads_array as $filtered_variable_data){
+                        //   $html_data .= "<th>$filtered_variable_data->mxincm_name</th>";//--------->commeneted By Shababu(30-07-2022)
+
+                       }
+                        //---------------END VARIABLE PAYS
+
+
+                        //  $html_data .= "<th>OA</th>";
+                        $html_data .= "<th>MISC.INCOME</th>";//---->NEW BY SHABABU(20-07-2022)
+                         $html_data .= "<th>GROSS</th>";
+                         $html_data .= "<th>PF</th>";
+                         $html_data .= "<th>ESI</th>";
+                         $html_data .= "<th>PT</th>";
+                         $html_data .= "<th>LWF EMP</th>";
+                         $html_data .= "<th>LOAN</th>";
+                         $html_data .= "<th>ADVANCE</th>";
+                         $html_data .= "<th>TDS</th>";
+                         $html_data .= "<th>MISC DED</th>";
+                         $html_data .= "<th>TOTAL DEDUCTION</th>";
+                         $html_data .= "<th>NET PAY</th>";
+                         $html_data .= "<th>PF WAGE</th>";
+                         $html_data .= "<th>EPS WAGE</th>";
+                         $html_data .= "<th>EDLI WAGE</th>";
+                         $html_data .= "<th>PF CON</th>";
+                         $html_data .= "<th>EPS</th>";
+                         $html_data .= "<th>EDLI</th>";
+                         $html_data .= "<th>PF Admin</th>";
+                         $html_data .= "<th>Esi Wages</th>";
+                         $html_data .= "<th>Esi Company</th>";
+                         $html_data .= "<th>Bonus</th>";
+                         $html_data .= "<th>Bonus Payable</th>";
+
+                         $html_data .= "<th>LWF COMP</th>";
+                         $html_data .= "<th>Gratuity</th>";
+
+
+                         $html_data .= "<th>LTA</th>";
+                         $html_data .= "<th>MEDICLAIM</th>";
+                         $html_data .= "<th>CTC</th>";
+                         $html_data .= "<th>PAID STATUS</th>";
+                         $html_data .= "<th>attachment </th>";
+                         $html_data .= "<th>Date Created </th>";
+                         $html_data .= "</tr>";
+                         $html_data .= "</thead>";
+                         $html_data .= "<tbody>";
+                         $sno = 1;
+                         foreach($paysheet_array as $paysheet_data){
+                            //  print_r($paysheet_data);exit;
+                                $html_data .= "<tr>";
+                                $html_data .= "<td>$sno</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_year_month</td>";
+                                // $html_data .= "<td>$paysheet_data->mxcp_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxd_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxb_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxst_state</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_emp_code</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_fname $paysheet_data->mxemp_emp_lname</td>";
+                                $html_data .= "<td>$paysheet_data->mxdpt_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxdesg_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_uan_number</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_pf_number</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_esi_number</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_bank_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_bank_acc_no</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_bank_branch_name</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_bank_ifsci_no</td>";
+                                $html_data .= "<td>$paysheet_data->mxemp_emp_email_id</td>";
+                                // $html_data .= "<td>$paysheet_data->mxcp_gratuity_reg_no</td>";
+                                // $leaves_data =  $this->Salaries_model->get_leaves_count_data($paysheet_data->mxsal_emp_code,$year."_".$month);
+                                // print_r($leaves_data);exit;
+                                $html_data .= "<td>$paysheet_data->mxsal_emp_days_in_month</td>";
+                                // $present_days = $leaves_data[0]->Present + $leaves_data[0]->First_Half_Present + $leaves_data[0]->Second_Half_Present + $leaves_data[0]->First_Half_Present_Cl_Applied + $leaves_data[0]->Second_Half_Present_Cl_Applied + $leaves_data[0]->First_Half_Present_Sl_Applied + $leaves_data[0]->Second_Half_Present_Sl_Applied + $leaves_data[0]->First_Half_Present_El_Applied + $leaves_data[0]->Second_Half_Present_El_Applied;
+                                // $html_data .= "<td>$present_days</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_present_days_from_attendance</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_present_days</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_emp_weak_offs</td>";
+                                // $wo = $leaves_data[0]->Week_Off;
+                                // $html_data .= "<td>".$wo."</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_sundays_from_attendance</td>";
+
+                                // $PH = $leaves_data[0]->Public_Holiday + $leaves_data[0]->First_Half_Public_Holiday + $leaves_data[0]->Second_Half_Public_Holiday;
+                                // $OH = $leaves_data[0]->Optional_Holiday + $leaves_data[0]->First_Half_Optional_Holiday + $leaves_data[0]->Second_Half_Optional_Holiday;
+                                // $CL = $leaves_data[0]->Casualleave + $leaves_data[0]->First_Half_Casualleave + $leaves_data[0]->Second_Half_Casualleave;
+                                // $SL = $leaves_data[0]->Sickleave + $leaves_data[0]->First_Half_Sickleave + $leaves_data[0]->Second_Half_Sickleave;
+                                // $EL = $leaves_data[0]->Earnedleave + $leaves_data[0]->First_Half_Earnedleave + $leaves_data[0]->Second_Half_Earnedleave;
+                                // //----------NEW BY SHABABU(12-06-2022)
+                                // $ML = $leaves_data[0]->Meternityleave + $leaves_data[0]->First_Half_Meternityleave + $leaves_data[0]->Second_Half_Meternityleave;
+                                // //----------NEW BY SHABABU(12-06-2022)
+                                // $LOP = $leaves_data[0]->Absent + $leaves_data[0]->First_Half_Absent + $leaves_data[0]->Second_Half_Absent;
+                                // $public_holiday = $PH + $OH;
+                                // $html_data .= "<td>".$public_holiday."</td>";
+                                $public_holiday = $paysheet_data->mxsal_public_holidays_from_attendance + $paysheet_data->mxsal_optional_holidays_from_attendance;
+                                $html_data .= "<td>".$public_holiday."</td>";
+                                $html_data .= "<td>0</td>";//---->others Not using now
+
+
+                                // $html_data .= "<td>$CL</td>";//-->cl
+                                // $html_data .= "<td>$SL</td>";//--->sl
+                                // $html_data .= "<td>$EL</td>";//-->EL
+                                // $html_data .= "<td>$ML</td>";//---->ML
+                                // $html_data .= "<td>$LOP</td>";//--->LOP
+                                $html_data .= "<td>$paysheet_data->mxsal_cl_from_attendance</td>";//-->cl
+                                $html_data .= "<td>$paysheet_data->mxsal_sl_from_attendance</td>";//--->sl
+                                $html_data .= "<td>$paysheet_data->mxsal_el_from_attendance</td>";//-->EL
+                                $html_data .= "<td>$paysheet_data->mxsal_ml_from_attendance</td>";//---->ML
+                                $html_data .= "<td>$paysheet_data->mxsal_lop_from_attendance</td>";//--->LOP
+
+
+
+                                // $total_days = $present_days + $wo + $public_holiday + $CL + $SL + $EL + $ML;
+                                // $html_data .= "<td>$total_days</td>";//--->TOTAL DAYS
+                                $html_data .= "<td>$paysheet_data->mxsal_total_days_from_attendance</td>";//--->TOTAL DAYS
+                                //--------------------------NET INCOME HEADS
+                                foreach($incm_heads as $inc_data){
+                                    //   print_r($inc_data);exit;
+                                    $col_name = $inc_data->mxincm_emp_col_name;
+                                    $html_data .= "<th>".$paysheet_data->$col_name."</th>";
+                                }
+                                //--------------------------END NET INCOME HEADS
+
+
+
+                                // $html_data .= "<td>$paysheet_data->mxsal_basic</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_hra</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_other_allowances</td>";
+                                //--------------------------ACTUAL INCOME HEADS
+                                $html_data .= "<td>$paysheet_data->mxsal_actual_basic</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_actual_hra</td>";
+                                //--------------------------END ACTUAL INCOME HEADS
+
+
+                                //--------------------------VARIABLE PAYS
+                                foreach($filtered_variable_heads_array as $filtered_variable_data){
+                                    $variable_pay_col_name = $filtered_variable_data->mxincm_emp_col_name;
+                                    // $html_data .= "<th>".$paysheet_data->$variable_pay_col_name."</th>";//--------->commeneted By Shababu(30-07-2022)
+                                }
+                                //--------------------------END VARIABLE PAYS
+                                // $html_data .= "<td></td>";//--->ACTUAL OA
+                                $html_data .= "<td>$paysheet_data->mxsal_incentive_amount</td>";// MISC.INCOME---------->NEW BY SHABABU(20-06-2022)
+                                $html_data .= "<td>$paysheet_data->mxsal_actual_gross</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_pf_emp_cont</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_esi_emp_cont</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_pt</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_lwf_emp_cont</td>";
+
+                                $emp_code=$paysheet_data->mxsal_emp_code;
+                                $tot_loan_amt='';
+                                $sql5 = " SELECT sum(mxemploan_emp_loan_debited_amt) as tot_loan_amt FROM `maxwell_emp_loan_master` WHERE `mxemploan_empcode` LIKE '$emp_code' and mxemploan_emp_loan_outstanding_amt > 0 AND mxemploan_status = 1 ";
+     $result5 = $this->db->query($sql5);
+      $lastrowofareq5=$result5->result_array();
+      $oldLead_id5=$result5->num_rows() ;
+      if($oldLead_id5>0){
+        $tot_loan_amt=$lastrowofareq5['0']['tot_loan_amt'];
+      }
+
+     $mxsal_actual_gross= $paysheet_data->mxsal_actual_gross;
+     if($mxsal_actual_gross==0)
+     {
+         $tot_loan_amt=0;
+     }
+                                $html_data .= "<td>$paysheet_data->mxsal_loan_amount</td>";
+                                // $html_data .= "<td>$tot_loan_amt</td>";
+                                $html_data .= "<td></td>";//--->ADVANCE
+                                $html_data .= "<td>$paysheet_data->mxsal_tds_amount</td>";//--->TDS
+                                $html_data .= "<td>$paysheet_data->mxsal_miscelleneous_amount</td>";//--->MISC DED
+                                $mxsal_total_ded=$paysheet_data->mxsal_total_ded;
+                                $mxsal_loan_amount=$paysheet_data->mxsal_loan_amount;
+                                $mxsal_total_ded=$mxsal_total_ded-$mxsal_loan_amount;
+                                $mxsal_total_ded=$mxsal_total_ded+$tot_loan_amt;
+
+                                //$html_data .= "<td>$paysheet_data->mxsal_total_ded</td>";//--->TOTAL DEDUCTIONS
+                                $html_data .= "<td>$mxsal_total_ded</td>";//--->TOTAL DEDUCTIONS
+                                $mxsal_actual_gross=$paysheet_data->mxsal_actual_gross;
+                                $mxsal_net_sal=$mxsal_actual_gross-$mxsal_total_ded;
+                                $mxsal_net_sal=round($mxsal_net_sal);
+                                //$html_data .= "<td>$paysheet_data->mxsal_net_sal</td>";
+                                $html_data .= "<td>$mxsal_net_sal</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_actual_basic</td>";//---->PF WAGE
+                                $html_data .= "<td>$paysheet_data->mxsal_eps_wages</td>";//---->EPS WAGE
+                                $html_data .= "<td>$paysheet_data->mxsal_edli_wages</td>";//---->EDLI WAGE
+                                $html_data .= "<td>$paysheet_data->mxsal_pf_comp_cont</td>";//--->comp cont pf
+                                $html_data .= "<td>$paysheet_data->mxsal_pf_pension_cont</td>";//--->PF pension cont
+                                $html_data .= "<td>$paysheet_data->mxsal_pf_edli</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_pf_admin</td>";
+                                // $html_data .= "<td>$paysheet_data->mxsal_gross_sal</td>";//--->ESI WAGES AS GROSS
+                                // $html_data .= "<td>$paysheet_data->mxsal_actual_gross</td>";//--->ESI WAGES AS ACTUAL GROSS
+                                $html_data .= "<td>$paysheet_data->mxsal_esi_wages</td>";//--->ESI WAGES AS ACTUAL GROSS
+                                $html_data .= "<td>$paysheet_data->mxsal_esi_comp_cont</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_bonus</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_bonus_percentage_amount</td>";//---BONUS PAYABLE//--->NEW BY SHABABU(20-06-2022)
+                                $html_data .= "<td>$paysheet_data->mxsal_lwf_comp_cont</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_gratuity_amount</td>";
+
+                                $html_data .= "<td>$paysheet_data->mxsal_lta_amount</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_mediclaim_amount</td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_ctc</td>";
+                                //if($paysheet_data->mxsal_paid_status_flag == 1){$paid_status = 'PAID';}else{$paid_status = 'UNPAID';}
+
+                                 // Paid Status UPDATE STATUS
+                                 if($paysheet_data->mxsal_paid_status_flag == 1){
+                                     $status_label = '<span class="badge badge-success">PAID</span>';
+                                 } else {
+                                     $status_label = '<span class="badge badge-danger">UNPAID</span>';
+                                 }
+
+    // Wrapper with unique ID for live DOM update
+                                 $status_html = "<div id='status_container_".$paysheet_data->mxsal_id."'>";
+                                 $status_html .= $status_label;
+                                 $status_html .= " <a href='javascript:void(0)' class='edit-pay-status ml-1' 
+                                                    data-id='".$paysheet_data->mxsal_id."' 
+                                                    data-emptype='".$emptype."' 
+                                                    data-name='".$paysheet_data->mxemp_emp_fname." ".$paysheet_data->mxemp_emp_lname."' 
+                                                    data-code='".$paysheet_data->mxsal_emp_code."' 
+                                                    data-current='".$paysheet_data->mxsal_paid_status_flag."'>
+                                                    <i class='fa fa-edit text-primary'></i>
+                                                  </a>";
+                                 $status_html .= "</div>";
+
+                                 $html_data .= "<td>$status_html</td>";
+                                $file_name_pdf = base_url() . "uploads/payslips/".$month."-".$year."-".$paysheet_data->mxsal_emp_code.".pdf";
+                                $html_data .= "<td><a href='$file_name_pdf' target='_blank'>payslip</a></td>";
+                                $html_data .= "<td>$paysheet_data->mxsal_createdtime</td>";
+                                $html_data .= "</tr>";
+                                $sno = $sno + 1;
+                         }
+
+                         $html_data .= "</tbody>";
+                         $html_data .= "</table>";
+                         $html_data .= "</div>";
+                         echo $html_data;exit;
+                }
+                }
+                // echo "bye";exit;
+            }else{echo 402;exit;}
         }
         //------END PAYSHEET
         
 
     }
+
+    public function update_paysheet_status() {
+        $id = $this->input->post('id');
+        $status = $this->input->post('status');
+        $emp_type_id = $this->input->post('emptype'); // passing the type ID
+
+        if (!empty($id) && !empty($emp_type_id)) {
+            // 1. Get the specific table name for this employee type
+            $emp_type_data = $this->db->get_where('maxwell_employee_type_master', array('mxemp_ty_id' => $emp_type_id))->row();
+            $table_name = $emp_type_data->mxemp_ty_table_name; // e.g., 'mxsal_m'
+
+            if($table_name) {
+                // 2. Update the status in the specific table
+                $this->db->where('mxsal_id', $id);
+                $this->db->update($table_name, array('mxsal_paid_status_flag' => $status));
+
+                // 3. Get info for UI refresh (assuming standard column names across these tables)
+                $query = $this->db->select('mxsal_emp_code, mxemp_emp_fname, mxemp_emp_lname')
+                    ->from($table_name)
+                    ->join('maxwell_employees_info', 'mxemp_emp_comp_code = mxsal_cmp_id and mxemp_emp_type = mxsal_emp_type and mxemp_emp_id = mxsal_emp_code')
+                    ->where('mxsal_id', $id)->get()->row();
+
+                echo json_encode(array(
+                    'status' => 'success',
+                    'emp_name' => $query->mxemp_emp_fname . ' ' . $query->mxemp_emp_lname,
+                    'emp_code' => $query->mxsal_emp_code
+                ));
+            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Missing parameters']);
+        }
+        exit;
+    }
+
+
     public function save_fandf_data(){
         $this->verifylogin();
         $final_data = $this->input->post();  

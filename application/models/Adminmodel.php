@@ -718,8 +718,8 @@ die;
 	
 	
 	
-		public function getemployeedetailstosetsession_bonus5_fandf($emp_code,$final_date,$cmp_id){	
-	
+		public function getemployeedetailstosetsession_bonus5_fandf($emp_code,$final_date,$cmp_id){
+
 $start_date1 = $final_date; // "2024-04-01"
 $start_year1 = substr($start_date1, 0, 4); // "2024"
 
@@ -738,6 +738,8 @@ $end_year1_99=$end_year1."03";
 
 $start_year1_88=$start_year1."-04";
 $end_year1_88=$end_year1."-03";
+    // UPDATED BY VARAPRASAD (01/03/2026)
+     $month_year1 =  ($start_year1-1)."-04-01"."~@~".$end_year1."-03-31";
 
 	$subquery = $this->db
     ->select('mxsal_emp_code')
@@ -838,6 +840,7 @@ foreach ($employees as $emp) {
   $remarks='0';
   $finacial_month_year='0';
 	$sql6 = " SELECT bonus_status,remarks,finacial_month_year FROM `update_bonus_status` WHERE emp_code='$emp_id' AND finacial_month_year = '$month_year1'  ";
+    // echo " CURENT: ".$sql6;exit();
  $result6 = $this->db->query($sql6);
   $lastrowofareq6=$result6->result_array();
   $oldLead_id6=$result6->num_rows() ;
@@ -871,7 +874,9 @@ foreach ($employees as $emp) {
     $total_bonus_arres = 0;
 
     foreach ($financial_months as $month) {
-        $year = ($month >= '04') ? $start_year1 : ($start_year1 + 1);
+
+        // UPDATED BY VARAPRASAD (01/03/2026)
+        $year = ($month >= '04') ? $start_year1-1 : ($start_year1);
         $year_month = $year . '' . $month;
 
 $this->db->select("mxsal_bonus_percentage_amount  as mxsal_bonusarres,mxsal_basic");

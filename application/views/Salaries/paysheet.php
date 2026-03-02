@@ -146,6 +146,33 @@
         </div>
     </div>
 
+    <div class="modal fade" id="payStatusModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Status</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="emp_display_info" class="font-weight-bold text-muted"></p>
+                    <input type="hidden" id="edit_mxsal_id">
+                    <input type="hidden" id="edit_emp_type"> <div class="form-group">
+                        <label>Payment Status</label>
+                        <select id="new_pay_status" class="form-control">
+                            <option value="1">PAID</option>
+                            <option value="0">UNPAID</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="updateStatusBtn" class="btn btn-primary">Update Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Data -->
 
     <!-- Incentives -->
