@@ -192,8 +192,8 @@ class Export extends Common {
                                     "sum(mxsal_eps_wages) as eps_wages",
                                     "sum(mxsal_edli_wages) as edli_wages",
                                     "sum(mxsal_pf_emp_cont) as epf_cont_remit",
-                                    "sum(mxsal_pf_comp_cont) as eps_cont_remit",
                                     "sum(mxsal_pf_pension_cont) as epf_eps_diff_remit",
+                                    "sum(mxsal_pf_comp_cont) as eps_cont_remit",
                                     "sum(mxsal_lop_from_attendance) as ncp_days",
                                     " '' as refund_adv",
                                 );
@@ -5023,7 +5023,10 @@ $textaligntop = array(
     // END NEW BY SHABABU(23-03-2025)
 
 
-    /* Employees Leave Report */
+    /** Employees Leave Report
+     * DEVELOPED BY : VARAPRASAD
+     * ON : 08022026
+     **/
 
     public function employeesleavereport(){
         $this->verifylogin();
@@ -5037,35 +5040,558 @@ $textaligntop = array(
         $this->footer();
     }
 
-    public function employeesleavereport_ajax(){
+    /** Employees Leave Report
+     * DEVELOPED BY : VARAPRASAD
+     * ON : 08022026
+     **/
+    public function employeesleavereport_ajax() {
         $userdata = $this->input->post();
-        /*$res['authresult']=$this->export->yearlyleave_list($userdata);
-        if( $res['authresult']['status'] != 200){
-            echo $res['authresult']['description']; exit;
-        }
-        $newarr['common'] = $res['authresult']['leave_encashment'];*/
-        $newarr['common'] = array();
-        $this->load->view('reports/excelreports/dynamicexcellist',$newarr);
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+        $res = $this->export->get_employee_leaves_data($userdata);
 
+        if ($res['status'] != 200) {
+            echo '<div class="alert alert-danger">'.$res['description'].'</div>';
+            exit;
+        }
+
+        $raw_data = $res['data'];
+        $isSingle = !empty($userdata['employeeid']);
+
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+
+        $raw_data = array_filter($raw_data, function($row) use ($currentMonth, $currentYear) {
+            return !($row['MonthNumber'] == $currentMonth && $row['YearName'] == $currentYear);
+        });
+
+        $prev_year_el = 0;
+        if (!empty($userdata['employeeid'])) {
+            $first_year = (int)$res['data'][0]['YearName'];
+            $prev_year_el = $this->export->get_specific_year_el($userdata['employeeid'], ($first_year));
+        }
+
+          // echo "<pre>".$prev_year_el;print_r($res['data']);exit();
+
+        // 1. NEAT HEADER INFO
+        $header_info = [];
+        if (count($raw_data) > 0) {
+            $header_info = [
+                'employee_name' => $raw_data[0]['EmployeeName'],
+                'employee_code' => $raw_data[0]['EmployeeID'],
+                'designation'   => $raw_data[0]['Designation'] ?? '--',
+                'doj'           => $raw_data[0]['DOJ'] ?? '--',
+                'dob'           => $raw_data[0]['DOB'] ?? '--',
+                'branch'        => $raw_data[0]['Branch'] ?? 'ALL BRANCHES',
+                'report_title'  => "LEAVE REGISTER"
+            ];
+        }
+
+        // 2. PROCESS BUSINESS LOGIC
+        $processed_rows = [];
+
+        // Load Loan Details for the specific employee if single
+        $loan_bal = 0;
+        if ($isSingle) {
+            $this->load->model('Loan_model');
+            $loan = $this->Loan_model->getloandetails_payslip($userdata['employeeid']);
+            $loan_bal = isset($loan[0]) ? (float)$loan[0]->mxemploan_emp_loan_outstanding_amt : 0;
+        }
+
+        // echo "<pre>";print_r($raw_data);exit();
+
+        $lastEL = 0;
+        foreach ($raw_data as $row) {
+            $lv = (object)$row;
+
+            $availEL = (!empty($lv->HistoricalEL)) ? (float)$lv->HistoricalEL : (float)($lv->CurrentEL ?? 0);
+            $lastEL = $availEL;
+
+            // Ensure MonthNumber is available for calculation
+            $mNum = (!empty($lv->MonthNumber)) ? $lv->MonthNumber : date('m', strtotime($lv->MonthName));
+
+            // Use the total days from the query (more accurate for specific join dates)
+            $totalDaysInMonth = $lv->Totaldays;
+
+            // REAL INTELLIGENCE: Calculate Present Days ($present)
+            $present = $lv->Present + $lv->First_Half_Present + $lv->Second_Half_Present +
+                $lv->regulation_full_day + $lv->First_Half_regulation + $lv->Second_Half_regulation +
+                $lv->First_Half_Shortleave + $lv->Second_Half_Shortleave +
+                $lv->ot_full_day + $lv->First_Half_ot + $lv->Second_Half_ot;
+
+            // Calculate Holidays ($ph_oh) including Occasional
+            $computed_ph_oh = $lv->Public_Holiday + $lv->First_Half_Public_Holiday + $lv->Second_Half_Public_Holiday +
+                $lv->Optional_Holiday + $lv->First_Half_Optional_Holiday + $lv->Second_Half_Optional_Holiday +
+                $lv->occasional_full_day + $lv->First_Half_occasional + $lv->Second_Half_occasional;
+
+            // Calculate Leaves Used (CL, SL, EL, ML)
+            $CL_Used = $lv->Casualleave + $lv->First_Half_Casualleave + $lv->Second_Half_Casualleave;
+            $SL_Used = $lv->Sickleave + $lv->First_Half_Sickleave + $lv->Second_Half_Sickleave;
+            $EL_Used = $lv->Earnedleave + $lv->First_Half_Earnedleave + $lv->Second_Half_Earnedleave;
+            $ML_Used = $lv->Meternityleave + $lv->First_Half_Meternityleave + $lv->Second_Half_Meternityleave;
+
+            // Total Paid Days formula
+            $pay_days = $present + $lv->Week_Off + $computed_ph_oh + $CL_Used + $SL_Used + $EL_Used + $ML_Used;
+
+            // LOP calculation (Days in Month - Paid Days)
+            $lop = $totalDaysInMonth - $pay_days;
+
+            // Mixed-Half Handling for Absent and Short Leave
+            $total_absent = $lv->Absent + $lv->First_Half_Absent + $lv->Second_Half_Absent;
+            $total_short  = $lv->Shortleave + $lv->First_Half_Shortleave + $lv->Second_Half_Shortleave;
+
+            $final_row = [
+                'Year'          => $lv->YearName,
+                'Month'         => $lv->MonthName,
+                'Present'       => $present,
+                'W.Off'         => $lv->Week_Off,
+                'Holidays'      => $computed_ph_oh,
+                'CL_Avail'      => $lv->CurrentCL ?? 0,
+                'CL_Used'       => $CL_Used,
+                'PL_Avail'      => $availEL,
+                'PL_Used'       => $EL_Used,
+                'SL_Avail'      => $lv->CurrentSL ?? 0,
+                'SL_Used'       => $SL_Used,
+                'Matr'          => $ML_Used,
+                'LOP'           => $lop,
+                'Abst'          => $total_absent,
+                'Shrt'          => $total_short,
+                'Total_Paid'    => $pay_days,
+                'lastEL'  => $lastEL
+            ];
+
+            $processed_rows[] = $final_row;
+        }
+
+        $encashment_data = null;
+        if ($isSingle && !empty($raw_data)) {
+            $reportYear = $raw_data[0]['YearName'];
+            // Fetch the financial data
+            $encashment_data = $this->export->get_encashment_summary($userdata['employeeid'], $reportYear);
+        }
+
+        //echo "<pre>".$reportYear;print_r($encashment_data);exit();
+
+        $newarr['header'] = $header_info;
+        $newarr['common'] = $processed_rows;
+        $newarr['prev_year_el'] = $prev_year_el;
+        $newarr['encashment'] = $encashment_data;
+        //echo "<pre>";print_r($newarr);exit();
+
+        $this->load->view('reports/excelreports/dynamic_leave_report_excellist', $newarr);
+    }
+
+    /** Employees Leave Report Export to Excel
+     * DEVELOPED BY : VARAPRASAD
+     * ON : 08022026
+     **/
+
+    public function employeesleavereport_excel() {
+        $userdata = $this->input->post();
+        $res = $this->export->get_employee_leaves_data($userdata);
+        $raw_data = $res['data'];
+
+        if (empty($raw_data)) {
+            die("No data available for export.");
+        }
+
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+        $filtered_data = array_filter($raw_data, function($row) use ($currentMonth, $currentYear) {
+            return !($row['MonthNumber'] == $currentMonth && $row['YearName'] == $currentYear);
+        });
+
+        $encashment_data = null;
+        if (!empty($userdata['employeeid']) && !empty($raw_data)) {
+            $encashment_data = $this->export->get_encashment_summary($userdata['employeeid'], $raw_data[0]['YearName']);
+        }
+
+        $prev_year_el = 0;
+        if (!empty($userdata['employeeid'])) {
+            $first_year = (int)$raw_data[0]['YearName'];
+            $prev_year_el = $this->export->get_specific_year_el($userdata['employeeid'], ($first_year));
+        }
+
+        // SYNC BALANCE B/F LOGIC WITH AJAX
+        $prevYearBF = isset($encashment_data['el_balance_cf']) && ($prev_year_el > $encashment_data['el_balance_cf']) ? 30 : $prev_year_el;
+
+        $this->load->library('excel');
+        $objPHPExcel = new PHPExcel();
+        $sheet = $objPHPExcel->getActiveSheet();
+
+        // --- STYLING (Preserved) ---
+        $styleBoldHeader = [
+            'font' => ['bold' => true, 'size' => 12],
+            'alignment' => ['horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER]
+        ];
+        $styleTableHead = [
+            'font' => ['bold' => true, 'size' => 10],
+            'borders' => ['allborders' => ['style' => PHPExcel_Style_Border::BORDER_THIN]],
+            'alignment' => ['horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER, 'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER, 'wrap' => false]
+        ];
+        $styleBorder = [
+            'borders' => ['allborders' => ['style' => PHPExcel_Style_Border::BORDER_THIN]],
+            'alignment' => ['horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER],
+            'font' => ['size' => 10]
+        ];
+
+        // --- SET MANUAL WIDTHS ---
+        $sheet->getColumnDimension('A')->setWidth(10);
+        $sheet->getColumnDimension('B')->setWidth(15);
+        foreach(range('C', 'P') as $col) { $sheet->getColumnDimension($col)->setWidth(9); }
+        $sheet->getColumnDimension('Q')->setWidth(45);
+
+        // --- HEADINGS ---
+        $sheet->mergeCells('A1:Q1'); $sheet->setCellValue('A1', 'MAXWELL LOGISTICS PVT.LIMITED');
+        $sheet->getStyle('A1')->applyFromArray($styleBoldHeader);
+        $sheet->mergeCells('A2:Q2'); $sheet->setCellValue('A2', 'LEAVE REGISTER');
+        $sheet->getStyle('A2')->applyFromArray($styleBoldHeader);
+
+        // --- EMPLOYEE DETAILS ---
+        $sheet->getStyle('A3:Q4')->getFont()->setBold(true);
+        $sheet->setCellValue('A3', 'Name of Employee :'); $sheet->mergeCells('C3:F3'); $sheet->setCellValue('C3', $raw_data[0]['EmployeeName']);
+        $sheet->setCellValue('G3', 'Designation:'); $sheet->mergeCells('I3:L3'); $sheet->setCellValue('I3', $raw_data[0]['Designation']);
+        $sheet->setCellValue('M3', 'Employee Code :'); $sheet->mergeCells('O3:Q3'); $sheet->setCellValue('O3', $raw_data[0]['EmployeeID']);
+        $sheet->setCellValue('A4', 'Date of Joining :'); $sheet->setCellValue('C4', $raw_data[0]['DOJ']);
+        $sheet->setCellValue('G4', 'Date of Birth :'); $sheet->setCellValue('I4', $raw_data[0]['DOB']);
+        $sheet->setCellValue('M4', 'BRANCH:'); $sheet->mergeCells('O4:Q4'); $sheet->setCellValue('O4', $raw_data[0]['Branch']);
+
+        // --- TABLE HEADERS ---
+        $sheet->mergeCells('A5:A6'); $sheet->setCellValue('A5', 'YEAR');
+        $sheet->mergeCells('B5:B6'); $sheet->setCellValue('B5', 'MONTH');
+        $sheet->mergeCells('C5:E5'); $sheet->setCellValue('C5', 'ATTENDANCE');
+        $sheet->mergeCells('F5:G5'); $sheet->setCellValue('F5', 'C.L.');
+        $sheet->mergeCells('H5:I5'); $sheet->setCellValue('H5', 'P.L. (EL)');
+        $sheet->mergeCells('J5:K5'); $sheet->setCellValue('J5', 'S.L.');
+        $sheet->mergeCells('L5:L6'); $sheet->setCellValue('L5', 'MATR.');
+        $sheet->mergeCells('M5:M6'); $sheet->setCellValue('M5', 'LOP'); // Renamed LWP to LOP
+        $sheet->mergeCells('N5:N6'); $sheet->setCellValue('N5', 'ABST.');
+        $sheet->mergeCells('O5:O6'); $sheet->setCellValue('O5', 'SHRT.');
+        $sheet->mergeCells('P5:P6'); $sheet->setCellValue('P5', "TOTAL PAID");
+        $sheet->mergeCells('Q5:Q6'); $sheet->setCellValue('Q5', 'Remarks');
+
+        $sheet->setCellValue('C6', 'PRST'); $sheet->setCellValue('D6', 'W.OFF'); $sheet->setCellValue('E6', 'PH');
+        $sheet->setCellValue('F6', 'USED'); $sheet->setCellValue('G6', 'AVAIL');
+        $sheet->setCellValue('H6', 'USED'); $sheet->setCellValue('I6', 'AVAIL');
+        $sheet->setCellValue('J6', 'USED'); $sheet->setCellValue('K6', 'AVAIL');
+        $sheet->getStyle('A5:Q6')->applyFromArray($styleTableHead);
+
+        // --- PINK BALANCE B/F ROW ---
+        $sheet->setCellValue('B7', 'Balance B/F.');
+        $sheet->setCellValue('I7', $prevYearBF);
+        $sheet->getStyle('A7:Q7')->applyFromArray($styleBorder);
+        $sheet->getStyle('A7:Q7')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('FCE4EC');
+        $sheet->getStyle('A7:Q7')->getFont()->getColor()->setRGB('FF0000');
+        $sheet->getStyle('A7:Q7')->getFont()->setBold(true);
+
+        // --- DATA LOOP INITIALIZATION ---
+        $rowNum = 8;
+        $years = [];
+        $lastEL = 0;
+
+        // Totals Accumulators
+        $t_prst = 0; $t_woff = 0; $t_ph = 0;
+        $t_cl_u = 0; $t_el_u = 0; $t_sl_u = 0;
+        $t_matr = 0; $t_lop = 0; $t_abst = 0; $t_shrt = 0; $t_paid = 0;
+
+        foreach ($filtered_data as $row) {
+            $lv = (object)$row;
+            $years[] = $lv->YearName;
+            $availEL = (!empty($lv->HistoricalEL)) ? (float)$lv->HistoricalEL : (float)($lv->CurrentEL ?? 0);
+            $lastEL = $availEL;
+
+            $present = (float)$lv->Present + (float)$lv->First_Half_Present + (float)$lv->Second_Half_Present + (float)$lv->regulation_full_day + (float)$lv->First_Half_regulation + (float)$lv->Second_Half_regulation + (float)$lv->First_Half_Shortleave + (float)$lv->Second_Half_Shortleave + (float)$lv->ot_full_day + (float)$lv->First_Half_ot + (float)$lv->Second_Half_ot;
+            $ph_oh = (float)$lv->Public_Holiday + (float)$lv->First_Half_Public_Holiday + (float)$lv->Second_Half_Public_Holiday + (float)$lv->Optional_Holiday + (float)$lv->First_Half_Optional_Holiday + (float)$lv->Second_Half_Optional_Holiday + (float)$lv->occasional_full_day + (float)$lv->First_Half_occasional + (float)$lv->Second_Half_occasional;
+            $cl_used = (float)$lv->Casualleave + (float)$lv->First_Half_Casualleave + (float)$lv->Second_Half_Casualleave;
+            $sl_used = (float)$lv->Sickleave + (float)$lv->First_Half_Sickleave + (float)$lv->Second_Half_Sickleave;
+            $el_used = (float)$lv->Earnedleave + (float)$lv->First_Half_Earnedleave + (float)$lv->Second_Half_Earnedleave;
+            $ml_used = (float)$lv->Meternityleave + (float)$lv->First_Half_Meternityleave + (float)$lv->Second_Half_Meternityleave;
+
+            $lop = (float)($lv->Totaldays) - ($present + (float)$lv->Week_Off + $ph_oh + $cl_used + $sl_used + $el_used + $ml_used);
+            $abst = (float)$lv->Absent + (float)$lv->First_Half_Absent + (float)$lv->Second_Half_Absent;
+            $shrt = (float)$lv->Shortleave + (float)$lv->First_Half_Shortleave + (float)$lv->Second_Half_Shortleave;
+            $totalPaid = $present + (float)$lv->Week_Off + $ph_oh + $cl_used + $sl_used + $el_used + $ml_used;
+
+            // Accumulate totals
+            $t_prst += $present; $t_woff += (float)$lv->Week_Off; $t_ph += $ph_oh;
+            $t_cl_u += $cl_used; $t_el_u += $el_used; $t_sl_u += $sl_used;
+            $t_matr += $ml_used; $t_lop += $lop; $t_abst += $abst; $t_shrt += $shrt; $t_paid += $totalPaid;
+
+            $sheet->setCellValue('B'.$rowNum, $lv->MonthName);
+            $sheet->setCellValue('C'.$rowNum, $present);
+            $sheet->setCellValue('D'.$rowNum, $lv->Week_Off);
+            $sheet->setCellValue('E'.$rowNum, $ph_oh);
+            $sheet->setCellValue('F'.$rowNum, $cl_used ?: 0);
+            $sheet->setCellValue('G'.$rowNum, $lv->CurrentCL ?? 0);
+            $sheet->setCellValue('H'.$rowNum, $el_used ?: 0);
+            $sheet->setCellValue('I'.$rowNum, $availEL);
+            $sheet->setCellValue('J'.$rowNum, $sl_used ?: 0);
+            $sheet->setCellValue('K'.$rowNum, $lv->CurrentSL ?? 0);
+            $sheet->setCellValue('L'.$rowNum, $ml_used ?: 0);
+            $sheet->setCellValue('M'.$rowNum, $lop);
+            $sheet->setCellValue('N'.$rowNum, $abst);
+            $sheet->setCellValue('O'.$rowNum, $shrt);
+            $sheet->setCellValue('P'.$rowNum, $totalPaid);
+
+            // Remarks logic (Consistent with AJAX View)
+            $index = $rowNum - 7;
+            if ($index == 2) {
+                $sheet->setCellValue('Q'.$rowNum, 'Balance B/F: ' . $prevYearBF);
+                $sheet->getStyle('Q'.$rowNum)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('FCE4EC');
+            } elseif ($index == 6) {
+                $cf_val = isset($encashment_data['el_balance_cf']) && ($lastEL > $encashment_data['el_balance_cf']) ? 30 : $lastEL;
+                $sheet->setCellValue('Q'.$rowNum, 'Balance C/F: ' . $cf_val);
+                $sheet->getStyle('Q'.$rowNum)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('FFF9C4');
+            } elseif ($index == 9) {
+                $sheet->setCellValue('Q'.$rowNum, 'Leave Encashed On:');
+            } elseif ($index == 10) {
+                $amt = isset($encashment_data['leave_encashment_amount']) ? number_format($encashment_data['leave_encashment_amount'], 0) : "0";
+                $sheet->setCellValue('Q'.$rowNum, 'Amount Paid Rs.: ' . $amt);
+            } elseif ($index == 11) {
+                $cf_amt = isset($encashment_data['leave_amount_carry_forward']) ? number_format($encashment_data['leave_amount_carry_forward'], 0) : "0";
+                $sheet->setCellValue('Q'.$rowNum, 'Leave Amount Carry Forward: ' . $cf_amt);
+            }
+
+            $sheet->getStyle('A'.$rowNum.':Q'.$rowNum)->applyFromArray($styleBorder);
+            $rowNum++;
+        }
+
+        // --- YEAR VERTICAL LABEL & FOOTER ---
+        if(!empty($years)) {
+            $sheet->mergeCells('A8:A'.($rowNum-1));
+            $sheet->setCellValue('A8', implode(' & ', array_unique($years)));
+            $sheet->getStyle('A8')->applyFromArray($styleBoldHeader)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER)->setTextRotation(90);
+        }
+
+        // FOOTER TOTALS
+        $sheet->mergeCells('A'.$rowNum.':B'.$rowNum);
+        $sheet->setCellValue('A'.$rowNum, 'Total >>>>>>>>>>');
+        $sheet->setCellValue('C'.$rowNum, $t_prst);
+        $sheet->setCellValue('D'.$rowNum, $t_woff);
+        $sheet->setCellValue('E'.$rowNum, $t_ph);
+        $sheet->setCellValue('F'.$rowNum, $t_cl_u);
+        $sheet->setCellValue('H'.$rowNum, $t_el_u);
+        $sheet->setCellValue('I'.$rowNum, $lastEL); // P.L. Avail Total is the last EL
+        $sheet->getStyle('I'.$rowNum)->getFill()->getStartColor()->setRGB('FFF9C4');
+        $sheet->setCellValue('J'.$rowNum, $t_sl_u);
+        $sheet->setCellValue('L'.$rowNum, $t_matr);
+        $sheet->setCellValue('M'.$rowNum, $t_lop);
+        $sheet->setCellValue('N'.$rowNum, $t_abst);
+        $sheet->setCellValue('O'.$rowNum, $t_shrt);
+        $sheet->setCellValue('P'.$rowNum, $t_paid);
+
+        $sheet->getStyle('A'.$rowNum.':Q'.$rowNum)->applyFromArray($styleBorder)->getFont()->setBold(true);
+
+        // --- OUTPUT ---
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Leave_Register_'.($userdata['employeeid']??'Report').'.xlsx"');
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+        exit;
+    }
+
+    /** Employees Leave Report Export to PDF
+     * DEVELOPED BY : VARAPRASAD
+     * ON : 08022026
+     **/
+
+    public function employeesleavereport_pdf() {
+        require_once(APPPATH . 'libraries/tcpdf/tcpdf.php');
+
+        $userdata = $this->input->post();
+        $res = $this->export->get_employee_leaves_data($userdata);
+        $raw_data = $res['data'];
+
+        if (empty($raw_data)) {
+            die("No data available for export.");
+        }
+
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+        $filtered_data = array_filter($raw_data, function($row) use ($currentMonth, $currentYear) {
+            return !($row['MonthNumber'] == $currentMonth && $row['YearName'] == $currentYear);
+        });
+
+        $encashment_data = null;
+        if (!empty($userdata['employeeid']) && !empty($raw_data)) {
+            $encashment_data = $this->export->get_encashment_summary($userdata['employeeid'], $raw_data[0]['YearName']);
+        }
+
+        $prev_year_el = 0;
+        if (!empty($userdata['employeeid'])) {
+            $first_year = (int)$raw_data[0]['YearName'];
+            $prev_year_el = $this->export->get_specific_year_el($userdata['employeeid'], ($first_year));
+        }
+
+        $prevYearBF = isset($encashment_data['el_balance_cf']) && ($prev_year_el > $encashment_data['el_balance_cf']) ? 30 : $prev_year_el;
+
+        $pdf = new TCPDF('L', 'mm', 'LEGAL', true, 'UTF-8', false);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 10);
+        $pdf->AddPage();
+
+        $lastEL = 0;
+        $t_prst = 0; $t_woff = 0; $t_ph = 0;
+        $t_cl_u = 0; $t_el_u = 0; $t_sl_u = 0;
+        $t_matr = 0; $t_lop = 0; $t_abst = 0; $t_shrt = 0; $t_paid = 0;
+
+        $html = '
+<style>
+    table { width: 100%; border-collapse: collapse; border: 0.5pt solid black; }
+    th { border: 0.5pt solid black; font-size: 8pt; font-weight: bold; text-align: center; background-color: #f2f2f2; vertical-align: middle; line-height: 1.5; }
+    td { border: 0.5pt solid black; font-size: 8pt; text-align: center; vertical-align: middle; line-height: 1.8; }
+    .bg-pink { background-color: #FCE4EC; color: #FF0000; font-weight: bold; }
+    .bg-green { background-color: #C8E6C9; color: #000000; }
+    .bg-yellow { background-color: #FFF9C4; }
+    .text-left { text-align: left; padding-left: 3px; }
+</style>
+
+<table cellpadding="2">
+    <tr><td colspan="17" style="font-weight:bold; text-align:center; border:none; line-height: 1;"><h2>MAXWELL LOGISTICS PVT.LIMITED</h2></td></tr>
+    <tr><td colspan="17" style="font-weight:bold; text-align:center; border:none; line-height: 1;"><h3>LEAVE REGISTER</h3></td></tr>
+    <tr>
+        <td colspan="6" class="text-left" style="font-weight:bold;">Name of Employee : ' . $raw_data[0]['EmployeeName'] . '</td>
+        <td colspan="6" class="text-left" style="font-weight:bold;">Designation: ' . $raw_data[0]['Designation'] . '</td>
+        <td colspan="5" class="text-left" style="font-weight:bold;">Employee Code : ' . $raw_data[0]['EmployeeID'] . '</td>
+    </tr>
+    <tr>
+        <td colspan="6" class="text-left" style="font-weight:bold;">Date of Joining : ' . $raw_data[0]['DOJ'] . '</td>
+        <td colspan="6" class="text-left" style="font-weight:bold;">Date of Birth : ' . $raw_data[0]['DOB'] . '</td>
+        <td colspan="5" class="text-left" style="font-weight:bold;">BRANCH: ' . $raw_data[0]['Branch'] . '</td>
+    </tr>
+    <thead>
+        <tr>
+            <th rowspan="2" width="5%">YEAR</th>
+            <th rowspan="2" width="7%">MONTH</th>
+            <th colspan="3" width="12%">ATTENDANCE</th>
+            <th colspan="2" width="8%">C.L.</th>
+            <th colspan="2" width="8%">P.L. (EL)</th>
+            <th colspan="2" width="8%">S.L.</th>
+            <th rowspan="2" width="4%">MATR.</th>
+            <th rowspan="2" width="4%">LOP</th>
+            <th rowspan="2" width="4%">ABST.</th>
+            <th rowspan="2" width="4%">SHRT.</th>
+            <th rowspan="2" width="6%">TOTAL PAID</th>
+            <th rowspan="2" width="30%">Remarks</th>
+        </tr>
+        <tr>
+            <th width="4%">PRST</th><th width="4%">W.OFF</th><th width="4%">PH</th>
+            <th width="4%">USED</th><th width="4%">AVAIL</th>
+            <th width="4%">USED</th><th width="4%">AVAIL</th>
+            <th width="4%">USED</th><th width="4%">AVAIL</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="bg-pink">
+            <td width="5%"></td>
+            <td width="7%" class="text-left">Balance B/F.</td>
+            <td width="4%"></td><td width="4%"></td><td width="4%"></td>
+            <td width="4%"></td><td width="4%"></td>
+            <td width="4%"></td><td width="4%">' . $prevYearBF . '</td> 
+            <td width="4%"></td><td width="4%"></td>
+            <td width="4%"></td><td width="4%"></td><td width="4%"></td><td width="4%"></td>
+            <td width="6%"></td>
+            <td width="30%"></td>
+        </tr>';
+
+        $i = 0;
+        $row_count = count($filtered_data);
+        $uniqueYears = array_unique(array_column($filtered_data, 'YearName'));
+        sort($uniqueYears);
+
+        foreach ($filtered_data as $row) {
+            $i++;
+            $present = (float)$row['Present'] + (float)$row['First_Half_Present'] + (float)$row['Second_Half_Present'] + (float)$row['regulation_full_day'] + (float)$row['First_Half_regulation'] + (float)$row['Second_Half_regulation'] + (float)$row['First_Half_Shortleave'] + (float)$row['Second_Half_Shortleave'] + (float)$row['ot_full_day'] + (float)$row['First_Half_ot'] + (float)$row['Second_Half_ot'];
+            $ph_oh = (float)$row['Public_Holiday'] + (float)$row['First_Half_Public_Holiday'] + (float)$row['Second_Half_Public_Holiday'] + (float)$row['Optional_Holiday'] + (float)$row['First_Half_Optional_Holiday'] + (float)$row['Second_Half_Optional_Holiday'] + (float)$row['occasional_full_day'] + (float)$row['First_Half_occasional'] + (float)$row['Second_Half_occasional'];
+            $cl_used = (float)$row['Casualleave'] + (float)$row['First_Half_Casualleave'] + (float)$row['Second_Half_Casualleave'];
+            $sl_used = (float)$row['Sickleave'] + (float)$row['First_Half_Sickleave'] + (float)$row['Second_Half_Sickleave'];
+            $el_used = (float)$row['Earnedleave'] + (float)$row['First_Half_Earnedleave'] + (float)$row['Second_Half_Earnedleave'];
+            $ml_used = (float)$row['Meternityleave'] + (float)$row['First_Half_Meternityleave'] + (float)$row['Second_Half_Meternityleave'];
+
+            $availEL = (!empty($row['HistoricalEL'])) ? (float)$row['HistoricalEL'] : (float)($row['CurrentEL'] ?? 0);
+            $lastEL = $availEL;
+            $totalPaid = $present + (float)$row['Week_Off'] + $ph_oh + $cl_used + $sl_used + $el_used + $ml_used;
+            $lop = (float)($row['Totaldays']) - $totalPaid;
+            $abst = (float)$row['Absent'] + (float)$row['First_Half_Absent'] + (float)$row['Second_Half_Absent'];
+            $shrt = (float)$row['Shortleave'] + (float)$row['First_Half_Shortleave'] + (float)$row['Second_Half_Shortleave'];
+
+            $t_prst += $present; $t_woff += (float)$row['Week_Off']; $t_ph += $ph_oh;
+            $t_cl_u += $cl_used; $t_el_u += $el_used; $t_sl_u += $sl_used;
+            $t_matr += $ml_used; $t_lop += $lop; $t_abst += $abst; $t_shrt += $shrt; $t_paid += $totalPaid;
+
+            $html .= '<tr>';
+            if ($i == 1) {
+                $html .= '<td width="5%" rowspan="' . $row_count . '" style="vertical-align:middle;">' . implode('<br>&<br>', $uniqueYears) . '</td>';
+            }
+
+            $html .= '
+            <td width="7%">' . $row['MonthName'] . '</td>
+            <td width="4%">' . number_format($present, 1) . '</td>
+            <td width="4%">' . $row['Week_Off'] . '</td>
+            <td width="4%">' . $ph_oh . '</td>
+            <td width="4%">' . ($cl_used ?: 0) . '</td>
+            <td width="4%">' . ($row['CurrentCL'] ?? 0) . '</td>
+            <td width="4%">' . ($el_used ?: 0) . '</td>
+            <td width="4%">' . $availEL . '</td>
+            <td width="4%">' . ($sl_used ?: 0) . '</td>
+            <td width="4%">' . ($row['CurrentSL'] ?? 0) . '</td>
+            <td width="4%">' . ($ml_used ?: 0) . '</td>
+            <td width="4%">' . $lop . '</td>
+            <td width="4%">' . $abst . '</td>
+            <td width="4%">' . $shrt . '</td>
+            <td width="6%" style="font-weight:bold;">' . $totalPaid . '</td>';
+
+            $remark_text = '';
+            $remark_class = '';
+            if ($i == 2) {
+                $remark_class = ' class="bg-green text-left"';
+                $remark_text = 'Balance B/F: ' . $prevYearBF;
+            } elseif ($i == 6) {
+                $cf_val = isset($encashment_data['el_balance_cf']) && ($lastEL > $encashment_data['el_balance_cf']) ? 30 : $lastEL;
+                $remark_class = ' class="bg-yellow text-left"';
+                $remark_text = 'Balance C/F: ' . $cf_val;
+            } elseif ($i == 9) {
+                $remark_class = ' class="text-left"';
+                $remark_text = 'Leave Encashed On: ';
+            } elseif ($i == 10) {
+                $amt = isset($encashment_data['leave_encashment_amount']) ? number_format($encashment_data['leave_encashment_amount'], 0) : "0";
+                $remark_class = ' class="text-left"';
+                $remark_text = 'Amount Paid Rs.: ' . $amt;
+            } elseif ($i == 11) {
+                $cf_amt = isset($encashment_data['leave_amount_carry_forward']) ? number_format($encashment_data['leave_amount_carry_forward'], 0) : "0";
+                $remark_class = ' class="text-left"';
+                $remark_text = 'Leave Amount Carry Forward: ' . $cf_amt;
+            }
+
+            $html .= '<td width="30%"' . $remark_class . '>' . $remark_text . '</td>';
+            $html .= '</tr>';
+        }
+
+        $html .= '
+        <tr style="font-weight:bold;">
+            <td colspan="2" style="text-align:right;">Total >>>>>>>>>> </td>
+            <td width="4%">' . number_format($t_prst, 1) . '</td>
+            <td width="4%">' . $t_woff . '</td>
+            <td width="4%">' . $t_ph . '</td>
+            <td width="4%">' . $t_cl_u . '</td>
+            <td width="4%"></td>
+            <td width="4%">' . $t_el_u . '</td>
+            <td width="4%" class="bg-yellow">' . $lastEL . '</td>
+            <td width="4%">' . $t_sl_u . '</td>
+            <td width="4%"></td>
+            <td width="4%">' . $t_matr . '</td>
+            <td width="4%">' . $t_lop . '</td>
+            <td width="4%">' . $t_abst . '</td>
+            <td width="4%">' . $t_shrt . '</td>
+            <td width="6%">' . $t_paid . '</td>
+            <td width="30%"></td>
+        </tr>
+    </tbody>
+</table>';
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->Output('Leave_Register_' . ($userdata['employeeid'] ?? 'Report') . '.pdf', 'D');
+    }
     /*
 
     public function harishdb(){

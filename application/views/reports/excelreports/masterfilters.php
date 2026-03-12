@@ -196,7 +196,9 @@
 								<input type="text" class="form-control floating" name="attndempid" id="attndempid">
 								<label class="focus-label">Employee Code</label>
 							</div>
+                            <span class="formerror" id="attndempiderror"></span>
 						</div>
+
                         <?php } ?>
 						<div class="col-sm-6 col-md-3">  
 							<button id="searchemployeefilterdata" class="btn btn-success btn-block" > Search </button>  

@@ -284,6 +284,7 @@
 								<input type="text" class="form-control floating" name="attndempid" id="attndempid">
 								<label class="focus-label">Employee Code</label>
 							</div>
+                            <span class="formerror" id="empiderror"></span>
 						</div>
                         <?php } ?>
                         <?php if($emp_status == 'Y'){ ?>
