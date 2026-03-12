@@ -3024,5 +3024,215 @@ public function get_paysheet_data_esi_2($data){
         $qry = $this->db->get();
         return $qry->result_array();
     }
+
+    
+    public function get_employee_leaves_data($data) {
+        if (!isset($data['monthyear'])) {
+            return ['status' => 400, 'description' => "Range not provided"];
+        }
+
+        $range = explode('~@~', urldecode($data['monthyear']));
+        $start = new DateTime($range[0]);
+        $end   = new DateTime($range[1]);
+
+        $interval = new DateInterval('P1M');
+        $period   = new DatePeriod($start, $interval, $end->modify('+1 day'));
+
+        $aggregated_data = [];
+
+        foreach ($period as $dt) {
+            $ym_suffix = $dt->format('Y_m');
+            $ym_dash   = $dt->format('Y-m');
+            $table_name = "maxwell_attendance_$ym_suffix";
+
+            if (!$this->db->table_exists($table_name)) continue;
+
+            // SQL Comments removed to prevent MariaDB 1064 errors
+            $this->db->select("
+            mxdesg_name as Designation,
+            mxb_name as Branch,
+            mxemp_emp_date_of_join as DOJ,
+            mxemp_emp_date_of_birth as DOB,
+            
+            -- 1. Date & Sorting (Forced MM format)
+            '".$dt->format('Y')."' as YearName,
+            '".$dt->format('F')."' as MonthName,
+            '".$dt->format('m')."' as MonthNumber,
+            ".$dt->getTimestamp()." as SortTimestamp,
+
+            -- 2. Leave Balances (Sub-queries from your stable version)
+            (SELECT max(case when mxemp_leave_bal_leave_type_shrt_name = 'CL' then mxemp_leave_bal_crnt_bal end) FROM maxwell_emp_leave_balance WHERE mx_attendance_emp_code = mxemp_leave_bal_emp_id GROUP BY mxemp_leave_bal_emp_id) as CurrentCL,
+            (SELECT max(case when mxemp_leave_bal_leave_type_shrt_name = 'SL' then mxemp_leave_bal_crnt_bal end) FROM maxwell_emp_leave_balance WHERE mx_attendance_emp_code = mxemp_leave_bal_emp_id GROUP BY mxemp_leave_bal_emp_id) as CurrentSL,
+            (SELECT max(case when mxemp_leave_bal_leave_type_shrt_name = 'EL' then mxemp_leave_bal_crnt_bal end) FROM maxwell_emp_leave_balance WHERE mx_attendance_emp_code = mxemp_leave_bal_emp_id GROUP BY mxemp_leave_bal_emp_id) as CurrentEL,
+            (SELECT max(case when mxemp_leave_bal_leave_type_shrt_name = 'ML' then mxemp_leave_bal_crnt_bal ELSE 0 end) FROM maxwell_emp_leave_balance WHERE mx_attendance_emp_code = mxemp_leave_bal_emp_id GROUP BY mxemp_leave_bal_emp_id) as CurrentML,
+            (SELECT max(case when mxemp_leave_bal_leave_type_shrt_name = 'OH' then mxemp_leave_bal_crnt_bal end) FROM maxwell_emp_leave_balance WHERE mx_attendance_emp_code = mxemp_leave_bal_emp_id GROUP BY mxemp_leave_bal_emp_id) as CurrentOH,
+            (SELECT max(case when mxemp_leave_bal_leave_type_shrt_name = 'OCH' then mxemp_leave_bal_crnt_bal end) FROM maxwell_emp_leave_balance WHERE mx_attendance_emp_code = mxemp_leave_bal_emp_id GROUP BY mxemp_leave_bal_emp_id) as CurrentOCH,
+
+            -- 3. Basic Info
+            CONCAT(mxemp_emp_fname , ' ' , mxemp_emp_lname) as EmployeeName,
+            mx_attendance_emp_code as EmployeeID,
+            count(*) AS Totaldays,
         
+            -- 4. Attendance & Holidays
+            sum(case when mx_attendance_first_half = 'WO' AND mx_attendance_second_half = 'WO' then 1 else 0 end) AS Week_Off,
+            sum(case when mx_attendance_first_half = 'PH' AND mx_attendance_second_half = 'PH' then 1 else 0 end) AS Public_Holiday,
+            sum(case when mx_attendance_first_half = 'PH' AND mx_attendance_second_half != 'PH' then 0.5 else 0 end) AS First_Half_Public_Holiday,
+            sum(case when mx_attendance_first_half != 'PH' AND mx_attendance_second_half = 'PH' then 0.5 else 0 end) AS Second_Half_Public_Holiday,
+            sum(case when mx_attendance_first_half = 'OH' AND mx_attendance_second_half = 'OH' then 1 else 0 end) AS Optional_Holiday,
+            sum(case when mx_attendance_first_half = 'OH' AND mx_attendance_second_half != 'OH' then 0.5 else 0 end) AS First_Half_Optional_Holiday,
+            sum(case when mx_attendance_first_half != 'OH' AND mx_attendance_second_half = 'OH' then 0.5 else 0 end) AS Second_Half_Optional_Holiday,
+            sum(case when mx_attendance_first_half = 'OCH' AND mx_attendance_second_half = 'OCH' then 1 else 0 end) AS occasional_full_day,
+            sum(case when mx_attendance_first_half = 'OCH' AND mx_attendance_second_half != 'OCH' then 0.5 else 0 end) AS First_Half_occasional,
+            sum(case when mx_attendance_first_half != 'OCH' AND mx_attendance_second_half = 'OCH' then 0.5 else 0 end) AS Second_Half_occasional,
+        
+            -- 5. Specialized Status (Regulation, OD, Tour)
+            sum(case when mx_attendance_first_half = 'AR' AND mx_attendance_second_half = 'AR' then 1 else 0 end) AS regulation_full_day,
+            sum(case when mx_attendance_first_half = 'AR' AND mx_attendance_second_half != 'AR' then 0.5 else 0 end) AS First_Half_regulation,
+            sum(case when mx_attendance_first_half != 'AR' AND mx_attendance_second_half = 'AR' then 0.5 else 0 end) AS Second_Half_regulation,
+            sum(case when mx_attendance_first_half = 'OD' AND mx_attendance_second_half = 'OD' then 1 else 0 end) AS onduty_full_day,
+            sum(case when mx_attendance_first_half = 'OD' AND mx_attendance_second_half != 'OD' then 0.5 else 0 end) AS First_Half_onduty,
+            sum(case when mx_attendance_first_half != 'OD' AND mx_attendance_second_half = 'OD' then 0.5 else 0 end) AS Second_Half_onduty,
+            sum(case when mx_attendance_first_half = 'OT' AND mx_attendance_second_half = 'OT' then 1 else 0 end) AS ot_full_day,
+            sum(case when mx_attendance_first_half = 'OT' AND mx_attendance_second_half != 'OT' then 0.5 else 0 end) AS First_Half_ot,
+            sum(case when mx_attendance_first_half != 'OT' AND mx_attendance_second_half = 'OT' then 0.5 else 0 end) AS Second_Half_ot,
+        
+            -- 6. Absent & Short Leave
+            sum(case when mx_attendance_first_half = 'AB' AND mx_attendance_second_half = 'AB' then 1 else 0 end) AS Absent,
+            sum(case when mx_attendance_first_half = 'AB' AND mx_attendance_second_half != 'AB' then 0.5 else 0 end) AS First_Half_Absent,
+            sum(case when mx_attendance_second_half = 'AB' AND mx_attendance_first_half != 'AB' then 0.5 else 0 end) AS Second_Half_Absent,
+            sum(case when mx_attendance_first_half = 'SHRT' AND mx_attendance_second_half = 'SHRT' then 1 else 0 end) AS Shortleave,
+            sum(case when mx_attendance_first_half = 'SHRT' AND mx_attendance_second_half != 'SHRT' then 0.5 else 0 end) AS First_Half_Shortleave,
+            sum(case when mx_attendance_second_half = 'SHRT' AND mx_attendance_first_half != 'SHRT' then 0.5 else 0 end) AS Second_Half_Shortleave,
+        
+            -- 7. Present Cross-Combinations (Critical for mixed days)
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'PR' then 1 else 0 end) AS Present,
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half != 'PR' then 0.5 else 0 end) AS First_Half_Present,
+            sum(case when mx_attendance_first_half != 'PR' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present,
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'CL' then 0.5 else 0 end) AS First_Half_Present_Cl_Applied,
+            sum(case when mx_attendance_first_half = 'CL' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present_Cl_Applied,
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'SL' then 0.5 else 0 end) AS First_Half_Present_Sl_Applied,
+            sum(case when mx_attendance_first_half = 'SL' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present_Sl_Applied,
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'EL' then 0.5 else 0 end) AS First_Half_Present_El_Applied,
+            sum(case when mx_attendance_first_half = 'EL' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present_El_Applied,
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'WO' then 0.5 else 0 end) AS First_Half_Present_WO_Applied,
+            sum(case when mx_attendance_first_half = 'WO' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present_WO_Applied,
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'PH' then 0.5 else 0 end) AS First_Half_Present_PH_Applied,
+            sum(case when mx_attendance_first_half = 'PH' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present_PH_Applied,
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'OH' then 0.5 else 0 end) AS First_Half_Present_OPH_Applied,
+            sum(case when mx_attendance_first_half = 'OH' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present_OPH_Applied,
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'OCH' then 0.5 else 0 end) AS First_Half_Present_OCH_Applied,
+            sum(case when mx_attendance_first_half = 'OCH' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present_OCH_Applied,
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'AR' then 0.5 else 0 end) AS First_Half_Present_AR_Applied,
+            sum(case when mx_attendance_first_half = 'AR' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present_AR_Applied,
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'OD' then 0.5 else 0 end) AS First_Half_Present_OD_Applied,
+            sum(case when mx_attendance_first_half = 'OD' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present_OD_Applied,
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'OT' then 0.5 else 0 end) AS First_Half_Present_OT_Applied,
+            sum(case when mx_attendance_first_half = 'OT' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present_OT_Applied,
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'ML' then 0.5 else 0 end) AS First_Half_Present_ML_Applied,
+            sum(case when mx_attendance_first_half = 'ML' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present_ML_Applied,
+            sum(case when mx_attendance_first_half = 'PR' AND mx_attendance_second_half = 'SHRT' then 0.5 else 0 end) AS First_Half_Present_SHRT_Applied,
+            sum(case when mx_attendance_first_half = 'SHRT' AND mx_attendance_second_half = 'PR' then 0.5 else 0 end) AS Second_Half_Present_SHRT_Applied,
+        
+            -- 8. Specialized Maternity (Stable duplicate keys preserved)
+            sum(case when mx_attendance_first_half = 'ML' AND mx_attendance_second_half = 'ML' then 1 else 0 end) AS Full_day_Ml_Applied,
+            sum(case when mx_attendance_first_half = 'ML' AND mx_attendance_second_half = 'ML' then 1 else 0 end) AS Meternityleave,
+            sum(case when mx_attendance_first_half = 'ML' AND mx_attendance_second_half != 'ML' then 0.5 else 0 end) AS First_Half_Meternityleave,
+            sum(case when mx_attendance_first_half != 'ML' AND mx_attendance_second_half = 'ML' then 0.5 else 0 end) AS Second_Half_Meternityleave,
+        
+            -- 9. Standard Leaves
+            sum(case when mx_attendance_first_half = 'CL' AND mx_attendance_second_half = 'CL' then 1 else 0 end) AS Casualleave,
+            sum(case when mx_attendance_first_half = 'CL' AND mx_attendance_second_half != 'CL' then 0.5 else 0 end) AS First_Half_Casualleave,
+            sum(case when mx_attendance_first_half != 'CL' AND mx_attendance_second_half = 'CL' then 0.5 else 0 end) AS Second_Half_Casualleave,
+            sum(case when mx_attendance_first_half = 'SL' AND mx_attendance_second_half = 'SL' then 1 else 0 end) AS Sickleave,
+            sum(case when mx_attendance_first_half = 'SL' AND mx_attendance_second_half != 'SL' then 0.5 else 0 end) AS First_Half_Sickleave,
+            sum(case when mx_attendance_first_half != 'SL' AND mx_attendance_second_half = 'SL' then 0.5 else 0 end) AS Second_Half_Sickleave,
+            sum(case when mx_attendance_first_half = 'EL' AND mx_attendance_second_half = 'EL' then 1 else 0 end) AS Earnedleave,
+            sum(case when mx_attendance_first_half = 'EL' AND mx_attendance_second_half != 'EL' then 0.5 else 0 end) AS First_Half_Earnedleave,
+            sum(case when mx_attendance_first_half != 'EL' AND mx_attendance_second_half = 'EL' then 0.5 else 0 end) AS Second_Half_Earnedleave,
+            
+            -- NEW: INTEGRATED CRON HISTORY FOR EL
+            (SELECT mxemp_leave_cron_crnt_bal 
+             FROM maxwell_emp_leave_cron_history 
+             WHERE mxemp_leave_cron_emp_id = mx_attendance_emp_code 
+             AND mxemp_leave_cron_short_name = 'EL' 
+             AND mxemp_leave_cron_processdate LIKE '$ym_suffix%' 
+             ORDER BY mxemp_leave_cron_processdate DESC LIMIT 1) as HistoricalEL,
+        ", FALSE);
+
+            $this->db->from($table_name);
+            $this->db->join('maxwell_employees_info', 'mxemp_emp_id = mx_attendance_emp_code');
+            $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'inner');
+            $this->db->join('maxwell_designation_master', 'mxdesg_id = mxemp_emp_desg_code', 'inner');
+            $this->db->join('maxwell_department_master', 'mxdpt_id = mxemp_emp_dept_code', 'inner');
+            $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'inner');
+            $this->db->join('maxwell_branch_master', 'mxb_id = mxemp_emp_branch_code', 'inner');
+            $this->db->join('maxwell_grade_master', 'mxgrd_id = mxemp_emp_grade_code', 'inner');
+            $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'inner');
+            //$this->db->join('maxwell_emp_leave_cron_history', 'mx_attendance_emp_code = mxemp_leave_cron_emp_id', 'inner');
+
+            $this->db->where("mx_attendance_date >= (select mxemp_emp_date_of_join from maxwell_employees_info where mxemp_emp_id = mx_attendance_emp_code)", NULL, FALSE);
+
+            if (!empty($data['companyid'])) { $this->db->where('mxemp_emp_comp_code', $data['companyid']); }
+            if (!empty($data['divisonid'])) { $this->db->where('mxemp_emp_division_code', $data['divisonid']); }
+            if (!empty($data['stateid']))   { $this->db->where('mxemp_emp_state_code', $data['stateid']); }
+            if (!empty($data['branchid']))  { $this->db->where('mxemp_emp_branch_code', $data['branchid']); }
+            if (!empty($data['employeeid'])) { $this->db->where('mx_attendance_emp_code', $data['employeeid']); }
+
+            $this->db->group_by('EmployeeID');
+            $query = $this->db->get();
+             // echo $this->db->last_query(); exit;
+
+            if ($query->num_rows() > 0) {
+                foreach($query->result_array() as $row) {
+                    $aggregated_data[] = $row;
+                }
+            }
+        }
+
+        usort($aggregated_data, function($a, $b) {
+            return (int)$a['SortTimestamp'] - (int)$b['SortTimestamp'];
+        });
+
+        return ['status' => 200, 'data' => $aggregated_data];
+    }
+
+    public function get_specific_year_el($employeeid, $year) {
+        // Check months 12 down to 01 of the previous year
+        $ym_suffix = $year . "_" . str_pad("03", 2, "0", STR_PAD_LEFT);
+        $table_name = "maxwell_attendance_$ym_suffix";
+
+        if ($this->db->table_exists($table_name)) {
+            // Get the EL balance for this specific employee from the balance table
+            $this->db->select('mxemp_leave_cron_crnt_bal as CurrentEL');
+            $this->db->from('maxwell_emp_leave_cron_history');
+            $this->db->where('mxemp_leave_cron_emp_id', $employeeid);
+            $this->db->where('mxemp_leave_cron_short_name', 'EL');
+            $this->db->like('mxemp_leave_cron_processdate', $ym_suffix, 'after');
+
+            // Get the most recent entry for that specific month
+            $this->db->order_by('mxemp_leave_cron_processdate', 'DESC');
+            $this->db->limit(1);
+            $query = $this->db->get();
+            // echo $this->db->last_query(); exit;
+
+            if ($query->num_rows() > 0) {
+                return (float)$query->row()->CurrentEL;
+            }
+        }
+        return 0; // Default if no previous records found
+    }
+
+    public function get_encashment_summary($emp_id, $year) {
+        // We pass the parameters to your existing logic
+        $params = ['employeeid' => $emp_id, 'monthyear' => $year];
+        $result = $this->yearlyleave_list($params);
+        
+        // echo "<pre>";print_r($result);exit();
+
+        if ($result['status'] == 200 && !empty($result['leave_encashment'])) {
+            // Return the first (and only) employee's data
+            return $result['leave_encashment'][0];
+        }
+        return null;
+    }
 } ?>

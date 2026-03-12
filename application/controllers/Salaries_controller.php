@@ -2931,7 +2931,7 @@ $savePath = 'uploads/payslips/' . $customFileName;
      $result5 = $this->db->query($sql5);
       $lastrowofareq5=$result5->result_array();
       $oldLead_id5=$result5->num_rows() ;
-      if($oldLead_id5>0){
+      if($oldLead_id5>0 && $lastrowofareq5['0']['tot_loan_amt'] > 0){
         $tot_loan_amt=$lastrowofareq5['0']['tot_loan_amt'];
       }
 
@@ -2945,10 +2945,14 @@ $savePath = 'uploads/payslips/' . $customFileName;
                                 $html_data .= "<td></td>";//--->ADVANCE
                                 $html_data .= "<td>$paysheet_data->mxsal_tds_amount</td>";//--->TDS
                                 $html_data .= "<td>$paysheet_data->mxsal_miscelleneous_amount</td>";//--->MISC DED
+
                                 $mxsal_total_ded=$paysheet_data->mxsal_total_ded;
-                                $mxsal_loan_amount=$paysheet_data->mxsal_loan_amount;
-                                $mxsal_total_ded=$mxsal_total_ded-$mxsal_loan_amount;
-                                $mxsal_total_ded=$mxsal_total_ded+$tot_loan_amt;
+
+                                if($oldLead_id5>0 && $lastrowofareq5['0']['tot_loan_amt'] > 0){
+                                    $mxsal_loan_amount = $paysheet_data->mxsal_loan_amount;
+                                    $mxsal_total_ded = $mxsal_total_ded - $mxsal_loan_amount;
+                                    $mxsal_total_ded = $mxsal_total_ded + $tot_loan_amt;
+                                }
 
                                 //$html_data .= "<td>$paysheet_data->mxsal_total_ded</td>";//--->TOTAL DEDUCTIONS
                                 $html_data .= "<td>$mxsal_total_ded</td>";//--->TOTAL DEDUCTIONS

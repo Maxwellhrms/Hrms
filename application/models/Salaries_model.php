@@ -1468,16 +1468,19 @@ class Salaries_model extends Adminmodel
 
         if ($new_oustanding_amount == 0) {
             $transactioninarray['mxemploan_emp_information'] = 'CLOSED';
-            $transactioninarray['mxemploan_status'] = 0;
+            $transactioninarray['mxemploan_status'] = 1;
         } else {
             $transactioninarray['mxemploan_emp_information'] = 'IN PROCESS';
         }
+
 
         $this->db->where('mxemploan_pri_id', $primaryid);
         $this->db->where('mxemploan_empcode', $emp_code);
         $this->db->update('maxwell_emp_loan_master', $uparray);
 
         $res = $this->db->insert('maxwell_emp_loan_master_transaction', $transactioninarray);
+        $insert_id = $this->db->insert_id();
+        return $res;
     }
 
 
@@ -6875,8 +6878,17 @@ class Salaries_model extends Adminmodel
                 //-----------UPDATE MASTER OUTSTANDING AMOUNT
                 $up_master_array = array(
                     'mxemploan_emp_loan_outstanding_amt' => $final_outstanding_amount,
-                    'mxemploan_status' => 1
+                    'mxemploan_status' => 1,
                 );
+
+                /*
+                    * UPDATED BY : VARAPRASAD
+                    * ON 09/03/2026
+                */
+                if($final_outstanding_amount > 0) {
+                    $up_master_array['mxemploan_emp_information'] =  'IN PROCESS';
+                }
+
                 $this->db->where('mxemploan_pri_id', $loan_master_id);
                 $this->db->update('maxwell_emp_loan_master', $up_master_array);
                 //-----------END UPDATE MASTER OUTSTANDING AMOUNT
@@ -6911,7 +6923,7 @@ class Salaries_model extends Adminmodel
     {
         // print_r($data);exit;
         $this->db->trans_begin();
-        
+
         if (isset($data['cmp_id']) && isset($data['sal_month_year'])) {
             $cmp_id = $this->cleanInput($data['cmp_id']);
             $emp_code_data = explode('~',$this->cleanInput($data['emp_code']));
@@ -8087,20 +8099,23 @@ class Salaries_model extends Adminmodel
                     // echo "net_sal = ".$net_sal;exit;
                     $loan_amount = $total_loan_amount = 0;
                     $loan_array = $this->Loan_model->getloandetails_sals($emp_comp_code, $emp_div_code=null, $emp_state_code=null, $emp_branch_code=null, $emp_code, $year_month);
-                    // print_r($loan_array);exit;
+                    /*if($emp_code == 'M0978'){
+                        echo "<pre>";print_r($loan_array);exit;
+                    }*/
+
                     if (count($loan_array) > 0 && $net_sal > 0) {
                         foreach ($loan_array as $loan_data) {
-                            // print_r($loan_data);exit;
+                            // echo "<pre>"; print_r($loan_data);exit;
                             $outstanding_amount = $loan_data->mxemploan_emp_loan_outstanding_amt;
                             if ($outstanding_amount > 0) {
                                 $monthly_emi_amount = $loan_data->mxemploan_emp_loan_monthly_emi_amt;
+
                                  // new by sha(10-03-2025)
                                     if($net_sal < $monthly_emi_amount){
                                         $monthly_emi_amount = $net_sal;
                                     }
                                     // END new by sha(10-03-2025)
                                 if ($outstanding_amount >= $monthly_emi_amount) { //---->if oustanding(10000) greater than monthly emi(2000) we take monthly emi(2000)
-                                   
                                     $loan_amount = $monthly_emi_amount;
                                     $total_loan_amount += $loan_amount;
                                     $primaryid = $loan_data->mxemploan_pri_id;
@@ -8117,6 +8132,7 @@ class Salaries_model extends Adminmodel
                                     $this->update_loan_master($new_oustanding_amount, $loan_amount, $primaryid, $emp_code);
                                     //-----------NEW BY SHABABU(26-06-2022)
                                     $insert_id = $this->db->insert_id();
+
                                     //-----------END NEW BY SHABABU(26-06-2022)
                                 }
                                 //----NEW BY SHABABU(26-06-2022)
