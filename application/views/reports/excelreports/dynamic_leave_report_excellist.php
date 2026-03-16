@@ -119,7 +119,7 @@
                                         elseif ($row_idx == 5) { $remark_label = ""; }
                                         elseif ($row_idx == 6) {
                                             $remark_label = "Balance C/F: ";
-                                            $remark_val = isset($encashment['el_balance_cf']) && ($row['lastEL'] > $encashment['el_balance_cf']) ? 30 : $row['lastEL'];
+                                            $remark_val = $lastEL;
                                             $bg = "#fff9c4";
                                         }
                                         elseif ($row_idx == 9) { $remark_label = "Leave Encashed On"; }

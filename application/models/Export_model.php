@@ -1782,6 +1782,7 @@ $fromdate_frontend= $date->format('Y-m-d');
         // $query .= ",(SELECT @serial_number:= 0) AS serial_number";
         $query_data = $this->db->query($query1);
         $query_data2 = $this->db->query($query);
+        // echo $this->db->last_query(); exit;
         $res = $query_data2->result_array();
         // print_r($res);exit;
         return $res;
@@ -3025,7 +3026,7 @@ public function get_paysheet_data_esi_2($data){
         return $qry->result_array();
     }
 
-    
+
     public function get_employee_leaves_data($data) {
         if (!isset($data['monthyear'])) {
             return ['status' => 400, 'description' => "Range not provided"];
@@ -3150,13 +3151,29 @@ public function get_paysheet_data_esi_2($data){
             sum(case when mx_attendance_first_half = 'EL' AND mx_attendance_second_half != 'EL' then 0.5 else 0 end) AS First_Half_Earnedleave,
             sum(case when mx_attendance_first_half != 'EL' AND mx_attendance_second_half = 'EL' then 0.5 else 0 end) AS Second_Half_Earnedleave,
             
-            -- NEW: INTEGRATED CRON HISTORY FOR EL
+            -- 10: INTEGRATED CRON HISTORY FOR EL
             (SELECT mxemp_leave_cron_crnt_bal 
              FROM maxwell_emp_leave_cron_history 
              WHERE mxemp_leave_cron_emp_id = mx_attendance_emp_code 
              AND mxemp_leave_cron_short_name = 'EL' 
              AND mxemp_leave_cron_processdate LIKE '$ym_suffix%' 
              ORDER BY mxemp_leave_cron_processdate DESC LIMIT 1) as HistoricalEL,
+             
+             -- 11: INTEGRATED CRON HISTORY FOR CL
+            (SELECT mxemp_leave_cron_crnt_bal 
+             FROM maxwell_emp_leave_cron_history 
+             WHERE mxemp_leave_cron_emp_id = mx_attendance_emp_code 
+             AND mxemp_leave_cron_short_name = 'CL' 
+             AND mxemp_leave_cron_processdate LIKE '$ym_suffix%' 
+             ORDER BY mxemp_leave_cron_processdate DESC LIMIT 1) as HistoricalCL,
+             
+             -- 12: INTEGRATED CRON HISTORY FOR SL
+            (SELECT mxemp_leave_cron_crnt_bal 
+             FROM maxwell_emp_leave_cron_history 
+             WHERE mxemp_leave_cron_emp_id = mx_attendance_emp_code 
+             AND mxemp_leave_cron_short_name = 'SL' 
+             AND mxemp_leave_cron_processdate LIKE '$ym_suffix%' 
+             ORDER BY mxemp_leave_cron_processdate DESC LIMIT 1) as HistoricalSL,
         ", FALSE);
 
             $this->db->from($table_name);

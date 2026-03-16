@@ -2668,6 +2668,7 @@ $data['common'] = $this->Adminmodel->getemployeedetailstosetsession2($data);
         $data['groups'] = $this->Common_model->groupmenu_report($userrole);
         $data['pages'] = $this->Common_model->pagesubmenu_report($userrole);
         $data['reoptscnt'] = $this->Common_model->totalreportscount();
+        // echo "<PRE>";print_r($data);exit();
         $this->load->view('reports/viewallreports',$data);
         $this->footer();  
     }
@@ -3925,8 +3926,8 @@ $textaligntop = array(
                                     "sum(mxsal_eps_wages) as eps_wages",
                                     "sum(mxsal_edli_wages) as edli_wages",
                                     "sum(mxsal_pf_emp_cont) as epf_cont_remit",
-                                    "sum(mxsal_pf_comp_cont) as eps_cont_remit",
-                                    "sum(mxsal_pf_pension_cont) as epf_eps_diff_remit",
+                                    "sum(mxsal_pf_pension_cont) as eps_cont_remit",
+                                    "sum(mxsal_pf_comp_cont) as epf_eps_diff_remit",
                                     "sum(mxsal_lop_from_attendance) as ncp_days",
                                     " '' as refund_adv",
                                 );
@@ -4005,13 +4006,14 @@ $textaligntop = array(
                                     "mxsal_eps_wages as eps_wages",
                                     "mxsal_edli_wages as edli_wages",
                                     "mxsal_pf_emp_cont as epf_cont_remit",
-                                    "mxsal_pf_comp_cont as eps_cont_remit",
-                                    "mxsal_pf_pension_cont as epf_eps_diff_remit",
+                                    "mxsal_pf_pension_cont as eps_cont_remit",
+                                    "mxsal_pf_comp_cont as epf_eps_diff_remit",
                                     "concat(Absent + First_Half_Absent + Second_Half_Absent) as ncp_days",
                                     " '' as refund_adv",
                                 );
             $data['is_attendance'] = 1;//----->FOR GETTING ATTENDANCE TABLE DATA IN PAYSHEET
-            $data['common'] = $this->export->get_paysheet_data($data);                        
+            $data['common'] = $this->export->get_paysheet_data($data);
+            // echo "<pre> COMMON :";print_r($data['common']);exit();
             if(count($data['common']) > 0){
                 $total_gross_amount = array_sum(array_column($data['common'],'gross_wages'));
                 $total_epf_wages = array_sum(array_column($data['common'],'epf_wages'));
@@ -4037,7 +4039,7 @@ $textaligntop = array(
                                              );
             }
         }
-        
+        // echo '<pre>';print_r($data);exit;
         $this->load->view('reports/excelreports/dynamic_paysheet_excellist',$data);
         
         // getjsondata(1,'',$this->load->view('reports/excelreports/dynamic_paysheet_excellist',$data));
@@ -5103,6 +5105,8 @@ $textaligntop = array(
             $lv = (object)$row;
 
             $availEL = (!empty($lv->HistoricalEL)) ? (float)$lv->HistoricalEL : (float)($lv->CurrentEL ?? 0);
+            $availCL = (!empty($lv->HistoricalCL)) ? (float)$lv->HistoricalCL : (float)($lv->CurrentCL ?? 0);
+            $availSL = (!empty($lv->HistoricalSL)) ? (float)$lv->HistoricalSL : (float)($lv->CurrentSL ?? 0);
             $lastEL = $availEL;
 
             // Ensure MonthNumber is available for calculation
@@ -5144,11 +5148,11 @@ $textaligntop = array(
                 'Present'       => $present,
                 'W.Off'         => $lv->Week_Off,
                 'Holidays'      => $computed_ph_oh,
-                'CL_Avail'      => $lv->CurrentCL ?? 0,
+                'CL_Avail'      => $availCL,
                 'CL_Used'       => $CL_Used,
                 'PL_Avail'      => $availEL,
                 'PL_Used'       => $EL_Used,
-                'SL_Avail'      => $lv->CurrentSL ?? 0,
+                'SL_Avail'      => $availSL,
                 'SL_Used'       => $SL_Used,
                 'Matr'          => $ML_Used,
                 'LOP'           => $lop,
@@ -5168,13 +5172,16 @@ $textaligntop = array(
             $encashment_data = $this->export->get_encashment_summary($userdata['employeeid'], $reportYear);
         }
 
+        $lastEL = $lastEL;
+
         //echo "<pre>".$reportYear;print_r($encashment_data);exit();
 
         $newarr['header'] = $header_info;
         $newarr['common'] = $processed_rows;
         $newarr['prev_year_el'] = $prev_year_el;
         $newarr['encashment'] = $encashment_data;
-        //echo "<pre>";print_r($newarr);exit();
+        $newarr['lastEL'] = $lastEL;
+        // echo "<pre>";print_r($newarr);exit();
 
         $this->load->view('reports/excelreports/dynamic_leave_report_excellist', $newarr);
     }
@@ -5296,6 +5303,8 @@ $textaligntop = array(
             $lv = (object)$row;
             $years[] = $lv->YearName;
             $availEL = (!empty($lv->HistoricalEL)) ? (float)$lv->HistoricalEL : (float)($lv->CurrentEL ?? 0);
+            $availCL = (!empty($lv->HistoricalCL)) ? (float)$lv->HistoricalCL : (float)($lv->CurrentCL ?? 0);
+            $availSL = (!empty($lv->HistoricalSL)) ? (float)$lv->HistoricalSL : (float)($lv->CurrentSL ?? 0);
             $lastEL = $availEL;
 
             $present = (float)$lv->Present + (float)$lv->First_Half_Present + (float)$lv->Second_Half_Present + (float)$lv->regulation_full_day + (float)$lv->First_Half_regulation + (float)$lv->Second_Half_regulation + (float)$lv->First_Half_Shortleave + (float)$lv->Second_Half_Shortleave + (float)$lv->ot_full_day + (float)$lv->First_Half_ot + (float)$lv->Second_Half_ot;
@@ -5320,11 +5329,11 @@ $textaligntop = array(
             $sheet->setCellValue('D'.$rowNum, $lv->Week_Off);
             $sheet->setCellValue('E'.$rowNum, $ph_oh);
             $sheet->setCellValue('F'.$rowNum, $cl_used ?: 0);
-            $sheet->setCellValue('G'.$rowNum, $lv->CurrentCL ?? 0);
+            $sheet->setCellValue('G'.$rowNum, $availCL);
             $sheet->setCellValue('H'.$rowNum, $el_used ?: 0);
             $sheet->setCellValue('I'.$rowNum, $availEL);
             $sheet->setCellValue('J'.$rowNum, $sl_used ?: 0);
-            $sheet->setCellValue('K'.$rowNum, $lv->CurrentSL ?? 0);
+            $sheet->setCellValue('K'.$rowNum, $availSL);
             $sheet->setCellValue('L'.$rowNum, $ml_used ?: 0);
             $sheet->setCellValue('M'.$rowNum, $lop);
             $sheet->setCellValue('N'.$rowNum, $abst);
@@ -5361,6 +5370,10 @@ $textaligntop = array(
             $sheet->getStyle('A8')->applyFromArray($styleBoldHeader)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER)->setTextRotation(90);
         }
 
+        $cf_val = $lastEL;
+        $sheet->setCellValue('Q13', 'Balance C/F: ' . $cf_val);
+        $sheet->getStyle('Q13')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('FFF9C4');
+
         // FOOTER TOTALS
         $sheet->mergeCells('A'.$rowNum.':B'.$rowNum);
         $sheet->setCellValue('A'.$rowNum, 'Total >>>>>>>>>>');
@@ -5370,7 +5383,7 @@ $textaligntop = array(
         $sheet->setCellValue('F'.$rowNum, $t_cl_u);
         $sheet->setCellValue('H'.$rowNum, $t_el_u);
         $sheet->setCellValue('I'.$rowNum, $lastEL); // P.L. Avail Total is the last EL
-        $sheet->getStyle('I'.$rowNum)->getFill()->getStartColor()->setRGB('FFF9C4');
+        $sheet->getStyle('I'.$rowNum)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('FFF9C4');
         $sheet->setCellValue('J'.$rowNum, $t_sl_u);
         $sheet->setCellValue('L'.$rowNum, $t_matr);
         $sheet->setCellValue('M'.$rowNum, $t_lop);
@@ -5409,6 +5422,8 @@ $textaligntop = array(
         $filtered_data = array_filter($raw_data, function($row) use ($currentMonth, $currentYear) {
             return !($row['MonthNumber'] == $currentMonth && $row['YearName'] == $currentYear);
         });
+
+         // echo "<pre>".count($filtered_data);print_r($filtered_data);exit();
 
         $encashment_data = null;
         if (!empty($userdata['employeeid']) && !empty($raw_data)) {
@@ -5509,6 +5524,8 @@ $textaligntop = array(
             $ml_used = (float)$row['Meternityleave'] + (float)$row['First_Half_Meternityleave'] + (float)$row['Second_Half_Meternityleave'];
 
             $availEL = (!empty($row['HistoricalEL'])) ? (float)$row['HistoricalEL'] : (float)($row['CurrentEL'] ?? 0);
+            $availCL = (!empty($row['HistoricalCL'])) ? (float)$row['HistoricalCL'] : (float)($row['CurrentCL'] ?? 0);
+            $availSL = (!empty($row['HistoricalSL'])) ? (float)$row['HistoricalSL'] : (float)($row['CurrentSL'] ?? 0);
             $lastEL = $availEL;
             $totalPaid = $present + (float)$row['Week_Off'] + $ph_oh + $cl_used + $sl_used + $el_used + $ml_used;
             $lop = (float)($row['Totaldays']) - $totalPaid;
@@ -5530,11 +5547,11 @@ $textaligntop = array(
             <td width="4%">' . $row['Week_Off'] . '</td>
             <td width="4%">' . $ph_oh . '</td>
             <td width="4%">' . ($cl_used ?: 0) . '</td>
-            <td width="4%">' . ($row['CurrentCL'] ?? 0) . '</td>
+            <td width="4%">' . ($availCL) . '</td>
             <td width="4%">' . ($el_used ?: 0) . '</td>
             <td width="4%">' . $availEL . '</td>
             <td width="4%">' . ($sl_used ?: 0) . '</td>
-            <td width="4%">' . ($row['CurrentSL'] ?? 0) . '</td>
+            <td width="4%">' . ($availSL) . '</td>
             <td width="4%">' . ($ml_used ?: 0) . '</td>
             <td width="4%">' . $lop . '</td>
             <td width="4%">' . $abst . '</td>
@@ -5547,7 +5564,7 @@ $textaligntop = array(
                 $remark_class = ' class="bg-green text-left"';
                 $remark_text = 'Balance B/F: ' . $prevYearBF;
             } elseif ($i == 6) {
-                $cf_val = isset($encashment_data['el_balance_cf']) && ($lastEL > $encashment_data['el_balance_cf']) ? 30 : $lastEL;
+                $cf_val = $filtered_data[$row_count-1]['HistoricalEL'];
                 $remark_class = ' class="bg-yellow text-left"';
                 $remark_text = 'Balance C/F: ' . $cf_val;
             } elseif ($i == 9) {
