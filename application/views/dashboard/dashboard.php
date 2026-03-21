@@ -209,7 +209,7 @@ document.getElementById("total_cnt").innerHTML = "<?php echo $total_cnt ?>";
 												<span class="text-success"><?php echo $att_summary['loanscount'][0]['total_loans_applied']; ?></span>&nbsp;&nbsp;<a href="<?php echo base_url().'dashboard/exporttoexcel?mdfn=loanscount_summary&name=loanscount_summary' ?>" style="float:right"><i class="far fa-file-excel" aria-hidden="true"></i></a>
 											</div>
 										</div>
-										<h3 class="mb-3">INR <?php echo number_format($att_summary['loanscount'][0]['total_loan_amount'],2,",",","); ?></h3>
+										<h3 class="mb-3">INR <?php echo formatIndianCurrency($att_summary['loanscount'][0]['total_loan_amount']); ?></h3>
 										<div class="progress mb-2" style="height: 5px;">
 											<div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo number_format($att_summary['loanscount'][0]['recovered_percentage'],2); ?>%;" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
 										</div>
@@ -217,7 +217,7 @@ document.getElementById("total_cnt").innerHTML = "<?php echo $total_cnt ?>";
 											<span class="text-success">Recovered - <?php echo number_format($att_summary['loanscount'][0]['recovered_percentage'],2); ?>%</span> &nbsp;
 											<span class="text-danger">Pending - <?php echo number_format($att_summary['loanscount'][0]['percentage_needto_recovered'],2); ?>%</span>
 										</div>
-										<p class="mb-0">Out Standing <span class="text-muted">INR <?php echo number_format($att_summary['loanscount'][0]['total_outstanding_amount'],2,",",","); ?></span></p>
+										<p class="mb-0">Out Standing <span class="text-muted">INR <?php echo formatIndianCurrency($att_summary['loanscount'][0]['total_outstanding_amount']); ?></span></p>
 									</div>
 								</div>
 							

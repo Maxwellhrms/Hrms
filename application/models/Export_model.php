@@ -3252,4 +3252,180 @@ public function get_paysheet_data_esi_2($data){
         }
         return null;
     }
-} ?>
+    
+    public function employeeeslhistory($data){
+        $this->db->select('employeecode,punchdatetime,punch,punchtype,deviceid,inserted_at,synced,synceddatetime,mxemp_emp_fname,mxcp_name,mxd_name,mxst_state,mxb_name,mxdesg_name,mxdpt_name,mxgrd_name,mxemp_emp_fname,mxemp_emp_lname');
+        $this->db->from('essl_attendance_logs');
+        $this->db->join('maxwell_employees_info', 'mxemp_emp_id = employeecode', 'INNER');
+        $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
+        $this->db->join('maxwell_designation_master', 'mxdesg_id = mxemp_emp_desg_code', 'INNER');
+        $this->db->join('maxwell_department_master', 'mxdpt_id = mxemp_emp_dept_code', 'INNER');
+        $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');
+        $this->db->join('maxwell_branch_master', 'mxb_id = mxemp_emp_branch_code', 'INNER');
+        $this->db->join('maxwell_grade_master', 'mxgrd_id = mxemp_emp_grade_code', 'INNER');
+        $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
+        $this->db->join('maxwell_employee_type_master', 'mxemp_ty_id = mxemp_emp_type', 'INNER');
+       // $this->db->where("mxemp_emp_resignation_status != 'R'");
+        if (!empty($data['companyid'])) {
+            $this->db->where('mxemp_emp_comp_code', $data['companyid']);
+        }
+        if (!empty($data['divisionid'])) {
+            $this->db->where('mxemp_emp_division_code', $data['divisionid']);
+        }
+        if (!empty($data['branchid'])) {
+            $this->db->where('mxemp_emp_branch_code', $data['branchid']);
+        }
+        if (!empty($data['employeeid'])) {
+            $this->db->where('mxemp_emp_id', $data['employeeid']);
+        }
+        if (!empty($data['stateid'])) {
+            $this->db->where('mxemp_emp_state_code', $data['stateid']);
+        }
+        if (!empty($data['fromdate'])) {
+            $this->db->where('punchdatetime >=', date('Y-m-d',strtotime($data['fromdate'])) . ' 00:00:00');
+        }
+        if (!empty($data['todate'])) {
+            $this->db->where('punchdatetime <=', date('Y-m-d',strtotime($data['todate'])) . ' 23:59:59');
+        }
+        if (!empty($data['employeecode'])) {
+            $this->db->where('employeecode', $data['employeecode']);
+        }
+        if (isset($data['issynced'])) {
+            $this->db->where('synced', 1);
+        }else{
+            $this->db->where('synced', 0);
+        }
+        
+        $query = $this->db->get();
+        $qr = $query->result();
+        #echo $this->db->last_query(); exit;
+        $retrunarray = array();
+        foreach($qr as $key => $val){
+                $buldarray = (object)array(
+                    "employeecode" =>$val->employeecode,
+                    "mxemp_emp_fname" =>$val->mxemp_emp_fname.' '.$val->mxemp_emp_lname,
+                    "mxcp_name" =>$val->mxcp_name,
+                    "mxd_name" =>$val->mxd_name,
+                    "mxst_state" =>$val->mxst_state,
+                    "mxb_name" =>$val->mxb_name,
+                    "mxdesg_name" =>$val->mxdesg_name,
+                    "mxdpt_name" =>$val->mxdpt_name,
+                    "mxgrd_name"=>$val->mxgrd_name,
+                    "punchdatetime"=>$val->punchdatetime,
+                    "punch"=>$val->punch,
+                    "punchtype"=>$val->punchtype,
+                    "deviceid"=>$val->deviceid,
+                    "inserted_at"=>$val->inserted_at,
+                    "synced" => ($val->synced == 1) ? '<b style=color:green>Synced</b>' : '<b style=color:red>Not Synced</b>',
+                    "synceddatetime"=>$val->synceddatetime,
+                    //"status"=>$restatus,          // $val->mxemp_emp_resignation_status,
+                    );
+             array_push($retrunarray,$buldarray);   
+        }
+        // return $retrunarray;   
+        $columns = [
+            'employeecode',
+            'mxemp_emp_fname', 
+            'mxcp_name',
+            'mxd_name',
+            'mxst_state',
+            'mxb_name',
+            'mxdesg_name', 
+            'mxdpt_name',
+            'mxgrd_name', 
+            'punchdatetime', 
+            'punch',
+            'punchtype',
+            'deviceid',
+            'inserted_at',
+            'synced',
+            'synceddatetime',
+        ]; 
+
+        $renameHeaderColumns = [
+            'employeecode' => 'Employee Code',
+            'mxemp_emp_fname' => 'Employee Name', 
+            'mxcp_name' => 'Company Name',
+            'mxd_name' => 'Division Name',
+            'mxst_state' => 'State Name',
+            'mxb_name' => 'Branch Name',
+            'mxdesg_name' => 'Designation Name', 
+            'mxdpt_name' => 'Department Name',
+            'mxgrd_name' => 'Grade Name', 
+            'punchdatetime' => 'Punch Date Time', 
+            'punch' => 'Punch',
+            'punchtype' => 'Punch Type',
+            'deviceid' => 'Device ID',
+            'inserted_at' => 'Inserted At',
+            'synced' => 'Synced',
+            'synceddatetime' => 'Synced Datetime',
+        ]; 
+
+        // Mapping id and replace with name form masters
+        $dataMappingColumns = array(
+            'Translate' => array(),
+        );
+
+        // Define columns for links and edit actions
+        $urllink = '';
+        $linkColumns = array(); // Columns where links will be provided
+        $editColumns = array(); // Columns with edit options
+        $hideColumn = array();
+        $reportName = 'Employee Essl Punch History';
+// print_r((object)$retrunarray);exit;
+        echo dynamicTable($retrunarray,$columns,$linkColumns, $editColumns, $dataMappingColumns, $renameHeaderColumns, $hideColumn, $reportName);
+    }
+    
+    public function dailycronshistory($data){
+        $this->db->select('name,Url,entry_dt');
+        $this->db->from('cron_log');
+
+        if (!empty($data['fromdate'])) {
+            $this->db->where('entry_dt >=', date('Y-m-d',strtotime($data['fromdate'])) . ' 00:00:00');
+        }
+        if (!empty($data['todate'])) {
+            $this->db->where('entry_dt <=', date('Y-m-d',strtotime($data['todate'])) . ' 23:59:59');
+        }
+        
+        $query = $this->db->get();
+        $qr = $query->result();
+        #echo $this->db->last_query(); exit;
+        $retrunarray = array();
+        foreach($qr as $key => $val){
+                $buldarray = (object)array(
+                    "name" =>$val->name,
+                    "Url" =>$val->Url,
+                    "entry_dt" =>$val->entry_dt,
+                    );
+             array_push($retrunarray,$buldarray);   
+        }
+        // return $retrunarray;   
+        $columns = [
+            'name',
+            'Url', 
+            'entry_dt',
+        ]; 
+
+        $renameHeaderColumns = [
+            'name' => 'Cron Name',
+            'Url' => 'Cron Url', 
+            'entry_dt' => 'Cron Runned',
+        ]; 
+
+        // Mapping id and replace with name form masters
+        $dataMappingColumns = array(
+            'Translate' => array(),
+        );
+
+        // Define columns for links and edit actions
+        $urllink = '';
+        $linkColumns = array(); // Columns where links will be provided
+        $editColumns = array(); // Columns with edit options
+        $hideColumn = array();
+        $reportName = 'Daily Crons List';
+// print_r((object)$retrunarray);exit;
+        echo dynamicTable($retrunarray,$columns,$linkColumns, $editColumns, $dataMappingColumns, $renameHeaderColumns, $hideColumn, $reportName);
+    }
+    
+} 
+?>

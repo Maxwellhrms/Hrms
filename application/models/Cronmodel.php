@@ -3713,5 +3713,239 @@ class Cronmodel extends Adminmodel
         }
     }
     
+    public function essl_attendance_cron($attendancedate,$employeeid){
+        $countofessldata = 0;
+        $companyid = 1;
+        $month = date('m',strtotime($attendancedate));
+        $year = date('Y',strtotime($attendancedate));
+        if (strlen($month) == 1) {
+            $month = '0' . $this->cleanInput($data['month']);
+        }
+        
+        $fromdt = $attendancedate . ' 00:00:00';
+        $todt   = $attendancedate . ' 23:59:59';
+        
+        $tablename = 'maxwell_attendance_' . $year . '_' . $month . '';
+        
+        $this->db->trans_begin();
+        $this->db->select('id,employeecode,punchdatetime,punch,punchtype,deviceid,inserted_at,synced,synceddatetime');
+        $this->db->from('essl_attendance_logs');
+        $this->db->where('punchdatetime >=', $fromdt);
+        $this->db->where('punchdatetime <=', $todt);
+        $this->db->where('synced', 0);
+        // $this->db->where('employeecode', 'M0009');
+        $this->db->order_by('employeecode ASC, punchdatetime ASC');
+        
+        $query = $this->db->get();
+        $eslqr = $query->result();
+        // echo $this->db->last_query(); exit;
+        if (!empty($eslqr)) {
+            
+            $this->db->select('mxcp_firsthalf_time,mxcp_secondhalf_time,mxcp_logoff_time,mxcp_secondbreak_time,mxcp_secondbreak_endtime,mxcp_firsthalf_gracetime,mxcp_secondhalf_gracetime');
+            $this->db->from('maxwell_company_master');
+            $this->db->where('mxcp_status = 1');
+            $this->db->where('mxcp_id',$companyid);
+            $querycmp = $this->db->get();
+            $qry = $querycmp->result();
+            $countofessldata = count($eslqr);
+            
+            foreach($eslqr as $row){
+                
+                $currenttime = date('H:i', strtotime($row->punchdatetime));
+                $currenttimeseconds = date('H:i:s', strtotime($row->punchdatetime));
+                $entrytype = ($row->punchtype .' - '. $row->punch);
+                $employeeid = $row->employeecode;
+                $attendancedate = date('Y-m-d', strtotime($row->punchdatetime));
+                $takeyear = date('Y',strtotime($attendancedate));
+                
+                $this->db->select('mx_attendance_id,mx_attendance_cmp_id,mx_attendance_division_id,mx_attendance_state_id,mx_attendance_branch_id,mx_attendance_first_half_punch,mx_attendance_second_half_punch,mx_attendance_entry_type');
+                $this->db->from($tablename);
+                $this->db->where('mx_attendance_date', $attendancedate);
+                $this->db->where('mx_attendance_emp_code', $employeeid);
+                $queryatt = $this->db->get();
+                $attqr = $queryatt->result();
+                
+                foreach($attqr as $attrow){
+
+                    $attendance_uniqid = $attrow->mx_attendance_id;
+                    
+                    if(strtotime($currenttime) <= strtotime($qry[0]->mxcp_firsthalf_time) || strtotime($currenttime) <= strtotime($qry[0]->mxcp_secondbreak_time)){
+                        
+                        if(empty($attrow->mx_attendance_first_half_punch)){
+                            $punchtime = $currenttimeseconds;
+                            $type = $entrytype;
+                        }else{
+                            $punchtime = $attrow->mx_attendance_first_half_punch .','. $currenttimeseconds;
+                            $type = ','. $entrytype;
+                        }
+                        $entry_type = $attrow->mx_attendance_entry_type . $type .'-'. $currenttimeseconds;
+                        
+                        $uparray = array("mx_attendance_first_half_punch"=>$punchtime,"mx_attendance_entry_type"=>$entry_type);
+                        // echo '<pre>';print_r($uparray); echo $row->id;
+                        
+                        $this->db->where("mx_attendance_id", $attendance_uniqid);
+                        $this->db->where("mx_attendance_emp_code", $employeeid);
+                        $this->db->where("mx_attendance_date", $attendancedate);
+                        $res = $this->db->update($tablename, $uparray);
+                        
+                        $log = array(
+                          'employee_code' => $employeeid,
+                          'attendance_date' => $attendancedate,
+                          'attendance_uniqid' => $attendance_uniqid,
+                          'attendance_time' => $currenttimeseconds,
+                          'company' => $attrow->mx_attendance_cmp_id,
+                          'division' => $attrow->mx_attendance_division_id,
+                          'state' => $attrow->mx_attendance_state_id,
+                          'branch' => $attrow->mx_attendance_branch_id,
+                          'entry_type' => $entrytype,
+                          'createdby' => 'AUTO',
+                          'createdtime' => DBDT,
+                        );
+                        
+                        $punclogtable = 'employee_punches_'. $takeyear . '';
+                        $this->db->insert($punclogtable, $log);
+                        
+                        $esslup = array("synced" => 1, "synceddatetime" => DBDT);
+                        $this->db->where("id", $row->id);
+                        $res = $this->db->update('essl_attendance_logs', $esslup);
+                        
+                        create_notes($employeeid,'1','Punch Has Been Registered Type- '.$entrytype.' Punch Time- '.$currenttime ,$employeeid);
+
+                        
+                    }elseif(strtotime($currenttime) > strtotime($qry[0]->mxcp_secondbreak_time) || strtotime($currenttime) >= strtotime($qry[0]->mxcp_secondhalf_time)){
+                        
+                        if(empty($attrow->mx_attendance_second_half_punch)){
+                        $punchtime = $currenttimeseconds;
+                            if(empty($attrow->mx_attendance_entry_type)){
+                                $type = $entrytype;
+                            }else{
+                                $type = ','. $entrytype;
+                            }
+                        }else{
+                            $punchtime = $attrow->mx_attendance_second_half_punch .','. $currenttimeseconds;
+                            $type = ','. $entrytype;
+                        }
+                        $entry_type = $attrow->mx_attendance_entry_type .$type.'-'. $currenttimeseconds;
+                        
+                        $fparray = array("mx_attendance_second_half_punch"=>$punchtime,"mx_attendance_entry_type"=>$entry_type);
+                        // echo '<pre>';print_r($fparray); echo $row->id;
+                        
+                        $this->db->where("mx_attendance_id", $attendance_uniqid);
+                        $this->db->where("mx_attendance_emp_code", $employeeid);
+                        $this->db->where("mx_attendance_date", $attendancedate);
+                        $res = $this->db->update($tablename, $fparray);
+                        
+                        $log = array(
+                          'employee_code' => $employeeid,
+                          'attendance_date' => $attendancedate,
+                          'attendance_uniqid' => $attendance_uniqid,
+                          'attendance_time' => $currenttimeseconds,
+                          'company' => $attrow->mx_attendance_cmp_id,
+                          'division' => $attrow->mx_attendance_division_id,
+                          'state' => $attrow->mx_attendance_state_id,
+                          'branch' => $attrow->mx_attendance_branch_id,
+                          'entry_type' => $entrytype,
+                          'createdby' => 'AUTO',
+                          'createdtime' => DBDT,
+                        );
+                        
+                        $punclogtable = 'employee_punches_'. $takeyear . '';
+                        $this->db->insert($punclogtable, $log);
+                        
+                        $esslup = array("synced" => 1, "synceddatetime" => DBDT);
+                        $this->db->where("id", $row->id);
+                        $res = $this->db->update('essl_attendance_logs', $esslup);
+                        
+                        create_notes($employeeid,'1','Punch Has Been Registered Type- '.$entrytype.' Punch Time- '.$currenttime ,$employeeid);
+                        
+                    }
+                    
+                }
+                
+            }
+        }
+        
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            
+            $data1 = [
+                'status' => '500',
+                'msg' => 'Failed',
+                'description' => 'data_rollback',
+                'Count' => 0,
+            ];
+            
+            create_notes($employeeid,'2',$desc.' Type- '.$entrytype ,$employeeid);
+            return $data1;
+        } else {
+            
+            $array = array('name'=> 'Essl Attendance Sync','Url' => 'https://maxwellhrms.in/cron/essl_attendance_cron');
+            $res = $this->db->insert('cron_log',$array);
+            
+            $this->db->trans_commit();
+            
+            $data1 = [
+                'status' => '200',
+                'msg' => 'Success',
+                'description' => 'Punch Has Been Processed',
+                'Count' => $countofessldata,
+            ];
+            return $data1;
+        }
+    }
+    
+    public function get_essl_attendance_cron($data,$deviceId,$punchType,$fromDateTime){
+        
+        if (empty($data['GetTransactionsLogResult'])) {
+            $response = [
+                "status" => true,
+                "data" => [],
+                "message" => "No data exists for date: ".$fromDateTime
+            ];
+        $array = array('name'=> 'Get Essl Attendance Sync','Url' => 'https://maxwellhrms.in/cron/get_essl_attendance_cron');
+        $res = $this->db->insert('cron_log',$array);
+            return $response;
+        } 
+        
+        $insertedCount = 0;
+            // Loop data
+        foreach ($data['strDataList'] as $log) {
+    
+            // Check duplicate
+            $this->db->where('employeecode', $log['employee_code']);
+            $this->db->where('punchdatetime', $log['punchdatetime']);
+            $this->db->where('deviceid', $deviceId);
+    
+            $exists = $this->db->count_all_results('essl_attendance_logs');
+            if ($exists == 0) {
+    
+                $insertData = [
+                    'employeecode'   => $log['employee_code'],
+                    'punchdatetime' => $log['punchdatetime'],
+                    'deviceid'      => $deviceId,
+                    'punchtype'     => $punchType,
+                    'punch'         => $log['punch']
+                ];
+    
+                $this->db->insert('essl_attendance_logs', $insertData);
+                $insertedCount++;
+            }
+        }
+    
+        // Final response
+        $response = [
+            "status" => true,
+            "data" => [
+                "inserted" => $insertedCount
+            ],
+            "message" => "Data Processed for date: " . $fromDateTime
+        ];
+        
+        $array = array('name'=> 'Get Essl Attendance Sync','Url' => 'https://maxwellhrms.in/cron/get_essl_attendance_cron');
+        $res = $this->db->insert('cron_log',$array);
+        
+      return $response;
+        
+    }
 }
 ?>

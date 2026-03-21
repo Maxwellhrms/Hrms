@@ -12430,7 +12430,7 @@ public function saveemployeerequesttype($data){
                             mxar_auth4_remarks as auth4desc ,mxar_authfinal_remarks as authfinaldesc,
                             mxd_name as divisionname,mxb_name as branchname,mxst_state as statename,
                             '' as otbranchname ,'' as otdivname, '' as otstatename,
-                            ,mxar_ot_branch_id,mxar_ot_div_id,mxar_ot_state_id,mxar_client_company,mxar_client_contact_person,mxar_client_contact_no,mxar_client_contact_email,mxar_client_desc");
+                            ,mxar_ot_branch_id,mxar_ot_div_id,mxar_ot_state_id,mxar_client_company,mxar_client_contact_person,mxar_client_contact_no,mxar_client_contact_email,mxar_client_desc,mxar_createdtime");
                             $this->db->from('attendance_regulation');
                             $this->db->join('maxwell_employees_info','mxemp_emp_id = mxar_appliedby_emp_code','Inner');
                             
@@ -12919,7 +12919,7 @@ public function saveemployeerequesttype($data){
         //     $employeeid = array_values($a);
         // }else{
             $employeeid = $employeeid;
-        // }                   
+        // }  
         $this->db->select(" concat(mxemp_emp_fname,' ',mxemp_emp_lname) as employeename,mxar_id as uniqid,
                             mxar_category_type as category_type,mxar_appliedby_emp_code as employeeid,mxar_from as from,
                             mxar_to as to,mxar_desc as emp_description,  
@@ -12934,7 +12934,7 @@ public function saveemployeerequesttype($data){
                             concat(mxar_hrfinal_accept,' ',mxar_hrfinal_acceptname) as hrfinalempname ,
                             mxar_auth1_remarks as auth1desc,mxar_auth2_remarks as auth2desc,mxar_auth3_remarks as auth3desc,
                             mxar_auth4_remarks as auth4desc ,mxar_authfinal_remarks as authfinaldesc,mxar_hrfinal_accept as finalhracceptid,mxar_hrfinal_acceptname as finalhracceptname,
-                            mxd_name as divisionname,mxb_name as branchname,mxst_state as statename, mxar_auth1_approve_date, mxar_auth2_approve_date, mxar_auth3_approve_date, mxar_auth4_approve_date,mxar_noofdays
+                            mxd_name as divisionname,mxb_name as branchname,mxst_state as statename, mxar_auth1_approve_date, mxar_auth2_approve_date, mxar_auth3_approve_date, mxar_auth4_approve_date,mxar_noofdays,mxar_createdtime
                              ");
                             $this->db->from('attendance_user_leaveadjust');
                             $this->db->join('maxwell_employees_info','mxemp_emp_id = mxar_appliedby_emp_code','Inner');

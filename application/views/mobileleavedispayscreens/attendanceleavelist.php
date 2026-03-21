@@ -25,6 +25,7 @@
 													<th>No Of Days</th>
                                                     <th>Desc</th>
 													<th>Apply Type </th>
+													<th>Applied Date</th>
 													<th>Status</th>
                                                     <th>Auth1</th>
                                                     <th>Auth1 Approved Date</th>
@@ -63,6 +64,7 @@
 													<td><?php echo $authv['mxar_noofdays']; ?></td>
                                                     <td><?php echo $authv['emp_description']; ?></td>
 													<td><?php echo $authv['leavetypename']; ?></td>
+													<td><?php echo $authv['mxar_createdtime']; ?></td>
 													<td> 
     													<?php if($authv['finalacceptstatus'] == 3){  ?>
             													  <span style="color:#00802b"> Final Hr Accepted</span>

@@ -22,12 +22,13 @@
 													<th>State</th>
 													<th>Branch</th>
 													<th>From </th>
-													<th>T0</th>
+													<th>To</th>
                                                     <th>Desc</th>
                                                     <th>OT-Division</th>
 													<th>OT-State</th>
 													<th>OT-Branch</th>
 													<th>Apply Type </th>
+													<th>Applied Date</th>
 												    <th>Client Company</th>
 													<th>Client Name</th>
 													<th>Client Email</th>
@@ -67,6 +68,7 @@
                                                     <td><?php echo $authv['otstatename'] ?></td>
                                                     <td><?php echo $authv['otbranchname'] ?></td>
                                                     <td><?php echo $authv['reason']; ?></td>
+                                                    <td><?php echo $authv['mxar_createdtime']; ?></td>
                                                     <td><?php echo $authv['mxar_client_company']; ?></td>
 													<td><?php echo $authv['mxar_client_contact_person']; ?></td>
 													<td><?php echo $authv['mxar_client_contact_no']; ?></td>

@@ -536,5 +536,168 @@ public function cronyearlist(){
     public function monthlyregulationssummary(){
         $db = $this->Cronmodel->lastmonthregulationsappiledsummary();
     }
+    
+    public function get_essl_attendance_cron(){
+        $url = "http://www.esslcloud.com/MLPL/webapiservice.asmx";
+        $punchType = "ESSL";
+        $deviceId = 'QJT3252300375';
+        $username = 'API';
+        $password = 'Api@12345';
+
+        $attendancedate = $this->input->post('attendance');
+        
+        $currentDate = date('Y-m-d');
+        $currentHour = date('H');
+        
+        if(!empty($attendancedate)){
+            $attendancedate = date('Y-m-d', strtotime($this->input->post('attendance')));
+            $fromDateTime = $attendancedate . " 00:00:00";
+            $toDateTime   = $attendancedate . " 23:59:59";
+        }else{
+            
+            if ($currentHour == '01') {
+                $fromDateTime = date('Y-m-d 00:00:00', strtotime('-1 day'));
+                $toDateTime   = date('Y-m-d 23:59:59', strtotime('-1 day'));
+            } else {
+                #$currentDate = date('Y-m-d',strtotime('-1 day'));#testing 
+                $fromDateTime = $currentDate . " 00:00:00";
+                $toDateTime   = $currentDate . " 23:59:59";
+            }
+        }
+        
+        $printable = $this->input->post('printable');
+        if(empty($printable)){
+            $printable = 'N';
+        }
+        
+        header('Content-Type: application/json');
+
+        $body = '
+        <GetTransactionsLog xmlns="http://tempuri.org/">
+        <FromDateTime>'.$fromDateTime.'</FromDateTime>
+        <ToDateTime>'.$toDateTime.'</ToDateTime>
+        <SerialNumber>'.$deviceId.'</SerialNumber>
+        <UserName>'.$username.'</UserName>
+        <UserPassword>'.$password.'</UserPassword>
+        <strDataList></strDataList>
+        </GetTransactionsLog>
+        ';
+        
+        $response = $this->callSoapAPI($url,"GetTransactionsLog",$body);
+        
+        if(!$response['status']){
+            echo $response['error'];
+            exit;
+        }
+        
+        $xmlString = $response['response']; // SOAP response
+        $xml = simplexml_load_string($xmlString);
+        $xml->registerXPathNamespace('soap', 'http://schemas.xmlsoap.org/soap/envelope/');
+        $body = $xml->xpath('//soap:Body')[0];
+        $responseNode = $body->children('http://tempuri.org/')->GetTransactionsLogResponse;
+        $result = (string) $responseNode->GetTransactionsLogResult;
+        $dataList = (string) $responseNode->strDataList;
+        $rows = preg_split("/\r\n|\n|\r/", trim($dataList));
+        
+        $logs = [];
+        
+        foreach ($rows as $row) {
+
+            $cols = preg_split('/\s+/', trim($row));
+        
+            if(count($cols) < 3) {
+                continue;
+            }
+        
+            $logs[] = [
+                "employee_code" => $cols[0],
+                "punchdatetime" => $cols[1]." ".$cols[2],
+                "punch" => $cols[3]
+            ];
+        }
+        
+        $final = [
+            "GetTransactionsLogResult" => $result,
+            "strDataList" => $logs
+        ];
+        
+        // echo "<pre>";
+        // print_r($final);
+        $data['resp'] = $this->Cronmodel->get_essl_attendance_cron($final,$deviceId,$punchType,$fromDateTime);
+        
+    }
+    
+    public function essl_attendance_cron(){
+        $attendancedate = $this->input->post('attendance');
+        if(!empty($attendancedate)){
+            $attendancedate = date('Y-m-d', strtotime($this->input->post('attendance')));
+        }else{
+            $currentHour = date('H');
+            if ($currentHour == '01') {
+                $attendancedate = date('Y-m-d', strtotime('-1 day'));
+            } else {
+                $attendancedate = date('Y-m-d');
+            }
+        }
+    
+        $employeeid = $this->input->post('employeeid');
+        if(empty($employeeid)){
+            $employeeid = '';
+        }
+        
+        $printable = $this->input->post('printable');
+        if(empty($printable)){
+            $printable = 'N';
+        }
+        // $attendancedate = date('Y-m-d', strtotime('-1 day'));
+        $data['resp'] = $this->Cronmodel->essl_attendance_cron($attendancedate,$employeeid);
+    }
+
+    public function callSoapAPI($url, $action, $bodyContent)
+    {
+    
+        $soapBody = '<?xml version="1.0" encoding="utf-8"?>
+        <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap:Body>
+                '.$bodyContent.'
+            </soap:Body>
+        </soap:Envelope>';
+    
+        $headers = [
+            "Content-Type: text/xml; charset=utf-8",
+            "SOAPAction: \"http://tempuri.org/".$action."\"",
+            "Content-Length: ".strlen($soapBody)
+        ];
+    
+        $ch = curl_init();
+    
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $soapBody,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_SSL_VERIFYPEER => false
+        ]);
+    
+        $response = curl_exec($ch);
+    
+        if(curl_errno($ch)){
+            return [
+                "status"=>false,
+                "error"=>curl_error($ch)
+            ];
+        }
+    
+        curl_close($ch);
+    
+        return [
+            "status"=>true,
+            "response"=>$response
+        ];
+    }
+
 
 } ?>

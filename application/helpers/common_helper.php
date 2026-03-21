@@ -976,4 +976,20 @@ require 'PHPMailer/src/SMTP.php';
         $master = array($filedname => $common);
         return $master;
     }
+    
+    function formatIndianCurrency($num) {
+        $num = number_format($num, 2, '.', '');
+        $parts = explode('.', $num);
+    
+        $last3 = substr($parts[0], -3);
+        $rest = substr($parts[0], 0, -3);
+    
+        if ($rest != '') {
+            $last3 = ',' . $last3;
+        }
+    
+        $rest = preg_replace("/\B(?=(\d{2})+(?!\d))/", ",", $rest);
+    
+        return $rest . $last3 . '.' . $parts[1];
+    }
 ?>

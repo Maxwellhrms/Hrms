@@ -5746,6 +5746,36 @@ $textaligntop = array(
     }  
     */
 
+    public function employeesslhistory(){
+        $this->header();
+        $data['title']= "Employee Essl Punch History";
+        $data['titlehead']= "MAXWELL LOGISTICS PRIVATE LIMITED";
+        $data['excelheading']= "Employee Essl Punch History";
+        $data['check']="";
+        $data['controller'] = $this;
+        $this->load->view('essl/employeesslhistory',$data);
+        $this->footer();    
+    }
 
+    public function employeeesslhistory_list(){
+        $userdata = $this->input->post();
+        echo $this->export->employeeeslhistory($userdata);
+    }
+    
+    public function cronslist(){
+        $this->header();
+        $data['title']= "Daily Cron History";
+        $data['titlehead']= "MAXWELL LOGISTICS PRIVATE LIMITED";
+        $data['excelheading']= "Daily Cron History";
+        $data['check']="";
+        $data['controller'] = $this;
+        $this->load->view('cron/cronslist',$data);
+        $this->footer();    
+    }
+    
+    public function dailycronshistory_list(){
+        $userdata = $this->input->post();
+        echo $this->export->dailycronshistory($userdata);
+    }
 }
 ?>

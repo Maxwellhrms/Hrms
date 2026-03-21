@@ -1007,7 +1007,7 @@ class Employee_attendance_model extends Common_model
         }
         $tablename = 'employee_punches_' . $year;
           
-        $this->db->select('attendance_time');
+        $this->db->select('attendance_time,entry_type');
         $this->db->from($tablename);
         $this->db->where('company', $companyid);
         $this->db->where('division', $divisionid);
@@ -1018,6 +1018,7 @@ class Employee_attendance_model extends Common_model
         $this->db->where('attendance_uniqid', $attendance_uniqid);
         $arn = array('CRON');
         $this->db->where_not_in('entry_type', $arn);
+        $this->db->order_by('attendance_time');
         $query1 = $this->db->get();
         // echo $this->db->last_query();exit;
         // rolback
@@ -1026,7 +1027,7 @@ class Employee_attendance_model extends Common_model
         $display_punches = array();
          if($num >= 1){
              foreach ($qry1 as $key => $val){
-                  $x = array('time' => $val->attendance_time);
+                  $x = array('time' => ($val->attendance_time .' '.$val->entry_type),'type' => $val->entry_type);
                 array_push($display_punches, $x);
              }
             //  if(!empty($qry1[0]->mx_attendance_first_half_punch) && !empty($qry1[0]->mx_attendance_second_half_punch)){
