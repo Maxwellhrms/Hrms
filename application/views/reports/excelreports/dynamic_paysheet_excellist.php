@@ -1,8 +1,17 @@
 <?php
 // print_r($common);exit;
-    if(count($common[0])>0){ 
+    if(count($common) > 0 && isset($common[0]) && count($common[0]) > 0){
     
     ?>
+                    <?php if(isset($titlehead)): ?>
+                        <input type="hidden" class="dynamic-meta" id="hidden_titlehead" value="<?php echo $titlehead; ?>">
+                    <?php endif; ?>
+                    <?php if(isset($filename)): ?>
+                        <input type="hidden" class="dynamic-meta" id="hidden_filename" value="<?php echo str_replace('.xlsx', '', $filename); ?>">
+                    <?php endif; ?>
+                    <?php if(isset($excelheading)): ?>
+                        <input type="hidden" class="dynamic-meta" id="hidden_excelheading" value="<?php echo $excelheading; ?>">
+                    <?php endif; ?>
     
                     <div class="row" style="margin-top: 10px;">
                         <div class="col-sm-12">

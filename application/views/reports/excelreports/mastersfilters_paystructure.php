@@ -129,7 +129,15 @@
                                 </div>
     						</div>
 						<?php } ?>
-                
+                        <?php if($is_consolidated == 'Y'){ ?>
+                            <div class="col-sm-2 col-md-3">
+                                <div class="form-group form-focus select-focus">
+                                    <label style=" margin: 0 2px 0;">
+                                        <input type="checkbox" name="is_consolidated" id="is_consolidated" value="1"> Is Consolidated Report
+                                    </label>
+                                </div>
+                            </div>
+                        <?php } ?>
                         <?php if($cmd == 'Y'){ ?>
 						<div class="col-sm-6 col-md-3"> 
 							<div class="form-group form-focus select-focus">
@@ -520,32 +528,38 @@ $('document').ready(function () {
     // $("#searchemployeefilterdata").trigger("click");
     
     //----NEW BY SHABABU(16-07-2022)
-    $("#is_finanical").click(function(){
+    $(document).on('change', '#is_finanical', function() {
+
         if($(this).is(":checked")){
             $(".finacial_month_year_div").show();
             $(".attndyear_div").hide();
+
             if(isQuaterly == 'Y'){
-                $("#is_quaterly").attr("disabled",true);
+                // $("#is_quaterly").attr("disabled",true);
+                $('input[name="is_quaterly"]').prop("checked", false).attr("disabled", true);
                 $(".quaterly_month_year_div").hide();
             }
         }else{
             $(".finacial_month_year_div").hide();
             $(".attndyear_div").show();
+
+            $("#is_consolidated").prop("checked", false);
+
             if(isQuaterly == 'Y'){
-                $("#is_quaterly").attr("disabled",false);
+                $('input[name="is_quaterly"]').attr("disabled",false);
                 $(".quaterly_month_year_div").hide();
             }
         }
         
     });
     //----END NEW BY SHABABU(16-07-2022)
-    
-    $("#is_quaterly").click(function(){
+
+    $(document).on('change','input[name="is_quaterly"]', function(){
         if($(this).is(":checked")){
             $(".finacial_month_year_div").hide();
             $(".attndyear_div").hide();
             $(".quaterly_month_year_div").show();
-            $("#is_finanical").attr("disabled",true);
+            // $("#is_finanical").attr("disabled",true);
             
         }else{
             $(".finacial_month_year_div").hide();
@@ -555,6 +569,15 @@ $('document').ready(function () {
             
         }
         
+    });
+
+    $(document).on('change', '#is_consolidated', function() {
+        if($(this).is(":checked")) {
+            // Force Financial Year to be checked to switch the UI
+            if(!$("#is_finanical").is(":checked")) {
+                $("#is_finanical").prop("checked", true).trigger('change');
+            }
+        }
     });
 
 });
