@@ -23,6 +23,6 @@ jobs:
           password: ${{ secrets.%rkSM105|"PRW5%/g- }}
           port:     ${{ secrets.CPANEL_PORT }}
           script: |
-            cd /home/${{ secrets.maxwellhrms }}/Hrms
+            cd /home/${{ secrets.new_git }}/Hrms
             git pull origin main
             echo "✅ Deployed successfully at $(date)"
