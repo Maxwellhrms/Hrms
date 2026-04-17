@@ -1,0 +1,28 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - main          # triggers when merged to main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+      # ── Step 1: Checkout code ──────────────────────
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # ── Step 2: Deploy to cPanel via SSH ───────────
+      - name: Deploy to cPanel
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host:     ${{ secrets.http://137.59.201.124:2087 }}
+          username: ${{ secrets.root }}
+          password: ${{ secrets.%rkSM105|"PRW5%/g- }}
+          port:     ${{ secrets.CPANEL_PORT }}
+          script: |
+            cd /home/${{ secrets.maxwellhrms }}/Hrms
+            git pull origin main
+            echo "✅ Deployed successfully at $(date)"
