@@ -4816,7 +4816,7 @@ $textaligntop = array(
         $this->footer();
     }
     
-    public function tds_report_list()
+    public function tds_report_list_bkp()
     {
         $userdata = $this->input->post();     
         // echo '<pre>';print_r($userdata);exit;
@@ -5011,6 +5011,115 @@ $textaligntop = array(
         // }
         // $newarr['common'] = $res['authresult']['employee_attendance_history'];
         // $this->load->view('reports/excelreports/dynamicexcellist',$newarr);
+    }
+
+
+    /* NEW TDS REPORT based on Requirements *
+     * Developer : Varaprasad
+     * Developed on: 14-Mar-2026
+    */
+
+    public function tds_report_list()
+    {
+        $userdata = $this->input->post();
+        $data['userdata'] = $userdata;
+
+        $selected_type = isset($userdata['statutory_type']) ? $userdata['statutory_type'] : '';
+        $data['statutory_type'] = $selected_type;
+
+        $data['is_consolidated'] = isset($userdata['is_consolidated']) ? $userdata['is_consolidated'] : 0;
+        $data['is_finanical'] = isset($userdata['is_finanical']) ? $userdata['is_finanical'] : 0;
+        $data['is_attendance'] = 1;
+
+        $is_professional = (strpos($selected_type, ',') === false && $selected_type != "") ? true : false;
+
+        if ($is_professional) {
+            $data['headings'] = array(
+                "SNO", "Month", "Division", "Branch", "State",
+                "Professional Code", "Name", "Department", "Designation", 'PAN',
+                "Email Id", "RATE OF CONSULTANCY CHARGES PER MONTH", "PROFESSIONAL CHARGES", "TDS", "NET AMOUNT"
+            );
+
+            $is_cons = ($data['is_consolidated'] == 1);
+
+            $data['column_names'] = array(
+                ($is_cons ? "'Consolidated' as yearmonth" : "mxsal_year_month as yearmonth"),
+                "mxd_name as division",
+                "mxb_name as branch",
+                "mxst_state as state",
+                "mxsal_emp_code as emp_id",
+                "concat(mxemp_emp_fname,' ',mxemp_emp_lname) as name",
+                "mxdpt_name as dept",
+                "mxdesg_name as desg",
+                "mxemp_emp_panno as pan",
+                "mxemp_emp_email_id as email",
+
+                ($is_cons ? "SUM(mxsal_gross_sal)" : "mxsal_gross_sal") . " as rate_per_month",
+                ($is_cons ? "SUM(mxsal_actual_prof_charges)" : "mxsal_actual_prof_charges") . " as prof_charges",
+                ($is_cons ? "SUM(mxsal_tds_amount)" : "mxsal_tds_amount") . " as tds",
+                ($is_cons ? "SUM(mxsal_net_sal)" : "mxsal_net_sal") . " as net"
+            );
+        } else {
+            $data['headings'] = array(
+                "SNO", "Month", "Employee code", "Name as per adhar", "PAN",
+                "UAN NO.", "Designation", "DOB", "DOJ", "DOL",
+                "Basic", "HRA", "MISC INCOME", "Incentive", "Others 1",
+                "Others 2", "Total Salary", "PF", "ESI", "PT",
+                "TDS", "Staff Advance", "MTW", "Others 1", "Total Deductions",
+                "Net Salary", "LTA", "Mediclaim", "Bonus", "Grand Total"
+            );
+
+            $is_cons = ($data['is_consolidated'] == 1);
+
+            $data['column_names'] = array(
+                ($is_cons ? "'Consolidated' as yearmonth" : "mxsal_year_month as yearmonth"),
+                "mxsal_emp_code as emp_code",
+                "concat(mxemp_emp_fname,' ',mxemp_emp_lname) as name",
+                "mxemp_emp_panno as pan",
+                "mxemp_emp_uan_number as uan",
+                "mxdesg_name as desg_name",
+                "mxemp_emp_date_of_birth as dob",
+                "mxemp_emp_date_of_join as doj",
+                "mxemp_emp_resignation_relieving_date as dol",
+
+                ($is_cons ? "SUM(mxsal_actual_basic)" : "mxsal_actual_basic") . " as basic",
+                ($is_cons ? "SUM(mxsal_actual_hra)" : "mxsal_actual_hra") . " as hra",
+                ($is_cons ? "SUM(mxsal_incentive_amount)" : "mxsal_incentive_amount") . " as misc_income",
+                "'' as incenti_amount", "'' as others_1", "'' as others_2",
+                ($is_cons ? "SUM(mxsal_actual_gross)" : "mxsal_actual_gross") . " as total_sal",
+                ($is_cons ? "SUM(mxsal_pf_emp_cont)" : "mxsal_pf_emp_cont") . " as pf",
+                ($is_cons ? "SUM(mxsal_esi_emp_cont)" : "mxsal_esi_emp_cont") . " as esi",
+                ($is_cons ? "SUM(mxsal_pt)" : "mxsal_pt") . " as pt",
+                ($is_cons ? "SUM(mxsal_tds_amount)" : "mxsal_tds_amount") . " as tds",
+                ($is_cons ? "SUM(mxsal_loan_amount)" : "mxsal_loan_amount") . " as staff_advance",
+                "'' as mtw", "'' as otherss_1",
+                ($is_cons ? "SUM(mxsal_total_ded)" : "mxsal_total_ded") . " as total_deduction",
+                ($is_cons ? "SUM(mxsal_net_sal)" : "mxsal_net_sal") . " as net_sal",
+                ($is_cons ? "SUM(mxsal_lta_amount)" : "mxsal_lta_amount") . " as lta_amount",
+                ($is_cons ? "SUM(mxsal_mediclaim_amount)" : "mxsal_mediclaim_amount") . " as mediclaim_amount",
+                ($is_cons ? "SUM(mxsal_bonus_percentage_amount)" : "mxsal_bonus_percentage_amount") . " as bonus",
+                ($is_cons ? "SUM(mxsal_ctc)" : "mxsal_ctc") . " as grand_total"
+            );
+        }
+
+
+        if($data['is_consolidated'] == 1) {
+            $data['filename'] = ($is_professional ? "Prof_" : "") . "Consolidated_TDS_Report_" . date('Y_m_d') . ".xlsx";
+            $data['excelheading'] = ($is_professional ? "Professional " : "") . "Consolidated TDS Report";
+            $data['common'] = $this->export->get_tds_consolidated_main_only($data);
+        } else if($data['is_finanical'] == 1) {
+            $data['filename'] = ($is_professional ? "Prof_" : "") . "Financial_Year_TDS_Report_" . date('Y_m_d') . ".xlsx";
+            $data['excelheading'] = ($is_professional ? "Professional " : "") . "Financial Year TDS Report";
+            $data['common'] = $this->export->get_paysheet_data_financial_year_tds($data);
+        } else {
+            $data['filename'] = "Monthly_TDS_Report_" . date('Y_m_d') . ".xlsx";
+            $data['excelheading'] = "Monthly TDS Report";
+            $data['common'] = $this->export->get_paysheet_data($data);
+        }
+
+        $data['titlehead'] = $data['excelheading'];
+        $data['footer_column_names'] = array();
+        $this->load->view('reports/excelreports/dynamic_paysheet_excellist', $data);
     }
     
     // NEW BY SHABABU(23-03-2025)

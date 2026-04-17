@@ -2216,8 +2216,8 @@ public function get_paysheet_data_esi_2($data){
     } 
     public function get_paysheet_data_financial_year($data){
         // print_r($data['column_names']);exit;
-        
-        
+
+
         if(isset($data['userdata']['month_year'])){
             $finan_ex = explode('~@~',$data['userdata']['month_year']);
             // print_r($finan_ex);exit;
@@ -2238,7 +2238,7 @@ public function get_paysheet_data_esi_2($data){
         //     // echo '<br>';
         //     if($this->db->table_exists("maxwell_attendance_$ymd") == false){
         //         getjsondata(0,"ATTENDANCE TABLE NOT EXIST for month and year $ymd maxwell_attendance_$ymd");
-        //     }    
+        //     }
         // }
         // exit;
         $statutory_type = $data['statutory_type'];
@@ -2253,9 +2253,9 @@ public function get_paysheet_data_esi_2($data){
         $qry = $this->db->get();
         $res = $qry->result();
         // print_r($res);exit;
-        
+
         //---------------------END GETTING TABLE NAME FROM EMPLOYEE TYPE TABLE
-        
+
         foreach($res as $emp_type){
             $table_name = $emp_type->mxemp_ty_table_name;
             if($this->db->table_exists($table_name) == false){
@@ -2263,9 +2263,9 @@ public function get_paysheet_data_esi_2($data){
                 getjsondata(0,'SALARY TABLE NOT EXIST FOR EMPLOYE TYPE = '.$emp_type->mxemp_ty_name);
             }
         }
-        
-        
-        
+
+
+
         if(isset($data['column_names'])){
             if(is_array($data['column_names'])){
                 $column_names = implode(',',$data['column_names']);
@@ -2285,39 +2285,39 @@ public function get_paysheet_data_esi_2($data){
         //     $orignal_column_names = '*';
         // }
         // echo $column_names;exit;
-        
-        
+
+
 
 
 
         //--------------GETTING PAYSHEET DATA FROM THE RELATED EMPLOYEMENT TABLE
 
-        
-        
-          
-        
+
+
+
+
        $this->db->trans_start();
-        
-         
+
+
             $year_month_array = [];
             for($i = 0;$i < 12; $i++){
                 // echo "+$i month".'<br>';
                 // echo $ymd = date('Y_m',strtotime($from_date)."+$i month");
                 $ymd = date("Y_m", strtotime(date("Y-m-d", strtotime($from_date)) . "+$i month"));
                 $year_month_array[] = date("Ym", strtotime(date("Y-m-d", strtotime($from_date)) . "+$i month"));
-                
+
             }
-        
+
         // print_r($year_month_array);exit;
         $query1 = "SET @serial_number:=0";
         $query = '';
         for($x = 0; $x < count($res); $x++){
             $table_name = $res[$x]->mxemp_ty_table_name;
             $attendance_query = '';
-            
-            
-            $query .= " select @serial_number:=@serial_number+1 as serial_number,$column_names"; 
-            // $query .= " select $column_names"; 
+
+
+            $query .= " select @serial_number:=@serial_number+1 as serial_number,$column_names";
+            // $query .= " select $column_names";
             $query .= " from ".$table_name;
             $query .= " inner join maxwell_employees_info on mxemp_emp_comp_code = mxsal_cmp_id and mxemp_emp_type = mxsal_emp_type and mxemp_emp_id = mxsal_emp_code";
             $query .= " inner join maxwell_company_master on mxcp_id = mxemp_emp_comp_code";
@@ -2328,12 +2328,12 @@ public function get_paysheet_data_esi_2($data){
             $query .= " inner join maxwell_grade_master on mxgrd_id = mxemp_emp_grade_code";
             $query .= " inner join maxwell_state_master on mxst_id = mxemp_emp_state_code";
             // $query .= " inner join $after_merge_query on  EmployeeID = mxsal_emp_code";
-            
+
             $query .= " where mxsal_status=1";
-            
+
             $query .= " and mxsal_year_month in (".implode(',',$year_month_array).")";
-            
-    
+
+
             if (isset($data['userdata']['companyid']) && $data['userdata']['companyid']) {
                 $query .= " and mxsal_cmp_id = ". $data['userdata']['companyid'];
             }
@@ -2359,9 +2359,9 @@ public function get_paysheet_data_esi_2($data){
             if($x != count($res) - 1 && count($res) > 1){
                 $query .= " UNION ALL";
             }
-            
-        }//--->for 
-        
+
+        }//--->for
+
         // echo $query;exit;
         // $final_query = "select @serial_number:=@serial_number+1 as serial_number,$orignal_column_names from ($query) as fina_table group by mxsal_emp_code";
         // echo $final_query;exit;
@@ -2376,9 +2376,9 @@ public function get_paysheet_data_esi_2($data){
 
         // print_r($res);exit;
         return $res;
-        
-        $this->db->trans_complete(); 
-    } 
+
+        $this->db->trans_complete();
+    }
     public function get_paysheet_data_quaterly($data){
         // print_r($data);exit;
         
@@ -2544,7 +2544,7 @@ public function get_paysheet_data_esi_2($data){
         
         $this->db->trans_complete(); 
     } 
-    
+
     public function get_employee_types_based_on_statutory_data($from_date,$to_date,$statutory_type = NULL){
         if(!$statutory_type){
             getjsondata(0,'STATUTORY TYPE MISSING CONTACT DEVELOPER');
@@ -3375,7 +3375,7 @@ public function get_paysheet_data_esi_2($data){
 // print_r((object)$retrunarray);exit;
         echo dynamicTable($retrunarray,$columns,$linkColumns, $editColumns, $dataMappingColumns, $renameHeaderColumns, $hideColumn, $reportName);
     }
-    
+
     public function dailycronshistory($data){
         $this->db->select('name,Url,entry_dt');
         $this->db->from('cron_log');
@@ -3425,6 +3425,247 @@ public function get_paysheet_data_esi_2($data){
         $reportName = 'Daily Crons List';
 // print_r((object)$retrunarray);exit;
         echo dynamicTable($retrunarray,$columns,$linkColumns, $editColumns, $dataMappingColumns, $renameHeaderColumns, $hideColumn, $reportName);
+    }
+
+    public function get_tds_consolidated_main_only($data)
+    {
+        if(isset($data['userdata']['month_year'])){
+            $finan_ex = explode('~@~', $data['userdata']['month_year']);
+            $from_date = $finan_ex[0];
+            $to_date   = $finan_ex[1];
+        } else {
+            getjsondata(0, "Financial Year dates are missing for consolidation.");
+        }
+
+        $statutory_type = $data['statutory_type'];
+        $emp_types_raw = $this->get_employee_types_based_on_statutory_data($from_date, $to_date, $statutory_type);
+
+        if (!empty($statutory_type) && strpos($statutory_type, ',') === false) {
+            $emp_types = array($statutory_type);
+        } else {
+            $emp_types = array_unique($emp_types_raw);
+        }
+
+        $this->db->select('mxemp_ty_cmpid, mxemp_ty_id, mxemp_ty_name, mxemp_ty_table_name, mxemp_ty_supplementry_table_name');
+        $this->db->from("maxwell_employee_type_master");
+        $this->db->where("mxemp_ty_status", 1);
+        $this->db->where_in("mxemp_ty_id", $emp_types);
+        $res = $this->db->get()->result();
+
+        $year_month_array = [];
+        for($i = 0; $i < 12; $i++){
+            $year_month_array[] = date("Ym", strtotime($from_date . " +$i month"));
+        }
+
+        $column_names = is_array($data['column_names']) ? implode(',', $data['column_names']) : $data['column_names'];
+
+        $this->db->query("SET @serial_number:=0");
+        $sub_queries = [];
+
+        foreach($res as $emp_type_row){
+            $main_table = $emp_type_row->mxemp_ty_table_name;
+            $supp_table = $emp_type_row->mxemp_ty_supplementry_table_name;
+
+            $extended_columns = $column_names . ", mxsal_cmp_id, mxsal_div_id, mxsal_branch_code, mxsal_state_code, mxsal_emp_code";
+
+            $query_parts = [];
+
+            $query_parts[] = "SELECT $extended_columns FROM $main_table 
+                  INNER JOIN maxwell_employees_info ON mxemp_emp_id = mxsal_emp_code
+                  INNER JOIN maxwell_company_master ON mxcp_id = mxemp_emp_comp_code
+                  INNER JOIN maxwell_designation_master ON mxdesg_id = mxemp_emp_desg_code
+                  INNER JOIN maxwell_division_master ON mxd_id = mxemp_emp_division_code
+                  INNER JOIN maxwell_branch_master ON mxb_id = mxemp_emp_branch_code
+                  INNER JOIN maxwell_state_master ON mxst_id = mxemp_emp_state_code
+                  INNER JOIN maxwell_department_master ON mxdpt_id = mxemp_emp_dept_code
+                  INNER JOIN maxwell_grade_master ON mxgrd_id = mxemp_emp_grade_code
+                  WHERE mxsal_status = 1 AND mxsal_year_month IN (" . implode(',', $year_month_array) . ") GROUP BY mxsal_emp_code";
+
+            if(!empty($supp_table) && $this->db->table_exists($supp_table)){
+                $query_parts[] = "SELECT $extended_columns FROM $supp_table 
+                      INNER JOIN maxwell_employees_info ON mxemp_emp_id = mxsal_emp_code
+                      INNER JOIN maxwell_company_master ON mxcp_id = mxemp_emp_comp_code
+                      INNER JOIN maxwell_designation_master ON mxdesg_id = mxemp_emp_desg_code
+                      INNER JOIN maxwell_division_master ON mxd_id = mxemp_emp_division_code
+                      INNER JOIN maxwell_branch_master ON mxb_id = mxemp_emp_branch_code
+                      INNER JOIN maxwell_state_master ON mxst_id = mxemp_emp_state_code
+                      INNER JOIN maxwell_department_master ON mxdpt_id = mxemp_emp_dept_code
+                      INNER JOIN maxwell_grade_master ON mxgrd_id = mxemp_emp_grade_code
+                      WHERE mxsal_status = 1 AND mxsal_year_month IN (" . implode(',', $year_month_array) . ") GROUP BY mxsal_emp_code";
+            }
+
+            $union_sql = implode(" UNION ALL ", $query_parts);
+
+            $sql = "SELECT * FROM ($union_sql) as combined_type_data WHERE 1=1";
+
+            if (!empty($data['userdata']['companyid'])) {
+                $sql .= " AND mxsal_cmp_id = " . $data['userdata']['companyid'];
+            }
+            if (!empty($data['userdata']['divisonid'])) {
+                $sql .= " AND mxsal_div_id = " . $data['userdata']['divisonid'];
+            }
+            if (!empty($data['userdata']['branchid'])) {
+                $sql .= " AND mxsal_branch_code = " . $data['userdata']['branchid'];
+            }
+            if (!empty($data['userdata']['stateid'])) {
+                $sql .= " AND mxsal_state_code = " . $data['userdata']['stateid'];
+            }
+
+            $sql .= " GROUP BY mxsal_emp_code";
+            $sub_queries[] = $sql;
+        }
+
+        $final_union = implode(" UNION ALL ", $sub_queries);
+
+        $final_query = "SELECT @serial_number:=@serial_number+1 as serial_number, t.* FROM ($final_union) as t";
+
+        // echo $final_query;exit();
+
+        $query_data = $this->db->query($final_query);
+        $result_array = $query_data->result_array();
+
+
+        foreach($result_array as &$row){
+            unset($row['mxsal_cmp_id']);
+            unset($row['mxsal_div_id']);
+            unset($row['mxsal_branch_code']);
+            unset($row['mxsal_state_code']);
+            // unset($row['emp_code']);
+            unset($row['mxsal_emp_code']);
+        }
+
+        return $result_array;
+    }
+
+    public function get_paysheet_data_financial_year_tds($data)
+    {
+        if(isset($data['userdata']['month_year'])){
+            $finan_ex = explode('~@~', $data['userdata']['month_year']);
+            $from_date = $finan_ex[0];
+            $to_date   = $finan_ex[1];
+        } else {
+            getjsondata(0, "Please Provide Financial Year");
+        }
+
+        $statutory_type = $data['statutory_type'];
+        $emp_types_raw = $this->get_employee_types_based_on_statutory_data($from_date, $to_date, $statutory_type);
+
+        if (!empty($statutory_type) && strpos($statutory_type, ',') === false) {
+            $emp_types = array($statutory_type);
+        } else {
+            $emp_types = array_unique($emp_types_raw);
+        }
+
+        //echo "<pre>".$statutory_type;print_r($emp_types);exit();
+
+        $this->db->select('mxemp_ty_cmpid, mxemp_ty_id, mxemp_ty_name, mxemp_ty_table_name, mxemp_ty_supplementry_table_name');
+        $this->db->from("maxwell_employee_type_master");
+        $this->db->where("mxemp_ty_status", 1);
+        $this->db->where_in("mxemp_ty_id", $emp_types);
+        $res = $this->db->get()->result();
+
+        foreach($res as $emp_type){
+            if($this->db->table_exists($emp_type->mxemp_ty_table_name) == false){
+                getjsondata(0, 'SALARY TABLE NOT EXIST FOR EMPLOYE TYPE = ' . $emp_type->mxemp_ty_name);
+            }
+        }
+
+        $year_month_array = [];
+        for($i = 0; $i < 12; $i++){
+            $year_month_array[] = date("Ym", strtotime(date("Y-m-d", strtotime($from_date)) . "+$i month"));
+        }
+
+        $column_names = (isset($data['column_names']) && is_array($data['column_names']))
+            ? implode(',', $data['column_names'])
+            : ($data['column_names'] ?? '*');
+
+        $this->db->query("SET @serial_number:=0");
+        $sub_queries = [];
+
+        foreach($res as $emp_type_row){
+            $tables_to_query = array($emp_type_row->mxemp_ty_table_name);
+
+            if(!empty($emp_type_row->mxemp_ty_supplementry_table_name) && $this->db->table_exists($emp_type_row->mxemp_ty_supplementry_table_name)){
+                $tables_to_query[] = $emp_type_row->mxemp_ty_supplementry_table_name;
+            }
+
+            foreach($tables_to_query as $table) {
+                $sql = "SELECT $column_names 
+            FROM $table 
+            INNER JOIN maxwell_employees_info ON mxemp_emp_id = mxsal_emp_code
+            INNER JOIN maxwell_company_master ON mxcp_id = mxemp_emp_comp_code
+            INNER JOIN maxwell_designation_master ON mxdesg_id = mxemp_emp_desg_code
+            INNER JOIN maxwell_division_master ON mxd_id = mxemp_emp_division_code
+            INNER JOIN maxwell_branch_master ON mxb_id = mxemp_emp_branch_code
+            INNER JOIN maxwell_state_master ON mxst_id = mxemp_emp_state_code
+            INNER JOIN maxwell_department_master ON mxdpt_id = mxemp_emp_dept_code
+            INNER JOIN maxwell_grade_master ON mxgrd_id = mxemp_emp_grade_code
+            WHERE mxsal_status = 1 AND mxsal_year_month IN (" . implode(',', $year_month_array) . ")";
+
+                if (!empty($data['userdata']['companyid'])) $sql .= " AND mxsal_cmp_id = " . $data['userdata']['companyid'];
+                if (!empty($data['userdata']['divisonid'])) $sql .= " AND mxsal_div_id = " . $data['userdata']['divisonid'];
+                if (!empty($data['userdata']['branchid'])) $sql .= " AND mxsal_branch_code = " . $data['userdata']['branchid'];
+                if (!empty($data['userdata']['stateid'])) $sql .= " AND mxsal_state_code = " . $data['userdata']['stateid'];
+                if (!empty($data['userdata']['employeeid'])) $sql .= " AND mxsal_emp_code = '" . $data['userdata']['employeeid'] . "'";
+
+                $sub_queries[] = $sql;
+            }
+        }
+
+        $final_union = implode(" UNION ALL ", $sub_queries);
+
+        $final_query = "SELECT @serial_number:=@serial_number+1 as serial_number, t.* FROM ($final_union) as t 
+                    ORDER BY t.yearmonth ASC, t.name ASC";
+
+        $query_result = $this->db->query($final_query)->result_array();
+
+        /*foreach($query_result as &$row) {
+            unset($row['emp_code']);
+        }*/
+
+        if (!empty($query_result)) {
+            $new_result = [];
+            $grouped_data = [];
+
+            foreach ($query_result as $row) {
+                $key = isset($row['emp_code']) ? $row['emp_code'] : (isset($row['emp_id']) ? $row['emp_id'] : 'unknown');
+                $grouped_data[$key][] = $row;
+            }
+
+            foreach ($grouped_data as $emp_id => $records) {
+                $subtotals = [];
+
+                foreach ($records as $record) {
+                    $new_result[] = $record;
+
+                    foreach ($record as $col_name => $value) {
+                        if (is_numeric($value) && !in_array($col_name, ['serial_number','yearmonth', 'emp_code', 'emp_id', 'mxsal_cmp_id', 'uan'])) {
+                            if (!isset($subtotals[$col_name])) {
+                                $subtotals[$col_name] = 0;
+                            }
+                            $subtotals[$col_name] += (float)$value;
+                        }
+                    }
+                }
+
+                $subtotal_row = array_fill_keys(array_keys($records[0]), '');
+
+                $subtotal_row['serial_number'] = 'SUBTOTAL';
+                if(isset($subtotal_row['emp_code'])) $subtotal_row['emp_code'] = $emp_id;
+                if(isset($subtotal_row['emp_id']))   $subtotal_row['emp_id']   = $emp_id;
+                if(isset($subtotal_row['name']))     $subtotal_row['name']     = $records[0]['name'];
+
+                foreach ($subtotals as $col_name => $total_value) {
+                    $subtotal_row[$col_name] = number_format($total_value, 2, '.', '');
+                }
+
+                $new_result[] = $subtotal_row;
+            }
+
+            return $new_result;
+        }
+
+        return $query_result;
     }
     
 } 
