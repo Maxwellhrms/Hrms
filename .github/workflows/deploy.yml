@@ -3,26 +3,41 @@ name: Deploy to cPanel
 on:
   push:
     branches:
-      - main          # triggers when merged to main
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    steps:
 
-      # ── Step 1: Checkout code ──────────────────────
+    steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ── Step 2: Deploy to cPanel via SSH ───────────
-      - name: Deploy to cPanel
+      - name: FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server:      ${{ secrets.CPANEL_HOST }}
+          username:    ${{ secrets.CPANEL_USERNAME }}
+          password:    ${{ secrets.CPANEL_PASSWORD }}
+          port:        2087
+          protocol:    ftps
+          local-dir:   ./
+          server-dir:  /home/new_git/Hrms/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.env
+            **/.github/**
+
+      - name: Git Pull on Server
+        uses: appleboy/ssh-action@v1.0.0
         with:
           host:     ${{ secrets.CPANEL_HOST }}
           username: ${{ secrets.CPANEL_USERNAME }}
           password: ${{ secrets.CPANEL_PASSWORD }}
-          
+          port:     22
           script: |
-            cd /home/${{ secrets.new_git }}/Hrms
+            cd /home/${{ secrets.CPANEL_USERNAME }}/public_html
             git pull origin main
-            echo "✅ Deployed successfully at $(date)"
+            echo "✅ Git pull done at $(date)"
