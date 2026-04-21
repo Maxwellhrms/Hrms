@@ -21,7 +21,7 @@ jobs:
           host:     ${{ secrets.CPANEL_HOST }}
           username: ${{ secrets.CPANEL_USERNAME }}
           password: ${{ secrets.CPANEL_PASSWORD }}
-          port:     ${{ secrets.CPANEL_PORT }}
+          
           script: |
             cd /home/${{ secrets.new_git }}/Hrms
             git pull origin main
