@@ -18,10 +18,10 @@ jobs:
       - name: Deploy to cPanel
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host:     ${{ secrets.http://137.59.201.124:2087 }}
+          host:     ${{ secrets.http://137.59.201.124 }}
           username: ${{ secrets.root }}
           password: ${{ secrets.%rkSM105|"PRW5%/g- }}
-          port:     ${{ secrets.CPANEL_PORT }}
+          port:     ${{ secrets.2087 }}
           script: |
             cd /home/${{ secrets.new_git }}/Hrms
             git pull origin main
