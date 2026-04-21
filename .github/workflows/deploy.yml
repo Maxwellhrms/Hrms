@@ -12,11 +12,11 @@ jobs:
 
       # ── Step 1: Checkout code ──────────────────────
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # ── Step 2: Deploy to cPanel via SSH ───────────
       - name: Deploy to cPanel
-        uses: appleboy/ssh-action@v1.0.0
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           host:     ${{ secrets.CPANEL_HOST }}
           username: ${{ secrets.CPANEL_USERNAME }}
