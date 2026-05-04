@@ -5848,11 +5848,7 @@ die;
         // }
         
         
-<<<<<<< Updated upstream
-        $this->db->select('mxemp_emp_autouniqueid,mxemp_emp_id,mxemp_emp_fname,mxemp_emp_lname,mxemp_emp_comp_code,mxcp_name,mxemp_emp_division_code,mxd_name,mxemp_emp_state_code,mxst_state,mxemp_emp_branch_code,mxb_name,mxemp_emp_desg_code,mxdesg_name,mxemp_emp_dept_code,mxdpt_name,mxemp_emp_desg_code,mxdesg_name,mxemp_emp_type,mxemp_ty_name,mxemp_emp_current_salary,mxemp_emp_grade_code,mxgrd_name,mxemp_emp_date_of_birth,mxemp_emp_resignation_status,mxemp_emp_resignation_date,mxemp_emp_resignation_relieving_date');
-=======
         $this->db->select('mxemp_emp_autouniqueid,mxemp_emp_id,mxemp_emp_fname,mxemp_emp_lname,mxemp_emp_comp_code,mxcp_name,mxemp_emp_division_code,mxd_name,mxemp_emp_state_code,mxst_state,mxemp_emp_branch_code,mxb_name,mxemp_emp_desg_code,mxdesg_name,mxemp_emp_dept_code,mxdpt_name,mxemp_emp_desg_code,mxdesg_name,mxemp_emp_type,mxemp_ty_name,mxemp_emp_current_salary,mxemp_emp_grade_code,mxgrd_name,mxemp_emp_date_of_birth,mxemp_emp_resignation_status,mxemp_emp_resignation_date,mxemp_emp_resignation_relieving_date,mxemp_emp_date_of_join,mxemp_is_eps_to_pf');
->>>>>>> Stashed changes
         $this->db->from('maxwell_employees_info');
         $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
         $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');
@@ -14859,6 +14855,95 @@ public function saveemployeerequesttype($data){
             }
         }
         return $totalBonus;
+    }
+
+    /**
+     * Developed BY: Varaprasad
+     * Developed On : 18/04/2026
+     * Logical Fetch Wage Master data
+     * @param int $id
+     * @return array
+     */
+    public function get_wage_master_details($id = '')
+    {
+        $this->db->select('wm.*, cp.mxcp_name, br.mxb_name, st.mxst_state, dv.mxd_name');
+        $this->db->from('maxwell_wage_master wm');
+        // Joining with Masters to get readable names for the list
+        $this->db->join('maxwell_company_master cp', 'cp.mxcp_id = wm.mxwm_cmp_id', 'left');
+        $this->db->join('maxwell_division_master dv', 'dv.mxd_id = wm.mxwm_div_id', 'left');
+        $this->db->join('maxwell_state_master st', 'st.mxst_id = wm.mxwm_state_id', 'left');
+        $this->db->join('maxwell_branch_master br', 'br.mxb_id = wm.mxwm_branch_id', 'left');
+
+        if (!empty($id)) {
+            $this->db->where('wm.mxwm_id', $id);
+        }
+
+        $this->db->where('wm.mxwm_status !=', 2);
+
+        $this->db->order_by('wm.mxwm_status', 'DESC');
+        $this->db->order_by('wm.mxwm_wef_date', 'DESC');
+
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    /**
+     * Developed BY: Varaprasad
+     * Developed On : 18/04/2026
+     * Insert new Wage Configuration
+     * @param array $data
+     * @return int|bool
+     */
+    public function insert_wage_master($data)
+    {
+        // Professional Rigor: We ensure the insertion follows our schema
+        $this->db->insert('maxwell_wage_master', $data);
+        if ($this->db->affected_rows() > 0) {
+            return $this->db->insert_id();
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Developed BY: Varaprasad
+     * Developed On : 18/04/2026
+     * Update existing Wage Configuration
+     * @param int $id
+     * @param array $data
+     * @return bool
+     */
+    public function update_wage_master($id, $data)
+    {
+        // Variable Integrity: Ensure we are targeting the correct primary key
+        $this->db->where('mxwm_id', $id);
+        $this->db->update('maxwell_wage_master', $data);
+
+        // Check for success or if no changes were actually made but query was successful
+        if ($this->db->affected_rows() >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Developed BY: Varaprasad
+     * Developed On : 18/04/2026
+     * Logical Delete (Deactivation) for Wage Master
+     * @param int $id
+     * @return bool
+     */
+    public function delete_wage_master($id, $user_id)
+    {
+        $this->db->where('mxwm_id', $id);
+        $data = array(
+            'mxwm_status'     => 2,
+            'mxwm_updated_by' => $user_id
+        );
+        // Standard procedure: Status change instead of hard delete
+        $this->db->update('maxwell_wage_master', $data);
+        return ($this->db->affected_rows() > 0) ? true : false;
     }
     
 }

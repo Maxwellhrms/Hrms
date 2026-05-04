@@ -3212,15 +3212,9 @@ class Salaries_model extends Adminmodel
                                         // echo"calculated_sal = ". $calculated_sal.'<br>';
                                         // echo "total_days in a month =".$total_days_in_month.'<br>';
                                         // echo "present days =".$present_days_of_employees_in_month.'<br>';
-<<<<<<< Updated upstream
-                                        // exit;          
-                                        $rate_basic_sal = $calculated_sal;
-                                        //$$$$$$$$$$$$$$$$$$$$$$$$$$$ CALCULATING ACTUAL BASIC  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                        
-=======
                                         // exit;
                                         $rate_basic_sal = $calculated_sal;
                                         //$$$$$$$$$$$$$$$$$$$$$$$$$$$ CALCULATING ACTUAL BASIC  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
->>>>>>> Stashed changes
                                         // $actual_basic = number_format(((($calculated_sal) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', '');
                                         $actual_basic = rounding_number(number_format(((($calculated_sal) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', ''),2);
                                         // echo $actual_basic;exit;
@@ -4454,29 +4448,6 @@ class Salaries_model extends Adminmodel
                                 $final_array[$column_name_data->mxincm_emp_col_name] = ($gross_sal / 100) * $pay_data->mxpsc_percentage;
                                 //&&&&&&&&&&&&&&&&&&&&&&&&&& BUILDING FINAL ARRAY WITH COUMNS FROM INCOME HEAD TABLE AND CALCULATING PERCENTAGES DATA
 
-<<<<<<< Updated upstream
-                                    $calculated_sal = ($gross_sal / 100) * $pay_data->mxpsc_percentage;
-                                    $pf_cal_array[] = $column_name_data->mxincm_emp_col_name;
-                                    $filtered_columns[] = $column_name_data->mxincm_emp_col_name;
-
-                                    $column_inc_is_basic = $column_name_data->mxincm_is_basic;
-                                    $column_inc_is_hra = $column_name_data->mxincm_is_hra;
-                                    $column_inc_is_tsp = $column_name_data->mxincm_is_tsp;
-                                    $column_inc_is_proffesionals_charges = $column_name_data->mxincm_is_professional_charges;
-                                    $pay_data_is_pf = $pay_data->mxpsc_ispf;
-                                    $pay_data_is_esi = $pay_data->mxpsc_isesi;
-                                    $pay_data_is_pt = $pay_data->mxpsc_ispt;
-                                    $pay_data_is_lwf = $pay_data->mxpsc_islwf;
-                                    $pay_data_is_bns = $pay_data->mxpsc_isbns;
-                                    $pay_data_is_gartuity = $pay_data->mxpsc_isgratuity;
-                                    $pay_data_is_lta = $pay_data->mxpsc_islta;
-                                    $pay_data_is_mediclaim = $pay_data->mxpsc_ismediclaim;
-                                    // print_r($pay_data);exit;
-
-                                    // echo $column_inc_is_proffesionals_charges;exit;
-                                    //************************************   FOR BASIC   **********************************                                    
-                                    // echo $column_inc_is_basic;
-=======
                                 $calculated_sal = ($gross_sal / 100) * $pay_data->mxpsc_percentage;
                                 $pf_cal_array[] = $column_name_data->mxincm_emp_col_name;
                                 $filtered_columns[] = $column_name_data->mxincm_emp_col_name;
@@ -4504,7 +4475,6 @@ class Salaries_model extends Adminmodel
                                     // echo"calculated_sal = ". $calculated_sal.'<br>';
                                     // echo "total_days in a month =".$total_days_in_month.'<br>';
                                     // echo "present days =".$present_days_of_employees_in_month.'<br>';
->>>>>>> Stashed changes
                                     // exit;
                                     $rate_basic_sal = $calculated_sal;
                                     $rate_basic_sal_for_el = $calculated_sal;
@@ -4528,79 +4498,6 @@ class Salaries_model extends Adminmodel
                                                 $pf_emp_types_ex = explode(',', substr(substr(trim($pf_data->mxpf_emp_types), 0, -1), 1)); //----REMOVING FIRST & LAST LETTER  commas(,)
                                                 if ($pf_cmp_id == $emp_comp_code  && in_array($column_emp_type_id, $pf_emp_types_ex)) {
 
-<<<<<<< Updated upstream
-                                        // echo"calculated_sal = ". $calculated_sal.'<br>';
-                                        // echo "total_days in a month =".$total_days_in_month.'<br>';
-                                        // echo "present days =".$present_days_of_employees_in_month.'<br>';
-                                        // exit;          
-                                        $rate_basic_sal = $calculated_sal;
-                                        $rate_basic_sal_for_el = $calculated_sal;
-                                        //$$$$$$$$$$$$$$$$$$$$$$$$$$$ CALCULATING ACTUAL BASIC  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                        
-                                        $actual_basic = rounding_number(number_format(((($calculated_sal) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', ''),2);
-                                        //$$$$$$$$$$$$$$$$$$$$$$$$$$$ END CALCULATING ACTUAL BASIC  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-                                        // echo $rate_basic_sal;exit;
-                                        //------------PF CALCULATION 
-                                        if ($pay_data_is_pf == 1) {
-                                            // print_r($emp_data);exit;
-                                            $pf_emp_cont_round_type=4;
-                                            $pf_pension_cont_round_type=4;
-                                            $pf_comp_cont_round_type=4;
-                                            $pf_edli_perc_round_type=4;
-                                            $pf_admin_perc_round_type=4;
-                                            if (count($pf_array) > 0) {
-                                                foreach ($pf_array as $pf_data) {
-                                                    $pf_cmp_id = $pf_data->mxpf_comp_id;
-                                                    // echo $column_emp_type_id;                                                   
-                                                    //--------------------CHECKING EMPLOYEE TYPE IN PF STATUTORY ARRAY && comparing company code
-                                                    $pf_emp_types_ex = explode(',', substr(substr(trim($pf_data->mxpf_emp_types), 0, -1), 1)); //----REMOVING FIRST & LAST LETTER  commas(,)
-                                                    if ($pf_cmp_id == $emp_comp_code  && in_array($column_emp_type_id, $pf_emp_types_ex)) {
-
-                                                        // echo "MATCH FOUND";
-                                                        $pf_basic_sal_limit = $pf_data->mxpf_basic_sal_limit;
-                                                        $pf_emp_cont = $pf_data->mxpf_pf_emp_cont;
-                                                        $pf_comp_cont = $pf_data->mxpf_pf_comp_cont;
-                                                        $pf_pension_cont = $pf_data->mxpf_pf_pension_cont;
-                                                        $pf_emp_cont_round_type = $pf_data->mxpf_pf_emp_cont_round_type;
-                                                        $pf_comp_cont_round_type = $pf_data->mxpf_pf_comp_cont_round_type;
-                                                        // $pf_comp_cont_round_type = $pf_data->mxpf_pf_emp_cont_round_type;
-                                                        $pf_pension_cont_round_type = $pf_data->mxpf_pf_pension_cont_round_type;
-                                                        $pf_eps_wages_limit = $pf_data->mxpf_pf_eps_wages_limit;
-                                                        $pf_edli_wages_limit = $pf_data->mxpf_pf_edli_wages_limit;
-                                                        $pf_edli_perc = $pf_data->mxpf_pf_edli_perc;
-                                                        $pf_edli_perc_round_type = $pf_data->mxpf_pf_edli_perc_round_type;
-                                                        $pf_admin_perc = $pf_data->mxpf_pf_admin_perc;
-                                                        $pf_admin_perc_round_type = $pf_data->mxpf_pf_admin_perc_round_type;
-                                                        $pf_basic_sal_limit_above_then_same = $pf_data->mxpf_basic_sal_limit_above_then_same;
-                                                        $pf_basic_sal_limit_above = $pf_data->mxpf_basic_sal_limit_above; //------>it means company wish to calculate pf on above 15000 basic sal or not 1= calculate 0= dont calculate
-
-                                                        // //--------------------AGE CALCULATION                                                         
-                                                        // $dob_emp = date('d-m-Y', strtotime($emp_date_of_birth));
-                                                        // // $dateOfBirth = "19-06-1994";
-                                                        // $today = date("Y-m-d");
-                                                        // $diff = date_diff(date_create($dob_emp), date_create($today));
-                                                        // $emp_current_age = $diff->format('%y');
-                                                        // //--------------------END AGE CALCULATION
-
-                                                        //--------PF AGE LIMIT FROM PF MASTER TABLE
-                                                        $pf_age_limit = $pf_data->mxpf_pf_age_limit;
-                                                        //--------END PF AGE LIMIT FROM PF MASTER TABLE
-
-                                                        if ($pf_basic_sal_limit_above == 1) { //------>it means company wish to calculate PF on basic limit above eg : on basic = 16000 it will calculate on 16000
-                                                            $basic_sal_cal_12 = $actual_basic;
-                                                        } else if ($pf_basic_sal_limit_above_then_same == 1) { //------->To Take Same Basic Sal for pf calculation we will tick these as 1 eg : basic = 16000 then it will take 15000
-
-                                                            if ($actual_basic > $pf_basic_sal_limit) { //---->if actual sal > than basic sal limit then take basic sal limit
-                                                                $basic_sal_cal_12 = $pf_basic_sal_limit;
-                                                            } else { //--->if actual sal less than basic sal then take actual sal
-                                                                $basic_sal_cal_12 = $actual_basic;
-                                                            }
-                                                        } else { //------>in no check boxes selected then we will take only less than or equal to basic sal limit for above we wont calculate pf eg : basic <= 15000 it will calculate else it will take as zero (0)
-                                                            if ($actual_basic <= $pf_basic_sal_limit) { //---->if actual sal > than basic sal limit then take basic sal limit
-                                                                $basic_sal_cal_12 = $actual_basic;
-                                                            } else {
-                                                                $basic_sal_cal_12 = 0;
-                                                            }
-=======
                                                     // echo "MATCH FOUND";
                                                     $pf_basic_sal_limit = $pf_data->mxpf_basic_sal_limit;
                                                     $pf_emp_cont = $pf_data->mxpf_pf_emp_cont;
@@ -4639,7 +4536,6 @@ class Salaries_model extends Adminmodel
                                                             $basic_sal_cal_12 = $pf_basic_sal_limit;
                                                         } else { //--->if actual sal less than basic sal then take actual sal
                                                             $basic_sal_cal_12 = $actual_basic;
->>>>>>> Stashed changes
                                                         }
                                                     } else { //------>in no check boxes selected then we will take only less than or equal to basic sal limit for above we wont calculate pf eg : basic <= 15000 it will calculate else it will take as zero (0)
                                                         if ($actual_basic <= $pf_basic_sal_limit) { //---->if actual sal > than basic sal limit then take basic sal limit
@@ -4928,27 +4824,6 @@ class Salaries_model extends Adminmodel
                                     $bonus_amount = rounding_number($bonus_amount,$bns_round_type);
                                     //echo "  => ".$bonus_amount;exit();
 
-<<<<<<< Updated upstream
-                                        //************************************   END FOR BASIC   *******************************
-                                    } else if ($column_inc_is_hra == 1) {
-                                        //************************************   FOR HRA   **********************************
-                                        // echo"calculated_sal = ". $calculated_sal.'<br>';
-                                        // echo "total_days in a month =".$total_days_in_month.'<br>';
-                                        // echo "present days =".$present_days_of_employees_in_month.'<br>';
-                                        // exit;    
-                                        //---------------------CALCULATING ACTUAL HRA                               
-                                        $actual_hra = rounding_number(number_format(((($calculated_sal) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', ''),2);
-                                        //---------------------END CALCULATING ACTUAL HRA
-                                        //------------------- ESI CALCULATION FOR HRA
-                                        $esi_wages_flag = false;//----->NEW BY SHABABU(16-06-2022)
-                                        if ($pay_data_is_esi == 1) {
-                                            //---------------ESI ARRAY FROM ESI MASTER
-                                            // print_r($esi_array);exit;
-                                           if($esi_eligibility_in_branch == 1){
-                                               $esi_emp_cont_round_type = 1;
-                                               $esi_comp_cont_round_type = 1;
-                                              foreach ($esi_array as $esi_data) {
-=======
                                     //---------------END BONUS CALCULATION
                                     // print_r($gratuity_array);exit;
                                     //--------------GRATUITY
@@ -5043,7 +4918,6 @@ class Salaries_model extends Adminmodel
                                             $esi_emp_cont_round_type = 1;
                                             $esi_comp_cont_round_type = 1;
                                             foreach ($esi_array as $esi_data) {
->>>>>>> Stashed changes
                                                 // print_r($esi_data);exit;
                                                 $esi_cmp_id = $esi_data->mxesi_comp_id;
                                                 $esi_div_id = $esi_data->mxesi_div_id;
@@ -5095,18 +4969,9 @@ class Salaries_model extends Adminmodel
                                             $esi_emp_cont_on_hra = 0;
                                             $esi_comp_cont_on_hra = 0;
                                         }
-<<<<<<< Updated upstream
-                                        //------------------- END ESI CALCULATION FOR HRA
-                                    //************************************   END FOR HRA   **********************************
-                                    }else if($column_inc_is_tsp == 1){
-                                        $tsp_amount = number_format(((($calculated_sal) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', '');
-                                    }else if($column_inc_is_proffesionals_charges == 1){
-                                        $professional_charges_amount = number_format(((($calculated_sal) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', '');
-=======
                                         // $esi_emp_cont_on_hra = rounding_number($esi_emp_cont_on_hra,$esi_emp_cont_round_type);
                                         // $esi_comp_cont_on_hra = rounding_number($esi_comp_cont_on_hra,$esi_comp_cont_round_type);
                                         //---------------END ESI ARRAY FROM ESI MASTER
->>>>>>> Stashed changes
                                     }
                                     //------------------- END ESI CALCULATION FOR HRA
                                     //************************************   END FOR HRA   **********************************
@@ -5805,29 +5670,6 @@ class Salaries_model extends Adminmodel
                                 $final_array[$column_name_data->mxincm_emp_col_name] = ($gross_sal / 100) * $pay_data->mxpsc_percentage;
                                 //&&&&&&&&&&&&&&&&&&&&&&&&&& BUILDING FINAL ARRAY WITH COUMNS FROM INCOME HEAD TABLE AND CALCULATING PERCENTAGES DATA
 
-<<<<<<< Updated upstream
-                                    $calculated_sal = ($gross_sal / 100) * $pay_data->mxpsc_percentage;
-                                    $pf_cal_array[] = $column_name_data->mxincm_emp_col_name;
-                                    $filtered_columns[] = $column_name_data->mxincm_emp_col_name;
-
-                                    $column_inc_is_basic = $column_name_data->mxincm_is_basic;
-                                    $column_inc_is_hra = $column_name_data->mxincm_is_hra;
-                                    $column_inc_is_tsp = $column_name_data->mxincm_is_tsp;
-                                    $column_inc_is_proffesionals_charges = $column_name_data->mxincm_is_professional_charges;
-                                    $pay_data_is_pf = $pay_data->mxpsc_ispf;
-                                    $pay_data_is_esi = $pay_data->mxpsc_isesi;
-                                    $pay_data_is_pt = $pay_data->mxpsc_ispt;
-                                    $pay_data_is_lwf = $pay_data->mxpsc_islwf;
-                                    $pay_data_is_bns = $pay_data->mxpsc_isbns;
-                                    $pay_data_is_gartuity = $pay_data->mxpsc_isgratuity;
-                                    $pay_data_is_lta = $pay_data->mxpsc_islta;
-                                    $pay_data_is_mediclaim = $pay_data->mxpsc_ismediclaim;
-                                    // print_r($pay_data);exit;
-
-                                    // echo $column_inc_is_proffesionals_charges;exit;
-                                    //************************************   FOR BASIC   **********************************                                    
-                                    // echo $column_inc_is_basic;
-=======
                                 $calculated_sal = ($gross_sal / 100) * $pay_data->mxpsc_percentage;
                                 $pf_cal_array[] = $column_name_data->mxincm_emp_col_name;
                                 $filtered_columns[] = $column_name_data->mxincm_emp_col_name;
@@ -5855,7 +5697,6 @@ class Salaries_model extends Adminmodel
                                     // echo"calculated_sal = ". $calculated_sal.'<br>';
                                     // echo "total_days in a month =".$total_days_in_month.'<br>';
                                     // echo "present days =".$present_days_of_employees_in_month.'<br>';
->>>>>>> Stashed changes
                                     // exit;
                                     $rate_basic_sal = $calculated_sal;
                                     $rate_basic_sal_for_el = $calculated_sal;
@@ -5879,79 +5720,6 @@ class Salaries_model extends Adminmodel
                                                 $pf_emp_types_ex = explode(',', substr(substr(trim($pf_data->mxpf_emp_types), 0, -1), 1)); //----REMOVING FIRST & LAST LETTER  commas(,)
                                                 if ($pf_cmp_id == $emp_comp_code  && in_array($column_emp_type_id, $pf_emp_types_ex)) {
 
-<<<<<<< Updated upstream
-                                        // echo"calculated_sal = ". $calculated_sal.'<br>';
-                                        // echo "total_days in a month =".$total_days_in_month.'<br>';
-                                        // echo "present days =".$present_days_of_employees_in_month.'<br>';
-                                        // exit;          
-                                        $rate_basic_sal = $calculated_sal;
-                                        $rate_basic_sal_for_el = $calculated_sal;
-                                        //$$$$$$$$$$$$$$$$$$$$$$$$$$$ CALCULATING ACTUAL BASIC  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                        
-                                        $actual_basic = rounding_number(number_format(((($calculated_sal) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', ''),2);
-                                        //$$$$$$$$$$$$$$$$$$$$$$$$$$$ END CALCULATING ACTUAL BASIC  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-                                        // echo $rate_basic_sal;exit;
-                                        //------------PF CALCULATION 
-                                        if ($pay_data_is_pf == 1) {
-                                            // print_r($emp_data);exit;
-                                            $pf_emp_cont_round_type=4;
-                                            $pf_pension_cont_round_type=4;
-                                            $pf_comp_cont_round_type=4;
-                                            $pf_edli_perc_round_type=4;
-                                            $pf_admin_perc_round_type=4;
-                                            if (count($pf_array) > 0) {
-                                                foreach ($pf_array as $pf_data) {
-                                                    $pf_cmp_id = $pf_data->mxpf_comp_id;
-                                                    // echo $column_emp_type_id;                                                   
-                                                    //--------------------CHECKING EMPLOYEE TYPE IN PF STATUTORY ARRAY && comparing company code
-                                                    $pf_emp_types_ex = explode(',', substr(substr(trim($pf_data->mxpf_emp_types), 0, -1), 1)); //----REMOVING FIRST & LAST LETTER  commas(,)
-                                                    if ($pf_cmp_id == $emp_comp_code  && in_array($column_emp_type_id, $pf_emp_types_ex)) {
-
-                                                        // echo "MATCH FOUND";
-                                                        $pf_basic_sal_limit = $pf_data->mxpf_basic_sal_limit;
-                                                        $pf_emp_cont = $pf_data->mxpf_pf_emp_cont;
-                                                        $pf_comp_cont = $pf_data->mxpf_pf_comp_cont;
-                                                        $pf_pension_cont = $pf_data->mxpf_pf_pension_cont;
-                                                        $pf_emp_cont_round_type = $pf_data->mxpf_pf_emp_cont_round_type;
-                                                        $pf_comp_cont_round_type = $pf_data->mxpf_pf_comp_cont_round_type;
-                                                        // $pf_comp_cont_round_type = $pf_data->mxpf_pf_emp_cont_round_type;
-                                                        $pf_pension_cont_round_type = $pf_data->mxpf_pf_pension_cont_round_type;
-                                                        $pf_eps_wages_limit = $pf_data->mxpf_pf_eps_wages_limit;
-                                                        $pf_edli_wages_limit = $pf_data->mxpf_pf_edli_wages_limit;
-                                                        $pf_edli_perc = $pf_data->mxpf_pf_edli_perc;
-                                                        $pf_edli_perc_round_type = $pf_data->mxpf_pf_edli_perc_round_type;
-                                                        $pf_admin_perc = $pf_data->mxpf_pf_admin_perc;
-                                                        $pf_admin_perc_round_type = $pf_data->mxpf_pf_admin_perc_round_type;
-                                                        $pf_basic_sal_limit_above_then_same = $pf_data->mxpf_basic_sal_limit_above_then_same;
-                                                        $pf_basic_sal_limit_above = $pf_data->mxpf_basic_sal_limit_above; //------>it means company wish to calculate pf on above 15000 basic sal or not 1= calculate 0= dont calculate
-
-                                                        // //--------------------AGE CALCULATION                                                         
-                                                        // $dob_emp = date('d-m-Y', strtotime($emp_date_of_birth));
-                                                        // // $dateOfBirth = "19-06-1994";
-                                                        // $today = date("Y-m-d");
-                                                        // $diff = date_diff(date_create($dob_emp), date_create($today));
-                                                        // $emp_current_age = $diff->format('%y');
-                                                        // //--------------------END AGE CALCULATION
-
-                                                        //--------PF AGE LIMIT FROM PF MASTER TABLE
-                                                        $pf_age_limit = $pf_data->mxpf_pf_age_limit;
-                                                        //--------END PF AGE LIMIT FROM PF MASTER TABLE
-
-                                                        if ($pf_basic_sal_limit_above == 1) { //------>it means company wish to calculate PF on basic limit above eg : on basic = 16000 it will calculate on 16000
-                                                            $basic_sal_cal_12 = $actual_basic;
-                                                        } else if ($pf_basic_sal_limit_above_then_same == 1) { //------->To Take Same Basic Sal for pf calculation we will tick these as 1 eg : basic = 16000 then it will take 15000
-
-                                                            if ($actual_basic > $pf_basic_sal_limit) { //---->if actual sal > than basic sal limit then take basic sal limit
-                                                                $basic_sal_cal_12 = $pf_basic_sal_limit;
-                                                            } else { //--->if actual sal less than basic sal then take actual sal
-                                                                $basic_sal_cal_12 = $actual_basic;
-                                                            }
-                                                        } else { //------>in no check boxes selected then we will take only less than or equal to basic sal limit for above we wont calculate pf eg : basic <= 15000 it will calculate else it will take as zero (0)
-                                                            if ($actual_basic <= $pf_basic_sal_limit) { //---->if actual sal > than basic sal limit then take basic sal limit
-                                                                $basic_sal_cal_12 = $actual_basic;
-                                                            } else {
-                                                                $basic_sal_cal_12 = 0;
-                                                            }
-=======
                                                     // echo "MATCH FOUND";
                                                     $pf_basic_sal_limit = $pf_data->mxpf_basic_sal_limit;
                                                     $pf_emp_cont = $pf_data->mxpf_pf_emp_cont;
@@ -5990,7 +5758,6 @@ class Salaries_model extends Adminmodel
                                                             $basic_sal_cal_12 = $pf_basic_sal_limit;
                                                         } else { //--->if actual sal less than basic sal then take actual sal
                                                             $basic_sal_cal_12 = $actual_basic;
->>>>>>> Stashed changes
                                                         }
                                                     } else { //------>in no check boxes selected then we will take only less than or equal to basic sal limit for above we wont calculate pf eg : basic <= 15000 it will calculate else it will take as zero (0)
                                                         if ($actual_basic <= $pf_basic_sal_limit) { //---->if actual sal > than basic sal limit then take basic sal limit
@@ -6275,27 +6042,6 @@ class Salaries_model extends Adminmodel
                                     }
                                     $bonus_amount = rounding_number($bonus_amount,$bns_round_type);
 
-<<<<<<< Updated upstream
-                                        //************************************   END FOR BASIC   *******************************
-                                    } else if ($column_inc_is_hra == 1) {
-                                        //************************************   FOR HRA   **********************************
-                                        // echo"calculated_sal = ". $calculated_sal.'<br>';
-                                        // echo "total_days in a month =".$total_days_in_month.'<br>';
-                                        // echo "present days =".$present_days_of_employees_in_month.'<br>';
-                                        // exit;    
-                                        //---------------------CALCULATING ACTUAL HRA                               
-                                        $actual_hra = rounding_number(number_format(((($calculated_sal) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', ''),2);
-                                        //---------------------END CALCULATING ACTUAL HRA
-                                        //------------------- ESI CALCULATION FOR HRA
-                                        $esi_wages_flag = false;//----->NEW BY SHABABU(16-06-2022)
-                                        if ($pay_data_is_esi == 1) {
-                                            $esi_emp_cont_round_type = 1;
-                                            $esi_comp_cont_round_type = 1;
-                                            //---------------ESI ARRAY FROM ESI MASTER
-                                            // print_r($esi_array);exit;
-                                           if($esi_eligibility_in_branch == 1){
-                                              foreach ($esi_array as $esi_data) {
-=======
                                     //---------------END BONUS CALCULATION
                                     // print_r($gratuity_array);exit;
                                     //--------------GRATUITY
@@ -6389,7 +6135,6 @@ class Salaries_model extends Adminmodel
                                         // print_r($esi_array);exit;
                                         if($esi_eligibility_in_branch == 1){
                                             foreach ($esi_array as $esi_data) {
->>>>>>> Stashed changes
                                                 // print_r($esi_data);exit;
                                                 $esi_cmp_id = $esi_data->mxesi_comp_id;
                                                 $esi_div_id = $esi_data->mxesi_div_id;
@@ -6441,18 +6186,9 @@ class Salaries_model extends Adminmodel
                                             $esi_emp_cont_on_hra = 0;
                                             $esi_comp_cont_on_hra = 0;
                                         }
-<<<<<<< Updated upstream
-                                        //------------------- END ESI CALCULATION FOR HRA
-                                    //************************************   END FOR HRA   **********************************
-                                    }else if($column_inc_is_tsp == 1){
-                                        $tsp_amount = number_format(((($calculated_sal) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', '');
-                                    }else if($column_inc_is_proffesionals_charges == 1){
-                                        $professional_charges_amount = number_format(((($calculated_sal) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', '');
-=======
                                         // $esi_emp_cont_on_hra = rounding_number($esi_emp_cont_on_hra,$esi_emp_cont_round_type);
                                         // $esi_comp_cont_on_hra = rounding_number($esi_comp_cont_on_hra,$esi_comp_cont_round_type);
                                         //---------------END ESI ARRAY FROM ESI MASTER
->>>>>>> Stashed changes
                                     }
                                     //------------------- END ESI CALCULATION FOR HRA
                                     //************************************   END FOR HRA   **********************************
@@ -7097,6 +6833,7 @@ class Salaries_model extends Adminmodel
 
         /*  END OF CONDITION TO CHECK IF THE NEXT MONTH SALARY GENERATED  */
 
+        //------CHECK DATA IN SAL
         //------CHECK DATA IN SAL
         $this->db->select();
         $this->db->from($table_name);
@@ -8581,9 +8318,6 @@ class Salaries_model extends Adminmodel
         
         
     // }
-<<<<<<< Updated upstream
-    
-=======
 
     /*
      * Updated By : Varaprasad
@@ -15821,6 +15555,5 @@ class Salaries_model extends Adminmodel
 
 
     }
->>>>>>> Stashed changes
     
 }
