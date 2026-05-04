@@ -170,7 +170,7 @@ class Employeemodel extends Adminmodel
         mxemp_emp_resignation_relieving_settlement_date,mxemp_emp_resignation_relieving_settlement_amount,mxemp_emp_resignation_relieving_esi_settlement_date,
         mxemp_emp_resignation_relieving_pf_settlement_date,mxemp_emp_panimage,mxemp_emp_aadhar,mxemp_emp_aadharimage,mxst_state,mxemp_ty_name,mxemp_emp_guarantors_letter,
         empmaritaldate,mxemp_emp_present_since,mxemp_emp_fixed_present_since,mxemp_ty_name,mxemp_emp_employee_lic_no,mxemp_emp_gratuity,mxemp_emp_esiimage,
-        mxemp_emp_bankimage,mxemp_emp_nameasperbank,mxemp_emp_lic_info1,mxemp_emp_lic_info2,mxemp_emp_lic_info3,mxemp_emp_lic_info4,mxemp_emp_relation,mxemp_emp_relation_name,pfjoindate,epsjoindate,esijoindate');
+        mxemp_emp_bankimage,mxemp_emp_nameasperbank,mxemp_emp_lic_info1,mxemp_emp_lic_info2,mxemp_emp_lic_info3,mxemp_emp_lic_info4,mxemp_emp_relation,mxemp_emp_relation_name,pfjoindate,epsjoindate,esijoindate,mxemp_is_eps_to_pf');
         $this->db->from('maxwell_employees_info');
         $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
         $this->db->join('maxwell_designation_master', 'mxdesg_id = mxemp_emp_desg_code', 'INNER');
@@ -735,7 +735,14 @@ public function updatebank($data){
         $emppfno = $this->cleanInput($data['emppfno']);
         $empuanno = $this->cleanInput($data['empuanno']);
         $empaadharno = $this->cleanInput($data['empaadharno']);
-        
+
+        /* NEW FIELD : mxemp_is_eps_to_pf
+         *  Added BY : Varaprasad
+         *  Added On: 26/04/2026
+         *  purpose: When checked, Paysheet's EPS amont to be added in PF CONT Field an make EPS WAGE to ZERO
+        */
+        $mxemp_is_eps_to_pf = isset($data['is_eps_to_pf']) ? $this->cleanInput($data['is_eps_to_pf']) : 0;
+
         $gratuity = $this->cleanInput($data['gratuity']);
         $gratuityname = $this->cleanInput($data['gratuityname']);
         $employeelicdetails = $this->cleanInput($data['employeelicdetails']);
@@ -749,6 +756,7 @@ public function updatebank($data){
             "mxemp_emp_bank_ifsci_no" => $empbankifsci,
             "mxemp_emp_panno" => $emppanno,
             "mxemp_emp_aadhar" => $empaadharno,
+            "mxemp_is_eps_to_pf" => $mxemp_is_eps_to_pf,
             "mxemp_emp_esi_number" => $empesino,
             "mxemp_emp_pf_number" => $emppfno,
             "mxemp_emp_uan_number" => $empuanno,
@@ -1133,6 +1141,27 @@ public function addnew_previous_employment($data){
         $qry1 = $query1->result();
         $returnarray['employeeinfo'] = $qry1;
         return $returnarray;
+    }
+
+    /* Purpose : Authenticate Super Admin login to uncheck the EPS non-contribution in Edit Employee
+     * Develoeped By; Varaprasad
+     * Developed  on : 28/04/2026
+     */
+
+    public function check_super_admin_password($password) {
+        $this->db->select('mxemp_emp_lg_password');
+        $this->db->from('maxwell_employees_login');
+        $this->db->where('mxemp_emp_lg_role', 1);
+        $query = $this->db->get();
+        $admins = $query->result();
+        // echo $this->db->last_query();exit;
+
+        foreach ($admins as $admin) {
+            if ($password == $admin->mxemp_emp_lg_password) {
+                return true;
+            }
+        }
+        return false;
     }
 
 } ?>

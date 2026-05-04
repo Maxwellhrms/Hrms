@@ -35,13 +35,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $ServerPath = $_SERVER['DOCUMENT_ROOT'];
 $scriptname = explode('/', $_SERVER['SCRIPT_NAME']);
 //$WebPath = (isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS'])) !== 'off') ? 'https://' : 'http://';
-$WebPath = (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) ? 'https://' : 'https://';
+$WebPath = (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) ? 'https://' : 'http://';
 $WebPath .= isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+
 if (trim($scriptname[1]) == "index.php") {
     $BaseURL = $WebPath;
 } else {
     $BaseURL = $WebPath . '/' . $scriptname[1];
 }
+$BaseURL .= "/maxwellhrms/Hrms/";
 $config['base_url'] = $BaseURL;
 /*
 |--------------------------------------------------------------------------

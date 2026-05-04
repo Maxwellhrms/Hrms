@@ -2297,6 +2297,15 @@ die;
         $emppfno = $this->cleanInput($data['emppfno']);
         $empuanno = $this->cleanInput($data['empuanno']);
         $empaadharno = $this->cleanInput($data['empaadharno']);
+
+        /* NEW FIELD : mxemp_is_eps_to_pf
+         *  Added BY : Varaprasad
+         *  Added On: 26/04/2026
+         *  purpose: When checked, Paysheet's EPS amont to be added in PF CONT Field an make EPS WAGE to ZERO
+        */
+        $is_eps_to_pf = isset($data['is_eps_to_pf']) ? $this->cleanInput($data['is_eps_to_pf']) : 0;
+
+
         // Bank & Statutory
         // Languages
         $emplanguage = $this->cleanInput($data['emplanguage']);
@@ -2492,6 +2501,7 @@ die;
             "mxemp_emp_panimage" => $panimage,
             "mxemp_emp_bankimage" => $bankimage,
             "mxemp_emp_aadhar" => $empaadharno,
+            "mxemp_is_eps_to_pf" => $is_eps_to_pf,      // NEW FIELD ADDED TO ARRAY
             "mxemp_emp_aadharimage" => $aadharimage,
             "mxemp_emp_esi_number" => $empesino,
             "mxemp_emp_pf_number" => $emppfno,
@@ -3094,7 +3104,7 @@ die;
     public function getemployeecompletedetails($id)
     {
         // Employee Info
-        $this->db->select('mxemp_emp_autouniqueid,mxemp_emp_date_of_join,mxemp_emp_comp_code,mxemp_emp_division_code,mxemp_emp_branch_code,mxemp_emp_sub_branch_code,mxemp_emp_dept_code,mxemp_emp_grade_code,mxemp_emp_desg_code,mxemp_emp_state_code,mxemp_emp_type,mxemp_emp_type_name,mxemp_emp_id,mxemp_emp_fname,mxemp_emp_lname,mxemp_emp_img,mxemp_emp_gender,mxemp_emp_marital_status,mxemp_emp_bloodgroup,mxemp_emp_phone_no,mxemp_emp_alt_phn_no,mxemp_emp_email_id,mxemp_emp_company_email_id,mxemp_emp_date_of_birth,mxemp_emp_mother_tongue,mxemp_emp_caste,mxemp_emp_age,mxemp_emp_empguarantorsdetails,mxemp_emp_license,mxemp_emp_present_address1,mxemp_emp_present_address2,mxemp_emp_present_city,mxemp_emp_present_state,mxemp_emp_present_country,mxemp_emp_present_postalcode,mxemp_emp_fixed_address1,mxemp_emp_fixed_address2,mxemp_emp_fixed_city,mxemp_emp_fixed_state,mxemp_emp_fixed_country,mxemp_emp_fixed_postalcode,mxemp_emp_current_salary,mxemp_emp_bank_name,mxemp_emp_bank_branch_name,mxemp_emp_bank_acc_no,mxemp_emp_bank_ifsci_no,mxemp_emp_panno,mxemp_emp_esi_number,mxemp_emp_pf_number,mxemp_emp_uan_number,mxemp_emp_status,mxcp_name,mxdesg_name,mxdpt_name,mxd_name,mxb_name,mxgrd_name,mxemp_emp_having_vehicle,mxemp_emp_vehicle_type,mxemp_emp_resignation_status,mxemp_emp_resignation_reason,mxemp_emp_resignation_date,mxemp_emp_resignation_relieving_date,mxemp_emp_resignation_relieving_settlement_date,mxemp_emp_resignation_relieving_settlement_amount,mxemp_emp_resignation_relieving_esi_settlement_date,mxemp_emp_resignation_relieving_pf_settlement_date,mxemp_emp_panimage,mxemp_emp_aadhar,mxemp_emp_aadharimage,mxst_state,mxemp_ty_name,mxemp_emp_guarantors_letter,empmaritaldate,mxemp_emp_is_without_notice_period,mxemp_emp_unpay_sal_months,mxemp_emp_joiningorgination,mxemp_emp_joiningorginationofferpackage,mxemp_emp_joiningorginationdesignation,mxemp_emp_resignationletter,mxemp_emp_employee_lic_no,mxemp_emp_gratuity,mxemp_emp_esiimage,mxemp_emp_bankimage,mxemp_emp_nameasperbank,mxemp_emp_lic_info1,mxemp_emp_lic_info2,mxemp_emp_lic_info3,mxemp_emp_lic_info4,mxemp_emp_relation_name,mxemp_emp_relation,mxemp_emp_esi_reason,mxemp_emp_resignation_pf_reason');
+        $this->db->select('mxemp_emp_autouniqueid,mxemp_emp_date_of_join,mxemp_emp_comp_code,mxemp_emp_division_code,mxemp_emp_branch_code,mxemp_emp_sub_branch_code,mxemp_emp_dept_code,mxemp_emp_grade_code,mxemp_emp_desg_code,mxemp_emp_state_code,mxemp_emp_type,mxemp_emp_type_name,mxemp_emp_id,mxemp_emp_fname,mxemp_emp_lname,mxemp_emp_img,mxemp_emp_gender,mxemp_emp_marital_status,mxemp_emp_bloodgroup,mxemp_emp_phone_no,mxemp_emp_alt_phn_no,mxemp_emp_email_id,mxemp_emp_company_email_id,mxemp_emp_date_of_birth,mxemp_emp_mother_tongue,mxemp_emp_caste,mxemp_emp_age,mxemp_emp_empguarantorsdetails,mxemp_emp_license,mxemp_emp_present_address1,mxemp_emp_present_address2,mxemp_emp_present_city,mxemp_emp_present_state,mxemp_emp_present_country,mxemp_emp_present_postalcode,mxemp_emp_fixed_address1,mxemp_emp_fixed_address2,mxemp_emp_fixed_city,mxemp_emp_fixed_state,mxemp_emp_fixed_country,mxemp_emp_fixed_postalcode,mxemp_emp_current_salary,mxemp_emp_bank_name,mxemp_emp_bank_branch_name,mxemp_emp_bank_acc_no,mxemp_emp_bank_ifsci_no,mxemp_emp_panno,mxemp_emp_esi_number,mxemp_emp_pf_number,mxemp_emp_uan_number,mxemp_emp_status,mxcp_name,mxdesg_name,mxdpt_name,mxd_name,mxb_name,mxgrd_name,mxemp_emp_having_vehicle,mxemp_emp_vehicle_type,mxemp_emp_resignation_status,mxemp_emp_resignation_reason,mxemp_emp_resignation_date,mxemp_emp_resignation_relieving_date,mxemp_emp_resignation_relieving_settlement_date,mxemp_emp_resignation_relieving_settlement_amount,mxemp_emp_resignation_relieving_esi_settlement_date,mxemp_emp_resignation_relieving_pf_settlement_date,mxemp_emp_panimage,mxemp_emp_aadhar,mxemp_emp_aadharimage,mxst_state,mxemp_ty_name,mxemp_emp_guarantors_letter,empmaritaldate,mxemp_emp_is_without_notice_period,mxemp_emp_unpay_sal_months,mxemp_emp_joiningorgination,mxemp_emp_joiningorginationofferpackage,mxemp_emp_joiningorginationdesignation,mxemp_emp_resignationletter,mxemp_emp_employee_lic_no,mxemp_emp_gratuity,mxemp_emp_esiimage,mxemp_emp_bankimage,mxemp_emp_nameasperbank,mxemp_emp_lic_info1,mxemp_emp_lic_info2,mxemp_emp_lic_info3,mxemp_emp_lic_info4,mxemp_emp_relation_name,mxemp_emp_relation,mxemp_emp_esi_reason,mxemp_emp_resignation_pf_reason,mxemp_is_eps_to_pf');
         $this->db->from('maxwell_employees_info');
         $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
         $this->db->join('maxwell_designation_master', 'mxdesg_id = mxemp_emp_desg_code', 'INNER');
@@ -5838,7 +5848,11 @@ die;
         // }
         
         
+<<<<<<< Updated upstream
         $this->db->select('mxemp_emp_autouniqueid,mxemp_emp_id,mxemp_emp_fname,mxemp_emp_lname,mxemp_emp_comp_code,mxcp_name,mxemp_emp_division_code,mxd_name,mxemp_emp_state_code,mxst_state,mxemp_emp_branch_code,mxb_name,mxemp_emp_desg_code,mxdesg_name,mxemp_emp_dept_code,mxdpt_name,mxemp_emp_desg_code,mxdesg_name,mxemp_emp_type,mxemp_ty_name,mxemp_emp_current_salary,mxemp_emp_grade_code,mxgrd_name,mxemp_emp_date_of_birth,mxemp_emp_resignation_status,mxemp_emp_resignation_date,mxemp_emp_resignation_relieving_date');
+=======
+        $this->db->select('mxemp_emp_autouniqueid,mxemp_emp_id,mxemp_emp_fname,mxemp_emp_lname,mxemp_emp_comp_code,mxcp_name,mxemp_emp_division_code,mxd_name,mxemp_emp_state_code,mxst_state,mxemp_emp_branch_code,mxb_name,mxemp_emp_desg_code,mxdesg_name,mxemp_emp_dept_code,mxdpt_name,mxemp_emp_desg_code,mxdesg_name,mxemp_emp_type,mxemp_ty_name,mxemp_emp_current_salary,mxemp_emp_grade_code,mxgrd_name,mxemp_emp_date_of_birth,mxemp_emp_resignation_status,mxemp_emp_resignation_date,mxemp_emp_resignation_relieving_date,mxemp_emp_date_of_join,mxemp_is_eps_to_pf');
+>>>>>>> Stashed changes
         $this->db->from('maxwell_employees_info');
         $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
         $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');

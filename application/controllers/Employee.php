@@ -223,4 +223,29 @@ class Employee extends Common {
         $data['emp'] = $this->Employeemodel->getemployeecard($id);
         $this->load->view('employee/vccard');
     }
+
+
+    /* Purpose : Authenticate Super Admin login to uncheck the EPS non-contribution in Edit Employee
+     * Develoeped By; Varaprasad
+     * Developed  on : 28/04/2026
+     */
+
+    public function verify_super_admin_access() {
+        $password = $this->input->post('password');
+
+        if (!$password) {
+            echo json_encode(array('status' => 500, 'message' => 'Password required'));
+            exit;
+        }
+
+        // Call model to verify if this password belongs to ANY Super Admin
+        $isValid = $this->Employeemodel->check_super_admin_password($password);
+
+        if ($isValid) {
+            echo json_encode(array('status' => 200));
+        } else {
+            echo json_encode(array('status' => 401, 'message' => 'Invalid Super Admin Password'));
+        }
+        exit;
+    }
 }

@@ -767,13 +767,23 @@
 			<span class="formerror" id="pfjoindateerr"></span>
 		</div>
 	</div>
-	<div class="col-sm-4">
-		<div class="form-group">
-			<label class="col-form-label">eps joining date</label>
-			<input type="date" class="form-control" placeholder="" name="epsjoindate" id="epsjoindate" value= "" autocomplete="off">
-			<span class="formerror" id="epsjoindateerr"></span>
-		</div>
-	</div>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="col-form-label">eps joining date</label>
+                <input type="date" class="form-control" placeholder="" name="epsjoindate" id="epsjoindate" value= "" autocomplete="off">
+                <span class="formerror" id="epsjoindateerr"></span>
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <div class="form-group">
+                <label class="col-lg-12 col-form-label">EPS Non-Contribution</label>
+                &nbsp;&nbsp;<input type="checkbox" name="is_eps_to_pf" id="is_eps_to_pf" value="1">
+                &nbsp;&nbsp;(Check to add EPS amount to PF and set EPS Wage to Zero)
+                <span class="formerror" id="epstopferr"></span>
+            </div>
+        </div>
+    </div>
 	<div class="col-sm-4">
 		<div class="form-group">
 			<label class="col-form-label">esi joining date</label>

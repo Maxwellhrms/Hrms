@@ -871,6 +871,17 @@ $write = $val1->mxemp_emp_lng_write;
 			<span class="formerror" id="empaadharno"></span>
 		</div>
 	</div>
+    <div class="col-sm-4">
+		<div class="form-group">
+
+            <label class="col-lg-12 col-form-label">EPS Non-Contribution</label>
+            &nbsp;&nbsp;<input type="checkbox" name="is_eps_to_pf" id="is_eps_to_pf" value="1"
+            <?php echo ($emp['employeeinfo'][0]->mxemp_is_eps_to_pf == 1) ? 'checked' : ''; ?>
+           autocomplete="off">
+            &nbsp;(Check to add EPS amount to PF and set EPS Wage to Zero)
+            <span class="formerror" id="epstopferr"></span>
+		</div>
+	</div>
 	<div class="col-sm-4">
 		<div class="form-group">
 			<label class="col-form-label">esi joining date</label>
@@ -2321,5 +2332,47 @@ $("#empfixedpostalcode").val('');
 $("#empfixedpresince").val('');
 
 }
+}
+
+// Variable to track the original state from the database
+var originalEpsStatus = <?php echo $emp['employeeinfo'][0]->mxemp_is_eps_to_pf; ?>;
+
+$('#is_eps_to_pf').on('click', function(e) {
+    var checkbox = $(this);
+
+    // If the record is currently "Checked" in DB and user tries to uncheck it
+    if (originalEpsStatus == 1 && !checkbox.is(':checked')) {
+        e.preventDefault(); // Stop the uncheck action
+
+        var password = prompt("Enter Password to disable EPS Non-Contribution:");
+
+        if (password) {
+            verifySuperAdmin(password, checkbox);
+        }
+    }
+});
+
+function verifySuperAdmin(password, checkbox) {
+    $.ajax({
+        url: baseurl + 'employee/verify_super_admin_access',
+        type: "POST",
+        data: { password: password },
+        dataType: "json",
+        success: function(res) {
+            if (res.status == 200) {
+                // Success: Allow the checkbox to be unchecked
+                originalEpsStatus = 0;
+                checkbox.prop('checked', false);
+                alert("Authorization Successful.");
+            } else {
+                alert(res.message);
+                checkbox.prop('checked', true); // Force keep checked
+            }
+        },
+        error: function() {
+            alert("Error in verification. Action denied.");
+            checkbox.prop('checked', true);
+        }
+    });
 }
 </script>

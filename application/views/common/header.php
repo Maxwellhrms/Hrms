@@ -228,7 +228,7 @@ $url = $this->uri->segment(1); ?>
 						<li class="submenu">
 							<a href="#" class="" id="menuopen_<?php echo $res->maxper_menuid ?>" ><i class="la <?php echo $res->maxper_menuicon ?> "></i> <span> <?php echo Ucfirst($res->maxper_menuname) ?></span> <span class="menu-arrow"></span></a>
 							<ul style="display: none;" id="opensubmenu_<?php echo $res->maxper_menuid ?>" >
-                            <?php  foreach($pages as $row): 
+                            <?php  foreach($pages as $row):
 								if($res->maxper_menuid == $row->maxsubwise_menu_id){
 								    if($currenturl == $row->maxsubwise_link){ ?>
 										<script type="text/javascript">

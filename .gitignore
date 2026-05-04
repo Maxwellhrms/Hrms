@@ -1,0 +1,10 @@
+vendor/
+application/logs/
+application/config/config.php
+application/config/database.php
+maxwellusers/application/config/config.php
+maxwellusers/application/config/database.php
+application/libraries/PHPExcel/Classes/PHPExcel/Shared/String.php
+composer.json
+composer.lock
+.htaccess

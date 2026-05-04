@@ -2946,7 +2946,7 @@ $savePath = 'uploads/payslips/' . $customFileName;
                                 $html_data .= "<td>$paysheet_data->mxsal_tds_amount</td>";//--->TDS
                                 $html_data .= "<td>$paysheet_data->mxsal_miscelleneous_amount</td>";//--->MISC DED
 
-                                $mxsal_total_ded=$paysheet_data->mxsal_total_ded;
+                                $mxsal_total_ded=round($paysheet_data->mxsal_total_ded);
 
                                 if($oldLead_id5>0 && $lastrowofareq5['0']['tot_loan_amt'] > 0){
                                     $mxsal_loan_amount = $paysheet_data->mxsal_loan_amount;

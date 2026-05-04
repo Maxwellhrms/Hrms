@@ -82,8 +82,8 @@ $db['default'] = array(
 	'dbdriver' => 'mysqli',*/
 	
 		'hostname' => 'localhost',
-	'username' => 'maxwellhrms_root',
-	'password' => 'sairam-143',
+	'username' => 'root',
+	'password' => '',
 	'database' => 'maxwellhrms_hr',
 	'dbdriver' => 'mysqli',
 	
