@@ -44,7 +44,7 @@ class Salaries_controller extends Common {
     }
     public function generate_salaries(){
         $data = $this->input->post();        
-        $this->Salaries_model->generate_salaries($data);
+        $this->Salaries_model->generate_salaries_new($data);
     }
     public function paysheet(){
         $this->verifylogin();
@@ -2960,8 +2960,10 @@ $savePath = 'uploads/payslips/' . $customFileName;
                                 $mxsal_net_sal=$mxsal_actual_gross-$mxsal_total_ded;
                                 $mxsal_net_sal=round($mxsal_net_sal);
                                 //$html_data .= "<td>$paysheet_data->mxsal_net_sal</td>";
+
+                                $maxsal_epf_wages = (!empty($paysheet_data->mxsal_epf_wages) && is_numeric($paysheet_data->mxsal_epf_wages) && $paysheet_data->mxsal_epf_wages > 0) ? $paysheet_data->mxsal_epf_wages : $paysheet_data->mxsal_actual_basic;
                                 $html_data .= "<td>$mxsal_net_sal</td>";
-                                $html_data .= "<td>$paysheet_data->mxsal_actual_basic</td>";//---->PF WAGE
+                                $html_data .= "<td>$maxsal_epf_wages</td>";//---->PF WAGE
                                 $html_data .= "<td>$paysheet_data->mxsal_eps_wages</td>";//---->EPS WAGE
                                 $html_data .= "<td>$paysheet_data->mxsal_edli_wages</td>";//---->EDLI WAGE
                                 $html_data .= "<td>$paysheet_data->mxsal_pf_comp_cont</td>";//--->comp cont pf
@@ -3150,7 +3152,7 @@ $savePath = 'uploads/payslips/' . $customFileName;
         $emp_data = $this->input->post();
         $emp_data['sal_month_year'] = $emp_data['yearmonth'];
         // print_r($emp_data);exit;
-        $res =  $this->Salaries_model->generate_single_emp_salarie($emp_data); 
+        $res =  $this->Salaries_model->generate_single_emp_salarie_new($emp_data);
     }
     
     // UNHOLD SALARY
