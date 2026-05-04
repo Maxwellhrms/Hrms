@@ -1,0 +1,141 @@
+<?php
+$menu = [
+    [
+        "title" => "Main",
+        "type"  => "title"
+    ],
+    [
+        "icon" => "la la-dashboard",
+        "label" => "Dashboard",
+        "submenu" => [
+            [
+                "label" => "Employee Dashboard",
+                "url"   => "Employee/employeedashboard"
+            ],
+            [
+                "label" => "Manager Dashboard",
+                "url"   => "Employee/managerdashboard"
+            ]
+        ]
+    ],
+    [
+        "title" => "Employees",
+        "type"  => "title"
+    ],
+    [
+        "icon" => "la la-user",
+        "label" => "Employees",
+        "submenu" => [
+            [
+                "label" => "Employee Profile",
+                "url"   => "Employee/employeesprofile"
+            ],
+            [
+                "label" => "Self Attendance",
+                "url"   => "Employee/employeeattendancepunch"
+            ],
+            [
+                "label" => "Self Regulations",
+                "url"   => "Employee/employeesRegulations"
+            ],
+            [
+                "label" => "Self Leaves",
+                "url"   => "Employee/employeesleaves"
+            ],
+            [
+                "label" => "Pay Slips",
+                "url"   => "Employee/employeepayslips"
+            ]
+        ]
+    ],
+    [
+        "title" => "Managers",
+        "type"  => "title"
+    ],
+    [
+        "icon" => "la la-user-check",
+        "label" => "Manager Approvals",
+        "submenu" => [
+            [
+                "label" => "Leave Approvals",
+                "url"   => "Employee/managerApprovalLeaves"
+            ],
+        ]
+    ],
+    [
+        "icon" => "la la-file-pdf-o",
+        "label" => "Policies",
+        "url"   => "Employee/policies"
+    ],
+    [
+        "icon" => "la la-lock",
+        "label" => "Change Password",
+        "url"   => "Employee/changepassword"
+    ],
+    [
+        "icon" => "la la-umbrella-beach",
+        "label" => "Holidays",
+        "url"   => "Employee/holidayslist"
+    ]
+];
+
+$current = uri_string(); // Example: Employee/employeedashboard
+?>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-inner slimscroll">
+        <div id="sidebar-menu" class="sidebar-menu">
+            <ul>
+
+                <?php foreach ($menu as $item): ?>
+
+                    <?php if (isset($item['type']) && $item['type'] == 'title'): ?>
+                        <li class="menu-title">
+                            <span><?= $item['title']; ?></span>
+                        </li>
+
+                    <?php elseif (isset($item['submenu'])): 
+                        
+                        // Check active submenu
+                        $isActive = false;
+                        foreach ($item['submenu'] as $sub) {
+                            if ($current == $sub['url']) {
+                                $isActive = true;
+                                break;
+                            }
+                        }
+                    ?>
+                        <li class="submenu">
+                            <a href="#" class="<?= $isActive ? 'noti-dot' : '' ?>">
+                                <i class="<?= $item['icon']; ?>"></i> 
+                                <span><?= $item['label']; ?></span> 
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <ul style="<?= $isActive ? 'display:block;' : 'display:none;' ?>">
+                                <?php foreach ($item['submenu'] as $sub): ?>
+                                    <li>
+                                        <a href="<?= base_url($sub['url']); ?>"
+                                           class="<?= ($current == $sub['url']) ? 'active noti-dot' : '' ?>">
+                                           <?= $sub['label']; ?>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </li>
+
+                    <?php else: ?>
+                        <li class="<?= ($current == $item['url']) ? 'active' : '' ?>">
+                            <a href="<?= base_url($item['url']); ?>"
+                               class="<?= ($current == $item['url']) ? 'noti-dot' : '' ?>">
+                                <i class="<?= $item['icon']; ?>"></i> 
+                                <span><?= $item['label']; ?></span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+
+                <?php endforeach; ?>
+
+            </ul>
+        </div>
+    </div>
+</div>
