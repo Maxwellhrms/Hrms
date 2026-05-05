@@ -485,36 +485,24 @@ public function getAttendanceDashboard(){
     public function employeespayslipsList($data){
 
         $employeeid = $this->session->userdata('session_loginperson_id');
-        $empname = $this->session->userdata('session_name');
+        $empname    = $this->session->userdata('session_name');
         $yearFilter = !empty($data['year']) ? $data['year'] : '';
 
-        $url = HRADMINROOTDOCUMENT."uploads/payslips/";
+        // ✅ Correct server path
+        $path = FCPATH . 'uploads/payslips/';
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        $html = curl_exec($ch);
-        curl_close($ch);
-
-        if (!$html) {
-            echo "Unable to fetch payslips directory";
+        if (!is_dir($path)) {
+            echo "Payslip directory not found";
             return;
         }
+
+        $files = scandir($path);
 
         $retrunarray = [];
 
-        preg_match_all('/href="([^"]+\.pdf)"/i', $html, $matches);
+        foreach ($files as $file) {
 
-        if (empty($matches[1])) {
-            echo "No payslips found";
-            return;
-        }
-
-        foreach ($matches[1] as $file) {
-
-            $file = basename($file);
+            if ($file == '.' || $file == '..') continue;
 
             // Match: 04-2025-M0170.pdf
             if (preg_match('/(\d{2})-(\d{4})-(.+)\.pdf$/', $file, $parts)) {
@@ -528,8 +516,7 @@ public function getAttendanceDashboard(){
 
                 $fileDate = strtotime($year . '-' . $month . '-01');
 
-                // 🔥 Use download controller instead of direct link
-                $downloadUrl = base_url('employee/downloadPayslip?file='.$file);
+                $downloadUrl = base_url('Employee/downloadPayslip?file='.$file);
 
                 $retrunarray[] = (object)[
                     "employee_code" => $empCode,
@@ -540,6 +527,7 @@ public function getAttendanceDashboard(){
             }
         }
 
+        // Sort latest first
         usort($retrunarray, function($a, $b){
             return strtotime($b->payslip_month) - strtotime($a->payslip_month);
         });
@@ -553,32 +541,23 @@ public function getAttendanceDashboard(){
 
         $renameHeaderColumns = [
             'employee_code' => 'Employee Code',
-            'employee_name'     => 'Employee Name',
+            'employee_name' => 'Employee Name',
             'payslip_month' => 'Payslip Month',
             'download'      => 'Download'
         ];
 
-        $dataMappingColumns = array(
-            'Translate' => array(),
-        );
-
-        $linkColumns = array();
-        $editColumns = array();
-        $hideColumn = array();
-        $reportName = 'Employee Payslips';
-        $hideInExport = array('download');
-
         $processData = array(
             'retrunarray' => $retrunarray,
             'columns' => $columns,
-            'linkColumns' => $linkColumns,
-            'editColumns' => $editColumns,
-            'dataMappingColumns' => $dataMappingColumns,
+            'linkColumns' => [],
+            'editColumns' => [],
+            'dataMappingColumns' => ['Translate' => []],
             'renameHeaderColumns' => $renameHeaderColumns,
-            'hideColumn' => $hideColumn,
-            'reportName' => $reportName,
-            'hideInExport' => $hideInExport,
+            'hideColumn' => [],
+            'reportName' => 'Employee Payslips',
+            'hideInExport' => ['download'],
         );
+
         echo dynamicTable($processData);
     }
     #Payslips

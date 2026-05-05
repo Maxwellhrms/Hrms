@@ -192,38 +192,16 @@ class Employee extends Common {
         echo $this->EmployeeModel->employeespayslipsList($userdata);
     }
 
-    public function downloadPayslip(){
-        $this->checkissession();
-        $file = $this->input->get('file');
+    public function downloadPayslip() {
 
-        // Basic validation
-        if (!$file || !preg_match('/^[a-zA-Z0-9\-\_\.]+$/', $file)) {
-            show_error('Invalid file');
+        $file = basename($this->input->get('file')); // prevent path traversal
+        $path = FCPATH . 'uploads/payslips/' . $file;
+
+        if (!file_exists($path)) {
+            show_404();
         }
 
-        $fileUrl = HRADMINROOTDOCUMENT."uploads/payslips/" . $file;
-
-        // Fetch file content
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $fileUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        $fileData = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode != 200 || !$fileData) {
-            show_error('File not found or inaccessible');
-        }
-
-        // Force download
-        header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="'.$file.'"');
-        header('Content-Length: ' . strlen($fileData));
-
-        echo $fileData;
-        exit;
+        force_download($path, NULL);
     }
 
     # Start Password
