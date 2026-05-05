@@ -7,6 +7,7 @@ class User extends Common {
         parent::__construct();
         $this->load->model('User_model');
         $this->load->model('Policy_model');
+        redirect(base_url().'../maxwellemployees');
 		
     }
 	public function checkPasswordChange() {
