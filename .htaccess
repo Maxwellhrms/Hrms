@@ -1,17 +1,27 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
 
+    # Remove index.php from URL
+    RewriteCond %{REQUEST_URI} !^/index\.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    RewriteRule ^(.*)$ index.php/$1 [L]
+</IfModule>
 
 
 <IfModule mod_rewrite.c>
 #http to https redirect
- RewriteEngine On
- RewriteCond %{HTTPS} !=on
+# RewriteEngine On
+# RewriteCond %{HTTPS} !=on
  # RewriteRule ^.*$ https://%{SERVER_NAME}%{REQUEST_URI} [R,L]
 #http to https redirect
-    RewriteEngine on
-    RewriteCond $1 !^(index\.php|resources|robots\.txt)
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+#    RewriteEngine on
+#    RewriteCond $1 !^(index\.php|resources|robots\.txt)
+#    RewriteCond %{REQUEST_FILENAME} !-f
+#    RewriteCond %{REQUEST_FILENAME} !-d
+#    RewriteRule ^(.*)$ index.php/$1 [L,QSA]
 </IfModule>
 
 <ifModule mod_gzip.c>
