@@ -3013,4 +3013,78 @@ public function getemprequesttype(){
         echo json_encode($response);
     }
 
+    
+    public function wagemaster($param1 = "", $param2 = "") {
+        $this->verifylogin();
+
+        if ($param1 == 'save_wage_config' || $param1 == 'update_wage_config') {
+            $post = $this->input->post();
+
+            // Logical check for dates
+            if (!empty($post['valid_till']) && (strtotime($post['valid_till']) < strtotime($post['wef_date']))) {
+                echo 400; // Return error code for "Valid Till cannot be before Effective Date"
+                exit();
+            }
+
+            $save_data = array(
+                'mxwm_cmp_id'              => $post['company_id'],
+                'mxwm_div_id'              => $post['division_id'],
+                'mxwm_state_id'            => $post['state_id'],
+                'mxwm_branch_id'           => $post['branch_id'],
+                'mxwm_zone'                => $post['zone'],
+                'mxwm_state_min_wage'      => $post['state_wage'],
+                'mxwm_national_floor_wage' => $post['national_wage'],
+                'mxwm_wef_date'            => $post['wef_date'],
+                'mxwm_valid_till'          => !empty($post['valid_till']) ? $post['valid_till'] : NULL,
+                'mxwm_status'              => $post['mxwm_status']
+            );
+
+            $user_id = $this->session->userdata('user_id');
+
+            if ($param1 == 'save_wage_config') {
+                $save_data['mxwm_inserted_by'] = $user_id;
+                $res = $this->Adminmodel->insert_wage_master($save_data);
+            } else {
+                $save_data['mxwm_updated_by'] = $user_id;
+                $res = $this->Adminmodel->update_wage_master($post['mxwm_id'], $save_data);
+            }
+
+            if ($res) { echo 200; } else { echo 500; }
+            exit();
+        }
+
+        $this->header();
+        $data['states'] = $this->Adminmodel->getstates_master();
+        $data['cmpmaster'] = $this->Adminmodel->getcompany_master();
+        $data['divmaster'] = $this->Adminmodel->getdivision_master();
+        $data['branchdetails'] = $this->Adminmodel->getbranchdetails($id = '');
+
+        $data['wagedetails'] = $this->Adminmodel->get_wage_master_details();
+
+        $this->load->view('masters/wage', $data);
+        $this->footer();
+    }
+
+    /**
+     * Developed BY: Varaprasad
+     * Developed On : 18/04/2026
+     * Logical Delete (Deactivation) for Wage Master
+     */
+
+    public function deletewagemaster()
+    {
+        $this->verifylogin();
+        $id = $this->input->post('id');
+        $user_id = $this->session->userdata('user_id');
+        if (!empty($id)) {
+            $res = $this->Adminmodel->delete_wage_master($id,$user_id);
+            if ($res) {
+                echo 200;
+            } else {
+                echo 400;
+            }
+        }
+        exit();
+    }
+
 }
