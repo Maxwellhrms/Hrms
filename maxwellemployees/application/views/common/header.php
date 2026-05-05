@@ -123,7 +123,7 @@
 					<div class="dropdown-menu dropdown-menu-right">
 <!-- 						<a class="dropdown-item" href="profile.html">My Profile</a>
 						<a class="dropdown-item" href="settings.html">Settings</a> -->
-						<a class="dropdown-item" href="index.html">Logout</a>
+						<a class="dropdown-item" href="<?php echo base_url() ?>Employee/logout">Logout</a>
 					</div>
 				</div>
 				<!-- /Mobile Menu -->

@@ -75,8 +75,8 @@ function get_client_ip(){
     return $ipaddress;
 }
 define('ROOTDOCUMENT', $_SERVER['DOCUMENT_ROOT'].'/');
-// define('HRADMINROOTDOCUMENT', 'https://maxwellhrms.in/');
-define('HRADMINROOTDOCUMENT', 'http://localhost/Hrms/');
+define('HRADMINROOTDOCUMENT', 'https://maxwellhrms.in/');
+// define('HRADMINROOTDOCUMENT', 'http://localhost/Hrms/');
 /* User Defined */
 /*
 |--------------------------------------------------------------------------
