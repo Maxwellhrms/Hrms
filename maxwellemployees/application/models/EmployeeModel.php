@@ -489,7 +489,7 @@ public function getAttendanceDashboard(){
         $yearFilter = !empty($data['year']) ? $data['year'] : '';
 
         // ✅ Correct server path
-        $path = FCPATH . 'uploads/payslips/';
+        $path = $_SERVER['DOCUMENT_ROOT'] . '/uploads/payslips/';
 
         if (!is_dir($path)) {
             echo "Payslip directory not found";

@@ -195,7 +195,7 @@ class Employee extends Common {
     public function downloadPayslip() {
 
         $file = basename($this->input->get('file')); // prevent path traversal
-        $path = FCPATH . 'uploads/payslips/' . $file;
+        $path = $_SERVER['DOCUMENT_ROOT'] . '/uploads/payslips/' . $file;
 
         if (!file_exists($path)) {
             show_404();
