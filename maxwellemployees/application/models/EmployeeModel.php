@@ -32,7 +32,6 @@ class EmployeeModel extends CI_Model
         $this->db->where('mxemp_emp_status', 1);
         $query = $this->db->get();
         $count = count($query->row());
-        $qry = $query->result();
         #echo $this->db->last_query();exit;
         if($count == 1){
             $qry = $query->result();
@@ -53,6 +52,14 @@ class EmployeeModel extends CI_Model
             $this->session->set_userdata('is_session_active', 1);
             $this->session->set_userdata('session_img', $userimg);
             $this->session->set_userdata('session_typeid', $qry[0]->mxemp_emp_type);
+
+            $empcount = $this->getemployeeidsassignedtomanagers();
+            if(count($empcount) > 0){
+                $this->session->set_userdata('is_approvals', 1);
+            }else{
+                $this->session->set_userdata('is_approvals', 0);
+            }
+
             $emp_id=$qry[0]->mxemp_emp_lg_employee_id;
             $insert_date=date('Y-m-d');
             

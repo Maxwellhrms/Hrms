@@ -458,25 +458,8 @@
 <!-- Page Wrapper -->
 <div class="page-wrapper">
 	<!-- Page Content -->
-	<div class="container-fluid">
-		<div class="row">
-			<div class="col-md-12">
-				<div class="welcome-box">
-					<div class="welcome-img">
-						<img alt="" src="<?php #echo $this->session->userdata('session_img'); ?>">
-					</div>
-					<div class="welcome-det">
-						<h3>Welcome, <?php echo $this->session->userdata('session_name'); ?></h3>
-						<p><?php echo date('l'); ?>, <?php echo date('d M Y'); ?></p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
 
 	<div class="container-fluid mt-3">
-
 <!-- HEADER -->
 <div class="mgr-header">
 	<h5>Today's Stats</h5>

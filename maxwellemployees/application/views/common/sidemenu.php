@@ -1,4 +1,6 @@
 <?php
+$isApprovals = $this->session->userdata('is_approvals');
+
 $menu = [
     [
         "title" => "Main",
@@ -7,17 +9,18 @@ $menu = [
     [
         "icon" => "la la-dashboard",
         "label" => "Dashboard",
-        "submenu" => [
+        "submenu" => array_values(array_filter([
             [
                 "label" => "Employee Dashboard",
                 "url"   => "Employee/employeedashboard"
             ],
-            [
+            ($isApprovals == 1) ? [
                 "label" => "Manager Dashboard",
                 "url"   => "Employee/managerdashboard"
-            ]
-        ]
+            ] : null
+        ]))
     ],
+
     [
         "title" => "Employees",
         "type"  => "title"
@@ -47,36 +50,45 @@ $menu = [
                 "url"   => "Employee/employeepayslips"
             ]
         ]
-    ],
-    [
+    ]
+];
+
+/* Add Managers section only if is_approvals = 1 */
+if ($isApprovals == 1) {
+    $menu[] = [
         "title" => "Managers",
         "type"  => "title"
-    ],
-    [
+    ];
+
+    $menu[] = [
         "icon" => "la la-user-check",
         "label" => "Manager Approvals",
         "submenu" => [
             [
                 "label" => "Leave Approvals",
                 "url"   => "Employee/managerApprovalLeaves"
-            ],
+            ]
         ]
-    ],
-    [
-        "icon" => "la la-file-pdf-o",
-        "label" => "Policies",
-        "url"   => "Employee/policies"
-    ],
-    [
-        "icon" => "la la-lock",
-        "label" => "Change Password",
-        "url"   => "Employee/changepassword"
-    ],
-    [
-        "icon" => "la la-umbrella-beach",
-        "label" => "Holidays",
-        "url"   => "Employee/holidayslist"
-    ]
+    ];
+}
+
+/* Common menu items */
+$menu[] = [
+    "icon" => "la la-file-pdf-o",
+    "label" => "Policies",
+    "url"   => "Employee/policies"
+];
+
+$menu[] = [
+    "icon" => "la la-lock",
+    "label" => "Change Password",
+    "url"   => "Employee/changepassword"
+];
+
+$menu[] = [
+    "icon" => "la la-umbrella-beach",
+    "label" => "Holidays",
+    "url"   => "Employee/holidayslist"
 ];
 
 $current = uri_string(); // Example: Employee/employeedashboard

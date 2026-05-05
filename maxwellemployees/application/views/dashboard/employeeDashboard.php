@@ -88,13 +88,63 @@
 				<?php $count = 0; foreach($dashboard['inleavessummary'] as $inleavekey => $todayleaves){  if($count == 7){ break;}?>
 				<img src="<?php echo HRADMINROOTDOCUMENT.$todayleaves['image'] ?>" width="40px" height="40px" class="rounded-circle mr-1">
 				<?php $count++; } ?>
+<!-- 				<div class="rounded-circle border border-primary text-primary d-flex align-items-center justify-content-center"
+				style="width:40px;height:40px;">+<?php echo count($dashboard['inleavessummary']); ?></div> -->
 				<div class="rounded-circle border border-primary text-primary d-flex align-items-center justify-content-center"
-				style="width:40px;height:40px;">+<?php echo count($dashboard['inleavessummary']); ?></div>
+				     style="width:40px;height:40px; cursor:pointer;"
+				     data-toggle="modal"
+				     data-target="#outTodayModal">
+				    +<?php echo count($dashboard['inleavessummary']); ?>
+				</div>
 			</div>
 			<small class="text-muted"><?php echo (count($dashboard['inleavessummary']));  ?> employees are out today.</small>
 		</div>
 	</div>
 </div>
+
+<div class="modal fade" id="outTodayModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="modal-title">Employees Out Today</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <div class="modal-body">
+        
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Name</th>
+                <th>Leave Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach($dashboard['inleavessummary'] as $row){ ?>
+                <tr>
+                  <td>
+                    <img src="<?php echo HRADMINROOTDOCUMENT.$row['image']; ?>" 
+                         width="35" height="35" class="rounded-circle">
+                  </td>
+                  <td><?php echo $row['name']; ?></td>
+                  <td><?php echo $row['leave_type']; ?></td>
+                </tr>
+              <?php } ?>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
 <!-- Leave -->
 <div class="col-md-6 mb-3">
