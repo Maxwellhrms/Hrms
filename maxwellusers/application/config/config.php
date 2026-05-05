@@ -33,7 +33,7 @@ if (trim($scriptname[1]) == "index.php") {
 } else {
     $BaseURL = $WebPath . '/' . $scriptname[1];
 }
-$BaseURL .= "/maxwellhrms/Hrms/maxwellusers/";
+// $BaseURL .= "/maxwellhrms/Hrms/maxwellusers/";
 $config['base_url'] = $BaseURL;
 #$config['base_url'] = '';
 
