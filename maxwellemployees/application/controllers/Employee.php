@@ -193,6 +193,7 @@ class Employee extends Common {
     }
 
     public function downloadPayslip() {
+        $this->load->helper('download');
 
         $file = basename($this->input->get('file')); // prevent path traversal
         $path = $_SERVER['DOCUMENT_ROOT'] . '/uploads/payslips/' . $file;
