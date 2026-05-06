@@ -1389,6 +1389,16 @@ public function getAttendanceDashboard(){
             FALSE
         );
 
+        $this->db->order_by(
+            "CASE 
+                WHEN mxemploan_modifiedtime IS NULL 
+                THEN mxemploan_createdtime 
+                ELSE mxemploan_modifiedtime 
+            END",
+            "DESC",
+            FALSE
+        );
+
         return $this->db->get()->result();
     }
 
