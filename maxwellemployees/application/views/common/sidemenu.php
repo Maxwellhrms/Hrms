@@ -1,5 +1,6 @@
 <?php
 $isApprovals = $this->session->userdata('is_approvals');
+$isLoans = $this->session->userdata('is_loans', 1);
 
 $menu = [
     [
@@ -52,7 +53,11 @@ $menu = [
         ]
     ]
 ];
-
+$menu[] = [
+    "icon" => "la la-lock",
+    "label" => "Change Password",
+    "url"   => "Employee/changepassword"
+];
 /* Add Managers section only if is_approvals = 1 */
 if ($isApprovals == 1) {
     $menu[] = [
@@ -73,6 +78,19 @@ if ($isApprovals == 1) {
 }
 
 /* Common menu items */
+
+$menu[] =  [
+        "title" => "Company",
+        "type"  => "title"
+    ];
+if($isLoans == 1){
+$menu[] = [
+    "icon" => "la la-credit-card",
+    "label" => "Employee Loans",
+    "url"   => "Employee/employeeLoanslist"
+];
+}
+
 $menu[] = [
     "icon" => "la la-file-pdf-o",
     "label" => "Policies",
@@ -80,17 +98,10 @@ $menu[] = [
 ];
 
 $menu[] = [
-    "icon" => "la la-lock",
-    "label" => "Change Password",
-    "url"   => "Employee/changepassword"
-];
-
-$menu[] = [
     "icon" => "la la-umbrella-beach",
     "label" => "Holidays",
     "url"   => "Employee/holidayslist"
 ];
-
 $current = uri_string(); // Example: Employee/employeedashboard
 ?>
 

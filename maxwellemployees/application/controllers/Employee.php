@@ -332,6 +332,21 @@ class Employee extends Common {
         echo $this->EmployeeModel->employeesRegulationsList($userdata);
     }  
     # End Regulations
+    # Employee Loans
+    public function employeeLoanslist(){
+        $this->checkissession();
+        $this->header();
+        $data['title'] = "Employee Loans List";
+        $this->load->view('loans/loancards', $data);
+        $this->footer();
+    }
 
+    public function getEmployeesLoansList(){
+        $this->checkissession();
+        $userdata = $this->input->post();
+        $data['loanslist'] = $this->EmployeeModel->getEmployeesLoansList($userdata);
+        $this->load->view('loans/loancardslist', $data);
+    }
+    # End Employee Loans
 
 }

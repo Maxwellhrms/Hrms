@@ -60,6 +60,13 @@ class EmployeeModel extends CI_Model
                 $this->session->set_userdata('is_approvals', 0);
             }
 
+            $loanscount = $this->getloanscount($qry[0]->mxemp_emp_lg_employee_id);
+            if($loanscount > 0){
+                $this->session->set_userdata('is_loans', 1);
+            }else{
+                $this->session->set_userdata('is_loans', 0);
+            }
+
             $emp_id=$qry[0]->mxemp_emp_lg_employee_id;
             $insert_date=date('Y-m-d');
             
@@ -1321,5 +1328,78 @@ public function getAttendanceDashboard(){
         echo dynamicTable($processData);
     }
     # End Regulations
+    # Employee Loans
+    public function getEmployeesLoansList($data){
+        $employeecode = $this->session->userdata('session_loginperson_id');
+        $loanstatus = $data['loanstatus'];
 
+        if($loanstatus == 'InProgress'){
+            $status = array('OPEN','IN PROCESS');
+        }elseif($loanstatus == 'Closed'){
+            $status = array('CLOSED');
+        }else{
+            $status = array();
+        }
+
+        $this->db->select("
+            mxemploan_load_id as loanid,
+            mxemploan_empcode as employeecode,
+            mxemploan_emp_loan_type as loantype,
+            mxemploan_emp_loan_approvedby as loanapproedby,
+            mxemploan_emp_reasonfor_loan as loanforreason,
+            mxemploan_emp_loan_amt_appliedby_employee as loanamtrequested,
+            mxemploan_emp_loan_amt_approved as loanamountapproved,
+            mxemploan_emp_loan_outstanding_amt as loanoutstandingamt,
+            mxemploan_emp_loan_debited_amt as loandebitedamt,
+            mxemploan_emp_loan_current_paid_amt as loancurrentpaidamt,
+            mxemploan_emp_loan_advance_pay_amt as loanadvancepayamt,
+            mxemploan_emp_loan_forecloser_pay_amt as loanforecloseramt,
+            mxemploan_emp_loan_tenure_months as loantenuremonths,
+            mxemploan_emp_loan_monthly_emi_amt as loanmonthlyemiamt,
+            mxemploan_emp_attachements as loandocument,
+            mxemploan_emp_loancategory as loancategory,
+            mxemploan_emi_startdate as loanemistartdate,
+            mxemploan_emi_enddate as loanemienddate,
+            mxemploan_applied_date as loanapplieddate,
+            mxemploan_approved_date as loanapproveddate,
+            mxemploan_emp_payment_type as loanpaymenttype,
+            mxemploan_emp_modeofpayment as loanmodeofpayment,
+            mxemploan_status as loanstatusflag,
+            mxemploan_emp_information as loanstatus,
+
+            (
+                SELECT COUNT(*)
+                FROM maxwell_emp_loan_master_transaction t
+                WHERE t.mxemploan_load_id = maxwell_emp_loan_master.mxemploan_load_id
+                AND t.mxemploan_emp_information != 'OPEN' AND t.mxemploan_status = 1
+            ) as emisprocessed
+        ");
+
+        $this->db->from('maxwell_emp_loan_master');
+
+        $this->db->where('mxemploan_empcode', $employeecode);
+
+        if(count($status) > 0){
+            $this->db->where_in('mxemploan_emp_information', $status);
+        }
+
+        $this->db->order_by(
+            "COALESCE(NULLIF(mxemploan_modifiedtime, ''), mxemploan_createdtime)",
+            "DESC",
+            FALSE
+        );
+
+        return $this->db->get()->result();
+    }
+
+    public function getloanscount($employeecode){
+        $this->db->select('COUNT(*) as count');
+        $this->db->from('maxwell_emp_loan_master');
+        $this->db->where('mxemploan_empcode', $employeecode);
+
+        $result = $this->db->get()->row();
+
+        return $result->count;
+    }
+    # End Employee Loans
 }
