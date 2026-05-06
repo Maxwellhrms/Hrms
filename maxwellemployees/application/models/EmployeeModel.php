@@ -1384,12 +1384,6 @@ public function getAttendanceDashboard(){
         }
 
         $this->db->order_by(
-            "COALESCE(NULLIF(mxemploan_modifiedtime, ''), mxemploan_createdtime)",
-            "DESC",
-            FALSE
-        );
-
-        $this->db->order_by(
             "CASE 
                 WHEN mxemploan_modifiedtime IS NULL 
                 THEN mxemploan_createdtime 
