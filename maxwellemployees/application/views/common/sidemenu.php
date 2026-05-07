@@ -70,6 +70,10 @@ if ($isApprovals == 1) {
         "label" => "Manager Approvals",
         "submenu" => [
             [
+                "label" => "Team Under You",
+                "url"   => "Employee/managerTeamMembers"
+            ],
+            [
                 "label" => "Leave Approvals",
                 "url"   => "Employee/managerApprovalLeaves"
             ],

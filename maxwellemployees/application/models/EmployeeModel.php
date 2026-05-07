@@ -1627,4 +1627,117 @@ public function getAttendanceDashboard(){
         return $result->count;
     }
     # End Employee Loans
+    # Manager Team Members
+    public function managerteammembersList($data){
+        $employeecode = $this->session->userdata('session_loginperson_id');
+        $this->db->select('mxauth_emp_code, mxemp_emp_fname, mxcp_name, mxd_name, mxst_state, mxb_name, mxdpt_name, mxdesg_name, mxemp_ty_name');
+        $this->db->from('maxwell_emp_authorsations');
+        $this->db->join('maxwell_employees_info','mxemp_emp_id = mxauth_emp_code','inner');
+        $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
+        $this->db->join('maxwell_designation_master', 'mxdesg_id = mxemp_emp_desg_code', 'INNER');
+        $this->db->join('maxwell_department_master', 'mxdpt_id = mxemp_emp_dept_code', 'INNER');
+        $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');
+        $this->db->join('maxwell_branch_master', 'mxb_id = mxemp_emp_branch_code', 'INNER');
+        $this->db->join('maxwell_grade_master', 'mxgrd_id = mxemp_emp_grade_code', 'INNER');
+        $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
+        $this->db->join('maxwell_employee_type_master', 'mxemp_ty_id = mxemp_emp_type', 'INNER');
+        $this->db->where('mxauth_reporting_head_emp_code', $employeecode);
+        $this->db->where('mxauth_status', 1);
+        if(!empty($data['esi_company_id'])){
+            $this->db->where('mxemp_emp_comp_code', $data['esi_company_id']);
+        }
+        if(!empty($data['esi_div_id'])){
+            $this->db->where('mxemp_emp_division_code', $data['esi_div_id']);
+        }
+        if(!empty($data['esi_state_id'])){
+            $this->db->where('mxemp_emp_state_code', $data['esi_state_id']);
+        }
+        if(!empty($data['esi_branch_id'])){
+            $this->db->where('mxemp_emp_branch_code', $data['esi_branch_id']);
+        }
+
+        $this->db->where('mxemp_emp_resignation_status !=', 'R');
+        $this->db->where('mxauth_emp_code !=', '');
+        $this->db->order_by('mxauth_emp_code', 'ASC');
+        $query1 = $this->db->get();
+        // echo $this->db->last_query();exit;
+        // rolback
+        $qry1 = $query1->result();
+        $num = $query1->num_rows();
+
+       $retrunarray = array();
+
+        foreach ($qry1 as $key => $val){
+            $buldarray = (object)array(
+                "mxauth_emp_code" => $val->mxauth_emp_code,
+                "mxemp_emp_fname" => $val->mxemp_emp_fname,
+                "mxcp_name" => $val->mxcp_name,
+                "mxd_name" => $val->mxd_name,
+                "mxst_state" => $val->mxst_state,
+                "mxb_name" => $val->mxb_name,
+                "mxdpt_name" => $val->mxdpt_name,
+                "mxdesg_name" => $val->mxdesg_name,
+                "mxemp_ty_name" => $val->mxemp_ty_name,
+                );
+            array_push($retrunarray,$buldarray);   
+        }
+        // return $retrunarray;   
+        $columns = [
+            "mxauth_emp_code",
+            "mxemp_emp_fname",
+            "mxcp_name",
+            "mxd_name",
+            "mxst_state",
+            "mxb_name",
+            "mxdpt_name",
+            "mxdesg_name",
+            "mxemp_ty_name",
+        ]; 
+
+        $renameHeaderColumns = [
+            'mxauth_emp_code' => 'Employee Code',
+            'mxemp_emp_fname' => 'Employee Name', 
+            'mxcp_name' => 'Company',
+            'mxd_name' => 'Division',
+            'mxst_state' => 'State',
+            'mxb_name' => 'Branch',
+            'mxdpt_name' => 'Department',
+            'mxdesg_name' => 'Designations',
+            'mxemp_ty_name' => 'Employee Type'
+        ]; 
+
+        // Mapping id and replace with name form masters
+        $dataMappingColumns = array(
+            'Translate' => array(),
+        );
+
+        // Define columns for links and edit actions
+        $urllink = '';
+        $linkColumns = array(); // Columns where links will be provided
+        $editColumns = array(); // Columns with edit options
+        // $editColumns = array(
+        //     'id' => array(
+        //         'AddFunction' => 'editAttendance',
+        //         'AddModelFunction' => 'loadAttendanceData',
+        //         'CallID' => 'attendanceModal'
+        //     )
+        // );
+        $hideColumn = array();
+        $hideInExport = array();
+        $reportName = 'Employees Punch History';
+        $processData = array(
+            'retrunarray' => $retrunarray,
+            'columns' => $columns,
+            'linkColumns' => $linkColumns,
+            'editColumns' => $editColumns,
+            'dataMappingColumns' => $dataMappingColumns,
+            'renameHeaderColumns' => $renameHeaderColumns,
+            'hideColumn' => $hideColumn,
+            'reportName' => $reportName,
+            'hideInExport' => $hideInExport,
+        );
+        // print_r($processData);exit;
+        echo dynamicTable($processData);
+    }
+    # End Manager Team Members
 }

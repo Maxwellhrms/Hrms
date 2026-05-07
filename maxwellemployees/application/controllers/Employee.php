@@ -363,5 +363,20 @@ class Employee extends Common {
         $this->load->view('loans/loancardslist', $data);
     }
     # End Employee Loans
+    # Manager Team Members
+    public function managerTeamMembers(){
+        $this->checkissession();
+        $this->header();
+        $data['title']= "Your Team Members";
+        $data['controller'] = $this;
+        $this->load->view('manager/managerteammembers', $data);
+        $this->footer();
+    }
 
+    public function managerteammembersList(){
+        $this->checkissession();
+        $userdata = $this->input->post();
+        echo $this->EmployeeModel->managerteammembersList($userdata);
+    }
+    # End Manager Team Members
 }
