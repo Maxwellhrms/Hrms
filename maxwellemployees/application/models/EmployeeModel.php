@@ -1724,7 +1724,7 @@ public function getAttendanceDashboard(){
         // );
         $hideColumn = array();
         $hideInExport = array();
-        $reportName = 'Employees Punch History';
+        $reportName = 'Your Team Members';
         $processData = array(
             'retrunarray' => $retrunarray,
             'columns' => $columns,
