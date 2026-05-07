@@ -72,9 +72,14 @@ if ($isApprovals == 1) {
             [
                 "label" => "Leave Approvals",
                 "url"   => "Employee/managerApprovalLeaves"
+            ],
+            [
+                "label" => "Regulations Approvals",
+                "url"   => "Employee/managerApprovalRegulations"
             ]
         ]
     ];
+
 }
 
 /* Common menu items */
