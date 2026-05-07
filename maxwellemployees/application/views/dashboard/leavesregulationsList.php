@@ -8,7 +8,7 @@
 				<div class="mgr-bar mgr-purple"></div>
 				<div>
 					<div class="mgr-stat-title">Late arrivals</div>
-					<div class="mgr-stat-value">3</div>
+					<div class="mgr-stat-value"><?php echo $dashboardLeavesRegulations['ontimeLatecomming']['late']; ?></div>
 				</div>
 			</div>
 		</div>
@@ -18,7 +18,7 @@
 				<div class="mgr-bar mgr-green"></div>
 				<div>
 					<div class="mgr-stat-title">On time</div>
-					<div class="mgr-stat-value">14</div>
+					<div class="mgr-stat-value"><?php echo $dashboardLeavesRegulations['ontimeLatecomming']['ontime']; ?></div>
 				</div>
 			</div>
 		</div>
@@ -28,7 +28,7 @@
 				<div class="mgr-bar mgr-orange"></div>
 				<div>
 					<div class="mgr-stat-title">Leaves</div>
-					<div class="mgr-stat-value">5</div>
+					<div class="mgr-stat-value"><?php echo count($dashboardLeavesRegulations['managerleavesdetails']); ?></div>
 				</div>
 			</div>
 		</div>
@@ -38,7 +38,7 @@
 				<div class="mgr-bar mgr-violet"></div>
 				<div>
 					<div class="mgr-stat-title">Regulations</div>
-					<div class="mgr-stat-value">2</div>
+					<div class="mgr-stat-value"><?php echo count($dashboardLeavesRegulations['manageremployeeRegulations']); ?></div>
 				</div>
 			</div>
 		</div>
@@ -50,29 +50,33 @@
 
 		<div class="mgr-ot-scroll">
 			<div class="row">
-
+				<?php foreach($dashboardLeavesRegulations['managerleavesdetails'] as $mngleavekey => $mngleavevalue){ ?>
 				<div class="col-md-4">
 					<div class="mgr-ot-card">
 						<div class="d-flex align-items-center mb-2">
-							<img src="https://i.pravatar.cc/40" class="mgr-avatar">
+							<img src="<?php echo HRADMINROOTDOCUMENT.$mngleavevalue->empimg; ?>" height="40px" width="40px" class="mgr-avatar">
 							<div>
-								<strong>Morgan Taylor</strong><br>
-								<span class="mgr-small">Sales Executive</span>
+								<strong><?php echo $mngleavevalue->employeename; ?></strong><br>
+								<span class="mgr-small"><?php echo $mngleavevalue->desginationname; ?></span>
 							</div>
 						</div>
-
+						<div><?php echo $mngleavevalue->employeeid; ?> </div>
 						<div class="mgr-small">Date</div>
-						<div>1st Jun (6PM - 8PM)</div>
-
+						<div><?php if($mngleavevalue->from == $mngleavevalue->to){
+									echo date('M j', strtotime($mngleavevalue->from));
+								}else{
+									echo date('M j', strtotime($mngleavevalue->from)) . ' - ' . date('M j', strtotime($mngleavevalue->to));
+								} ?>
+						</div>
 						<div class="mgr-small mt-2">Reason</div>
-						<div class="mgr-small">Work Overload</div>
-
-						<div class="text-right mt-2">
+						<div class="mgr-small"><?php echo $mngleavevalue->emp_description; ?> </div>
+						<!-- <div class="text-right mt-2">
 							<span class="mgr-reject">Reject</span> |
 							<span class="mgr-approve">Approve</span>
-						</div>
+						</div> -->
 					</div>
 				</div>
+				<?php } ?>
 
 			</div>
 		</div>
@@ -83,48 +87,32 @@
 
 <!-- RIGHT -->
 <div class="col-md-4">
-
+<!-- manageremployeeRegulations -->
 	<div class="mgr-card">
 		<h6 class="mb-3">Regulations</h6>
-
 		<div class="mgr-time-scroll">
+			<?php foreach($dashboardLeavesRegulations['manageremployeeRegulations'] as $mngregkey => $mngregvalue){ ?>
 
 			<div class="mgr-req">
 				<div class="d-flex align-items-center">
-					<img src="https://i.pravatar.cc/50" class="mgr-avatar">
+					<img src="<?php echo HRADMINROOTDOCUMENT.$mngregvalue->pimage; ?>" height="50px" width="50px"  class="mgr-avatar">
 					<div>
-						<strong>Devon Lane</strong>
-						<div class="mgr-small">Jun 4 - Jun 7</div>
+						<strong><?php echo $mngregvalue->employeename; ?> </strong>
+						<div class="mgr-small"><?php echo date('M j', strtotime($mngregvalue->from)); ?></div>
 					</div>
 				</div>
-
+					<div>
+						</div>
+						<span class="mgr-badge mgr-medical"><?php echo $mngregvalue->emp_description; ?> </span>
 				<div>
-					<span class="mgr-badge mgr-medical">Medical</span>
-					<div class="mgr-actions">
+					
+					<!-- <div class="mgr-actions">
 						<span class="mgr-reject">Reject</span> |
 						<span class="mgr-approve">Approve</span>
-					</div>
+					</div> -->
 				</div>
 			</div>
-
-			<div class="mgr-req">
-				<div class="d-flex align-items-center">
-					<img src="https://i.pravatar.cc/51" class="mgr-avatar">
-					<div>
-						<strong>Bessie Cooper</strong>
-						<div class="mgr-small">Jun 8</div>
-					</div>
-				</div>
-
-				<div>
-					<span class="mgr-badge mgr-personal">Personal</span>
-					<div class="mgr-actions">
-						<span class="mgr-reject">Reject</span> |
-						<span class="mgr-approve">Approve</span>
-					</div>
-				</div>
-			</div>
-
+			<?php } ?>
 		</div>
 
 	</div>
