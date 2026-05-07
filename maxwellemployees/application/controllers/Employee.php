@@ -331,6 +331,21 @@ class Employee extends Common {
         // echo $this->EmployeeModel->employeesleaveshistoryList($userdata);
         echo $this->EmployeeModel->employeesRegulationsList($userdata);
     }  
+    
+    public function managerApprovalRegulations(){
+        $this->checkissession();
+        $this->header();        
+        $data['controller'] = $this;
+        $data['title']= 'Manager Employee Regulations';       
+        $this->load->view('regulations/manageremployeeregulations', $data);
+        $this->footer();
+    }
+
+    public function manageremployeesregulationhistoryList(){
+        $this->checkissession();
+        $userdata = $this->input->post();
+        echo $this->EmployeeModel->manageremployeesregulationList($userdata);
+    }
     # End Regulations
     # Employee Loans
     public function employeeLoanslist(){

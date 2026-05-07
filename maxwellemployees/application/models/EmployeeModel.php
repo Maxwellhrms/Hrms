@@ -778,8 +778,7 @@ public function getAttendanceDashboard(){
             $monthYear = explode('-', $data['monthyearlr']);
             $monthid = $monthYear[0];
             $yearid  = $monthYear[1];
-        }
-        
+        }       
         
         if(count($employee_codes) > 0){
             $employee_ids = $employee_codes;
@@ -795,9 +794,112 @@ public function getAttendanceDashboard(){
         if(!empty($year)){
             $yearid = date('Y');
         }
+        
+        if (!empty($data['monthyearlr'])) {
+            $data['fromdate'] = date('Y-m-01', strtotime('01-' . $data['monthyearlr']));
+            $data['todate']   = date('Y-m-t', strtotime('01-' . $data['monthyearlr']));
+        }else{
+            $data['fromdate'] = date('Y-m-01');
+            $data['todate'] = date('Y-m-t');
+        }
 
-        $returnarray['employeeRegulations'] = $this->DashBoardModel->get_employee_attendance_Regulations($employee_ids, $monthid, $yearid);
+        $data['customoption'] = '';
+        $data['leavestatus'] = '0';
+        $data['flag'] = 0;
+        $data['regulationtype'] = '';
+        $data['employee_ids'] =$employee_ids;
+
+        $returnarray['managerleavesdetails'] = $this->CommonModel->manageremployeesleaveList($data);
+        $returnarray['manageremployeeRegulations'] = $this->CommonModel->manageremployeesregulationList($data);
+        $returnarray['ontimeLatecomming'] = $this->ontimeLatecomming($data);
+        // print_r($returnarray['ontimeLatecomming']); exit;
         return $returnarray;
+    }
+
+    public function ontimeLatecomming($data){
+
+        $employee_codes = (!empty($data['employecodeslr']) && $data['employecodeslr'] != 'ALL') ? array($data['employecodeslr']) : array();
+
+        $monthid = '';
+        $yearid  = '';
+
+        if (!empty($data['monthyearlr'])) {
+
+            $monthYear = explode('-', $data['monthyearlr']);
+
+            $monthid = $monthYear[0];
+            $yearid  = $monthYear[1];
+        }
+
+        // Default current month/year
+        if (empty($monthid)) {
+            $monthid = date('m');
+        }
+
+        if (empty($yearid)) {
+            $yearid = date('Y');
+        }
+
+        // Employee IDs
+        if(count($employee_codes) > 0){
+            $employee_ids = $employee_codes;
+        }else{
+
+            $employee_ids = $this->CommonModel->getEmployeesWhoAreAssignToAuthorsations($reporting_head_emp_code = '');
+            $employee_ids = array_column($employee_ids, 'mxauth_emp_code');
+        }
+
+        // Response
+        $resp = array(
+            'ontime' => 0,
+            'late'   => 0
+        );
+
+        // Start and End Dates of Month
+        $from_date = $yearid . '-' . $monthid . '-01';
+        $to_date   = date('Y-m-t', strtotime($from_date));
+
+        // Attendance table
+        $table_name = 'maxwell_attendance_' . $yearid . '_' . $monthid;
+
+        $this->db->select('mx_attendance_emp_code,mx_attendance_date,mx_attendance_first_half_punch');
+
+        $this->db->from($table_name);
+
+        $this->db->where_in('mx_attendance_emp_code', $employee_ids);
+
+        $this->db->where('mx_attendance_date >=', $from_date);
+        $this->db->where('mx_attendance_date <=', $to_date);
+
+        $query = $this->db->get();
+        $qry = $query->result();
+
+        if(!empty($qry)){
+
+            foreach($qry as $row){
+
+                if(!empty($row->mx_attendance_first_half_punch)){
+
+                    $punches = explode(',', $row->mx_attendance_first_half_punch);
+
+                    $userfirstpunch = trim($punches[0]);
+
+                    if(!empty($userfirstpunch)){
+
+                        // Late Check
+                        if(strtotime($userfirstpunch) > strtotime('09:35:00')){
+
+                            $resp['late']++;
+
+                        }else{
+
+                            $resp['ontime']++;
+                        }
+                    }
+                }
+            }
+        }
+        return $resp;
     }
 
      # Leaves 
@@ -1307,6 +1409,90 @@ public function getAttendanceDashboard(){
             'Translate' => array(),
         );
 
+        // Define columns for links and edit actions
+        $urllink = '';
+        $linkColumns = array(); // Columns where links will be provided
+        $editColumns = array(); // Columns with edit options
+        $hideColumn = array();
+        $hideInExport = array();
+        $reportName = 'Leave Details History Report';
+        $processData = array(
+            'retrunarray' => $retrunarray,
+            'columns' => $columns,
+            'linkColumns' => $linkColumns,
+            'editColumns' => $editColumns,
+            'dataMappingColumns' => $dataMappingColumns,
+            'renameHeaderColumns' => $renameHeaderColumns,
+            'hideColumn' => $hideColumn,
+            'reportName' => $reportName,
+            'hideInExport' => $hideInExport,
+        );
+        echo dynamicTable($processData);
+    }
+    
+    public function manageremployeesregulationList($data){
+        $employeecode = $this->session->userdata('session_loginperson_id');
+        $manageremployee = $this->CommonModel->getEmployeesWhoAreAssignToAuthorsations($employeecode);
+        $datas['employee_ids'] = array_column($manageremployee, 'mxauth_emp_code');
+        $leavefromdate = $data['fromdate'];
+        $leavetodate = $data['todate'];
+        $datas['regulationtype']  = $data['regulationtype'];
+        $datas['leavestatus'] = $data['leavestatus'];
+        $datefrom = DateTime::createFromFormat('d-m-Y', $leavefromdate);
+        $datas['fromdate'] = $datefrom->format('Y-m-d');
+        $dateto = DateTime::createFromFormat('d-m-Y', $leavetodate);
+        $datas['todate'] = $dateto->format('Y-m-d');
+        $datas['flag'] = '';
+        $result = $this->CommonModel->manageremployeesregulationList($datas);
+            $retrunarray = array();                            
+            foreach ($result as $key => $val){
+                $buldarray = (object)array(
+                    "employee_code" => $val->employeeid,
+                    "mxemp_emp_fname" => $val->employeename,
+                    "category_type" => $val->category_type,
+                    "leave_from" => $val->from,
+                    "leave_to" => $val->to,
+                    // "days_count" => $val->mxar_noofdays,
+                    // "current_balance" => $val->current_balance,
+                    // "used" => $val->total_used,
+                    // "leave_name" => $val->leavetypename .' (' . $val->mxlt_leave_name . ')',
+                    "leave_name" => $val->regulationtype,
+                    "leave_description" => $val->emp_description,
+                    "status" => $val->regulation_status
+                );                                
+                array_push($retrunarray,$buldarray);   
+            }
+        $columns = [
+            'employee_code',
+            'mxemp_emp_fname',
+            'category_type',
+            'leave_from',
+            'leave_to',
+            // 'days_count',
+            // 'current_balance',
+            // 'used',
+            'leave_name',
+            'leave_description',
+            'status',
+        ];    
+
+        $renameHeaderColumns = [
+            'employee_code' => 'Employee Code',
+            'mxemp_emp_fname' => 'Employee Name', 
+            'category_type' => 'Leave Category',
+            'leave_from' => 'From Date',
+            'leave_to' => 'To Date',
+            // 'days_count' => 'Total Days',
+            // 'current_balance' => 'Current Balance',
+            // 'used' => 'Used',
+            'leave_name' => 'Leave Type',
+            'leave_description' => 'Reason / Description',
+            'status' => 'Approval Status'            
+        ]; 
+        // Mapping id and replace with name form masters
+        $dataMappingColumns = array(
+            'Translate' => array(),
+        );
         // Define columns for links and edit actions
         $urllink = '';
         $linkColumns = array(); // Columns where links will be provided
