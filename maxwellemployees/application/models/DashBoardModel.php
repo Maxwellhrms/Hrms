@@ -349,7 +349,7 @@ class DashBoardModel extends CI_Model
 
             return array(
                 'workingdays'  => 0,
-                'monthyear'    => date('F Y'),
+                'monthyear' => date('F Y', strtotime('-1 month')),
                 'salarystatus' => 'Not Disbursed'
             );
         }

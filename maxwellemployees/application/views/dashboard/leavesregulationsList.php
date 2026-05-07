@@ -46,7 +46,7 @@
 
 	<!-- Leaves -->
 	<div class="mgr-card">
-		<h6 class="mb-3">Leaves Requests (<?php echo count($dashboardLeavesRegulations['managerleavesdetails']); ?>)</h6>
+		<h6 class="mb-3">Pending Leaves Requests (<?php echo count($dashboardLeavesRegulations['managerleavesdetails']); ?>)</h6>
 
 		<div class="mgr-ot-scroll">
 			<div class="row">
@@ -89,7 +89,7 @@
 <div class="col-md-4">
 <!-- manageremployeeRegulations -->
 	<div class="mgr-card">
-		<h6 class="mb-3">Regulations (<?php echo count($dashboardLeavesRegulations['manageremployeeRegulations']); ?>)</h6>
+		<h6 class="mb-3">Pending Regulations Requests (<?php echo count($dashboardLeavesRegulations['manageremployeeRegulations']); ?>)</h6>
 		<div class="mgr-time-scroll">
 			<?php foreach($dashboardLeavesRegulations['manageremployeeRegulations'] as $mngregkey => $mngregvalue){ ?>
 

@@ -176,6 +176,7 @@
 				<h1 class="mb-0"><?php echo date('d',strtotime($dashboard['hoildaysummary'][0]['holidaydate'])); ?></h1>
 				<small><?php echo date('M Y',strtotime($dashboard['hoildaysummary'][0]['holidaydate'])); ?></small>
 				<p class="text-muted mb-0"><?php echo $dashboard['hoildaysummary'][0]['holidayname']; ?></p>
+				<p style="background: #e6f7ee;color: #1e7e34;border-radius:20px"><?php echo $dashboard['hoildaysummary'][0]['holiday_type']; ?></p>
 			</div>
 			<i class="la la-umbrella-beach fa-2x text-info"></i>
 		</div>
