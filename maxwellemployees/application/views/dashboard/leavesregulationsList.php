@@ -46,7 +46,7 @@
 
 	<!-- Leaves -->
 	<div class="mgr-card">
-		<h6 class="mb-3">Leaves Requests</h6>
+		<h6 class="mb-3">Leaves Requests (<?php echo count($dashboardLeavesRegulations['managerleavesdetails']); ?>)</h6>
 
 		<div class="mgr-ot-scroll">
 			<div class="row">
@@ -60,7 +60,7 @@
 								<span class="mgr-small"><?php echo $mngleavevalue->desginationname; ?></span>
 							</div>
 						</div>
-						<div><?php echo $mngleavevalue->employeeid; ?> </div>
+						<div class="mgr-approve"><?php echo $mngleavevalue->employeeid; ?> </div>
 						<div class="mgr-small">Date</div>
 						<div><?php if($mngleavevalue->from == $mngleavevalue->to){
 									echo date('M j', strtotime($mngleavevalue->from));
@@ -89,29 +89,41 @@
 <div class="col-md-4">
 <!-- manageremployeeRegulations -->
 	<div class="mgr-card">
-		<h6 class="mb-3">Regulations</h6>
+		<h6 class="mb-3">Regulations (<?php echo count($dashboardLeavesRegulations['manageremployeeRegulations']); ?>)</h6>
 		<div class="mgr-time-scroll">
 			<?php foreach($dashboardLeavesRegulations['manageremployeeRegulations'] as $mngregkey => $mngregvalue){ ?>
 
-			<div class="mgr-req">
-				<div class="d-flex align-items-center">
-					<img src="<?php echo HRADMINROOTDOCUMENT.$mngregvalue->pimage; ?>" height="50px" width="50px"  class="mgr-avatar">
-					<div>
-						<strong><?php echo $mngregvalue->employeename; ?> </strong>
-						<div class="mgr-small"><?php echo date('M j', strtotime($mngregvalue->from)); ?></div>
-					</div>
+				<div class="mgr-req">
+				    
+				    <div class="d-flex align-items-center">
+
+				        <img src="<?php echo HRADMINROOTDOCUMENT.$mngregvalue->pimage; ?>" height="50px" width="50px" class="mgr-avatar">
+
+				        <div class="mgr-user-details">
+
+				            <strong><?php echo $mngregvalue->employeename; ?></strong>
+
+							<div class="mgr-small">
+
+							    <span class="mgr-approve">
+							        <?php echo $mngregvalue->employeeid; ?>
+							    </span>
+
+							    <span class="mgr-date">
+							        <?php echo date('M j', strtotime($mngregvalue->from)); ?>
+							    </span>
+
+							</div>
+
+				            <span class="mgr-badge mgr-medical">
+				                <?php echo $mngregvalue->emp_description; ?>
+				            </span>
+
+				        </div>
+
+				    </div>
+
 				</div>
-					<div>
-						</div>
-						<span class="mgr-badge mgr-medical"><?php echo $mngregvalue->emp_description; ?> </span>
-				<div>
-					
-					<!-- <div class="mgr-actions">
-						<span class="mgr-reject">Reject</span> |
-						<span class="mgr-approve">Approve</span>
-					</div> -->
-				</div>
-			</div>
 			<?php } ?>
 		</div>
 

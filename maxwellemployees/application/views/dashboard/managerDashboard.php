@@ -80,7 +80,7 @@
 .mgr-short{width:40%;}
 
 .mgr-reject{color:#dc3545;font-size:12px;}
-.mgr-approve{color:#7c3aed;font-size:12px;margin-left:10px;}
+.mgr-approve{color:#7c3aed;font-size:12px;}
 
 /* TIME OFF */
 .mgr-time-scroll{
@@ -120,6 +120,10 @@
 .mgr-time-scroll::-webkit-scrollbar-thumb{
 	background:#ddd;
 	border-radius:10px;
+}
+.mgr-date{
+    display: block;
+    margin-top: 2px;
 }
 </style>
 <style>
