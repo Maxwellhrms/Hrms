@@ -458,7 +458,7 @@ class CommonModel extends CI_Model
             WHEN mxar_auth4_empname = '$employeecode' and mxar_auth4_status = 0 THEN 'Pending'
             WHEN mxar_auth4_empcode = '$employeecode' and mxar_auth4_status = 1 THEN 'Approved'
             WHEN mxar_auth4_empcode = '$employeecode' and mxar_auth4_status = 2 THEN 'Rejected'
-            WHEN mxar_authfinal_empcode = '$employeecode' and mxar_authfinal_status = 0 THEN 'Pending'
+            WHEN mxar_authfinal_empcode = '$employeecode' and mxar_authfinal_status = 9 THEN 'Pending'
             WHEN mxar_authfinal_empcode = '$employeecode' and mxar_authfinal_status = 3 THEN 'HR Approved'
             WHEN mxar_authfinal_empcode = '$employeecode' and mxar_authfinal_status = 1 THEN 'Approved'
             WHEN mxar_authfinal_empcode = '$employeecode' and mxar_authfinal_status = 2 THEN 'Rejected'
@@ -492,7 +492,7 @@ class CommonModel extends CI_Model
                 WHEN mxar_auth4_empcode = '$employeecode' and mxar_auth4_status = 1 THEN '1'
                 WHEN mxar_auth4_empcode = '$employeecode' and mxar_auth4_status = 2 THEN '2'
 
-                WHEN mxar_authfinal_empcode = '$employeecode' and mxar_authfinal_status = 0 THEN '0'
+                WHEN mxar_authfinal_empcode = '$employeecode' and mxar_authfinal_status = 9 THEN '0'
                 WHEN mxar_authfinal_empcode = '$employeecode' and mxar_authfinal_status = 3 THEN '3'
                 WHEN mxar_authfinal_empcode = '$employeecode' and mxar_authfinal_status = 1 THEN '1'
                 WHEN mxar_authfinal_empcode = '$employeecode' and mxar_authfinal_status = 2 THEN '2'

@@ -818,7 +818,9 @@ public function getAttendanceDashboard(){
 
     public function ontimeLatecomming($data){
 
-        $employee_codes = (!empty($data['employecodeslr']) && $data['employecodeslr'] != 'ALL') ? array($data['employecodeslr']) : array();
+        $employee_codes = (!empty($data['employecodeslr']) && $data['employecodeslr'] != 'ALL') 
+            ? array($data['employecodeslr']) 
+            : array();
 
         $monthid = '';
         $yearid  = '';
@@ -842,17 +844,22 @@ public function getAttendanceDashboard(){
 
         // Employee IDs
         if(count($employee_codes) > 0){
+
             $employee_ids = $employee_codes;
+
         }else{
 
-            $employee_ids = $this->CommonModel->getEmployeesWhoAreAssignToAuthorsations($reporting_head_emp_code = '');
+            $employee_ids = $this->CommonModel
+                ->getEmployeesWhoAreAssignToAuthorsations($reporting_head_emp_code = '');
+
             $employee_ids = array_column($employee_ids, 'mxauth_emp_code');
         }
 
         // Response
         $resp = array(
             'ontime' => 0,
-            'late'   => 0
+            'late'   => 0,
+            'employee_wise' => array()
         );
 
         // Start and End Dates of Month
@@ -862,7 +869,11 @@ public function getAttendanceDashboard(){
         // Attendance table
         $table_name = 'maxwell_attendance_' . $yearid . '_' . $monthid;
 
-        $this->db->select('mx_attendance_emp_code,mx_attendance_date,mx_attendance_first_half_punch');
+        $this->db->select('
+            mx_attendance_emp_code,
+            mx_attendance_date,
+            mx_attendance_first_half_punch
+        ');
 
         $this->db->from($table_name);
 
@@ -871,12 +882,29 @@ public function getAttendanceDashboard(){
         $this->db->where('mx_attendance_date >=', $from_date);
         $this->db->where('mx_attendance_date <=', $to_date);
 
+        $this->db->where('mx_attendance_first_half_punch !=', '');
+
         $query = $this->db->get();
+
+        // echo $this->db->last_query(); exit;
+
         $qry = $query->result();
 
         if(!empty($qry)){
 
             foreach($qry as $row){
+
+                $empcode = $row->mx_attendance_emp_code;
+
+                // Initialize employee wise counts
+                if(!isset($resp['employee_wise'][$empcode])){
+
+                    $resp['employee_wise'][$empcode] = array(
+                        'ontime' => 0,
+                        'late'   => 0,
+                        'total'  => 0
+                    );
+                }
 
                 if(!empty($row->mx_attendance_first_half_punch)){
 
@@ -886,19 +914,26 @@ public function getAttendanceDashboard(){
 
                     if(!empty($userfirstpunch)){
 
+                        $resp['employee_wise'][$empcode]['total']++;
+
                         // Late Check
                         if(strtotime($userfirstpunch) > strtotime('09:35:00')){
 
                             $resp['late']++;
 
+                            $resp['employee_wise'][$empcode]['late']++;
+
                         }else{
 
                             $resp['ontime']++;
+
+                            $resp['employee_wise'][$empcode]['ontime']++;
                         }
                     }
                 }
             }
         }
+
         return $resp;
     }
 
