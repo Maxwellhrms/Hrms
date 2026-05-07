@@ -1534,7 +1534,7 @@ public function getAttendanceDashboard(){
         $editColumns = array(); // Columns with edit options
         $hideColumn = array();
         $hideInExport = array();
-        $reportName = 'Leave Details History Report';
+        $reportName = 'Employees Regulation Reports';
         $processData = array(
             'retrunarray' => $retrunarray,
             'columns' => $columns,
