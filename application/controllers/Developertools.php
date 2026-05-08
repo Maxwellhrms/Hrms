@@ -256,5 +256,33 @@ class Developertools extends Common {
         $data['getoptions'] = get_options_data('notes');
         $this->load->view('developertools/cron_mobile_logs_list',$data);
     }
+
+    public function dailybackups(){
+        $this->header();
+        $data['title']= "Daily Backups";
+        $data['titlehead']= "Daily Backups report";
+        $data['check']="";
+        $data['controller'] = $this;
+        $this->load->view('dailybackups/dbbackups',$data);
+        $this->footer();    
+    }
+    
+    public function dailybackupslist(){
+        $userdata = $this->input->post();
+        echo $this->Developertoolsmodels->dailybackupslist($userdata);
+    }
+
+    public function downloadBackup() {
+        $this->load->helper('download');
+
+        $file = basename($this->input->get('file')); // prevent path traversal
+        $path = $_SERVER['DOCUMENT_ROOT'] . '/backups/' . $file;
+
+        if (!file_exists($path)) {
+            show_404();
+        }
+
+        force_download($path, NULL);
+    }
     
 }

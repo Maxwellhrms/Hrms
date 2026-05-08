@@ -417,6 +417,88 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             // echo $this->db->last_query();exit;
             return $result = $query->result();  
         }
+
+    public function dailybackupslist($data){
+
+        $fromDate = !empty($data['fromdatefilter']) ? date('Y-m-d', strtotime($data['fromdatefilter'])) : '';
+        $toDate   = !empty($data['todatefilter']) ? date('Y-m-d', strtotime($data['todatefilter'])) : '';
+
+        // Backup folder path
+        $path = $_SERVER['DOCUMENT_ROOT'] . '/backups/';
+
+        if (!is_dir($path)) {
+            echo "Backup directory not found";
+            return;
+        }
+
+        $files = scandir($path);
+
+        $retrunarray = [];
+
+        foreach ($files as $file) {
+
+            if ($file == '.' || $file == '..') continue;
+
+            // Match: dbbackup_2026-05-08.sql.gz
+            if (preg_match('/dbbackup_(\d{4})-(\d{2})-(\d{2})\.sql\.gz$/', $file, $parts)) {
+
+                $year  = $parts[1];
+                $month = $parts[2];
+                $day   = $parts[3];
+
+                $fileDate = $year . '-' . $month . '-' . $day;
+
+                // From Date Filter
+                if (!empty($fromDate) && strtotime($fileDate) < strtotime($fromDate)) {
+                    continue;
+                }
+
+                // To Date Filter
+                if (!empty($toDate) && strtotime($fileDate) > strtotime($toDate)) {
+                    continue;
+                }
+
+                $downloadUrl = base_url('Developertools/downloadBackup?file=' . urlencode($file));
+
+                $retrunarray[] = (object)[
+                    "backup_name" => $file,
+                    "backup_date" => date('d M Y', strtotime($fileDate)),
+                    "download"    => '<a href="'.$downloadUrl.'" class="btn btn-sm btn-success" title="Download Backup"><i class="fa fa-download"></i></a>'
+                ];
+            }
+        }
+
+        // Latest first
+        usort($retrunarray, function($a, $b){
+            return strtotime($b->backup_date) - strtotime($a->backup_date);
+        });
+
+        $columns = [
+            'backup_name',
+            'backup_date',
+            'download'
+        ];
+
+        $renameHeaderColumns = [
+            'backup_name' => 'Backup File',
+            'backup_date' => 'Backup Date',
+            'download'    => 'Download'
+        ];
+
+        $processData = array(
+            'retrunarray' => $retrunarray,
+            'columns' => $columns,
+            'linkColumns' => [],
+            'editColumns' => [],
+            'dataMappingColumns' => ['Translate' => []],
+            'renameHeaderColumns' => $renameHeaderColumns,
+            'hideColumn' => [],
+            'reportName' => 'Database Backups',
+            'hideInExport' => ['download'],
+        );
+
+        echo dynamicTable($processData);
+    }
         
     }
 ?>
