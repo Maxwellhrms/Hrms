@@ -420,8 +420,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
         public function dailybackupslist($data){
 
-            $fromDate = !empty($data['fromdatefilter']) ? date('Y-m-d', strtotime($data['fromdatefilter'])) : '';
-            $toDate   = !empty($data['todatefilter']) ? date('Y-m-d', strtotime($data['todatefilter'])) : '';
+            $fromDate = '';
+            $toDate   = '';
+
+            // Convert dd-mm-yyyy to Y-m-d
+            if (!empty($data['fromdatefilter'])) {
+                $from = DateTime::createFromFormat('d-m-Y', $data['fromdatefilter']);
+                $fromDate = $from ? $from->format('Y-m-d') : '';
+            }
+
+            if (!empty($data['todatefilter'])) {
+                $to = DateTime::createFromFormat('d-m-Y', $data['todatefilter']);
+                $toDate = $to ? $to->format('Y-m-d') : '';
+            }
 
             // Backup folder path
             $path = $_SERVER['DOCUMENT_ROOT'] . '/backups/';
@@ -452,14 +463,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                     // From Date Filter
                     if (!empty($fromDate)) {
-                        if (strtotime($fileDate) < strtotime($fromDate)) {
+                        if ($fileDate < $fromDate) {
                             continue;
                         }
                     }
 
                     // To Date Filter
                     if (!empty($toDate)) {
-                        if (strtotime($fileDate) > strtotime($toDate)) {
+                        if ($fileDate > $toDate) {
                             continue;
                         }
                     }
@@ -504,7 +515,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             $linkColumns = array();
             $editColumns = array();
 
-            // Hide raw sorting column
+            // Hide raw date column
             $hideColumn = array('backup_raw_date');
 
             $reportName = 'Database Backups';
