@@ -418,19 +418,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             return $result = $query->result();  
         }
 
-        public function dailybackupslist($data){
-
+        public function dailybackupslist($data)
+        {
             $fromDate = '';
             $toDate   = '';
 
             // Convert dd-mm-yyyy to Y-m-d
             if (!empty($data['fromdatefilter'])) {
-                $from = DateTime::createFromFormat('d-m-Y', $data['fromdatefilter']);
+                $from = DateTime::createFromFormat('d-m-Y', trim($data['fromdatefilter']));
                 $fromDate = $from ? $from->format('Y-m-d') : '';
             }
 
             if (!empty($data['todatefilter'])) {
-                $to = DateTime::createFromFormat('d-m-Y', $data['todatefilter']);
+                $to = DateTime::createFromFormat('d-m-Y', trim($data['todatefilter']));
                 $toDate = $to ? $to->format('Y-m-d') : '';
             }
 
@@ -448,11 +448,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
             foreach ($files as $file) {
 
+                // Skip . and ..
                 if ($file == '.' || $file == '..') {
                     continue;
                 }
 
-                // Match: dbbackup_2026-05-08.sql.gz
+                // Match backup file format
+                // Example: dbbackup_2026-05-08.sql.gz
                 if (preg_match('/dbbackup_(\d{4})-(\d{2})-(\d{2})\.sql\.gz$/', $file, $parts)) {
 
                     $year  = $parts[1];
@@ -461,35 +463,52 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                     $fileDate = $year . '-' . $month . '-' . $day;
 
+                    // Convert to timestamp for proper comparison
+                    $fileTimestamp = strtotime($fileDate);
+
                     // From Date Filter
                     if (!empty($fromDate)) {
-                        if ($fileDate < $fromDate) {
+
+                        $fromTimestamp = strtotime($fromDate);
+
+                        if ($fileTimestamp < $fromTimestamp) {
                             continue;
                         }
                     }
 
                     // To Date Filter
                     if (!empty($toDate)) {
-                        if ($fileDate > $toDate) {
+
+                        $toTimestamp = strtotime($toDate);
+
+                        if ($fileTimestamp > $toTimestamp) {
                             continue;
                         }
                     }
 
+                    // Download URL
                     $downloadUrl = base_url('Developertools/downloadBackup?file=' . urlencode($file));
 
+                    // Build Row
                     $buldarray = (object)array(
                         "backup_name"      => $file,
                         "backup_date"      => date('d M Y', strtotime($fileDate)),
                         "backup_raw_date"  => $fileDate,
-                        "download"         => '<a href="'.$downloadUrl.'" class="btn btn-sm btn-success" title="Download Backup"><i class="fa fa-download"></i></a>',
+                        "download"         => '
+                            <a href="' . $downloadUrl . '" 
+                               class="btn btn-sm btn-success" 
+                               title="Download Backup">
+                                <i class="fa fa-download"></i>
+                            </a>
+                        ',
                     );
 
                     array_push($retrunarray, $buldarray);
                 }
             }
 
-            // Latest first
-            usort($retrunarray, function($a, $b){
+            // Sort latest first
+            usort($retrunarray, function ($a, $b) {
                 return strtotime($b->backup_raw_date) - strtotime($a->backup_raw_date);
             });
 
@@ -505,12 +524,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 'download'    => 'Download'
             ];
 
-            // Mapping id and replace with name form masters
+            // Mapping
             $dataMappingColumns = array(
                 'Translate' => array(),
             );
 
-            // Define columns for links and edit actions
+            // Links/Edit columns
             $urllink = '';
             $linkColumns = array();
             $editColumns = array();
@@ -519,6 +538,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             $hideColumn = array('backup_raw_date');
 
             $reportName = 'Database Backups';
+
+            // IMPORTANT:
+            // If no data found, send empty array properly
+            if (empty($retrunarray)) {
+                $retrunarray = array();
+            }
 
             echo dynamicTable(
                 $retrunarray,
