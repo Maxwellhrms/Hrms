@@ -467,9 +467,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     $downloadUrl = base_url('Developertools/downloadBackup?file=' . urlencode($file));
 
                     $buldarray = (object)array(
-                        "backup_name"  => $file,
-                        "backup_date"  => date('d M Y', strtotime($fileDate)),
-                        "download"     => '<a href="'.$downloadUrl.'" class="btn btn-sm btn-success" title="Download Backup"><i class="fa fa-download"></i></a>',
+                        "backup_name"      => $file,
+                        "backup_date"      => date('d M Y', strtotime($fileDate)),
+                        "backup_raw_date"  => $fileDate,
+                        "download"         => '<a href="'.$downloadUrl.'" class="btn btn-sm btn-success" title="Download Backup"><i class="fa fa-download"></i></a>',
                     );
 
                     array_push($retrunarray, $buldarray);
@@ -478,7 +479,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
             // Latest first
             usort($retrunarray, function($a, $b){
-                return strtotime($b->backup_date) - strtotime($a->backup_date);
+                return strtotime($b->backup_raw_date) - strtotime($a->backup_raw_date);
             });
 
             $columns = [
@@ -502,7 +503,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             $urllink = '';
             $linkColumns = array();
             $editColumns = array();
-            $hideColumn = array();
+
+            // Hide raw sorting column
+            $hideColumn = array('backup_raw_date');
+
             $reportName = 'Database Backups';
 
             echo dynamicTable(
