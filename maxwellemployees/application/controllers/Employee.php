@@ -379,4 +379,34 @@ class Employee extends Common {
         echo $this->EmployeeModel->managerteammembersList($userdata);
     }
     # End Manager Team Members
+
+    # Employee Geo Locations
+    public function managerTeamMembersGeoLocationAttendance(){
+        $this->checkissession();
+        $this->header();
+        $data['title']= "Your Team Members Geo Location Attendance";
+        $data['controller'] = $this;
+        $this->load->view('attendance/managerteammembersgeolocationattendance', $data);
+        $this->footer();
+    }
+
+    public function managerTeamMembersGeoLocationAttendanceList(){
+        $this->checkissession();
+        $userdata = $this->input->post();
+        echo $this->EmployeeModel->managerTeamMembersGeoLocationAttendanceList($userdata);
+    }
+
+    public function TeamMembersGeoLocationAttendance(){
+        $this->checkissession();
+        $this->header();
+        $data['title']= "Geo Location Attendance";
+        $data['controller'] = $this;
+        $employeeid = $this->input->get('employeeid');
+        $date = $this->input->get('date');
+        $data['locations'] = $this->EmployeeModel->googlemap($employeeid,$date);
+        // echo '<pre>'; print_r( $data['locations']);exit;
+        $this->load->view('attendance/geolocationattendance', $data);
+        $this->footer();
+    }
+    # End Employee Geo Locations
 }

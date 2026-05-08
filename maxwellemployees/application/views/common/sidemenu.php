@@ -80,7 +80,11 @@ if ($isApprovals == 1) {
             [
                 "label" => "Regulations Approvals",
                 "url"   => "Employee/managerApprovalRegulations"
-            ]
+            ],
+            [
+                "label" => "Geo Punches",
+                "url"   => "Employee/managerTeamMembersGeoLocationAttendance"
+            ],
         ]
     ];
 
