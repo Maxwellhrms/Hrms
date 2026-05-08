@@ -424,13 +424,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             $toDate   = '';
 
             // Convert dd-mm-yyyy to Y-m-d
-            if (!empty($data['fromdatefilter'])) {
-                $from = DateTime::createFromFormat('d-m-Y', trim($data['fromdatefilter']));
+            if (!empty($data['fromdate'])) {
+                $from = DateTime::createFromFormat('d-m-Y', trim($data['fromdate']));
                 $fromDate = $from ? $from->format('Y-m-d') : '';
             }
 
-            if (!empty($data['todatefilter'])) {
-                $to = DateTime::createFromFormat('d-m-Y', trim($data['todatefilter']));
+            if (!empty($data['todate'])) {
+                $to = DateTime::createFromFormat('d-m-Y', trim($data['todate']));
                 $toDate = $to ? $to->format('Y-m-d') : '';
             }
 
