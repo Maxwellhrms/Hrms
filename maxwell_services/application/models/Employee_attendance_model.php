@@ -1613,6 +1613,41 @@ class Employee_attendance_model extends Common_model
         $cym_attend=date('Y_m',strtotime($from));
         $cym_attend_date=date('Y-m-d',strtotime($from));
         
+        if (in_array($type, ['AR', 'OT'], true)) {
+
+            $this->db->select('mx_attendance_first_half,mx_attendance_second_half');  
+            $this->db->from('maxwell_attendance_'.$cym_attend);              
+            $this->db->where('mx_attendance_status', 1);
+            $this->db->where('mx_attendance_emp_code', $employeeid);
+            $this->db->where('mx_attendance_date', $cym_attend_date);
+        
+            $query = $this->db->get();
+            $att_dt_validate = $query->result_array();
+        
+            $validationarray = ['WO', 'PH'];
+        
+            if (count($att_dt_validate) > 0) {
+        
+                foreach ($att_dt_validate as $row) {
+        
+                    if (
+                        in_array($row['mx_attendance_first_half'], $validationarray, true) ||
+                        in_array($row['mx_attendance_second_half'], $validationarray, true)
+                    ) {
+        
+                        $message = "Failed";
+                        $statuscode = "500";
+                        $desc = 'Regulation cannot be applied on public holidays or weekly offs';
+        
+                        $data['status'] = $statuscode;
+                        $data['msg'] = $message;
+                        $data['description'] = $desc;
+        
+                        return $data;
+                    }
+                }
+            }
+        }
         
         if($type == 'AR'){
             $this->db->select('mx_attendance_id as uniqid,mx_attendance_first_half_punch,mx_attendance_second_half_punch,mx_attendance_emp_code,mx_attendance_date');  
