@@ -153,9 +153,13 @@
             <thead>
 
               <tr>
-                <th>Employee</th>
-                <th>Name</th>
+              	<th>Employee Code</th>
+                <th>Employee Name</th>
+                <th>Leave Status</th>
                 <th>Leave Type</th>
+                <th>Leave Date</th>
+                <th>Days</th>
+                <th>Reason</th>
               </tr>
 
             </thead>
@@ -165,20 +169,30 @@
               <?php foreach($dashboard['inleavessummary'] as $row){ ?>
 
                 <tr>
-
+                	<td><?php echo $row['employeecode']; ?></td>
                   <td>
                     <img src="<?php echo HRADMINROOTDOCUMENT.$row['image']; ?>" 
                          width="35" 
                          height="35" 
                          class="rounded-circle">
+                         <?php echo $row['name']; ?>
                   </td>
 
                   <td>
-                  	<?php echo $row['name']; ?>
+                  	<?php echo $row['leave_status']; ?>
                   </td>
 
                   <td>
-                  	<?php echo $row['leave_type']; ?>
+                  	<?php echo $row['leavetype']; ?>
+                  </td>
+                  <td>
+                  	<?php echo $row['fromdate'].' To '.$row['todate']; ?>
+                  </td>
+                  <td>
+                  	<?php echo $row['noofdays']; ?>
+                  </td>
+                  <td>
+                  	<?php echo $row['description']; ?>
                   </td>
 
                 </tr>
