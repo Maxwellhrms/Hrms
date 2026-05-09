@@ -324,7 +324,7 @@ class DashBoardModel extends CI_Model
         $tableName = $result['mxemp_ty_table_name'];
 
         // STEP 2: Get salary data
-        $this->db->select('mxsal_present_days_from_attendance, mxsal_year_month');
+        $this->db->select('mxsal_present_days, mxsal_year_month');
         $this->db->from($tableName);
         $this->db->where('mxsal_emp_code', $employeecode);
         $this->db->where('mxsal_year_month', $yearmonth);
@@ -340,7 +340,7 @@ class DashBoardModel extends CI_Model
             $monthYear = date('F Y', strtotime($ym . '01'));
 
             return array(
-                'workingdays'  => (int)$row['mxsal_present_days_from_attendance'],
+                'workingdays'  => (int)$row['mxsal_present_days'],
                 'monthyear'    => $monthYear,
                 'salarystatus' => 'Disbursed'
             );
