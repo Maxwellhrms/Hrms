@@ -218,11 +218,24 @@ $this->db->or_where('YEAR(maxwell_employees_info.mxemp_emp_resignation_relieving
 $this->db->group_end();*/
 $this->db->group_start();
     $this->db->where('maxwell_employees_info.mxemp_emp_resignation_relieving_settlement_date IS NULL', null, false);
-    
+
+    /* Updated BY Varaprasad
+     * On : 09/05/2026
+     * Reason: #1525 - Incorrect DATETIME value: '202504' in Server as its upgraded to MySql from MariaDB
+     */
+
+    $startingDate = $start_year1."-04-01 00:00:00";
+    $endingDate = $end_year1."-03-31 23:59:59";
+
     $this->db->or_group_start();
-        $this->db->where('maxwell_employees_info.mxemp_emp_resignation_relieving_settlement_date >=', $start_year1_99);
-        $this->db->where('maxwell_employees_info.mxemp_emp_resignation_relieving_settlement_date <=', $end_year1_99);
+        $this->db->where('maxwell_employees_info.mxemp_emp_resignation_relieving_settlement_date >=', $startingDate);
+        $this->db->where('maxwell_employees_info.mxemp_emp_resignation_relieving_settlement_date <=', $endingDate);
     $this->db->group_end();
+
+    /*
+     * End of Update for Reason: #1525 - Incorrect DATETIME value: '202504' in Server as its upgraded to MySql
+     * from MariaDB
+     */
     
     $this->db->or_where('maxwell_employees_info.mxemp_emp_resignation_relieving_settlement_date', '0000-00-00 00:00:00');
 $this->db->group_end();
