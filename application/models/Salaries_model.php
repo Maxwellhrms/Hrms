@@ -15555,5 +15555,98 @@ class Salaries_model extends Adminmodel
 
 
     }
-    
+
+
+    /*
+       * Updated By : Varaprasad
+       * Developed On: 08-May-2026
+       * Purpose: To delete all employees (all employee types) salaries for the month selected.
+       * */
+    public function delete_global_salary($data) {
+        $this->db->trans_begin();
+
+        $company_id = $data['company_id'];
+        $yearmonth = $data['yearmonth'];
+
+        $month_year_db = date('Ym', strtotime('01-' . $yearmonth));
+        $next_month_db = date('Ym', strtotime('+1 month', strtotime('01-' . $yearmonth)));
+
+        // 1. Fetch Active Salary Tables Dynamically
+        $this->db->select('mxemp_ty_table_name, mxemp_ty_name, mxemp_ty_id');
+        $this->db->from('maxwell_employee_type_master');
+        $this->db->where('mxemp_ty_cmpid', $company_id);
+        $this->db->where('mxemp_ty_status', 1);
+        $table_query = $this->db->get();
+        $salary_tables = $table_query->result();
+
+        if (empty($salary_tables)) {
+            getjsondata(0, "No active salary tables found in master.");
+            return;
+        }
+
+        foreach ($salary_tables as $row) {
+            $table_name = $row->mxemp_ty_table_name;
+            $type_name  = $row->mxemp_ty_name;
+
+            // No salary exists for the NEXT month
+            // If November is already generated, you cannot delete October.
+            $this->db->where('mxsal_year_month', $next_month_db);
+            $this->db->where('mxsal_status', 1);
+            $this->db->where('mxsal_cmp_id', $company_id);
+            $next_exists = $this->db->count_all_results($table_name);
+
+            if ($next_exists > 0) {
+                $this->db->trans_rollback();
+                $msg = "Delete Aborted. Salary for " . date('F Y', strtotime('01-'.$yearmonth.' +1 month')) . " for Employee Type ".$type_name." already generated in " . $table_name;
+                getjsondata(0, $msg);
+                return;
+            }
+
+            // identify all loan logs associated with employees
+            $this->db->select('mx_loan_id, mx_loan_master_id, mx_loan_transaction_id, mx_loan_emi_amount');
+            $this->db->from('maxwell_loan_sal_log');
+            $this->db->where('mx_loan_month', $month_year_db);
+            $this->db->where('mx_loan_status', 1);
+            $loan_query = $this->db->get();
+            // echo $this->db->last_query();exit;
+            $log_count = $loan_query->num_rows();
+
+            if($log_count > 0) {
+                $loan_logs = $loan_query->result();
+                foreach ($loan_logs as $log) {
+                    // Restore Outstanding Amount to Master Table
+                    $this->db->set('mxemploan_emp_loan_outstanding_amt', 'mxemploan_emp_loan_outstanding_amt + ' . (float)$log->mx_loan_emi_amount, FALSE);
+                    $this->db->set('mxemploan_status', 1);
+                    $this->db->set('mxemploan_emp_information', 'IN PROCESS');
+                    $this->db->where('mxemploan_pri_id', $log->mx_loan_master_id);
+                    $this->db->update('maxwell_emp_loan_master');
+
+                    // Soft delete the specific transaction record
+                    $this->db->where('mxemploan_pri_id', $log->mx_loan_transaction_id);
+                    $this->db->update('maxwell_emp_loan_master_transaction', array('mxemploan_status' => 0));
+
+                    // Soft delete the loan log
+                    $this->db->where('mx_loan_id', $log->mx_loan_id);
+                    $this->db->update('maxwell_loan_sal_log', array('mx_loan_status' => 0));
+                }
+            }
+
+            //  Soft Delete for the Salary Records
+            $this->db->where('mxsal_year_month', $month_year_db);
+            $this->db->where('mxsal_cmp_id', $company_id);
+            $this->db->where('mxsal_status', 1);
+            $this->db->update($table_name, array('mxsal_status' => 0));
+        }
+
+        // Final Transaction Commitment
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            getjsondata(0, "An error occurred during global deletion. All changes rolled back.");
+        } else {
+            $this->db->trans_commit();
+            getjsondata(1, "Global salary data for " . $yearmonth . " successfully deleted for all employee types.");
+        }
+    }
+
+
 }

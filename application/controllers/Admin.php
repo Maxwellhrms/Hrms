@@ -3087,4 +3087,50 @@ public function getemprequesttype(){
         exit();
     }
 
+    /**
+     * Developed by: Varaprasad
+     * On: 08-May-2026
+     * Purpose : To delete all employees (all employee types) salaries for the month selected.
+     */
+    public function global_delete_salary() {
+        $this->verifylogin();
+        $this->header();
+
+        // Fetch master data for the filters
+        $data['cmpmaster'] = $this->Adminmodel->getcompany_master();
+        // Division details can be loaded via AJAX in the view,
+        // but we initialize the array for the dropdown if needed.
+        $data['divisiondetails'] = $this->Adminmodel->getdivisiondetails($id = '');
+
+        $this->load->view("Salaries/global_delete_salary", $data);
+        $this->footer();
+    }
+
+    /**
+     * Developed by: Varaprasad
+     * On: 08-May-2026
+     * Purpose : To delete all employees (all employee types) salaries for the month selected.
+     */
+    public function process_global_salary_delete() {
+        $this->verifylogin();
+
+        $post_data = $this->input->post();
+
+        if (empty($post_data)) {
+            getjsondata(0, "No parameters received for deletion.");
+            return;
+        }
+
+        if (empty($post_data['yearmonth']) || empty($post_data['company_id']) || $post_data['company_id'] == 0) {
+            getjsondata(0, "Error: Missing required parameters (Month-Year or Company). Operation aborted.");
+            return;
+        }
+
+        // Call the Model to handle the complex transaction across 4 tables
+        $result = $this->Salaries_model->delete_global_salary($post_data);
+
+        // The result is returned as JSON via the getjsondata helper in the model
+        return $result;
+    }
+
 }
