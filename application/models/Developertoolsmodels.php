@@ -454,16 +454,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 }
 
                 // Match backup file format
-                // Example: dbbackup_2026-05-08.sql.gz
-                if (preg_match('/dbbackup_(\d{4})-(\d{2})-(\d{2})\.sql\.gz$/', $file, $parts)) {
+                // Example:
+                // dbbackup_2026-05-09_13-03-02.sql.gz
+                if (preg_match('/dbbackup_(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})\.sql\.gz$/', $file, $parts)) {
 
-                    $year  = $parts[1];
-                    $month = $parts[2];
-                    $day   = $parts[3];
+                    $year   = $parts[1];
+                    $month  = $parts[2];
+                    $day    = $parts[3];
+                    $hour   = $parts[4];
+                    $minute = $parts[5];
+                    $second = $parts[6];
 
                     $fileDate = $year . '-' . $month . '-' . $day;
+                    $fileTime = $hour . ':' . $minute . ':' . $second;
 
-                    // Convert to timestamp for proper comparison
+                    $fileDateTime = $fileDate . ' ' . $fileTime;
+
+                    // Convert to timestamp for comparison
                     $fileTimestamp = strtotime($fileDate);
 
                     // From Date Filter
@@ -491,9 +498,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                     // Build Row
                     $buldarray = (object)array(
+
                         "backup_name"      => $file,
-                        "backup_date"      => date('d M Y', strtotime($fileDate)),
-                        "backup_raw_date"  => $fileDate,
+
+                        "backup_date"      => date('d M Y h:i:s A', strtotime($fileDateTime)),
+
+                        "backup_raw_date"  => $fileDateTime,
+
                         "download"         => '
                             <a href="' . $downloadUrl . '" 
                                class="btn btn-sm btn-success" 
@@ -520,7 +531,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
             $renameHeaderColumns = [
                 'backup_name' => 'Backup File',
-                'backup_date' => 'Backup Date',
+                'backup_date' => 'Backup Date & Time',
                 'download'    => 'Download'
             ];
 
