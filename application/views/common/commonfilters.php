@@ -36,6 +36,21 @@
                                 </div>
     						</div>
                         <?php } ?>
+
+                        <?php if($selectedFilter['requeststatus'] == 'Y'){ ?>
+                        <div class="col-sm-6 col-md-2"> 
+                            <div class="form-group form-focus select-focus">
+                                <select class="select select2" style="width: 100%" name="requeststatus" id="requeststatus"> 
+                                    <option value="ALL"> ALL </option>
+                                    <option value="0">Pending</option>
+                                    <option value="1">Approved</option>
+                                    <option value="2">Rejected</option>
+                                </select>
+                                <label class="focus-label">Select Status</label>
+                            </div>
+                            <span class="formerror" id="requeststatuserror"></span>
+                        </div>
+                        <?php } ?>
 					    
 					    
                         <?php if($selectedFilter['monthyearfilter'] == 'Y'){ ?>

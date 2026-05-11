@@ -266,7 +266,7 @@ class Employee extends Common {
         $this->header();
         $data['title']= "Employee Requests";
         $data['controller'] = $this;
-        $this->load->view('employee/employeesslRequest',$data);
+        $this->load->view('employee/employeesinfoRequest',$data);
         $this->footer();    
     }
 

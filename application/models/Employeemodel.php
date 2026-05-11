@@ -1177,20 +1177,17 @@ public function addnew_previous_employment($data){
         $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
         $this->db->join('maxwell_employee_type_master', 'mxemp_ty_id = mxemp_emp_type', 'INNER');
        // $this->db->where("mxemp_emp_resignation_status != 'R'");
-        if (!empty($data['companyid'])) {
-            $this->db->where('mxemp_emp_comp_code', $data['companyid']);
+        if (!empty($data['esi_company_id'])) {
+            $this->db->where('mxemp_emp_comp_code', $data['esi_company_id']);
         }
-        if (!empty($data['divisionid'])) {
-            $this->db->where('mxemp_emp_division_code', $data['divisionid']);
+        if (!empty($data['esi_div_id'])) {
+            $this->db->where('mxemp_emp_division_code', $data['esi_div_id']);
         }
-        if (!empty($data['branchid'])) {
-            $this->db->where('mxemp_emp_branch_code', $data['branchid']);
+        if (!empty($data['esi_branch_id'])) {
+            $this->db->where('mxemp_emp_branch_code', $data['esi_branch_id']);
         }
-        if (!empty($data['employeeid'])) {
-            $this->db->where('mxemp_emp_id', $data['employeeid']);
-        }
-        if (!empty($data['stateid'])) {
-            $this->db->where('mxemp_emp_state_code', $data['stateid']);
+        if (!empty($data['esi_state_id'])) {
+            $this->db->where('mxemp_emp_state_code', $data['esi_state_id']);
         }
         if (!empty($data['fromdate'])) {
             $this->db->where('curent_timestamp >=', date('Y-m-d',strtotime($data['fromdate'])) . ' 00:00:00');
@@ -1208,6 +1205,7 @@ public function addnew_previous_employment($data){
         $retrunarray = array();
         foreach($qr as $key => $val){
                 $buldarray = (object)array(
+                    "curent_timestamp"=>$val->curent_timestamp,
                     "emp_id" =>$val->emp_id,
                     "mxemp_emp_fname" =>$val->mxemp_emp_fname.' '.$val->mxemp_emp_lname,
                     "mxcp_name" =>$val->mxcp_name,
@@ -1217,12 +1215,12 @@ public function addnew_previous_employment($data){
                     "mxdesg_name" =>$val->mxdesg_name,
                     "mxdpt_name" =>$val->mxdpt_name,
                     "mxgrd_name"=>$val->mxgrd_name,
-                    "curent_timestamp"=>$val->curent_timestamp,
                     );
              array_push($retrunarray,$buldarray);   
         }
         // return $retrunarray;   
         $columns = [
+            'curent_timestamp',
             'emp_id',
             'mxemp_emp_fname', 
             'mxcp_name',
@@ -1232,10 +1230,10 @@ public function addnew_previous_employment($data){
             'mxdesg_name', 
             'mxdpt_name',
             'mxgrd_name', 
-            'curent_timestamp',
         ]; 
 
         $renameHeaderColumns = [
+            'curent_timestamp' => 'Login Date Time',
             'emp_id' => 'Employee Code',
             'mxemp_emp_fname' => 'Employee Name', 
             'mxcp_name' => 'Company Name',
@@ -1245,7 +1243,6 @@ public function addnew_previous_employment($data){
             'mxdesg_name' => 'Designation Name', 
             'mxdpt_name' => 'Department Name',
             'mxgrd_name' => 'Grade Name', 
-            'curent_timestamp' => 'Punch Date Time',
         ]; 
 
         // Mapping id and replace with name form masters
@@ -1259,6 +1256,117 @@ public function addnew_previous_employment($data){
         $editColumns = array(); // Columns with edit options
         $hideColumn = array();
         $reportName = 'Employee Last Login History';
+// print_r((object)$retrunarray);exit;
+        echo dynamicTable($retrunarray,$columns,$linkColumns, $editColumns, $dataMappingColumns, $renameHeaderColumns, $hideColumn, $reportName);
+    }
+
+    public function employeesslRequestlist($data){
+        $this->db->select('id,status,employee_id,field_name,old_value,new_value,mxcp_name,mxd_name,mxst_state,mxb_name,mxdesg_name,mxdpt_name,mxgrd_name,mxemp_emp_fname,mxemp_emp_lname,created_date');
+        $this->db->from('maxwell_employee_familyinfo_request');
+        $this->db->join('maxwell_employees_info', 'mxemp_emp_id = employee_id', 'INNER');
+        $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
+        $this->db->join('maxwell_designation_master', 'mxdesg_id = mxemp_emp_desg_code', 'INNER');
+        $this->db->join('maxwell_department_master', 'mxdpt_id = mxemp_emp_dept_code', 'INNER');
+        $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');
+        $this->db->join('maxwell_branch_master', 'mxb_id = mxemp_emp_branch_code', 'INNER');
+        $this->db->join('maxwell_grade_master', 'mxgrd_id = mxemp_emp_grade_code', 'INNER');
+        $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
+        $this->db->join('maxwell_employee_type_master', 'mxemp_ty_id = mxemp_emp_type', 'INNER');
+       // $this->db->where("mxemp_emp_resignation_status != 'R'");
+        if (!empty($data['esi_company_id'])) {
+            $this->db->where('mxemp_emp_comp_code', $data['esi_company_id']);
+        }
+        if (!empty($data['esi_div_id'])) {
+            $this->db->where('mxemp_emp_division_code', $data['esi_div_id']);
+        }
+        if (!empty($data['esi_branch_id'])) {
+            $this->db->where('mxemp_emp_branch_code', $data['esi_branch_id']);
+        }
+        if (!empty($data['esi_state_id'])) {
+            $this->db->where('mxemp_emp_state_code', $data['esi_state_id']);
+        }
+        if (!empty($data['fromdate'])) {
+            $this->db->where('created_date >=', date('Y-m-d',strtotime($data['fromdate'])) . ' 00:00:00');
+        }
+        if (!empty($data['todate'])) {
+            $this->db->where('created_date <=', date('Y-m-d',strtotime($data['todate'])) . ' 23:59:59');
+        }
+        if (!empty($data['employeecode'])) {
+            $this->db->where('employee_id', $data['employeecode']);
+        }
+        if($data['requeststatus'] != 'ALL'){
+            $this->db->where('status', $data['requeststatus']);
+        }
+        
+        $query = $this->db->get();
+        $qr = $query->result();
+        #echo $this->db->last_query(); exit;
+        $retrunarray = array();
+        foreach($qr as $key => $val){
+                $buldarray = (object)array(
+                    "status" => $val->status,
+                    "created_date"=>$val->created_date,
+                    "field_name" => $val->field_name,
+                    "old_value" => $val->old_value,
+                    "new_value" => $val->new_value,
+                    "employee_id" =>$val->employee_id,
+                    "mxemp_emp_fname" =>$val->mxemp_emp_fname.' '.$val->mxemp_emp_lname,
+                    "mxcp_name" =>$val->mxcp_name,
+                    "mxd_name" =>$val->mxd_name,
+                    "mxst_state" =>$val->mxst_state,
+                    "mxb_name" =>$val->mxb_name,
+                    "mxdesg_name" =>$val->mxdesg_name,
+                    "mxdpt_name" =>$val->mxdpt_name,
+                    "mxgrd_name"=>$val->mxgrd_name,
+                    );
+             array_push($retrunarray,$buldarray);   
+        }
+        // return $retrunarray;   
+        $columns = [
+            'status',
+            'created_date',
+            'field_name',
+            'old_value',
+            'new_value',
+            'employee_id',
+            'mxemp_emp_fname', 
+            'mxcp_name',
+            'mxd_name',
+            'mxst_state',
+            'mxb_name',
+            'mxdesg_name', 
+            'mxdpt_name',
+            'mxgrd_name', 
+        ]; 
+
+        $renameHeaderColumns = [
+            'status' => 'Request Status',
+            'created_date' => 'Requested Date Time',
+            'field_name' => 'Field Name',
+            'old_value' => 'Previous',
+            'new_value' => 'Request',
+            'employee_id' => 'Employee Code',
+            'mxemp_emp_fname' => 'Employee Name', 
+            'mxcp_name' => 'Company Name',
+            'mxd_name' => 'Division Name',
+            'mxst_state' => 'State Name',
+            'mxb_name' => 'Branch Name',
+            'mxdesg_name' => 'Designation Name', 
+            'mxdpt_name' => 'Department Name',
+            'mxgrd_name' => 'Grade Name', 
+        ]; 
+
+        // Mapping id and replace with name form masters
+        $dataMappingColumns = array(
+            'Translate' => array(),
+        );
+
+        // Define columns for links and edit actions
+        $urllink = '';
+        $linkColumns = array(); // Columns where links will be provided
+        $editColumns = array(); // Columns with edit options
+        $hideColumn = array();
+        $reportName = 'Employee Family Info Update Requests';
 // print_r((object)$retrunarray);exit;
         echo dynamicTable($retrunarray,$columns,$linkColumns, $editColumns, $dataMappingColumns, $renameHeaderColumns, $hideColumn, $reportName);
     }
