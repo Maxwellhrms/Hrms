@@ -1260,7 +1260,7 @@ public function addnew_previous_employment($data){
         echo dynamicTable($retrunarray,$columns,$linkColumns, $editColumns, $dataMappingColumns, $renameHeaderColumns, $hideColumn, $reportName);
     }
 
-    public function employeesslRequestlist($data){
+    public function employeesinfoRequestlist($data){
         $this->db->select('id,status,employee_id,field_name,old_value,new_value,mxcp_name,mxd_name,mxst_state,mxb_name,mxdesg_name,mxdpt_name,mxgrd_name,mxemp_emp_fname,mxemp_emp_lname,created_date');
         $this->db->from('maxwell_employee_familyinfo_request');
         $this->db->join('maxwell_employees_info', 'mxemp_emp_id = employee_id', 'INNER');

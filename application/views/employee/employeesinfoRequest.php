@@ -8,8 +8,8 @@
     'statefilter' => 'Y',
     'branchfilter' => 'Y',
     'employeecodeFilter' => 'Y',
-    'FormId' => 'employeesslRequest',
-    'CallFunction' => 'employeesslRequestlist'
+    'FormId' => 'employeesinfoRequest',
+    'CallFunction' => 'employeesinfoRequestlist'
 )); ?>
 <!-- Search Filter -->
 <hr>

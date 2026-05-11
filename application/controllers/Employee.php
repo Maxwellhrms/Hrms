@@ -262,7 +262,7 @@ class Employee extends Common {
         echo $this->Employeemodel->employeesslloginslist($userdata);
     }
 
-    public function employeesslRequest(){
+    public function employeesinfoRequest(){
         $this->header();
         $data['title']= "Employee Requests";
         $data['controller'] = $this;
@@ -270,8 +270,8 @@ class Employee extends Common {
         $this->footer();    
     }
 
-    public function employeesslRequestlist(){
+    public function employeesinfoRequestlist(){
         $userdata = $this->input->post();
-        echo $this->Employeemodel->employeesslRequestlist($userdata);
+        echo $this->Employeemodel->employeesinfoRequestlist($userdata);
     }
 }
