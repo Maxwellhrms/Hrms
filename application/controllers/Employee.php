@@ -248,4 +248,30 @@ class Employee extends Common {
         }
         exit;
     }
+
+    public function employeessllogins(){
+        $this->header();
+        $data['title']= "Employee Last Login";
+        $data['controller'] = $this;
+        $this->load->view('employee/employeeslogin',$data);
+        $this->footer();    
+    }
+
+    public function employeesslloginslist(){
+        $userdata = $this->input->post();
+        echo $this->Employeemodel->employeesslloginslist($userdata);
+    }
+
+    public function employeesslRequest(){
+        $this->header();
+        $data['title']= "Employee Requests";
+        $data['controller'] = $this;
+        $this->load->view('employee/employeesslRequest',$data);
+        $this->footer();    
+    }
+
+    public function employeesslRequestlist(){
+        $userdata = $this->input->post();
+        echo $this->Employeemodel->employeesslRequestlist($userdata);
+    }
 }
