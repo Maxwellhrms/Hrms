@@ -439,3 +439,30 @@ function processForm(formId, url, redirectUrl = "") {
         showAlert("warning", "Request failed. Please try again.");
     });
 }
+
+
+$(document).on('click', '.toggleMask', function(){
+    var target = $(this).data('target');
+    // Convert to string
+    var originalValue = String($(this).data('value'));
+    var currentText = $(target).text();
+    if(currentText.indexOf('*') !== -1)
+    {
+        // SHOW ORIGINAL
+        $(target).text(originalValue);
+        $(this).html(
+            '<i class="fa fa-eye-slash"></i>'
+        );
+    }
+    else
+    {
+        // MASK AGAIN
+        var masked = '*'.repeat(
+            originalValue.length - 4
+        ) + originalValue.slice(-4);
+        $(target).text(masked);
+        $(this).html(
+            '<i class="fa fa-eye"></i>'
+        );
+    }
+});

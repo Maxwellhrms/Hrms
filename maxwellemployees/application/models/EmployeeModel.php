@@ -622,52 +622,27 @@ public function getAttendanceDashboard(){
         // Employee Info
 
         // Academic Records
-        $this->db->select('mxemp_emp_acr_id,mxemp_emp_acr_employee_id,mxemp_emp_acr_type,mxemp_emp_acr_yop,mxemp_emp_acr_institution,mxemp_emp_acr_subject,mxemp_emp_acr_university,mxemp_emp_acr_marks');
-        $this->db->from('maxwell_employees_academic_records');
-        $this->db->where('mxemp_emp_acr_employee_id', $qry1[0]->mxemp_emp_id);
-        $query2 = $this->db->get();
-        $returnarray['employeeacr'] = $query2->result();
+        $returnarray['employeeacr'] = $this->academicRecords($qry1[0]->mxemp_emp_id);
         // Academic Records
 
         // Training
-        $this->db->select('mxemp_emp_tr_id,mxemp_emp_tr_employee_id,mxemp_emp_tr_employee_id,mxemp_emp_tr_nameofcourse,mxemp_emp_tr_nameofinstutions,mxemp_emp_tr_fromdate,mxemp_emp_tr_todate');
-        $this->db->from('maxwell_employees_training');
-        $this->db->where('mxemp_emp_tr_employee_id', $qry1[0]->mxemp_emp_id);
-        $query3 = $this->db->get();
-        $returnarray['employeetr'] = $query3->result();
+        $returnarray['employeetr'] = $this->training($qry1[0]->mxemp_emp_id);
         // Training
 
         // Family
-        $this->db->select('mxemp_emp_fm_id,mxemp_emp_fm_employee_id,mxemp_emp_fm_relation,mxemp_emp_fm_name,mxemp_emp_fm_age,mxemp_emp_fm_occupation,mxemp_emp_fm_title');
-        $this->db->from('maxwell_employees_family');
-        $this->db->where('mxemp_emp_fm_employee_id', $qry1[0]->mxemp_emp_id);
-        $query4 = $this->db->get();
-        $returnarray['employeefm'] = $query4->result();
+        $returnarray['employeefm'] = $this->family($qry1[0]->mxemp_emp_id);
         // Family
 
         // Previous Employments
-        $this->db->select('mxemp_emp_pe_id,mxemp_emp_pe_employee_id,mxemp_emp_pe_periodfromto,mxemp_emp_pe_nameandorg,mxemp_emp_pe_desgjointime,mxemp_emp_pe_desgleavingtime,mxemp_emp_pe_desgreportedto,mxemp_emp_pe_monthlysalary,mxemp_emp_pe_otherbenfits,mxemp_emp_pe_reasonforchange');
-        $this->db->from('maxwell_employees_previousemployments');
-        $this->db->where('mxemp_emp_pe_employee_id', $qry1[0]->mxemp_emp_id);
-        $query5 = $this->db->get();
-        $returnarray['employeepe'] = $query5->result();
+        $returnarray['employeepe'] = $this->previousEmployments($qry1[0]->mxemp_emp_id);
         // Previous Employments
 
         // Nominee Details
-        $this->db->select('mxemp_emp_nm_id,mxemp_emp_nm_employee_id,mxemp_emp_nm_type,mxemp_emp_nm_relation,mxemp_emp_nm_relationname,mxemp_emp_nm_relationage,mxemp_emp_nm_relationmobile,mxemp_emp_nm_relationaddress,mxemp_emp_nm_relationpercent,mxemp_emp_nm_relationimage');
-        $this->db->from('maxwell_employees_nominee');
-        $this->db->where('mxemp_emp_nm_employee_id', $qry1[0]->mxemp_emp_id);
-        $query5 = $this->db->get();
-        $returnarray['employeenominee'] = $query5->result();
+        $returnarray['employeenominee'] = $this->nomineeDetails($qry1[0]->mxemp_emp_id);
         // Nominee Details
 
         // Languages Details
-        $this->db->select('mxemp_emp_lng_id,mxemp_emp_lng_employee_id,mxemp_emp_lng,mxemp_emp_lng_speak,mxemp_emp_lng_read,mxemp_emp_lng_write,mxlg_name');
-        $this->db->from('maxwell_employees_lanaguages');
-        $this->db->join('maxwell_languages_master', 'mxemp_emp_lng = mxlg_id', 'INNER');
-        $this->db->where('mxemp_emp_lng_employee_id', $qry1[0]->mxemp_emp_id);
-        $query6 = $this->db->get();
-        $returnarray['employeelanaguages'] = $query6->result();
+        $returnarray['employeelanaguages'] = $this->languagesDetails($qry1[0]->mxemp_emp_id);
         // Languages Details
         
         $year = date('Y');
@@ -714,6 +689,73 @@ public function getAttendanceDashboard(){
         $query7 = $this->db->get();
         $returnarray['authorization'] = $query7->result();
         return $returnarray;
+    }
+
+    public function academicRecords($emp_id, $id = ''){
+        $this->db->select('mxemp_emp_acr_id,mxemp_emp_acr_employee_id,mxemp_emp_acr_type,mxemp_emp_acr_yop,mxemp_emp_acr_institution,mxemp_emp_acr_subject,mxemp_emp_acr_university,mxemp_emp_acr_marks');
+        $this->db->from('maxwell_employees_academic_records');
+        $this->db->where('mxemp_emp_acr_employee_id', $emp_id);
+        if(!empty($id)){
+        $this->db->where('mxemp_emp_acr_id', $id);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function training($emp_id, $id = ''){
+        $this->db->select('mxemp_emp_tr_id,mxemp_emp_tr_employee_id,mxemp_emp_tr_nameofcourse,mxemp_emp_tr_nameofinstutions,mxemp_emp_tr_fromdate,mxemp_emp_tr_todate');
+        $this->db->from('maxwell_employees_training');
+        $this->db->where('mxemp_emp_tr_employee_id', $emp_id);
+        if(!empty($id)){
+        $this->db->where('mxemp_emp_tr_id', $id);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function family($emp_id, $id = ''){
+        $this->db->select('mxemp_emp_fm_id,mxemp_emp_fm_employee_id,mxemp_emp_fm_relation,mxemp_emp_fm_name,mxemp_emp_fm_age,mxemp_emp_fm_occupation,mxemp_emp_fm_title');
+        $this->db->from('maxwell_employees_family');
+        $this->db->where('mxemp_emp_fm_employee_id', $emp_id);
+        if(!empty($id)){
+        $this->db->where('mxemp_emp_fm_id', $id);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function previousEmployments($emp_id, $id = ''){
+        $this->db->select('mxemp_emp_pe_id,mxemp_emp_pe_employee_id,mxemp_emp_pe_periodfromto,mxemp_emp_pe_nameandorg,mxemp_emp_pe_desgjointime,mxemp_emp_pe_desgleavingtime,mxemp_emp_pe_desgreportedto,mxemp_emp_pe_monthlysalary,mxemp_emp_pe_otherbenfits,mxemp_emp_pe_reasonforchange');
+        $this->db->from('maxwell_employees_previousemployments');
+        $this->db->where('mxemp_emp_pe_employee_id', $emp_id);
+        if(!empty($id)){
+        $this->db->where('mxemp_emp_pe_id', $id);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function nomineeDetails($emp_id, $id = ''){
+        $this->db->select('mxemp_emp_nm_id,mxemp_emp_nm_employee_id,mxemp_emp_nm_type,mxemp_emp_nm_relation,mxemp_emp_nm_relationname,mxemp_emp_nm_relationage,mxemp_emp_nm_relationmobile,mxemp_emp_nm_relationaddress,mxemp_emp_nm_relationpercent,mxemp_emp_nm_relationimage');
+        $this->db->from('maxwell_employees_nominee');
+        $this->db->where('mxemp_emp_nm_employee_id', $emp_id);
+        if(!empty($id)){
+        $this->db->where('mxemp_emp_nm_id', $id);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function languagesDetails($emp_id, $id = ''){
+        $this->db->select('mxemp_emp_lng_id,mxemp_emp_lng_employee_id,mxemp_emp_lng,mxemp_emp_lng_speak,mxemp_emp_lng_read,mxemp_emp_lng_write,mxlg_name');
+        $this->db->from('maxwell_employees_lanaguages');
+        $this->db->join('maxwell_languages_master', 'mxemp_emp_lng = mxlg_id', 'INNER');
+        $this->db->where('mxemp_emp_lng_employee_id', $emp_id);
+        if(!empty($id)){
+        $this->db->where('mxemp_emp_lng_id', $id);
+        }
+        $query = $this->db->get();
+        return $query->result();
     }
 
     public function employeeDashboard(){
@@ -1931,4 +1973,90 @@ public function getAttendanceDashboard(){
         return $locarrylist;
     }
     # End Employee Geo Locations
+
+    #Update Employee Info
+    public function updateemployeeinfo($data){
+        $data = array_map('trim', $data);
+        $updatetype = isset($data['updatetype']) ? $data['updatetype']: '';
+        switch ($updatetype)
+        {
+            case 'familyinfo':
+                $familyinfo = $this->family($data['employeeId'],$data['Id']);
+                // Convert object to array
+                $olddata = (array) $familyinfo[0];
+
+                $updatedata = array(
+                    'mxemp_emp_fm_title'      => $data['emptitle'],
+                    'mxemp_emp_fm_relation'   => $data['empfmrelation'],
+                    'mxemp_emp_fm_name'       => $data['empfmname'],
+                    'mxemp_emp_fm_age'        => !empty($data['empdob']) ? date('Y-m-d',strtotime($data['empdob'])): NULL,
+                    'mxemp_emp_fm_occupation' => $data['empfmoccupation']
+                );
+
+                // DIFFERENCE ARRAY
+                $changes = $this->getDifferencesChanges($olddata,$updatedata);
+                // PRINT DIFFERENCE
+                // print_r($changes);exit;
+
+                // NO CHANGES
+                if(empty($changes)){
+                    echo json_encode(array('statusCode' => 400,'errorMsg' => 'No Changes Found'));exit;
+                }
+                $update = true;
+                foreach($changes as $field => $values){
+                    // Escape values
+                    $newvalue = $this->db->escape($values['new']);
+
+                    // COLUMN WISE UPDATE QUERY
+                    $upquery = "UPDATE maxwell_employees_family SET ".$field." = ".$newvalue." WHERE mxemp_emp_fm_id = '".$data['Id']."' AND mxemp_emp_fm_employee_id = '".$data['employeeId']."'";
+                    $logdata = array(
+                        'employee_id'     => $data['employeeId'],
+                        'reference_id'    => $data['Id'],
+                        'update_type'     => $updatetype,
+                        'field_name'      => $field,
+                        'old_value'       => $values['old'],
+                        'new_value'       => $values['new'],
+                        'up_query'        => $upquery,
+                        'created_date'    => date('Y-m-d H:i:s'),
+                        'created_by'      => $this->session->userdata('session_loginperson_id')
+                    );
+                    $insert = $this->db->insert('maxwell_employee_familyinfo_request',$logdata);
+                    if(!$insert){
+                        $update = false;
+                    }
+                }
+                if($update){
+                    echo $resp = json_encode(array('statusCode' => 200, 'message' => 'Sent For Approval'));
+                }
+                else{
+                    echo $resp = json_encode(array('statusCode' => 400, 'errorMsg' => 'Unable To Update'));
+                }
+
+            break;
+            default:
+                echo $resp = json_encode(array('statusCode' => 400, 'errorMsg' => 'Invalid Type Please Check'));
+            break;
+        }
+    }
+    public function getDifferencesChanges($olddata, $newdata){
+        $changes = array();
+
+        foreach ($newdata as $key => $newvalue)
+        {
+            // OLD VALUE
+            $oldvalue = isset($olddata[$key])? trim($olddata[$key]): '';
+            // NEW VALUE
+            $newvalue = trim($newvalue);
+            // COMPARE VALUES
+            if ($oldvalue != $newvalue)
+            {
+                $changes[$key] = array(
+                    'old' => $oldvalue,
+                    'new' => $newvalue
+                );
+            }
+        }
+        return $changes;
+    }
+    #Update Employee Info
 }

@@ -251,53 +251,11 @@ class CommonModel extends CI_Model
             $qury = $query->result();
             break;
             default:
-            $this->db->select('OptionValue as field_value,OptionName as descr');
-            $this->db->from('options');
-            $this->db->where('OptionType',$leaves);
-            $this->db->Order_by('OptionOrder');
-            $query = $this->db->get();
-            $qury = $query->result();
-            break;
-        }
-        return $qury;
-    }
-
-    public function options_data($filedname){
-        switch ($filedname) {
-            case 'CountryMaster':
-            $this->db->select('country_id as field_value, country_name as descr');
-            $this->db->from('country_master');
-            $this->db->where('is_active','1');
-            $this->db->Order_by('country_name');
-            $query = $this->db->get();
-            $qury = $query->result();
-            break;
-            case 'Originations':
-            $this->db->select('OriginationID as field_value, OriginationName as descr');
-            $this->db->from('Originations');
-            $this->db->Order_by('OriginationName');
-            $query = $this->db->get();
-            $qury = $query->result();
-            break;
-            case 'Users':
-            $this->db->select('UserID as field_value, UserName as descr');
-            $this->db->from('Users');
-            $this->db->Order_by('UserName');
-            $query = $this->db->get();
-            $qury = $query->result();
-            break;
-            case 'Auditor':
-            $this->db->select('ClientAuditorID as field_value, ClientAuditorName as descr');
-            $this->db->from('ClientAuditor');
-            $this->db->Order_by('ClientAuditorName');
-            $query = $this->db->get();
-            $qury = $query->result();
-            break;
-            default:
-            $this->db->select('OptionValue as field_value,OptionName as descr');
-            $this->db->from('options');
-            $this->db->where('OptionType',$filedname);
-            $this->db->Order_by('OptionOrder');
+            $this->db->select('field_value,descr');
+            $this->db->from('options_table');
+            $this->db->where('field_name',$leaves);
+            $this->db->where('options_status','1');
+            $this->db->Order_by('descr');
             $query = $this->db->get();
             $qury = $query->result();
             break;

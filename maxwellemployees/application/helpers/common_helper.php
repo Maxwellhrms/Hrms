@@ -618,4 +618,21 @@ function custom_tags($employeeid='',$companyid='',$projectid='',$ticketid='',$de
         $master = array($filedname => $common);
         return $master;
     }
+    
+    function maskNumber($data = ''){
+        if(empty($data)){
+            return '';
+        }
+
+        // Convert to string
+        $data = (string) $data;
+
+        // If length <= 4 return original
+        if(strlen($data) <= 4){
+            return $data;
+        }
+
+        // Mask except last 4 digits
+        return str_repeat('*', strlen($data) - 4) . substr($data, -4);
+    }
 ?>

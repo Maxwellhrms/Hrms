@@ -255,12 +255,33 @@ class Employee extends Common {
         $this->checkissession();
         $this->header();
         $data['emp'] = $this->EmployeeModel->getemployeecompletedetails();
+        
         // echo '<pre>';
         // print_r($data);
         // exit();
-        // $data['controller'] = $this;
         $this->load->view('employee/employeesprofile', $data);
         $this->footer();
+    }
+
+    public function employeemodalpopup(){
+        $this->checkissession();
+        $data['relation'] = array( 'Father'=>'Father', 'Mother'=>'Mother', 'Brother'=>'Brother' ,'Sister'=>'Sister','Husband'=>'Husband','Wife'=>'Wife','Children'=>'Children' );
+        $data['controller'] = $this;
+        $userdata = $this->input->post();
+        $page       = $this->input->post('page');
+        $familyid   = $this->input->post('familyid');
+        $employeeid = $this->input->post('employeeid');
+        $data['details'] = $this->EmployeeModel->family($employeeid,$familyid);
+        $data['pageTitleName'] = $page;
+        if($page == 'familyinfo'){
+            $this->load->view('employee/modalpops/familymodalpopups', $data);
+        }
+    }
+
+    public function updateemployeeinfo(){
+        $this->checkissession();
+        $userdata = $this->input->post();
+        $this->EmployeeModel->updateemployeeinfo($userdata);
     }
     # End Employee Profile
 

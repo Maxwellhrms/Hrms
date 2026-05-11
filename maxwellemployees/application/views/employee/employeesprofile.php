@@ -1,4 +1,5 @@
-			<?php        # echo '<pre>';
+			<?php         #echo '<pre>';
+			#print_r($controller);
 				#print_r($emp); ?>
 				<!-- Page Wrapper -->
 				<div class="page-wrapper">
@@ -320,20 +321,40 @@
 														<div class="text"><?php echo $emp['employeeinfo'][0]->mxemp_emp_bank_branch_name ?></div>
 													</li>
 													<li>
-														<div class="title">Bank account No.</div>
-														<div class="text"><?php echo $emp['employeeinfo'][0]->mxemp_emp_bank_acc_no ?></div>
+													    <div class="title">Bank account No.</div>
+													    <div class="text">
+													        <span id="bank_account_no">
+													            <?php echo maskNumber($emp['employeeinfo'][0]->mxemp_emp_bank_acc_no); ?>
+													        </span>
+													        <?php if(!empty($emp['employeeinfo'][0]->mxemp_emp_bank_acc_no)){ ?>
+													           	<a href="javascript:void(0)" class="toggleMask ms-2" data-value="<?php echo $emp['employeeinfo'][0]->mxemp_emp_bank_acc_no; ?>" data-target="#bank_account_no">
+													                <i class="fa fa-eye"></i>
+													            </a>
+													        <?php } ?>
+													    </div>
 													</li>
+
 													<li>
 														<div class="title">IFSC Code</div>
 														<div class="text"><?php echo $emp['employeeinfo'][0]->mxemp_emp_bank_ifsci_no ?></div>
 													</li>
 													<li>
-														<div class="title">PAN No</div>
-														<div class="text"><?php echo $emp['employeeinfo'][0]->mxemp_emp_panno ?>
-														<?php if(!empty($emp['employeeinfo'][0]->mxemp_emp_panimage)){ ?>
-															<a class="link attach-icon" target="_blank" href="<?php echo HRADMINROOTDOCUMENT . $emp['employeeinfo'][0]->mxemp_emp_panimage ?>"><img src="<?php echo base_url() ?>assets/img/attachment.png" alt=""></a>
-														<?php } ?>
-	                                                    </div>
+													    <div class="title">PAN No</div>
+													    <div class="text">
+													        <span id="pan_no">
+													            <?php echo maskNumber($emp['employeeinfo'][0]->mxemp_emp_panno); ?>
+													        </span>
+													        <?php if(!empty($emp['employeeinfo'][0]->mxemp_emp_panno)){ ?>
+													            <a href="javascript:void(0)" class="toggleMask ms-2" data-value="<?php echo $emp['employeeinfo'][0]->mxemp_emp_panno; ?>" data-target="#pan_no">
+													            	<i class="fa fa-eye"></i>
+													            </a>
+													        <?php } ?>
+													        <?php if(!empty($emp['employeeinfo'][0]->mxemp_emp_panimage)){ ?>
+													            <a class="link attach-icon" target="_blank" href="<?php echo HRADMINROOTDOCUMENT . $emp['employeeinfo'][0]->mxemp_emp_panimage ?>">
+													                <img src="<?php echo base_url() ?>assets/img/attachment.png" alt="">
+													            </a>
+													        <?php } ?>
+													    </div>
 													</li>
 													<li>
 														<div class="title">ESI No</div>
@@ -344,28 +365,74 @@
 														</div>
 													</li>
 													<li>
-														<div class="title">PF No</div>
-														<div class="text"><?php echo $emp['employeeinfo'][0]->mxemp_emp_pf_number ?></div>
+													    <div class="title">PF No</div>
+													    <div class="text">
+													        <span id="pf_no">
+													            <?php echo maskNumber($emp['employeeinfo'][0]->mxemp_emp_pf_number); ?>
+													        </span>
+													        <?php if(!empty($emp['employeeinfo'][0]->mxemp_emp_pf_number)){ ?>
+													            <a href="javascript:void(0)" class="toggleMask ms-2" data-value="<?php echo $emp['employeeinfo'][0]->mxemp_emp_pf_number; ?>" data-target="#pf_no">
+													                <i class="fa fa-eye"></i>
+													            </a>
+													        <?php } ?>
+													    </div>
 													</li>
 													<li>
-														<div class="title">UAN No</div>
-														<div class="text"><?php echo $emp['employeeinfo'][0]->mxemp_emp_uan_number ?></div>
+													    <div class="title">UAN No</div>
+													    <div class="text">
+													        <span id="uan_no">
+													            <?php echo maskNumber($emp['employeeinfo'][0]->mxemp_emp_uan_number); ?>
+													        </span>
+													        <?php if(!empty($emp['employeeinfo'][0]->mxemp_emp_uan_number)){ ?>
+													            <a href="javascript:void(0)" class="toggleMask ms-2" data-value="<?php echo $emp['employeeinfo'][0]->mxemp_emp_uan_number; ?>" data-target="#uan_no">
+													                <i class="fa fa-eye"></i>
+													            </a>
+													        <?php } ?>
+													    </div>
 													</li>
 													<li>
-														<div class="title">LIC No</div>
-														<div class="text"><?php echo $emp['employeeinfo'][0]->mxemp_emp_employee_lic_no ?></div>
+													    <div class="title">LIC No</div>
+													    <div class="text">
+													        <span id="lic_no">
+													            <?php echo maskNumber($emp['employeeinfo'][0]->mxemp_emp_employee_lic_no); ?>
+													        </span>
+													        <?php if(!empty($emp['employeeinfo'][0]->mxemp_emp_employee_lic_no)){ ?>
+													            <a href="javascript:void(0)" class="toggleMask ms-2" data-value="<?php echo $emp['employeeinfo'][0]->mxemp_emp_employee_lic_no; ?>" data-target="#lic_no">
+													                <i class="fa fa-eye"></i>
+													            </a>
+													        <?php } ?>
+													    </div>
 													</li>
 													<li>
-														<div class="title">Gratuity</div>
-														<div class="text"><?php echo $emp['employeeinfo'][0]->mxemp_emp_gratuity ?></div>
+													    <div class="title">Gratuity</div>
+													    <div class="text">
+													        <span id="gratuity_no">
+													            <?php echo maskNumber($emp['employeeinfo'][0]->mxemp_emp_gratuity); ?>
+													        </span>
+													        <?php if(!empty($emp['employeeinfo'][0]->mxemp_emp_gratuity)){ ?>
+													            <a href="javascript:void(0)" class="toggleMask ms-2" data-value="<?php echo $emp['employeeinfo'][0]->mxemp_emp_gratuity; ?>" data-target="#gratuity_no">
+													                <i class="fa fa-eye"></i>
+													            </a>
+													        <?php } ?>
+													    </div>
 													</li>
 													<li>
-														<div class="title">Aadhar Card No</div>
-														<div class="text"><?php echo $emp['employeeinfo'][0]->mxemp_emp_aadhar ?>
-														<?php if(!empty($emp['employeeinfo'][0]->mxemp_emp_aadharimage)){ ?>
-															<a class="link attach-icon" target="_blank" href="<?php echo HRADMINROOTDOCUMENT . $emp['employeeinfo'][0]->mxemp_emp_aadharimage ?>"><img src="<?php echo base_url() ?>assets/img/attachment.png" alt=""></a>
-														<?php } ?>
-														</div>
+													    <div class="title">Aadhar Card No</div>
+													    <div class="text">
+													        <span id="aadhar_no">
+													            <?php echo maskNumber($emp['employeeinfo'][0]->mxemp_emp_aadhar); ?>
+													        </span>
+													        <?php if(!empty($emp['employeeinfo'][0]->mxemp_emp_aadhar)){ ?>
+													            <a href="javascript:void(0)" class="toggleMask ms-2" data-value="<?php echo $emp['employeeinfo'][0]->mxemp_emp_aadhar; ?>" data-target="#aadhar_no">
+													                <i class="fa fa-eye"></i>
+													            </a>
+													        <?php } ?>
+													        <?php if(!empty($emp['employeeinfo'][0]->mxemp_emp_aadharimage)){ ?>
+													            <a class="link attach-icon" target="_blank" href="<?php echo HRADMINROOTDOCUMENT . $emp['employeeinfo'][0]->mxemp_emp_aadharimage ?>">
+													                <img src="<?php echo base_url() ?>assets/img/attachment.png" alt="">
+													            </a>
+													        <?php } ?>
+													    </div>
 													</li>
 													<li>
 														<div class="title">Mediclaim File 1</div>
@@ -417,6 +484,7 @@
 																<th>Birth Date</th>
 																<th>Age</th>
 																<th>Occupation</th>
+																<th>Edit</th>
 																
 															</tr>
 														</thead>
@@ -440,6 +508,14 @@
 	                                                                ?>
 																</td>
 																<td><?php echo $fmvalue->mxemp_emp_fm_occupation ?></td>
+																<td class="text-end">
+																	<div class="dropdown dropdown-action">
+																		<a aria-expanded="false" data-bs-toggle="dropdown" class="action-icon dropdown-toggle" href="#"><i class="material-icons">more_vert</i></a>
+																		<div class="dropdown-menu dropdown-menu-right">
+																			<a href="#" class="dropdown-item openCommonModal" data-bs-toggle="modal"data-page="familyinfo" data-familyid="<?php echo $fmvalue->mxemp_emp_fm_id; ?>" data-employeeid="<?php echo $fmvalue->mxemp_emp_fm_employee_id; ?>" data-bs-target="#commonModal"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+																		</div>
+																	</div>
+																</td>
 															</tr>
 															<?php } ?>
 														</tbody>
@@ -448,6 +524,31 @@
 											</div>
 										</div>
 									</div>
+									<!-- Family Info Modal -->
+<!-- 									<div id="family_info_modal" class="modal custom-modal fade" role="dialog">
+									</div> -->
+									<div class="modal fade" id="commonModal" tabindex="-1">
+
+									    <div class="modal-dialog modal-lg">
+									        <div class="modal-content">
+									            <div class="modal-header">
+									                <h5 class="modal-title">
+									                    Edit
+									                </h5>
+									                <button type="button"
+									                        class="btn-close"
+									                        data-bs-dismiss="modal">
+									                </button>
+									            </div>
+									            <div class="modal-body" id="commonModalBody">
+									                <div class="text-center p-5">
+									                    Loading...
+									                </div>
+									            </div>
+									        </div>
+									    </div>
+									</div>
+									<!-- /Family Info Modal -->
 								</div>
 								<div class="row">
 									<div class="col-md-6 d-flex">
@@ -580,3 +681,43 @@
 					<!-- /Page Content -->
 				</div>
 			<!-- /Page Wrapper -->
+<script>
+	$(document).on('click', '.openCommonModal', function () {
+	    var page       = $(this).data('page');
+	    var familyid   = $(this).data('familyid');
+	    var employeeid = $(this).data('employeeid');
+	    $('#commonModal').modal('show');
+	    $('#commonModalBody').html(
+	        '<div class="text-center p-5">Loading...</div>'
+	    );
+	    $.ajax({
+	        url: "<?php echo base_url('employee/employeemodalpopup'); ?>",
+	        type: "POST",
+	        data: {
+	            page       : page,
+	            familyid   : familyid,
+	            employeeid : employeeid
+	        },
+	        success: function (response) {
+	            $('#commonModalBody').html(response);
+	                if($('.select').length > 0) {
+						$('.select').select2({
+					        dropdownParent: $('.applymultiselect'),
+					        width: '100%'
+					    });
+					}
+					if($('.datetimepicker1').length > 0) {
+						$('.datetimepicker1').datetimepicker({
+							format: 'DD-MM-YYYY',
+							icons: {
+								up: "fa fa-angle-up",
+								down: "fa fa-angle-down",
+								next: 'fa fa-angle-right',
+								previous: 'fa fa-angle-left'
+							}
+						});
+					}
+	        }
+	    });
+	});
+	</script>

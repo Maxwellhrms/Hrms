@@ -61,6 +61,20 @@ class Common extends CI_Controller {
         $this->load->view('common/commonfiltersform',$data);
     }
 
+    public function display_options($filedname,$selected = ''){
+        $data = $this->CommonModel->displayOptions($filedname);
+        $def = '<option value="">Select</option>';
+        foreach ($data as $key => $value) {
+            if($selected == $value->field_value){
+                $sel = 'selected';
+            }else{
+                $sel = '';
+            }
+            $def .= "<option value=".$value->field_value."  ".$sel.">".$value->descr."</option>";
+        }
+        return $def;
+    }
+
 
     public function getgrade(){
         $cmid = $this->input->post('companyid');
