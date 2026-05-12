@@ -1,5 +1,6 @@
 <!-- Search Filter -->
 <?php $controller->commonFilters(array(
+    'notloggedin' => 'Y',
     'fromdatefilter' => 'Y',
     'todatefilter' => 'Y',
     'companyfilter' => 'Y',

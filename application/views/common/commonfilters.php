@@ -247,6 +247,32 @@
                             <!--</div>-->
                         </div>
                        <?php } ?>
+                        <?php if($selectedFilter['notloggedin'] == 'Y'){ ?>
+                        <div class="col-sm-6 col-md-3">  
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    Not Logged In yet &nbsp;
+                                </label>
+                                <input type="checkbox" name="notloggedin" id="notloggedin" value="1">
+                                <span class="formerror" id="notloggedinerror"></span>
+                            </div>
+                        
+                            <!--<div class="form-group row card mb-0 col-md-12">-->
+                            <!--    <p align="center">Employee</p>-->
+                            <!--    <div class="radio" align="center">-->
+                            <!--        <label style=" margin: 0 2px 0;">-->
+                            <!--            <input type="radio" name="radiotype"  id="radiotype" value="1" checked > Joining-->
+                            <!--        </label>-->
+                            <!--        <label style=" margin: 0 2px 0;">-->
+                            <!--            <input type="radio" name="radiotype" id="radiotype" value="2"> Leaving-->
+                            <!--        </label>-->
+                            <!--        <label style=" margin: 0 2px 0;">-->
+                            <!--            <input type="radio" name="radiotype" id="radiotype" value="3"> Both-->
+                            <!--        </label>-->
+                            <!--    </div>-->
+                            <!--</div>-->
+                        </div>
+                       <?php } ?>
 						<div class="col-sm-6 col-md-3">  
 							<button id="searchemployeefilterdata" class="btn btn-success btn-block" type="button" onclick="buildDynamicTable('<?php echo $selectedFilter['FormId']; ?>', '<?php echo $selectedFilter['CallFunction']; ?>','<?php echo $selectedFilter['displayrptlocation']; ?>')"> Search </button>  
 						</div>     
