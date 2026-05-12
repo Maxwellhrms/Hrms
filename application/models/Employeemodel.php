@@ -1165,7 +1165,7 @@ public function addnew_previous_employment($data){
     }
 
     public function employeesslloginslist($data){
-        $this->db->select('emp_id,mxcp_name,mxd_name,mxst_state,mxb_name,mxdesg_name,mxdpt_name,mxgrd_name,mxemp_emp_fname,mxemp_emp_lname,curent_timestamp');
+        $this->db->select('emp_id,mxemp_emp_id,mxcp_name,mxd_name,mxst_state,mxb_name,mxdesg_name,mxdpt_name,mxgrd_name,mxemp_emp_fname,mxemp_emp_lname,curent_timestamp');
         $this->db->from('maxwell_employees_info');
         $this->db->join('login_attempts', 'mxemp_emp_id = emp_id', 'LEFT');
         $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
@@ -1176,7 +1176,7 @@ public function addnew_previous_employment($data){
         $this->db->join('maxwell_grade_master', 'mxgrd_id = mxemp_emp_grade_code', 'INNER');
         $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
         $this->db->join('maxwell_employee_type_master', 'mxemp_ty_id = mxemp_emp_type', 'INNER');
-       // $this->db->where("mxemp_emp_resignation_status != 'R'");
+        $this->db->where("mxemp_emp_resignation_status != 'R'");
         if (!empty($data['esi_company_id'])) {
             $this->db->where('mxemp_emp_comp_code', $data['esi_company_id']);
         }
@@ -1189,11 +1189,15 @@ public function addnew_previous_employment($data){
         if (!empty($data['esi_state_id'])) {
             $this->db->where('mxemp_emp_state_code', $data['esi_state_id']);
         }
-        if (!empty($data['fromdate'])) {
-            $this->db->where('curent_timestamp >=', date('Y-m-d',strtotime($data['fromdate'])) . ' 00:00:00');
-        }
-        if (!empty($data['todate'])) {
-            $this->db->where('curent_timestamp <=', date('Y-m-d',strtotime($data['todate'])) . ' 23:59:59');
+        if($data['notloggedin'] == 1){
+            $this->db->where('curent_timestamp is null');
+        }else{
+            if (!empty($data['fromdate'])) {
+                $this->db->where('curent_timestamp >=', date('Y-m-d',strtotime($data['fromdate'])) . ' 00:00:00');
+            }
+            if (!empty($data['todate'])) {
+                $this->db->where('curent_timestamp <=', date('Y-m-d',strtotime($data['todate'])) . ' 23:59:59');
+            }
         }
         if (!empty($data['employeecode'])) {
             $this->db->where('emp_id', $data['employeecode']);
@@ -1201,12 +1205,12 @@ public function addnew_previous_employment($data){
         
         $query = $this->db->get();
         $qr = $query->result();
-        #echo $this->db->last_query(); exit;
+        // echo $this->db->last_query(); exit;
         $retrunarray = array();
         foreach($qr as $key => $val){
                 $buldarray = (object)array(
                     "curent_timestamp"=>$val->curent_timestamp,
-                    "emp_id" =>$val->emp_id,
+                    "mxemp_emp_id" =>$val->mxemp_emp_id,
                     "mxemp_emp_fname" =>$val->mxemp_emp_fname.' '.$val->mxemp_emp_lname,
                     "mxcp_name" =>$val->mxcp_name,
                     "mxd_name" =>$val->mxd_name,
@@ -1221,7 +1225,7 @@ public function addnew_previous_employment($data){
         // return $retrunarray;   
         $columns = [
             'curent_timestamp',
-            'emp_id',
+            'mxemp_emp_id',
             'mxemp_emp_fname', 
             'mxcp_name',
             'mxd_name',
@@ -1234,7 +1238,7 @@ public function addnew_previous_employment($data){
 
         $renameHeaderColumns = [
             'curent_timestamp' => 'Login Date Time',
-            'emp_id' => 'Employee Code',
+            'mxemp_emp_id' => 'Employee Code',
             'mxemp_emp_fname' => 'Employee Name', 
             'mxcp_name' => 'Company Name',
             'mxd_name' => 'Division Name',
