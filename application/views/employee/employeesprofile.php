@@ -1519,11 +1519,18 @@
 									<div class="submit-section">
 										<button class="btn btn-primary submit-btn" type="submit">Submit</button>
 										<!--<div class="staff-msg text-right"><a class="btn btn-info" data-target="#unpay_sal_modal" data-toggle="modal" style="color: #fff;">Add Unpaid Sal For Months</a></div>-->
-										
-										<?php //if ($emp['employeeinfo'][0]->mxemp_emp_resignation_status == 1) { ?>
-										<?php if (($emp['employeeinfo'][0]->mxemp_emp_resignation_status == 'N' || $emp['employeeinfo'][0]->mxemp_emp_resignation_status == 'R') && $emp['employeeinfo'][0]->mxemp_emp_is_without_notice_period == 0) { ?>
-										<button class="btn btn-warning submit-btn" type="button" onclick="cancelresignation('<?php echo $emp['employeeinfo'][0]->mxemp_emp_id ?>','<?php echo $emp['employeeinfo'][0]->mxemp_emp_autouniqueid ?>')">Cancel Regination</button>
+
+										<?php 
+										$status = $emp['employeeinfo'][0]->mxemp_emp_resignation_status;
+										$isAdminUser = $this->session->userdata('user_id') == '888666';
+
+										if ((in_array($status, ['N', 'R']) && $emp['employeeinfo'][0]->mxemp_emp_is_without_notice_period == 0) || $isAdminUser) { 
+										?>
+										    <button class="btn btn-warning submit-btn" type="button" onclick="cancelresignation('<?php echo $emp['employeeinfo'][0]->mxemp_emp_id ?>','<?php echo $emp['employeeinfo'][0]->mxemp_emp_autouniqueid ?>')">
+										        Cancel Resignation
+										    </button>
 										<?php } ?>
+										
 										<script>
 										window.onload = function(){
 								            $(".datea").datetimepicker({
