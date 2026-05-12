@@ -112,93 +112,207 @@ function openpopup(formId = '', url, DBId = '',hidejosn = ''){
     }); 
 }
 
-function buildDynamicTable(formId, url,displayid='') {
-    // Get the form element and serialize its data
+// function buildDynamicTable(formId, url,displayid='') {
+//     // Get the form element and serialize its data
+//     const form = $(`#${formId}`);
+//     if (!form.length) {
+//         console.error("Form not found: ", formId);
+//         return;
+//     }
+//     const formData = form.serialize();
+//     var placeid = 'display_datatables';
+//     if(displayid !=''){
+//        placeid = formId+'display_datatables'; 
+//     }
+    
+//     const rptid = `dynamicTable${formId}`;
+//     console.log(rptid);
+
+//     // Build the AJAX request
+//     $.ajax({
+//         url: url,
+//         type: 'POST',
+//         data: formData,
+//         dataType: 'json', // Expect JSON response
+//         success: function (response) {
+//             // Validate the response structure
+//             if (!response.columns || !response.data) {
+//                 console.error("Invalid response format");
+//                 return;
+//             }
+
+//             // Generate the table dynamically
+//             let tableHtml = `<table id="${rptid}" class="table table-striped custom-table mb-0 datatable display nowrap" style="width:100%">
+//                                 <thead>
+//                                     <tr>`;
+
+//             // Add columns to the table header
+//             response.columns.forEach(col => {
+//                 tableHtml += `<th>${col}</th>`;
+//             });
+//             tableHtml += `</tr></thead><tbody>`;
+
+//             // Add data to the table body
+//             response.data.forEach(row => {
+//                 tableHtml += `<tr>`;
+//                 response.columns.forEach(col => {
+//                 	tableHtml += `<td>${row[col]}</td>`;
+//                 });
+//                 tableHtml += `</tr>`;
+//             });
+
+//             tableHtml += `</tbody></table>`;
+
+//             // Replace the content of the display area with the table
+//             $('#'+placeid).html(tableHtml);
+
+//             const table_common = $(`#${rptid}`).DataTable({
+
+//                 // Enable the length menu to control rows displayed per page
+//                 "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+//                 // "scrollY": "300px",         // Optional: Enables vertical scrolling
+//                 "scrollX": true,            // Optional: Enables horizontal scrolling
+//                 "scrollCollapse": true,     // Optional: Adjust table height dynamically
+//                 "dom": 'Blfrtip',            // Defines table controls placement (B = Buttons)
+//                 "buttons": [
+//                     { 
+//                         extend: 'excel',    // Enables Excel export functionality
+//                         text: 'Excel', // Custom button text (optional)
+//                         title: response.reportName,
+//                         exportOptions: {    // Configure export options if needed
+//                             format: {
+//                                 body: function(data, row, col, node) {
+//                                     return data; // Format data during export (optional)
+//                                 }
+//                             }
+//                         }
+//                     },
+//                     'csv',
+
+//                 ]
+//             });
+
+
+//             // Append DataTable buttons to the wrapper
+//             table_common.buttons().container()
+//                  .appendTo(`#${rptid}_wrapper .col-md-6:eq(0)`);
+//         },
+//         error: function (xhr, status, error) {
+//             console.error("AJAX error: ", error);
+//         }
+//     });
+// }
+
+function buildDynamicTable(formId, url, displayid = ''){
+    // Get form
     const form = $(`#${formId}`);
-    if (!form.length) {
-        console.error("Form not found: ", formId);
+    if (!form.length)
+    {
+        console.error("Form not found:", formId);
         return;
     }
+    // Serialize form data
     const formData = form.serialize();
+    // Display area
     var placeid = 'display_datatables';
-    if(displayid !=''){
-       placeid = formId+'display_datatables'; 
+    if(displayid != '')
+    {
+        placeid = formId + 'display_datatables';
     }
-    
+    // Dynamic table id
     const rptid = `dynamicTable${formId}`;
-    console.log(rptid);
 
-    // Build the AJAX request
+    // AJAX
     $.ajax({
         url: url,
         type: 'POST',
         data: formData,
-        dataType: 'json', // Expect JSON response
-        success: function (response) {
-            // Validate the response structure
-            if (!response.columns || !response.data) {
+        dataType: 'json',
+        success: function(response)
+        {
+            // Validate response
+            if (!response.columns || !response.data)
+            {
                 console.error("Invalid response format");
                 return;
             }
+            // TABLE HTML
+            let tableHtml = `<table id="${rptid}"class="table table-striped custom-table mb-0 datatable display nowrap"style="width:100%"><thead><tr>`;
 
-            // Generate the table dynamically
-            let tableHtml = `<table id="${rptid}" class="table table-striped custom-table mb-0 datatable display nowrap" style="width:100%">
-                                <thead>
-                                    <tr>`;
 
-            // Add columns to the table header
+            // TABLE HEADERS
             response.columns.forEach(col => {
                 tableHtml += `<th>${col}</th>`;
             });
             tableHtml += `</tr></thead><tbody>`;
-
-            // Add data to the table body
+            // TABLE BODY
             response.data.forEach(row => {
                 tableHtml += `<tr>`;
                 response.columns.forEach(col => {
-                	tableHtml += `<td>${row[col]}</td>`;
+                    tableHtml += `<td>${row[col]}</td>`;
                 });
                 tableHtml += `</tr>`;
             });
-
             tableHtml += `</tbody></table>`;
-
-            // Replace the content of the display area with the table
-            $('#'+placeid).html(tableHtml);
-
+            // APPEND TABLE
+            $('#' + placeid).html(tableHtml);
+            // DATATABLE
             const table_common = $(`#${rptid}`).DataTable({
-
-                // Enable the length menu to control rows displayed per page
-                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-                // "scrollY": "300px",         // Optional: Enables vertical scrolling
-                "scrollX": true,            // Optional: Enables horizontal scrolling
-                "scrollCollapse": true,     // Optional: Adjust table height dynamically
-                "dom": 'Blfrtip',            // Defines table controls placement (B = Buttons)
-                "buttons": [
-                    { 
-                        extend: 'excel',    // Enables Excel export functionality
-                        text: 'Excel', // Custom button text (optional)
+                destroy: true,
+                responsive: false,
+                lengthMenu: [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, "All"]
+                ],
+                scrollX: true,
+                scrollCollapse: true,
+                dom: 'Blfrtip',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: 'Excel',
                         title: response.reportName,
-                        exportOptions: {    // Configure export options if needed
+                        exportOptions: {
                             format: {
-                                body: function(data, row, col, node) {
-                                    return data; // Format data during export (optional)
+                                body: function(data, row, col, node)
+                                {
+                                    // REMOVE HTML TAGS
+                                    return $('<div>').html(data).text().trim();
                                 }
                             }
                         }
                     },
-                    'csv',
-
+                    {
+                        extend: 'csv',
+                        text: 'CSV',
+                        title: response.reportName,
+                        exportOptions: {
+                            format: {
+                                body: function(data, row, col, node)
+                                {
+                                    // REMOVE HTML TAGS
+                                    return $('<div>').html(data).text().trim();
+                                }
+                            }
+                        }
+                    }
                 ]
             });
 
+            // BUTTON POSITION
+            table_common
+                .buttons()
+                .container()
+                .appendTo(
+                    `#${rptid}_wrapper .col-md-6:eq(0)`
+                );
 
-            // Append DataTable buttons to the wrapper
-            table_common.buttons().container()
-                 .appendTo(`#${rptid}_wrapper .col-md-6:eq(0)`);
         },
-        error: function (xhr, status, error) {
-            console.error("AJAX error: ", error);
+
+        error: function(xhr, status, error)
+        {
+            console.error("AJAX Error:", error);
         }
+
     });
 }

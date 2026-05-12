@@ -274,4 +274,10 @@ class Employee extends Common {
         $userdata = $this->input->post();
         echo $this->Employeemodel->employeesinfoRequestlist($userdata);
     }
+
+    public function employeesinfoRequestinfosave(){
+    	$this->verifylogin();
+        $userdata = $this->input->post();
+        echo $this->Employeemodel->employeesinfoRequestinfosave($userdata);
+    }
 }

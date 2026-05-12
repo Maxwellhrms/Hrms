@@ -1267,65 +1267,131 @@ public function addnew_previous_employment($data){
     public function employeesinfoRequestlist($data){
         $this->db->select('id,status,employee_id,field_name,old_value,new_value,mxcp_name,mxd_name,mxst_state,mxb_name,mxdesg_name,mxdpt_name,mxgrd_name,mxemp_emp_fname,mxemp_emp_lname,created_date');
         $this->db->from('maxwell_employee_familyinfo_request');
-        $this->db->join('maxwell_employees_info', 'mxemp_emp_id = employee_id', 'INNER');
-        $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
-        $this->db->join('maxwell_designation_master', 'mxdesg_id = mxemp_emp_desg_code', 'INNER');
-        $this->db->join('maxwell_department_master', 'mxdpt_id = mxemp_emp_dept_code', 'INNER');
-        $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');
-        $this->db->join('maxwell_branch_master', 'mxb_id = mxemp_emp_branch_code', 'INNER');
-        $this->db->join('maxwell_grade_master', 'mxgrd_id = mxemp_emp_grade_code', 'INNER');
-        $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
-        $this->db->join('maxwell_employee_type_master', 'mxemp_ty_id = mxemp_emp_type', 'INNER');
-       // $this->db->where("mxemp_emp_resignation_status != 'R'");
+        $this->db->join('maxwell_employees_info','mxemp_emp_id = employee_id','INNER');
+        $this->db->join('maxwell_company_master','mxcp_id = mxemp_emp_comp_code','INNER');
+        $this->db->join('maxwell_designation_master','mxdesg_id = mxemp_emp_desg_code','INNER');
+        $this->db->join('maxwell_department_master','mxdpt_id = mxemp_emp_dept_code','INNER');
+        $this->db->join('maxwell_division_master','mxd_id = mxemp_emp_division_code','INNER');
+        $this->db->join('maxwell_branch_master','mxb_id = mxemp_emp_branch_code','INNER');
+        $this->db->join('maxwell_grade_master','mxgrd_id = mxemp_emp_grade_code','INNER');
+        $this->db->join('maxwell_state_master','mxst_id = mxemp_emp_state_code','INNER');
+        $this->db->join('maxwell_employee_type_master','mxemp_ty_id = mxemp_emp_type','INNER');
+
+
+        // FILTERS
         if (!empty($data['esi_company_id'])) {
-            $this->db->where('mxemp_emp_comp_code', $data['esi_company_id']);
+            $this->db->where('mxemp_emp_comp_code',$data['esi_company_id']);
         }
+
         if (!empty($data['esi_div_id'])) {
-            $this->db->where('mxemp_emp_division_code', $data['esi_div_id']);
+            $this->db->where('mxemp_emp_division_code',$data['esi_div_id']);
         }
+
         if (!empty($data['esi_branch_id'])) {
-            $this->db->where('mxemp_emp_branch_code', $data['esi_branch_id']);
+            $this->db->where('mxemp_emp_branch_code',$data['esi_branch_id']);
         }
+
         if (!empty($data['esi_state_id'])) {
-            $this->db->where('mxemp_emp_state_code', $data['esi_state_id']);
+            $this->db->where('mxemp_emp_state_code',$data['esi_state_id']);
         }
+
         if (!empty($data['fromdate'])) {
-            $this->db->where('created_date >=', date('Y-m-d',strtotime($data['fromdate'])) . ' 00:00:00');
+            $this->db->where('created_date >=',date('Y-m-d',strtotime($data['fromdate'])) . ' 00:00:00');
         }
+
         if (!empty($data['todate'])) {
-            $this->db->where('created_date <=', date('Y-m-d',strtotime($data['todate'])) . ' 23:59:59');
+            $this->db->where('created_date <=',date('Y-m-d',strtotime($data['todate'])) . ' 23:59:59');
         }
+
         if (!empty($data['employeecode'])) {
-            $this->db->where('employee_id', $data['employeecode']);
+            $this->db->where('employee_id',$data['employeecode']);
         }
-        if($data['requeststatus'] != 'ALL'){
-            $this->db->where('status', $data['requeststatus']);
+
+        if($data['requeststatus'] != 'ALL') {
+            $this->db->where('status',$data['requeststatus']);
         }
-        
+
         $query = $this->db->get();
         $qr = $query->result();
-        #echo $this->db->last_query(); exit;
         $retrunarray = array();
+
+        // STATUS ARRAY
+        $statusArray = array(
+            0 => array('text'  => 'Pending','class' => 'text-info'),
+            1 => array('text'  => 'Approved','class' => 'text-success'),
+            2 => array('text'  => 'Rejected','class' => 'text-danger')
+        );
+
         foreach($qr as $key => $val){
-                $buldarray = (object)array(
-                    "status" => $val->status,
-                    "created_date"=>$val->created_date,
-                    "field_name" => strtoupper(str_replace('mxemp_emp_fm_', '', $val->field_name)),
-                    "old_value" => $val->old_value,
-                    "new_value" => $val->new_value,
-                    "employee_id" =>$val->employee_id,
-                    "mxemp_emp_fname" =>$val->mxemp_emp_fname.' '.$val->mxemp_emp_lname,
-                    "mxcp_name" =>$val->mxcp_name,
-                    "mxd_name" =>$val->mxd_name,
-                    "mxst_state" =>$val->mxst_state,
-                    "mxb_name" =>$val->mxb_name,
-                    "mxdesg_name" =>$val->mxdesg_name,
-                    "mxdpt_name" =>$val->mxdpt_name,
-                    "mxgrd_name"=>$val->mxgrd_name,
-                    );
-             array_push($retrunarray,$buldarray);   
+            $currentStatusText  = $statusArray[$val->status]['text'];
+            $currentStatusClass = $statusArray[$val->status]['class'];
+            // STATUS HTML
+            $statusHtml = '
+            <div class="dropdown action-label">
+                <a class="btn btn-white btn-sm btn-rounded dropdown-toggle"
+                   href="#"
+                   data-bs-toggle="dropdown"
+                   aria-expanded="false">
+                    <i class="fa fa-dot-circle-o '.$currentStatusClass.'"></i>
+                    '.$currentStatusText.'
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">';
+            // PENDING ONLY
+            if($val->status == 0)
+            {
+                $statusHtml .= '
+                    <a class="dropdown-item changeRequestStatus"
+                       href="javascript:void(0)"
+                       data-id="'.$val->id.'"
+                       data-status="0">
+                        <i class="fa fa-dot-circle-o text-info"></i>
+                        Pending
+                    </a>
+                    <a class="dropdown-item changeRequestStatus"
+                       href="javascript:void(0)"
+                       data-id="'.$val->id.'"
+                       data-status="1">
+                        <i class="fa fa-dot-circle-o text-success"></i>
+                        Approved
+                    </a>
+                    <a class="dropdown-item changeRequestStatus"
+                       href="javascript:void(0)"
+                       data-id="'.$val->id.'"
+                       data-status="2">
+                        <i class="fa fa-dot-circle-o text-danger"></i>
+                        Rejected
+                    </a>';
+            }else{
+                // ONLY CURRENT STATUS
+                $statusHtml .= '
+                    <a class="dropdown-item"
+                       href="javascript:void(0)">
+                        <i class="fa fa-dot-circle-o '.$currentStatusClass.'"></i>
+                        '.$currentStatusText.'
+                    </a>';
+            }
+            $statusHtml .= '
+                </div>
+            </div>';
+            $buldarray = (object) array(
+                "status" => $statusHtml,
+                "created_date" => $val->created_date,
+                "field_name" => strtoupper(str_replace('mxemp_emp_fm_','',$val->field_name)),
+                "old_value" => $val->old_value,
+                "new_value" => $val->new_value,
+                "employee_id" => $val->employee_id,
+                "mxemp_emp_fname" => $val->mxemp_emp_fname.' '.$val->mxemp_emp_lname,
+                "mxcp_name" => $val->mxcp_name,
+                "mxd_name" => $val->mxd_name,
+                "mxst_state" => $val->mxst_state,
+                "mxb_name" => $val->mxb_name,
+                "mxdesg_name" => $val->mxdesg_name,
+                "mxdpt_name" => $val->mxdpt_name,
+                "mxgrd_name" => $val->mxgrd_name
+            );
+            array_push($retrunarray, $buldarray);
         }
-        // return $retrunarray;   
+
         $columns = [
             'status',
             'created_date',
@@ -1333,15 +1399,15 @@ public function addnew_previous_employment($data){
             'old_value',
             'new_value',
             'employee_id',
-            'mxemp_emp_fname', 
+            'mxemp_emp_fname',
             'mxcp_name',
             'mxd_name',
             'mxst_state',
             'mxb_name',
-            'mxdesg_name', 
+            'mxdesg_name',
             'mxdpt_name',
-            'mxgrd_name', 
-        ]; 
+            'mxgrd_name'
+        ];
 
         $renameHeaderColumns = [
             'status' => 'Request Status',
@@ -1350,29 +1416,57 @@ public function addnew_previous_employment($data){
             'old_value' => 'Previous Value',
             'new_value' => 'Request Value',
             'employee_id' => 'Employee Code',
-            'mxemp_emp_fname' => 'Employee Name', 
+            'mxemp_emp_fname' => 'Employee Name',
             'mxcp_name' => 'Company Name',
             'mxd_name' => 'Division Name',
             'mxst_state' => 'State Name',
             'mxb_name' => 'Branch Name',
-            'mxdesg_name' => 'Designation Name', 
+            'mxdesg_name' => 'Designation Name',
             'mxdpt_name' => 'Department Name',
-            'mxgrd_name' => 'Grade Name', 
-        ]; 
-
-        // Mapping id and replace with name form masters
-        $dataMappingColumns = array(
-            'Translate' => array(),
-        );
-
-        // Define columns for links and edit actions
+            'mxgrd_name' => 'Grade Name'
+        ];
+        $dataMappingColumns = array('Translate' => array(),);
         $urllink = '';
-        $linkColumns = array(); // Columns where links will be provided
-        $editColumns = array(); // Columns with edit options
+        $linkColumns = array();
+        $editColumns = array();
         $hideColumn = array();
         $reportName = 'Employee Family Info Update Requests';
-// print_r((object)$retrunarray);exit;
-        echo dynamicTable($retrunarray,$columns,$linkColumns, $editColumns, $dataMappingColumns, $renameHeaderColumns, $hideColumn, $reportName);
+        echo dynamicTable($retrunarray,$columns,$linkColumns,$editColumns,$dataMappingColumns,$renameHeaderColumns,$hideColumn,$reportName);
+    }
+
+    public function employeesinfoRequestinfosave($data){
+        $id     = $data['id'];
+        $status = $data['status'];
+        // GET REQUEST DETAILS
+        $this->db->select('up_query');
+        $this->db->from('maxwell_employee_familyinfo_request');
+        $this->db->where('id', $id);
+        $query = $this->db->get();
+        $result = $query->row();
+        // CHECK RECORD
+        if(empty($result)){
+            return json_encode(array('statusCode' => 400,'errorMsg' => 'Request Not Found'));
+        }
+
+        // APPROVED ONLY
+        if($status == 1){
+            // EXECUTE UPDATE QUERY
+            $execute = $this->db->query($result->up_query);
+            // CHECK UPDATE SUCCESS
+            if(!$execute)
+            {
+                return json_encode(array('statusCode' => 400,'errorMsg' => 'Unable To Execute Update Query'));
+            }
+        }
+        // UPDATE REQUEST STATUS
+        $this->db->where('id', $id);
+        $update = $this->db->update('maxwell_employee_familyinfo_request',array('status' => $status));
+        // FINAL RESPONSE
+        if($update){
+            return json_encode(array('statusCode' => 200,'message' => 'Status Updated Successfully'));
+        }else{
+            return json_encode(array('statusCode' => 400,'errorMsg' => 'Unable To Update Status'));
+        }
     }
 
 } ?>
