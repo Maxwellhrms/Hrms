@@ -14388,7 +14388,7 @@ public function saveemployeerequesttype($data){
         }
         $locarrylist= array();
         $locarry=[];
-        $this->db->select('location,latitudes,longitudes,attendance_date,attendance_time,mxemp_emp_fname,mxcp_name,mxd_name,mxb_name,mxst_state,employee_code,entry_type,islocation'); 
+        $this->db->select('location,latitudes,longitudes,attendance_date,attendance_time,mxemp_emp_fname,mxcp_name,mxd_name,mxb_name,mxst_state,employee_code,entry_type,islocation,mxemp_emp_present_postalcode'); 
         $this->db->from('employee_punches_'.$year);
         $this->db->join('maxwell_employees_info', 'employee_code = mxemp_emp_id', 'INNER');
         $this->db->join('maxwell_company_master', 'mxcp_id = company', 'INNER');
