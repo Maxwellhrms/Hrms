@@ -1166,8 +1166,8 @@ public function addnew_previous_employment($data){
 
     public function employeesslloginslist($data){
         $this->db->select('emp_id,mxcp_name,mxd_name,mxst_state,mxb_name,mxdesg_name,mxdpt_name,mxgrd_name,mxemp_emp_fname,mxemp_emp_lname,curent_timestamp');
-        $this->db->from('login_attempts');
-        $this->db->join('maxwell_employees_info', 'mxemp_emp_id = emp_id', 'INNER');
+        $this->db->from('maxwell_employees_info');
+        $this->db->join('login_attempts', 'mxemp_emp_id = emp_id', 'LEFT');
         $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
         $this->db->join('maxwell_designation_master', 'mxdesg_id = mxemp_emp_desg_code', 'INNER');
         $this->db->join('maxwell_department_master', 'mxdpt_id = mxemp_emp_dept_code', 'INNER');
