@@ -393,7 +393,7 @@ public function deletelettersinfobyid(){
 public function openletterpdf(){
     require 'mpdf/autoload.php';
     $this->verifylogin();
-    $userdata = $this->input->get('id');
+    $userdata = $this->input->get();
  
     $data['list'] = $this->Recruitmentmodel->getlettersdata($userdata);
 // echo $data['list'][0]->pdfdata;exit;
