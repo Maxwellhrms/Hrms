@@ -251,9 +251,12 @@ $("form#addnewemailtemplate").submit(function(e) {
    }
     var trnsid = $("#trnsid").val();
     var desc = $("#desc").val();
-    if (desc.trim() == "") {
-        alert('Please Enter Address');
-        return false;
+    var typeofletter = $("#typeofletter").val();
+    if(typeofletter != '4'){
+        if (desc.trim() == "") {
+            alert('Please Enter Address');
+            return false;
+        }
     }
       var formData = new FormData(this);
       mainurl = baseurl+'Recruitment/saveletters';

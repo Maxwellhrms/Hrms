@@ -1,6 +1,6 @@
 <?php
 $type = array('1'=>'Appoinment','2'=>'Manager Appoinment','3'=>'Offer Letter','4'=>'Confirmation Letter');
-$app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected');
+$app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected','4'=>'Confirmed');
 ?>
 <div class="row">
     <div class="col-md-6">
@@ -81,7 +81,7 @@ $app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected');
     </div>
 </div>
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-6" id="designation_dis">
         <div class="form-group">
             <label>Designation</label>
             <select class="select select2 form-control" name="designation" id="designation" style="width: 100%;">
@@ -92,7 +92,7 @@ $app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected');
             </select>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6" id="department_dis">
         <div class="form-group">
             <label>Department</label>
             <select class="select select2 form-control" name="department" id="department" style="width: 100%;">
@@ -105,7 +105,7 @@ $app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected');
     </div>
 </div>
 <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6" id="branch_dis">
         <div class="form-group">
             <label>Branch</label>
             <select class="select select2 form-control" name="branch" id="branch" style="width: 100%;" onchange="getbranchaddress()">
@@ -117,7 +117,7 @@ $app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected');
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-6" id="placeofposting_dis">
         <div class="form-group">
             <label>Place of Posting</label>
             <input class="form-control" type="text" name="placeofposting" id="placeofposting" value="<?php echo $list[0]->placeofposting ?>">
@@ -152,7 +152,7 @@ $app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected');
         </div>
     </div>
 </div>
-<div class="row">
+<div class="row" id="desc_dis">
     <div class="col-md-12">
         <div class="form-group">
             <label>Employee Address</label>
@@ -160,7 +160,7 @@ $app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected');
         </div>
     </div>
 </div>
-<div class="row">
+<div class="row" id="bdesc_dis">
     <div class="col-md-12">
         <div class="form-group">
             <label>Branch Address</label>
@@ -210,6 +210,12 @@ lettertypes();
             $("#basic_dis").show();
             $("#hra_dis").show();
             $("#reporting_dis").hide();
+            $("#designation_dis").show();
+            $("#department_dis").show();
+            $("#branch_dis").show();
+            $("#placeofposting_dis").show();
+            $("#desc_dis").show();
+            $("#bdesc_dis").show();
         }else if(lettertype == 3){
             if($("#letterno").val() == ''){
             $("#letterno").val('MAXWELL/SBD/PER & HR/OFFER/');
@@ -221,6 +227,29 @@ lettertypes();
             $("#sal_dis").hide();
             $("#basic_dis").hide();
             $("#hra_dis").hide();
+            $("#designation_dis").show();
+            $("#department_dis").show();
+            $("#branch_dis").show();
+            $("#placeofposting_dis").show();
+            $("#desc_dis").show();
+            $("#bdesc_dis").show();
+        }else if(lettertype == 4){
+            if($("#letterno").val() == ''){
+                $("#letterno").val('MAXWELL/SBD/PER & HR/APT/');
+            }
+            $("#eff_dis").hide();
+            $("#intreview_dis").hide();
+            $("#reporting_dis").hide();
+            $("#emp_dis").show();
+            $("#sal_dis").hide();
+            $("#basic_dis").hide();
+            $("#hra_dis").hide();
+            $("#designation_dis").hide();
+            $("#department_dis").hide();
+            $("#branch_dis").hide();
+            $("#placeofposting_dis").hide();
+            $("#desc_dis").hide();
+            $("#bdesc_dis").hide();
         }
     }
     

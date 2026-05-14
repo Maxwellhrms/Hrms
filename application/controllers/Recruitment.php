@@ -320,7 +320,7 @@ public function creatletters(){
     $this->verifylogin();
     $this->header();
     $type = array('1'=>'Appoinment','2'=>'Manager Appoinment','3'=>'Offer Letter','4'=>'Confirmation Letter');
-    $app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected');
+    $app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected','4'=>'Confirmed');
     $data['type'] = $type;
     $data['app_status'] = $app_status;
     $data['des'] = $this->Recruitmentmodel->getdesignationdetails();
@@ -335,7 +335,7 @@ public function letterlists(){
     $this->verifylogin();
     $userdata = $this->input->post();
     $type = array('1'=>'Appoinment','2'=>'Manager Appoinment','3'=>'Offer Letter','4'=>'Confirmation Letter');
-    $app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected');
+    $app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected','4'=>'Confirmed');
     $data['type'] = $type;
     $data['app_status'] = $app_status;
     $data['des'] = $this->Recruitmentmodel->getdesignationdetails();
@@ -349,7 +349,7 @@ public function letterform(){
     $this->verifylogin();
     $userdata = $this->input->post();
     $type = array('1'=>'Appoinment','2'=>'Manager Appoinment','3'=>'Offer Letter','4'=>'Confirmation Letter');
-    $app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected');
+    $app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected','4'=>'Confirmed');
     $data['type'] = $type;
     $data['app_status'] = $app_status;
     $data['des'] = $this->Recruitmentmodel->getdesignationdetails();
