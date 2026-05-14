@@ -1,5 +1,5 @@
 <?php
-$type = array('1'=>'Appoinment','2'=>'Manager Appoinment','3'=>'Offer Letter');
+$type = array('1'=>'Appoinment','2'=>'Manager Appoinment','3'=>'Offer Letter','4'=>'Confirmation Letter');
 $app_status = array('1'=>'Issued','2'=>'Joined','3'=>'Rejected');
 ?>
 <div class="row">
