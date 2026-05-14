@@ -624,6 +624,7 @@ public function cronyearlist(){
         // echo "<pre>";
         // print_r($final);
         $data['resp'] = $this->Cronmodel->get_essl_attendance_cron($final,$deviceId,$punchType,$fromDateTime);
+        echo json_encode( $data['resp']);
         
     }
     
@@ -651,6 +652,7 @@ public function cronyearlist(){
         }
         // $attendancedate = date('Y-m-d', strtotime('-1 day'));
         $data['resp'] = $this->Cronmodel->essl_attendance_cron($attendancedate,$employeeid);
+        echo json_encode( $data['resp']);
     }
 
     public function callSoapAPI($url, $action, $bodyContent)
