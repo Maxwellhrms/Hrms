@@ -55,6 +55,38 @@
 							</div>
 							<span class="formerror" id="employeeserror"></span>
 						</div>
+
+						<div class="col-sm-6 col-md-3"> 
+						    <div class="form-group form-focus select-focus">
+						        <select class="select select2" style="width: 100%" name="financialyear" id="financialyear" onchange="getquestiondetails();">
+						            <?php
+						            // Starting financial year
+						            $startYear = 2026;
+						            // Current Year & Month
+						            $currentYear  = date('Y');
+						            $currentMonth = date('n');
+						            // Current Financial Year
+						            if($currentMonth >= 4){
+						                $currentFYStart = $currentYear;
+						            }else{
+						                $currentFYStart = $currentYear - 1;
+						            }
+						            // Auto Generate
+						            $endYear = $currentYear + 10;
+						            for ($fyStart = $startYear; $fyStart <= $endYear; $fyStart++) {
+						                $fyEnd = $fyStart + 1;
+						                $value = $fyStart . '-04_' . $fyEnd . '-03';
+						                $label = 'April ' . $fyStart . ' To March ' . $fyEnd;
+						                // Default Selected
+						                $selected = ($fyStart == $currentFYStart) ? 'selected' : '';
+						                echo '<option value="'.$value.'" '.$selected.'>'.$label.'</option>';
+						            }
+						            ?>
+						        </select>
+						        <label class="focus-label">Select Year</label>
+						    </div>
+						    <span class="formerror" id="financialyearerror"></span>
+						</div>
                     </div>
 
 					<!-- /Search Filter -->
@@ -142,6 +174,15 @@ $(document).ready(function(){
         $('#employeeserror').html("");
     }
 
+    var financialyear = $("#financialyear").val();
+    if (financialyear ==  "") {
+        $("#financialyear").focus();
+        $('#financialyearerror').html("Please Select Financial Year...");
+        return false;
+    } else {
+        $('#financialyearerror').html("");
+    }
+
     
 		var mainurl = baseurl + 'Performanceappraisal/saveassignedquestion';
       	var formData = new FormData(this);
@@ -166,16 +207,17 @@ function getquestiondetails(){
 	var department = $("#department").val();
 	var quecategory = $("#quecategory").val();
 	var employees = $("#employees").val();
+	var financialyear = $("#financialyear").val();
 	if(employees == "" || employees == null){
 		return false;
 	}
-	if(department != "" && quecategory != ""){
+	if(department != "" && quecategory != "" && employees !="" && financialyear !=""){
 
 	var mainurl ='<?php echo base_url() ?>Performanceappraisal/filterappraisalquestion_details';
 	$.ajax({
 	    url: mainurl,
 	    type: 'POST',
-	    data: {department : department, quecategory : quecategory, employees : employees},
+	    data: {department : department, quecategory : quecategory, employees : employees, financialyear : financialyear},
 	    success: function (data) {
 	        $('#displaydata').html(data);
 	    },

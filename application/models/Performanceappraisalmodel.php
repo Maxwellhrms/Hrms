@@ -231,64 +231,85 @@ class Performanceappraisalmodel extends CI_Model {
     }
 
     public function saveassignedquestion($data){
-        $quecategory = $data['quecategory'];
-        $department = $data['department'];
-        $employees = $data['employees'];
 
+        $quecategory   = $data['quecategory'];
+        $department    = $data['department'];
+        $employees     = $data['employees'];
+        $financialyear = $data['financialyear'];
+        // Example:
+        // 2026-04_2027-03
+        $financial_year = explode('_', $financialyear);
+        $startdate = $financial_year[0] . '-01'; // 2026-04-01
+        $enddate   = $financial_year[1] . '-01'; // 2027-03-01
         $date = date('Y-m-d H:i:s');
-        $ip = $this->get_client_ip();
+        $ip   = $this->get_client_ip();
+        $tablename = 'maxwell_apprasial_assign_employees';
         $this->db->trans_begin();
-        for ($i=0; $i < count($data['question_id']); $i++) { 
-            $inarray = array(
-              "mxap_assign_dep" => $department,
-              "mxap_assign_catg" => $quecategory,
-              "mxap_assign_queid" => $data['question_id'][$i],
-              "mxap_assign_employee_code" => $employees,
-              "mxap_assign_objective" => $data['question_objective'][$i],
-              "mxap_assign_unitmeasure" => $data['question_unit_measure'][$i],
-              "mxap_assign_weightage" => $data['question_weightage_measure'][$i],
-              "mxap_assign_que_show" => $data['question_assign'][$i],
-              "mxap_assign_createdby" => $this->session->userdata('user_id'),
-              "mxap_assign_createdtime" => $date,
-              "mxap_assign_created_ip" => $ip
-            );
-
-            $month = strtotime(date('Y').'-04-01');
-            $end = strtotime((date('Y')+1).'-04-01');
-            $startdate = date('Y').'-04-01';
-            $enddate = (date('Y')+1).'-04-01';
-            while($month < $end){
-                $yearmonth = date('Y_m', $month);
-                $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
-                $inarray['mxap_assign_monthlytarget'] = $data[$yearmonth][$i];
-                $inarray['mxap_assign_year_month'] = $yearmonth;
-                $inarray['mxap_year_start_date'] = $startdate;
-                $inarray['mxap_year_end_date'] = $enddate;
-
-                    $this->db->select('mxap_assign_employee_code');
-                    $this->db->from($tablename);
-                    $this->db->where('mxap_assign_status = 1');
+        // Question Loop
+        for ($i = 0; $i < count($data['question_id']); $i++) {
+            // Start Month
+            $month = strtotime($startdate);
+            // End Month +1 month because loop uses <
+            $end = strtotime('+1 month', strtotime($enddate));
+            // Financial Year Month Loop
+            while ($month < $end) {
+                // Database Format
+                // 2026-04
+                $yearmonth_db = date('Y-m', $month);
+                // POST Array Key Format
+                // 2026_04
+                $yearmonth_key = date('Y_m', $month);
+                // Monthly Target Value
+                $monthly_target = '';
+                if (isset($data[$yearmonth_key][$i])) {
+                    $monthly_target = $data[$yearmonth_key][$i];
+                }
+                $inarray = array(
+                    "mxap_assign_dep"                => $department,
+                    "mxap_assign_catg"               => $quecategory,
+                    "mxap_assign_queid"              => $data['question_id'][$i],
+                    "mxap_assign_employee_code"      => $employees,
+                    "mxap_assign_objective"          => $data['question_objective'][$i],
+                    "mxap_assign_unitmeasure"        => $data['question_unit_measure'][$i],
+                    "mxap_assign_weightage"          => $data['question_weightage_measure'][$i],
+                    "mxap_assign_que_show"           => $data['question_assign'][$i],
+                    "mxap_assign_monthlytarget"      => $monthly_target,
+                    "mxap_assign_year_month"         => $yearmonth_db,
+                    "mxap_year_start_date"           => $startdate,
+                    "mxap_year_end_date"             => $enddate,
+                    "mxap_assign_createdby"          => $this->session->userdata('user_id'),
+                    "mxap_assign_createdtime"        => $date,
+                    "mxap_assign_created_ip"         => $ip
+                );
+                // Check Existing Record
+                $this->db->select('mxap_assign_id');
+                $this->db->from($tablename);
+                $this->db->where('mxap_assign_status', 1);
+                $this->db->where('mxap_assign_employee_code', $employees);
+                $this->db->where('mxap_assign_dep', $department);
+                $this->db->where('mxap_assign_catg', $quecategory);
+                $this->db->where('mxap_assign_queid', $data['question_id'][$i]);
+                $this->db->where('mxap_assign_year_month', $yearmonth_db);
+                $query = $this->db->get();
+                // INSERT
+                if ($query->num_rows() <= 0) {
+                    $this->db->insert($tablename, $inarray);
+                } 
+                // UPDATE
+                else {
                     $this->db->where('mxap_assign_employee_code', $employees);
                     $this->db->where('mxap_assign_dep', $department);
                     $this->db->where('mxap_assign_catg', $quecategory);
                     $this->db->where('mxap_assign_queid', $data['question_id'][$i]);
-                    $query = $this->db->get();
-                    $qry = $query->result_array();
-                    if(count($qry) <= 0){
-                        $this->db->insert($tablename, $inarray);
-                    }else{
-                        $this->db->where('mxap_assign_employee_code', $employees);
-                        $this->db->where('mxap_assign_dep', $department);
-                        $this->db->where('mxap_assign_catg', $quecategory);
-                        $this->db->where('mxap_assign_queid', $data['question_id'][$i]);
-                        $this->db->update($tablename, $inarray);
-                    }
-
-                // print_r($inarray);
+                    $this->db->where('mxap_assign_year_month', $yearmonth_db);
+                    $this->db->update($tablename, $inarray);
+                }
+                // Next Month
                 $month = strtotime("+1 month", $month);
             }
-
         }
+
+        // Transaction Status
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
             return 401;
@@ -299,6 +320,27 @@ class Performanceappraisalmodel extends CI_Model {
     }
 
     public function getassignquestionlist($data){
+        $employees     = $data['employees'];
+        $quecategory   = $data['quecategory'];
+        $department    = $data['department'];
+        $financialyear = $data['financialyear'];
+        $financial_year = explode('_', $financialyear);
+        $startdate = $financial_year[0];
+        $enddate   = $financial_year[1];
+        $tablename = 'maxwell_apprasial_assign_employees';
+        $this->db->select('*');
+        $this->db->from($tablename);
+        $this->db->where('mxap_assign_status', 1);
+        $this->db->where('mxap_assign_employee_code', $employees);
+        $this->db->where('mxap_assign_dep', $department);
+        $this->db->where('mxap_assign_catg', $quecategory);
+        $this->db->where('mxap_assign_year_month >=', $startdate);
+        $this->db->where('mxap_assign_year_month <=', $enddate);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+/*
+    public function getassignquestionlist($data){
         $employees = $data['employees'];
         $quecategory = $data['quecategory'];
         $department = $data['department'];
@@ -308,7 +350,7 @@ class Performanceappraisalmodel extends CI_Model {
             $employeearray = array();
             while($month < $end){
                 $yearmonth = date('Y_m', $month);
-                $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+                $tablename = 'maxwell_apprasial_assign_employees';
                     $this->db->select('mxap_assign_employee_code,mxap_assign_year_month');
                     $this->db->from($tablename);
                     $this->db->where('mxap_assign_status = 1');
@@ -324,7 +366,7 @@ class Performanceappraisalmodel extends CI_Model {
             }
             return $employeearray;
     }
-
+*/
 
     public function geteditassignquestionlist($data,$flag){
         $employees = $data['employees'];
@@ -337,8 +379,8 @@ class Performanceappraisalmodel extends CI_Model {
             } else {
                 $month_updated = $month;
             }
-        $yearmonth = $year.'_'.$month_updated;
-        $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+        $yearmonth = $year.'-'.$month_updated;
+        $tablename = 'maxwell_apprasial_assign_employees';
         $this->db->select('mxap_question,mxap_assign_id,mxap_assign_year_month,mxap_assign_dep,mxap_assign_catg,mxap_assign_queid,mxap_assign_employee_code,mxap_assign_unitmeasure,mxap_assign_weightage,mxap_assign_monthlytarget,mxap_assign_emp_noofaccounts,mxap_assign_emp_client_name,mxap_assign_emp_description,mxap_assign_emp_achievement,mxap_assign_emp_createdtime,mxap_assign_emp_modifiedtime,mxap_assign_manager_noofaccounts,mxap_assign_manager_client_name,mxap_assign_manager_review,mxap_assign_manager_actual_assesment,mxap_assign_manager_createdtime,mxap_assign_manager_modifiedtime,mxap_assign_hod_noofaccounts,mxap_assign_hod_client_name,mxap_assign_hod_review,mxap_assign_hod_actual_assesment,mxap_assign_hod_createdtime,mxap_assign_hod_modifiedtime,mxap_assign_que_show,mxap_assign_objective');
         $this->db->from($tablename);
         $this->db->join('maxwell_apprasial_questions', 'mxap_id = mxap_assign_queid', 'INNER');
@@ -346,6 +388,7 @@ class Performanceappraisalmodel extends CI_Model {
         $this->db->where('mxap_assign_employee_code', $employees);
         $this->db->where('mxap_assign_dep', $department);
         $this->db->where('mxap_assign_catg', $quecategory);
+        $this->db->where('mxap_assign_year_month', $yearmonth);
         if($flag == 1){
             $this->db->where('mxap_assign_que_show = 1');
         }
@@ -365,9 +408,9 @@ class Performanceappraisalmodel extends CI_Model {
             } else {
                 $month_updated = $month;
             }
-        $yearmonth = $year.'_'.$month_updated;
+        $yearmonth = $year.'-'.$month_updated;
         $this->db->trans_begin();
-        $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+        $tablename = 'maxwell_apprasial_assign_employees';
         $date = date('Y-m-d H:i:s');
         $ip = $this->get_client_ip();
         for ($i=0; $i <count($data['question_id']) ; $i++) { 
@@ -422,16 +465,8 @@ class Performanceappraisalmodel extends CI_Model {
         $employees = $data['employees'];
         $quecategory = $data['quecategory'];
         $department = $data['department'];
-        $year = $data['year'];
-        $month = $data['month'];
-            if ($month < 10 && strlen($month) == 1) {
-                $month_updated = "0" . $month;
-            } else {
-                $month_updated = $month;
-            }
-        $yearmonth = $year.'_'.$month_updated;
         $this->db->trans_begin();
-        $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+        $tablename = 'maxwell_apprasial_assign_employees';
         for ($i=0; $i <count($data['question_id']) ; $i++) { 
             $inarray = array(
               "mxap_assign_emp_noofaccounts" => $data['noofaccounts'][$i],
@@ -479,7 +514,7 @@ class Performanceappraisalmodel extends CI_Model {
             }
         $yearmonth = $year.'_'.$month_updated;
         $this->db->trans_begin();
-        $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+        $tablename = 'maxwell_apprasial_assign_employees';
         for ($i=0; $i <count($data['question_id']) ; $i++) { 
             $inarray = array(
               // "mxap_assign_monthlytarget" => $data['mxap_assign_monthlytarget'][$i],
@@ -523,7 +558,7 @@ class Performanceappraisalmodel extends CI_Model {
                 $month_updated = date('m');
             }
         $yearmonth = $year.'_'.$month_updated;
-        $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+        $tablename = 'maxwell_apprasial_assign_employees';
 
         $empid = $this->session->userdata('user_id');
         $this->db->distinct();
@@ -587,7 +622,7 @@ class Performanceappraisalmodel extends CI_Model {
             }
         $yearmonth = $year.'_'.$month_updated;
         $this->db->trans_begin();
-        $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+        $tablename = 'maxwell_apprasial_assign_employees';
         $date = date('Y-m-d H:i:s');
         for ($i=0; $i <count($data['question_id']) ; $i++) { 
             $inarray = array(
@@ -626,7 +661,7 @@ class Performanceappraisalmodel extends CI_Model {
             }
         $yearmonth = $year.'_'.$month_updated;
         $this->db->trans_begin();
-        $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+        $tablename = 'maxwell_apprasial_assign_employees';
         for ($i=0; $i <count($data['question_id']) ; $i++) { 
             $inarray = array(
               // "mxap_assign_monthlytarget" => $data['mxap_assign_monthlytarget'][$i],
@@ -668,7 +703,7 @@ class Performanceappraisalmodel extends CI_Model {
                 $month_updated = date('m');
             }
         $yearmonth = $year.'_'.$month_updated;
-        $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+        $tablename = 'maxwell_apprasial_assign_employees';
 
         $empid = $this->session->userdata('user_id');
         $this->db->select('mxhod_branch_id,mxhod_dept_id,mxhod_div_id,mxhod_emp_code,mxhod_emp_name');
@@ -707,7 +742,7 @@ class Performanceappraisalmodel extends CI_Model {
             }
         $yearmonth = $year.'_'.$month_updated;
         $this->db->trans_begin();
-        $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+        $tablename = 'maxwell_apprasial_assign_employees';
         for ($i=0; $i <count($data['question_id']) ; $i++) { 
             $inarray = array(
               "mxap_assign_hod_noofaccounts" => $data['hodnoofaccounts'][$i],
@@ -745,7 +780,7 @@ class Performanceappraisalmodel extends CI_Model {
             }
         $yearmonth = $year.'_'.$month_updated;
         $this->db->trans_begin();
-        $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+        $tablename = 'maxwell_apprasial_assign_employees';
         for ($i=0; $i <count($data['question_id']) ; $i++) { 
             $inarray = array(
               "mxap_assign_hod_noofaccounts" => $data['mxap_assign_hod_noofaccounts'][$i],
@@ -781,8 +816,8 @@ public function getassignedandunassignedquestion($data){
         } else {
             $month_updated = $month;
         }
-    $yearmonth = $year.'_'.$month_updated;
-    $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+    $yearmonth = $year.'-'.$month_updated;
+    $tablename = 'maxwell_apprasial_assign_employees';
 
         $this->db->select('mxap_assign_queid');
         $this->db->from($tablename);
@@ -791,6 +826,7 @@ public function getassignedandunassignedquestion($data){
         $this->db->where('mxap_assign_employee_code', $employees);
         $this->db->where('mxap_assign_dep', $department);
         $this->db->where('mxap_assign_catg', $quecategory);
+        $this->db->where('mxap_assign_year_month', $yearmonth);
         $query = $this->db->get();
         $qry['assigned'] = $query->result_array();
 
@@ -801,12 +837,11 @@ public function getassignedandunassignedquestion($data){
         $this->db->where('mxap_catg', $quecategory);
         $query1 = $this->db->get();
         $qry['all'] = $query1->result_array();
-
         return $qry;
 }
 
 public function savenewlyaddedquestion($data){
-    // print_r($data);
+    print_r($data);
     $employees = $data['employeeid'];
     $quecategory = $data['quecategory'];
     $department = $data['department'];
@@ -817,8 +852,8 @@ public function savenewlyaddedquestion($data){
         } else {
             $month_updated = $month;
         }
-    $yearmonth = $year.'_'.$month_updated;
-    $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+    $yearmonth = $year.'-'.$month_updated;
+    $tablename = 'maxwell_apprasial_assign_employees';
             $date = date('Y-m-d H:i:s');
         $ip = $this->get_client_ip();
         $this->db->trans_begin();
@@ -835,12 +870,12 @@ public function savenewlyaddedquestion($data){
             );
 
             $month = strtotime(date('Y').'-04-01');
-            $end = strtotime((date('Y')+1).'-04-01');
+            $end = strtotime((date('Y')+1).'-03-01');
             $startdate = date('Y').'-04-01';
-            $enddate = (date('Y')+1).'-04-01';
+            $enddate = (date('Y')+1).'-03-01';
             while($month < $end){
-                $yearmonth = date('Y_m', $month);
-                $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+                $yearmonth = date('Y-m', $month);
+                $tablename = 'maxwell_apprasial_assign_employees';
                 $inarray['mxap_assign_year_month'] = $yearmonth;
                 $inarray['mxap_year_start_date'] = $startdate;
                 $inarray['mxap_year_end_date'] = $enddate;
@@ -884,7 +919,7 @@ public function createappraisaltables(){
     $this->db->trans_begin();
     while($month < $end){
         $yearmonth = date('Y_m', $month);
-        $tablename = 'maxwell_apprasial_assign_employees_'.$yearmonth;
+        $tablename = 'maxwell_apprasial_assign_employees';
         $res = true;
         if ($this->db->table_exists($tablename)) {//---->NEW BY SHABABU(07-05-2022)
         }else{

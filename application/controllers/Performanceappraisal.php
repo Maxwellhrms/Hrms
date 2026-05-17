@@ -108,6 +108,119 @@ class Performanceappraisal extends Common {
     }
 
     public function filterappraisalquestion_details(){
+        $kc = array(
+            "0" => "Select",
+            "1" => "Excellent",
+            "2" => "Very Good",
+            "3" => "Good",
+            "4" => "Need Improvement",
+            "5" => "Unsatisfactory"
+        );
+        $userdata = $this->input->post();
+        // Questions List
+        $questions = $this->Performanceappraisalmodel->filterappraisalquestion($userdata);
+        // Already Assigned Data
+        $assigneddata = $this->Performanceappraisalmodel->getassignquestionlist($userdata);
+        // Convert Assigned Data Array
+        $assignedarray = array();
+        if(count($assigneddata) > 0){
+            foreach($assigneddata as $vals){
+                $questionid = $vals['mxap_assign_queid'];
+                $yearmonth = str_replace("-", "_", $vals['mxap_assign_year_month']);
+                $assignedarray[$questionid][$yearmonth] = $vals;
+            }
+        }
+        // Financial Year
+        $financialyear = $userdata['financialyear'];
+        // Example:
+        // 2026-04_2027-03
+        $financial_year = explode('_', $financialyear);
+        $startdate = $financial_year[0] . '-01';
+        $enddate   = $financial_year[1] . '-01';
+        if(count($questions) > 0){
+            $sno = 1;
+            foreach ($questions as $key => $value) {
+                $id = $value['mxap_id'];
+                // Existing Data
+                $objective = '';
+                $unitmeasure = '';
+                $weightage = '';
+                $show = 0;
+                if(isset($assignedarray[$id])){
+                    $firstdata = current($assignedarray[$id]);
+                    $objective = $firstdata['mxap_assign_objective'];
+                    $unitmeasure = $firstdata['mxap_assign_unitmeasure'];
+                    $weightage = $firstdata['mxap_assign_weightage'];
+                    $show = $firstdata['mxap_assign_que_show'];
+                }
+                $table = "<tr>";
+                $table .= "<input type='hidden' name='question_id[]' value='$id'>";
+                $table .= "<td>".$sno."</td>";
+                $table .= "<td>".$value['mxap_question']."</td>";
+                $table .= "<td>
+                            <input type='text'
+                            name='question_objective[]'
+                            class='form-control'
+                            value='$objective'>
+                          </td>";
+                $table .= "<td>
+                            <select name='question_assign[]' class='form-control'>
+                                <option value='0' ".($show == 0 ? 'selected' : '').">NO</option>
+                                <option value='1' ".($show == 1 ? 'selected' : '').">YES</option>
+                            </select>
+                          </td>";
+                $table .= "<td>
+                            <input type='text'
+                            name='question_unit_measure[]'
+                            class='form-control'
+                            value='$unitmeasure'>
+                          </td>";
+                $table .= "<td>
+                            <input type='text'
+                            name='question_weightage_measure[]'
+                            class='form-control'
+                            value='$weightage'>
+                          </td>";
+                // Month Loop
+                $month = strtotime($startdate);
+                $end = strtotime('+1 month', strtotime($enddate));
+                while($month < $end){
+                    $yearmonth = date('Y_m', $month);
+                    $assignym = $yearmonth.'[]';
+                    // Existing Monthly Value
+                    $monthvalue = '';
+                    if(isset($assignedarray[$id][$yearmonth])){
+                        $monthvalue = $assignedarray[$id][$yearmonth]['mxap_assign_monthlytarget'];
+                    }
+                    // KRA
+                    if($userdata['quecategory'] == 1){
+                        $table .= "<td>
+                                    <input type='text'
+                                    name='$assignym'
+                                    class='form-control'
+                                    value='$monthvalue'>
+                                  </td>";
+                    }
+                    // KPA
+                    else{
+                        $table .= "<td>
+                                    <select name='$assignym' class='form-control'>";
+                        foreach($kc as $kckey => $kcval){
+                            $selected = ($monthvalue == $kckey) ? 'selected' : '';
+                            $table .= "<option value='$kckey' $selected>$kcval</option>";
+                        }
+                        $table .= "</select></td>";
+                    }
+                    $month = strtotime("+1 month", $month);
+                }
+                $table .= "</tr>";
+                echo $table;
+                $sno++;
+            }
+        }
+    }
+/*
+    public function filterappraisalquestion_details(){
         $kc = array("0"=>"Select","1" => "Excellent","2" => "Very Good","3" => "Good","4" => "Need Improvement", "5" => "Unsatisfactory");
         $userdata = $this->input->post();
         $dd = $this->Performanceappraisalmodel->filterappraisalquestion($userdata);
@@ -165,7 +278,7 @@ class Performanceappraisal extends Common {
             $sno++; }
         }
     }
-
+    */
     public function getappremployeeslist(){
         $userdata = $this->input->post();
         $employees = $this->Performanceappraisalmodel->getappremployeeslist($userdata); 
