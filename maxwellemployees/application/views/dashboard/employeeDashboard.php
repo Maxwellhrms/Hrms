@@ -159,7 +159,7 @@
                 <th>Leave Type</th>
                 <th>Leave Date</th>
                 <th>Days</th>
-                <th>Reason</th>
+                <!-- <th>Reason</th> -->
               </tr>
 
             </thead>
@@ -191,9 +191,9 @@
                   <td>
                   	<?php echo $row['noofdays']; ?>
                   </td>
-                  <td>
-                  	<?php echo $row['description']; ?>
-                  </td>
+<!--                   <td>
+                  	<?php #echo $row['description']; ?>
+                  </td> -->
 
                 </tr>
 
