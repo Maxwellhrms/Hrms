@@ -1585,10 +1585,10 @@ $write = $val1->mxemp_emp_lng_write;
 									<label>Authorization Type:</label>
 									<select class="form-control auth_type" name="authorizationtype[]" id="authtype_5">
 										<option value="">Select Auth Type</option>
-										<option value="1" <?php echo (isset($authtypedata[3]->mxauth_auth_type) && $authtypedata[3]->mxauth_auth_type == 1)?"selected ":"" ?> >Branch</option>
-										<option value="2" <?php echo (isset($authtypedata[3]->mxauth_auth_type) && $authtypedata[3]->mxauth_auth_type == 2)?"selected ":"" ?> >Head Office</option>
-										<option value="3" <?php echo (isset($authtypedata[3]->mxauth_auth_type) && $authtypedata[3]->mxauth_auth_type == 3)?"selected ":"" ?> >HR</option>
-										<option value="4" <?php echo (isset($authtypedata[3]->mxauth_auth_type) && $authtypedata[3]->mxauth_auth_type == 4)?"selected ":"" ?> >Director</option>
+										<option value="1" <?php echo (isset($authtypedata[4]->mxauth_auth_type) && $authtypedata[4]->mxauth_auth_type == 1)?"selected ":"" ?> >Branch</option>
+										<option value="2" <?php echo (isset($authtypedata[4]->mxauth_auth_type) && $authtypedata[4]->mxauth_auth_type == 2)?"selected ":"" ?> >Head Office</option>
+										<option value="3" <?php echo (isset($authtypedata[4]->mxauth_auth_type) && $authtypedata[4]->mxauth_auth_type == 3)?"selected ":"" ?> >HR</option>
+										<option value="4" <?php echo (isset($authtypedata[4]->mxauth_auth_type) && $authtypedata[4]->mxauth_auth_type == 4)?"selected ":"" ?> >Director</option>
 									</select>
 								</div>
 							</div>
