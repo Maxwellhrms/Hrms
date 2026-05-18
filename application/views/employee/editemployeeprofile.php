@@ -1437,7 +1437,7 @@ $write = $val1->mxemp_emp_lng_write;
 					<div class="col-xl-12">
 						<div class="row">
 							<!-------------LINE 1---->
-							<div class="col-md-2">
+							<div class="col-md-4">
 								<div class="form-group">
 									<label>Authorization Type:</label>
 									<select class="form-control auth_type" name="authorizationtype[]" id="authtype_1">
@@ -1473,7 +1473,7 @@ $write = $val1->mxemp_emp_lng_write;
 							</div> -->
 							<!-------------END LINE 1--------->
 							<!-------------LINE 2--------->
-							<div class="col-md-2">
+							<div class="col-md-4">
 								<div class="form-group">
 									<label>Authorization Type:</label>
 									<select class="form-control auth_type" name="authorizationtype[]" id="authtype_2">
@@ -1510,7 +1510,7 @@ $write = $val1->mxemp_emp_lng_write;
 							<!-------------END LINE 2--------->
 							<!-------------LINE 3--------->
 
-							<div class="col-md-2">
+							<div class="col-md-4">
 								<div class="form-group">
 									<label>Authorization Type:</label>
 									<select class="form-control auth_type" name="authorizationtype[]" id="authtype_3">
@@ -1544,7 +1544,7 @@ $write = $val1->mxemp_emp_lng_write;
 							</div> -->
 							<!-------------END LINE 3--------->
 							<!-------------LINE 4--------->
-							<div class="col-md-2">
+							<div class="col-md-4">
 								<div class="form-group">
 									<label>Authorization Type:</label>
 									<select class="form-control auth_type" name="authorizationtype[]" id="authtype_4">
@@ -1580,7 +1580,7 @@ $write = $val1->mxemp_emp_lng_write;
 							</div> -->
 							<!-------------END LINE 4--------->
 							<!-------------LINE 5--------->
-							<div class="col-md-2">
+							<div class="col-md-4">
 								<div class="form-group">
 									<label>Authorization Type:</label>
 									<select class="form-control auth_type" name="authorizationtype[]" id="authtype_5">
