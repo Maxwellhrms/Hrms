@@ -1465,12 +1465,12 @@ $write = $val1->mxemp_emp_lng_write;
 								</div>
 							</div>
 
-							<div class="col-md-2 text-center">
+<!-- 							<div class="col-md-2 text-center">
 							    <div class="form-group">
 							        <label>Approvals (Leave/Regulations):</label><br>
 							        <input style="width:18px;height:18px;margin-top:10px;" type="checkbox" class="form-check-input emp_approval" name="emp_approval[]" id="emp_approval_1" autocomplete="off">
 							    </div>
-							</div>
+							</div> -->
 							<!-------------END LINE 1--------->
 							<!-------------LINE 2--------->
 							<div class="col-md-2">
@@ -1501,12 +1501,12 @@ $write = $val1->mxemp_emp_lng_write;
 									<select type="text" class="form-control select2 emp_name" style="width: 100%" name="emp_name[]" id="empname_2" autocomplete="off"></select>
 								</div>
 							</div>
-							<div class="col-md-2 text-center">
+<!-- 							<div class="col-md-2 text-center">
 							    <div class="form-group">
 							        <label>Approvals (Leave/Regulations):</label><br>
 							        <input style="width:18px;height:18px;margin-top:10px;" type="checkbox" class="form-check-input emp_approval" name="emp_approval[]" id="emp_approval_2" autocomplete="off">
 							    </div>
-							</div>
+							</div> -->
 							<!-------------END LINE 2--------->
 							<!-------------LINE 3--------->
 
@@ -1536,12 +1536,12 @@ $write = $val1->mxemp_emp_lng_write;
 									<select type="text" class="form-control select2 emp_name" name="emp_name[]" style="width: 100%" id="empname_3" autocomplete="off"></select>
 								</div>
 							</div>
-							<div class="col-md-2 text-center">
+<!-- 							<div class="col-md-2 text-center">
 							    <div class="form-group">
 							        <label>Approvals (Leave/Regulations):</label><br>
 							        <input style="width:18px;height:18px;margin-top:10px;" type="checkbox" class="form-check-input emp_approval" name="emp_approval[]" id="emp_approval_3" autocomplete="off">
 							    </div>
-							</div>
+							</div> -->
 							<!-------------END LINE 3--------->
 							<!-------------LINE 4--------->
 							<div class="col-md-2">
@@ -1572,12 +1572,12 @@ $write = $val1->mxemp_emp_lng_write;
 									<select type="text" class="form-control select2 emp_name" style="width: 100%" name="emp_name[]" id="empname_4" autocomplete="off"> </select>
 								</div>
 							</div>
-							<div class="col-md-2 text-center">
+<!-- 							<div class="col-md-2 text-center">
 							    <div class="form-group">
 							        <label>Approvals (Leave/Regulations):</label><br>
 							        <input style="width:18px;height:18px;margin-top:10px;" type="checkbox" class="form-check-input emp_approval" name="emp_approval[]" id="emp_approval_4" autocomplete="off">
 							    </div>
-							</div>
+							</div> -->
 							<!-------------END LINE 4--------->
 							<!-------------LINE 5--------->
 							<div class="col-md-2">
@@ -1608,12 +1608,12 @@ $write = $val1->mxemp_emp_lng_write;
 									<select type="text" class="form-control select2 emp_name" style="width: 100%" name="emp_name[]" id="empname_5" autocomplete="off"> </select>
 								</div>
 							</div>
-							<div class="col-md-2 text-center">
+<!-- 							<div class="col-md-2 text-center">
 							    <div class="form-group">
 							        <label>Approvals (Leave/Regulations):</label><br>
 							        <input style="width:18px;height:18px;margin-top:10px;" type="checkbox" class="form-check-input emp_approval" name="emp_approval[]" id="emp_approval_5" autocomplete="off">
 							    </div>
-							</div>
+							</div> -->
 							<!-------------END LINE 5--------->
 							<script>
 							    $(document).ready(function(){
