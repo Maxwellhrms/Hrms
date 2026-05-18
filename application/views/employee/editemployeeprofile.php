@@ -1465,7 +1465,12 @@ $write = $val1->mxemp_emp_lng_write;
 								</div>
 							</div>
 
-
+							<div class="col-md-2 text-center">
+							    <div class="form-group">
+							        <label>Approvals (Leave/Regulations):</label><br>
+							        <input style="width:18px;height:18px;margin-top:10px;" type="checkbox" class="form-check-input emp_approval" name="emp_approval[]" id="emp_approval_1" autocomplete="off">
+							    </div>
+							</div>
 							<!-------------END LINE 1--------->
 							<!-------------LINE 2--------->
 							<div class="col-md-2">
