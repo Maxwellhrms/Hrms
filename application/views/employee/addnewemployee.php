@@ -1304,6 +1304,36 @@
 																				</div>
 																			</div>
 																			<!-------------END LINE 4--------->
+																			<!-------------LINE 5--------->
+																			<div class="col-md-4">
+																				<div class="form-group">
+																					<label>Authorization Type:</label>
+																					<select class="form-control auth_type" name="authorizationtype[]" id="authtype_5">
+																						<option value="">Select Auth Type</option>
+																						<option value="1">Branch</option>
+																						<option value="2">Head Office</option>
+																						<option value="3">Hr</option>
+																						<option value="4">Director</option>
+																					</select>
+																				</div>
+																			</div>
+																			<div class="col-md-4">
+																				<div class="form-group">
+																					<label>Department Name:</label>
+																					<!--<input type="text" class="form-control" name="authorizationdepartment[]" id="authorizationdepartment[]" autocomplete="off">-->
+																					<select class="form-control select2 auth_dept" name="auth_dept[]" id="authdept_5" style="width:100%">
+																						<!--<option value="">Type</option>-->
+																						<!--<option value="3">Hr</option>-->
+																					</select>
+																				</div>
+																			</div>
+																			<div class="col-md-4">
+																				<div class="form-group">
+																					<label>Employee Name:</label>
+																					<select type="text" class="form-control select2 emp_name" style="width: 100%" name="emp_name[]" id="empname_5" autocomplete="off"> </select>
+																				</div>
+																			</div>
+																			<!-------------END LINE 5--------->
 																			<div class="col-md-2"></div>
 																		</div>
 																	</div>

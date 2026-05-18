@@ -1496,7 +1496,18 @@ $write = $val1->mxemp_emp_lng_write;
 									<select type="text" class="form-control select2 emp_name" style="width: 100%" name="emp_name[]" id="empname_2" autocomplete="off"></select>
 								</div>
 							</div>
-
+							<div class="col-md-2 text-center">
+							    <div class="form-group">
+							        <label>Approvals (Leave/Regulations):</label><br>
+							        <input style="width:18px;height:18px;margin-top:10px;" type="checkbox" class="form-check-input emp_approval" name="emp_approval[]" id="emp_approval_1" autocomplete="off">
+							    </div>
+							</div>
+							<div class="col-md-2 text-center">
+							    <div class="form-group">
+							        <label>Approvals (Leave/Regulations):</label><br>
+							        <input style="width:18px;height:18px;margin-top:10px;" type="checkbox" class="form-check-input emp_approval" name="emp_approval[]" id="emp_approval_2" autocomplete="off">
+							    </div>
+							</div>
 							<!-------------END LINE 2--------->
 							<!-------------LINE 3--------->
 
@@ -1525,6 +1536,12 @@ $write = $val1->mxemp_emp_lng_write;
 									<label>Employee Name:</label>
 									<select type="text" class="form-control select2 emp_name" name="emp_name[]" style="width: 100%" id="empname_3" autocomplete="off"></select>
 								</div>
+							</div>
+							<div class="col-md-2 text-center">
+							    <div class="form-group">
+							        <label>Approvals (Leave/Regulations):</label><br>
+							        <input style="width:18px;height:18px;margin-top:10px;" type="checkbox" class="form-check-input emp_approval" name="emp_approval[]" id="emp_approval_3" autocomplete="off">
+							    </div>
 							</div>
 							<!-------------END LINE 3--------->
 							<!-------------LINE 4--------->
@@ -1556,7 +1573,49 @@ $write = $val1->mxemp_emp_lng_write;
 									<select type="text" class="form-control select2 emp_name" style="width: 100%" name="emp_name[]" id="empname_4" autocomplete="off"> </select>
 								</div>
 							</div>
+							<div class="col-md-2 text-center">
+							    <div class="form-group">
+							        <label>Approvals (Leave/Regulations):</label><br>
+							        <input style="width:18px;height:18px;margin-top:10px;" type="checkbox" class="form-check-input emp_approval" name="emp_approval[]" id="emp_approval_4" autocomplete="off">
+							    </div>
+							</div>
 							<!-------------END LINE 4--------->
+							<!-------------LINE 5--------->
+							<div class="col-md-4">
+								<div class="form-group">
+									<label>Authorization Type:</label>
+									<select class="form-control auth_type" name="authorizationtype[]" id="authtype_5">
+										<option value="">Select Auth Type</option>
+										<option value="1" <?php echo (isset($authtypedata[3]->mxauth_auth_type) && $authtypedata[3]->mxauth_auth_type == 1)?"selected ":"" ?> >Branch</option>
+										<option value="2" <?php echo (isset($authtypedata[3]->mxauth_auth_type) && $authtypedata[3]->mxauth_auth_type == 2)?"selected ":"" ?> >Head Office</option>
+										<option value="3" <?php echo (isset($authtypedata[3]->mxauth_auth_type) && $authtypedata[3]->mxauth_auth_type == 3)?"selected ":"" ?> >HR</option>
+										<option value="4" <?php echo (isset($authtypedata[3]->mxauth_auth_type) && $authtypedata[3]->mxauth_auth_type == 4)?"selected ":"" ?> >Director</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label>Department Name:</label>
+									<!--<input type="text" class="form-control" name="authorizationdepartment[]" id="authorizationdepartment[]" autocomplete="off">-->
+									<select class="form-control select2 auth_dept" name="auth_dept[]" id="authdept_5" style="width:100%">
+										<!--<option value="">Type</option>-->
+										<!--<option value="3">Hr</option>-->
+									</select>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label>Employee Name:</label>
+									<select type="text" class="form-control select2 emp_name" style="width: 100%" name="emp_name[]" id="empname_5" autocomplete="off"> </select>
+								</div>
+							</div>
+							<div class="col-md-2 text-center">
+							    <div class="form-group">
+							        <label>Approvals (Leave/Regulations):</label><br>
+							        <input style="width:18px;height:18px;margin-top:10px;" type="checkbox" class="form-check-input emp_approval" name="emp_approval[]" id="emp_approval_5" autocomplete="off">
+							    </div>
+							</div>
+							<!-------------END LINE 5--------->
 							<script>
 							    $(document).ready(function(){
 							        
@@ -1568,16 +1627,19 @@ $write = $val1->mxemp_emp_lng_write;
         							    var auth_type_2 = '<?php echo (isset($authtypedata[1]->mxauth_auth_type))? $authtypedata[1]->mxauth_auth_type: "NO" ?>';
         							    var auth_type_3 = '<?php echo (isset($authtypedata[2]->mxauth_auth_type))? $authtypedata[2]->mxauth_auth_type: "NO" ?>';
         							    var auth_type_4 = '<?php echo (isset($authtypedata[3]->mxauth_auth_type))? $authtypedata[3]->mxauth_auth_type: "NO" ?>';
+        							    var auth_type_5 = '<?php echo (isset($authtypedata[4]->mxauth_auth_type))? $authtypedata[4]->mxauth_auth_type: "NO" ?>';
         							    
         							    var auth_dept_1 = '<?php echo (isset($authtypedata[0]->mxauth_dept_id)) ? $authtypedata[0]->mxauth_dept_id: "NO" ?>';
         							    var auth_dept_2 = '<?php echo (isset($authtypedata[1]->mxauth_dept_id))? $authtypedata[1]->mxauth_dept_id: "NO" ?>';
         							    var auth_dept_3 = '<?php echo (isset($authtypedata[2]->mxauth_dept_id))? $authtypedata[2]->mxauth_dept_id: "NO" ?>';
         							    var auth_dept_4 = '<?php echo (isset($authtypedata[3]->mxauth_dept_id))? $authtypedata[3]->mxauth_dept_id: "NO" ?>';
+        							    var auth_dept_5 = '<?php echo (isset($authtypedata[4]->mxauth_dept_id))? $authtypedata[4]->mxauth_dept_id: "NO" ?>';
         							    
         							    var auth_emp_code_1 = '<?php echo (isset($authtypedata[0]->mxauth_reporting_head_emp_code)) ? $authtypedata[0]->mxauth_reporting_head_emp_code: "NO" ?>';
         							    var auth_emp_code_2 = '<?php echo (isset($authtypedata[1]->mxauth_reporting_head_emp_code))? $authtypedata[1]->mxauth_reporting_head_emp_code: "NO" ?>';
         							    var auth_emp_code_3 = '<?php echo (isset($authtypedata[2]->mxauth_reporting_head_emp_code))? $authtypedata[2]->mxauth_reporting_head_emp_code: "NO" ?>';
         							    var auth_emp_code_4 = '<?php echo (isset($authtypedata[3]->mxauth_reporting_head_emp_code))? $authtypedata[3]->mxauth_reporting_head_emp_code: "NO" ?>';
+        							    var auth_emp_code_5 = '<?php echo (isset($authtypedata[4]->mxauth_reporting_head_emp_code))? $authtypedata[4]->mxauth_reporting_head_emp_code: "NO" ?>';
         							    
         							    //   alert("comp_id == " + comp_id + "branch_id == " + branch_id + "auth_type_1 == " + auth_type_1);
         							    //--->LOAD AUTH DEPARTMENTS
@@ -1585,6 +1647,7 @@ $write = $val1->mxemp_emp_lng_write;
         							    if(auth_type_2 != "NO"){ get_departments(comp_id,branch_id,auth_type_2,auth_dept_2,2); }
         							    if(auth_type_3 != "NO"){ get_departments(comp_id,branch_id,auth_type_3,auth_dept_3,3); }
         							    if(auth_type_4 != "NO"){ get_departments(comp_id,branch_id,auth_type_4,auth_dept_4,4); }
+        							    if(auth_type_5 != "NO"){ get_departments(comp_id,branch_id,auth_type_5,auth_dept_5,5); }
         							    //--->END LOAD AUTH DEPARTMENTS
         							    
         							    //--->LOAD AUTH EMP CODES
@@ -1592,6 +1655,7 @@ $write = $val1->mxemp_emp_lng_write;
         							    if(auth_emp_code_2 != "NO"){ get_employees(comp_id,branch_id,auth_dept_2,auth_type_2,auth_emp_code_2,2); }
         							    if(auth_emp_code_3 != "NO"){ get_employees(comp_id,branch_id,auth_dept_3,auth_type_3,auth_emp_code_3,3); }
         							    if(auth_emp_code_4 != "NO"){ get_employees(comp_id,branch_id,auth_dept_4,auth_type_4,auth_emp_code_4,4); }
+        							    if(auth_emp_code_5 != "NO"){ get_employees(comp_id,branch_id,auth_dept_5,auth_type_5,auth_emp_code_5,5); }
         							    //--->END LOAD AUTH EMP CODES
 							    });
 							     //ONLOAD GET AUTHORISATION DEPARTMENTS
