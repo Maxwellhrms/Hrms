@@ -864,7 +864,10 @@ public function getAttendanceDashboard(){
     }
 
     public function ontimeLatecomming($data){
-
+        $company = $data['esi_company_id'];
+        $division = $data['esi_div_id'];
+        $state = $data['esi_state_id'];
+        $branch = $data['esi_branch_id'];
         $employee_codes = (!empty($data['employecodeslr']) && $data['employecodeslr'] != 'ALL') 
             ? array($data['employecodeslr']) 
             : array();
@@ -925,7 +928,18 @@ public function getAttendanceDashboard(){
         $this->db->from($table_name);
 
         $this->db->where_in('mx_attendance_emp_code', $employee_ids);
-
+        if(!empty($company)){
+            $this->db->where('mx_attendance_cmp_id', $company);
+        }
+        if(!empty($division)){
+            $this->db->where('mx_attendance_division_id', $division);
+        }
+        if(!empty($state)){
+            $this->db->where('mx_attendance_state_id', $state);
+        }
+        if(!empty($branch)){
+             $this->db->where('mx_attendance_branch_id', $branch);
+        }
         $this->db->where('mx_attendance_date >=', $from_date);
         $this->db->where('mx_attendance_date <=', $to_date);
 

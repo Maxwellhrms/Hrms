@@ -264,6 +264,10 @@ class CommonModel extends CI_Model
     }
 
     public function manageremployeesleaveList($data){
+            $company = $data['esi_company_id'];
+            $division = $data['esi_div_id'];
+            $state = $data['esi_state_id'];
+            $branch = $data['esi_branch_id'];
             $employeecode = $this->session->userdata('session_loginperson_id');
             $this->db->select(" concat(mxemp_emp_fname,' ',mxemp_emp_lname) as employeename,mxar_id as uniqid,mxemp_emp_img as empimg,
                 mxar_category_type as category_type,
@@ -377,7 +381,19 @@ class CommonModel extends CI_Model
     }
     if (!empty($data['todate'])) {  
         $this->db->where('mxar_to <=', $data['todate']);
-    }                         
+    }
+    if(!empty($company)){
+        $this->db->where('mxar_comp_id', $company);
+    }
+    if(!empty($division)){
+        $this->db->where('mxar_div_id', $division);
+    }
+    if(!empty($state)){
+        $this->db->where('mxar_state_id', $state);
+    }
+    if(!empty($branch)){
+         $this->db->where('mxar_branch_id', $branch);
+    }                            
     $this->db->order_by("mxar_createdtime", "desc");
     $query= $this->db->get();
     $result = $query->result();
@@ -386,6 +402,10 @@ class CommonModel extends CI_Model
     }
 
     public function manageremployeesregulationList($data){
+        $company = $data['esi_company_id'];
+        $division = $data['esi_div_id'];
+        $state = $data['esi_state_id'];
+        $branch = $data['esi_branch_id'];
         $employeecode = $this->session->userdata('session_loginperson_id');
         $this->db->select("concat(mxemp_emp_fname,' ',mxemp_emp_lname) as employeename, mxemp_emp_img as pimage,
             mxar_appliedby_emp_code as employeeid,mxar_from as from,mxdesg_name as desginationname,
@@ -468,6 +488,18 @@ class CommonModel extends CI_Model
         if($data['regulationtype'] != 'ALL' && $data['regulationtype'] != ''){
             $this->db->where('mxar_type', $data['regulationtype']);
         }
+        if(!empty($company)){
+        $this->db->where('mxar_comp_id', $company);
+        }
+        if(!empty($division)){
+            $this->db->where('mxar_div_id', $division);
+        }
+        if(!empty($state)){
+            $this->db->where('mxar_state_id', $state);
+        }
+        if(!empty($branch)){
+             $this->db->where('mxar_branch_id', $branch);
+        } 
         $this->db->order_by("mxar_createdtime", "desc");
         $query= $this->db->get();
         $result = $query->result();
