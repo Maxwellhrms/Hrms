@@ -374,11 +374,19 @@ class DashBoardModel extends CI_Model
             mx_attendance_first_half,
             mx_attendance_second_half,
             mx_attendance_first_half_punch,
-            mx_attendance_second_half_punch
+            mx_attendance_second_half_punch,
+            mxcp_name as companyname,
+            mxd_name as divisionname,
+            mxst_state as statename,
+            mxb_name as branchname
         ');
 
         $this->db->from($table);
         $this->db->join('maxwell_employees_info','mxemp_emp_id = mx_attendance_emp_code','inner');
+        $this->db->join('maxwell_branch_master', 'mxb_id = mxemp_emp_branch_code', 'inner');
+        $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
+        $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');
+        $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
         $this->db->where_in('mx_attendance_emp_code', $employee_codes);
         $this->db->order_by('mx_attendance_emp_code,mx_attendance_date', 'ASC');
 
@@ -479,6 +487,10 @@ class DashBoardModel extends CI_Model
                 'second_punch' => $lastPunch,
                 'year' => $year,
                 'month' => $month,
+                'companyname' => $row['companyname'],
+                'divisionname' => $row['divisionname'],
+                'statename' => $row['statename'],
+                'branchname' => $row['branchname'],
             ];
         }
 

@@ -76,6 +76,10 @@
                     $employee = reset($days);
 
                     $employeeName  = $employee['name'];
+                    $companyname = $employee['companyname'];
+                    $divisionname = $employee['divisionname'];
+                    $statename = $employee['statename'];
+                    $branchname = $employee['branchname'];
                     // $employeeImage = base_url('assets/img/user.jpg');
                     $employeeImage = !empty($employee['img']) ? HRADMINROOTDOCUMENT.$employee['img']: base_url('assets/img/user.jpg');
                     ?>
@@ -95,7 +99,10 @@
                                     </div>
 
                                     <div class="emp-code">
-                                        <?= $employeeCode ?>
+                                        Employee Code:- <?= $employeeCode ?><br>
+                                        Division:- <?= $divisionname ?><br>
+                                        State:- <?= $statename ?><br>
+                                        Branch:- <?= $branchname ?>
                                     </div>
                                 </div>
 
