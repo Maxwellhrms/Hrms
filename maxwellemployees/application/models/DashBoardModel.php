@@ -356,7 +356,7 @@ class DashBoardModel extends CI_Model
     }
 
     # Manager Dash Board Start
-    public function get_employee_attendance_calendar($employee_codes = [], $month = null, $year = null){
+    public function get_employee_attendance_calendar($employee_codes = [], $month = null, $year = null, $company = null, $division = null, $state = null, $branch = null){
         if(empty($employee_codes)){
             return [];
         }
@@ -388,6 +388,18 @@ class DashBoardModel extends CI_Model
         $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');
         $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
         $this->db->where_in('mx_attendance_emp_code', $employee_codes);
+        if(!empty($company)){
+            $this->db->where('mx_attendance_cmp_id', $company);
+        }
+        if(!empty($division)){
+            $this->db->where('mx_attendance_division_id', $division);
+        }
+        if(!empty($state)){
+            $this->db->where('mx_attendance_state_id', $state);
+        }
+        if(!empty($branch)){
+             $this->db->where('mx_attendance_branch_id', $branch);
+        }
         $this->db->order_by('mx_attendance_emp_code,mx_attendance_date', 'ASC');
 
         $query = $this->db->get();

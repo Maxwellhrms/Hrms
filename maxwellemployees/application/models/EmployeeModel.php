@@ -807,7 +807,12 @@ public function getAttendanceDashboard(){
             $yearid = date('Y');
         }
 
-        $returnarray['employeeattendance'] = $this->DashBoardModel->get_employee_attendance_calendar($employee_ids, $monthid, $yearid);
+        $company = $data['esi_company_id'];
+        $division = $data['esi_div_id'];
+        $state = $data['esi_state_id'];
+        $branch = $data['esi_branch_id'];
+
+        $returnarray['employeeattendance'] = $this->DashBoardModel->get_employee_attendance_calendar($employee_ids, $monthid, $yearid, $company, $division, $state, $branch);
         return $returnarray;
     }
 

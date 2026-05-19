@@ -61,6 +61,16 @@ class Common extends CI_Controller {
         $this->load->view('common/commonfiltersform',$data);
     }
 
+    public function commonFiltersWithoutForm($data = array()){
+        $data['selectedFilter'] = $data;
+        $data['companyFilter'] = $this->CommonModel->getCompanyfilter();
+        $data['assignedemployees'] = $this->CommonModel->getEmployeesWhoAreAssignToAuthorsations($reporting_head_emp_code = '');
+        if($data['customvalue']!= ''){
+            $data['customOptions'] = $this->CommonModel->displayOptions($data);
+        }
+        $this->load->view('common/commonfilterswithoutform',$data);
+    }
+
     public function display_options($filedname,$selected = ''){
         $data = $this->CommonModel->displayOptions($filedname);
         $def = '<option value="">Select</option>';

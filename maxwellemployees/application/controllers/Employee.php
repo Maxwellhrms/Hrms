@@ -47,8 +47,9 @@ class Employee extends Common {
             redirect(base_url() . 'Employee/userpolicies');
             exit();
         }
-        $data['assignedemployees'] = $this->EmployeeModel->getemployeeidsassignedtomanagers();
+        // $data['assignedemployees'] = $this->EmployeeModel->getemployeeidsassignedtomanagers();
         // print_r($data['assignedemployees']); exit;
+        $data['controller'] = $this;
         $this->header();
         $this->load->view('dashboard/managerDashboard',$data);
         $this->footer();

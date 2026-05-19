@@ -466,32 +466,25 @@
 	<div class="container-fluid mt-3">
 <!-- HEADER -->
 <div class="mgr-header">
-	<h5>Today's Stats</h5>
+	<h5>Monthly Stats</h5>
 	<div class="row">
 	<!-- Search Filter -->
 	<form method="post" id="regulationsleaves">
 		<div class="row filter-row">
-		   <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12"> 
-				<div class="form-group form-focus select-focus">
-					<select class="select2 floating" name="employecodeslr" id="employecodeslr"> 
-						<option value="ALL"> ALL </option>
-						<?php foreach ($assignedemployees as $lrkey => $lrval) { ?>
-							<option value="<?php echo $lrval['mxauth_emp_code'] ?>"> <?php echo $lrval['mxemp_emp_fname'].' ('.$lrval['mxauth_emp_code'].')'; ?> </option>
-						<?php } ?>
-					</select>
-					<label class="focus-label">Employees</label>
-				</div>
-		   </div>
+            <!-- Search Filter -->
+            <?php 
+            $controller->commonFiltersWithoutForm(array(
+                'monthyearfilter' => array('Y', 'monthyear'),
+                'manageremployees' => array('Y', 'employecodes'),
+                'companyfilter' => 'Y',
+                'divisionfilter' => 'Y',
+                'statefilter' => 'Y',
+                'branchfilter' => 'Y',
+            )); 
+            ?>
+            <!-- Search Filter -->
 		   <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12">  
-				<div class="form-group form-focus">
-					<div class="cal-icon">
-						<input class="form-control floating monthyearpicker" name="monthyearlr" id="monthyearlr" type="text" value="<?php echo date('m-Y'); ?>">
-					</div>
-					<label class="focus-label">Month Year</label>
-				</div>
-			</div>
-		   <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12">  
-				<a class="btn btn-success w-100" id="authempregulationsleaves" type="button" onclick="getRegulationsLeaves()"> Search </a>  
+				<a class="btn btn-success w-100" id="authempregulationsleaves" type="button" onclick="loadDashboardData()">Search</a>
 		   </div>     
 	    </div>
     </form>
@@ -510,37 +503,7 @@
 <!-- CALENDAR -->
 <!-- CALENDAR -->
 <div class="container-fluid mt-4">
-	<!-- Search Filter -->
-	<form method="post" id="attendance">
-		<div class="row filter-row">
-		   <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12"> 
-				<div class="form-group form-focus select-focus">
-					<select class="select2 floating" name="employecodes" id="employecodes"> 
-						<option value="ALL"> ALL </option>
-						<?php foreach ($assignedemployees as $key => $val) { ?>
-							<option value="<?php echo $val['mxauth_emp_code'] ?>"> <?php echo $val['mxemp_emp_fname'].' ('.$val['mxauth_emp_code'].')'; ?> </option>
-						<?php } ?>
-					</select>
-					<label class="focus-label">Employees</label>
-				</div>
-		   </div>
-		   <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12">  
-				<div class="form-group form-focus">
-					<div class="cal-icon">
-						<input class="form-control floating monthyearpicker" name="monthyear" id="monthyear" type="text" value="<?php echo date('m-Y'); ?>">
-					</div>
-					<label class="focus-label">Month Year</label>
-				</div>
-			</div>
-		   <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12">  
-				<a class="btn btn-success w-100" id="authempattendance" type="button" onclick="getAttendances()"> Search </a>  
-		   </div>     
-	    </div>
-    </form>
-	<!-- /Search Filter -->
-
 	<div id="filterAttendanceList"></div>
-
 </div>
 <!-- CALENDAR -->
 <!-- CALENDAR -->
@@ -559,31 +522,59 @@ $(document).ready(function () {
     });
 
     // default load
-    getRegulationsLeaves();
-    getAttendances();
+    loadDashboardData();
+
 });
+
+
+function loadDashboardData() {
+
+    $('#authempregulationsleaves')
+        .html('<i class="fa fa-spinner fa-spin"></i> Loading...')
+        .addClass('disabled');
+
+    // Load first request then second
+    getRegulationsLeaves().done(function () {
+
+        getAttendances();
+
+    }).always(function () {
+
+        $('#authempregulationsleaves')
+            .html('Search')
+            .removeClass('disabled');
+
+    });
+
+}
 
 
 function getAttendances() {
 
     let employecodes = $('#employecodes').val();
     let monthyear    = $('#monthyear').val();
+    let esi_company_id = $('#esi_company_id').val();
+    let esi_div_id = $('#esi_div_id').val();
+    let esi_state_id = $('#esi_state_id').val();
+    let esi_branch_id = $('#esi_branch_id').val();
 
-    $.ajax({
+    return $.ajax({
 
-        url: baseurl+'Employee/getassignedemployeesassignedtomanagerattendanceList',
+        url: baseurl + 'Employee/getassignedemployeesassignedtomanagerattendanceList',
         type: "POST",
 
         data: {
             employecodes: employecodes,
-            monthyear: monthyear
+            monthyear: monthyear,
+            esi_company_id: esi_company_id,
+            esi_div_id: esi_div_id,
+            esi_state_id: esi_state_id,
+            esi_branch_id: esi_branch_id
         },
 
-        beforeSend: function () {
+        timeout: 300000,
 
-            $('#authempattendance')
-                .html('<i class="fa fa-spinner fa-spin"></i> Loading...')
-                .addClass('disabled');
+        beforeSend: function () {
 
             $('#filterAttendanceList').html(`
                 <div class="text-center p-4">
@@ -599,9 +590,11 @@ function getAttendances() {
 
         },
 
-        error: function (xhr) {
+        error: function (xhr, status, error) {
 
             console.log(xhr.responseText);
+            console.log(status);
+            console.log(error);
 
             $('#filterAttendanceList').html(`
                 <div class="alert alert-danger">
@@ -609,44 +602,41 @@ function getAttendances() {
                 </div>
             `);
 
-        },
-
-        complete: function () {
-
-            $('#authempattendance')
-                .html('Search')
-                .removeClass('disabled');
-
         }
 
     });
 
 }
 
+
 function getRegulationsLeaves() {
 
-    let employecodeslr = $('#employecodeslr').val();
-    let monthyearlr    = $('#monthyearlr').val();
+    let employecodeslr = $('#employecodes').val();
+    let monthyearlr    = $('#monthyear').val();
+    let esi_company_id = $('#esi_company_id').val();
+    let esi_div_id = $('#esi_div_id').val();
+    let esi_state_id = $('#esi_state_id').val();
+    let esi_branch_id = $('#esi_branch_id').val();
 
-    $.ajax({
+    return $.ajax({
 
-        url: baseurl+'Employee/getRegulationsLeavesList',
+        url: baseurl + 'Employee/getRegulationsLeavesList',
         type: "POST",
 
         data: {
             employecodeslr: employecodeslr,
-            monthyearlr: monthyearlr
+            monthyearlr: monthyearlr,
+            esi_company_id: esi_company_id,
+            esi_div_id: esi_div_id,
+            esi_state_id: esi_state_id,
+            esi_branch_id: esi_branch_id
         },
 
         beforeSend: function () {
 
-            $('#authempregulationsleaves')
-                .html('<i class="fa fa-spinner fa-spin"></i> Loading...')
-                .addClass('disabled');
-
             $('#leavesregulationslistdisplay').html(`
                 <div class="text-center p-4">
-                    <i class="fa fa-spinner fa-spin"></i> Loading Attendance...
+                    <i class="fa fa-spinner fa-spin"></i> Loading Data...
                 </div>
             `);
 
@@ -658,28 +648,22 @@ function getRegulationsLeaves() {
 
         },
 
-        error: function (xhr) {
+        error: function (xhr, status, error) {
 
             console.log(xhr.responseText);
+            console.log(status);
+            console.log(error);
 
             $('#leavesregulationslistdisplay').html(`
                 <div class="alert alert-danger">
-                    Failed to load attendance data.
+                    Failed to load data.
                 </div>
             `);
-
-        },
-
-        complete: function () {
-
-            $('#authempregulationsleaves')
-                .html('Search')
-                .removeClass('disabled');
 
         }
 
     });
 
 }
-</script>
 
+</script>
