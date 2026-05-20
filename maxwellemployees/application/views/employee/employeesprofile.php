@@ -485,7 +485,16 @@
 																<th>Age</th>
 																<th>Occupation</th>
 																<th>Edit</th>
-																
+																<th>Approval Status</th>
+																<td><?php 
+																	if($fmvalue->status == '0'){
+																		echo 'Pending';
+																	}elseif($fmvalue->status == '1'){
+																		echo 'Approved';
+																	}elseif($fmvalue->status == '2'){
+																		echo 'Rejected';
+																	}
+																?></td>
 															</tr>
 														</thead>
 														<tbody>

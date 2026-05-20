@@ -716,6 +716,7 @@ public function getAttendanceDashboard(){
     public function family($emp_id, $id = ''){
         $this->db->select('mxemp_emp_fm_id,mxemp_emp_fm_employee_id,mxemp_emp_fm_relation,mxemp_emp_fm_name,mxemp_emp_fm_age,mxemp_emp_fm_occupation,mxemp_emp_fm_title');
         $this->db->from('maxwell_employees_family');
+        $this->db->join('maxwell_employee_familyinfo_request','reference_id = mxemp_emp_fm_id', 'LEFT');
         $this->db->where('mxemp_emp_fm_employee_id', $emp_id);
         if(!empty($id)){
         $this->db->where('mxemp_emp_fm_id', $id);
