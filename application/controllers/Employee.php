@@ -280,4 +280,11 @@ class Employee extends Common {
         $userdata = $this->input->post();
         echo $this->Employeemodel->employeesinfoRequestinfosave($userdata);
     }
+    
+    public function getEmployeeRequestDetails(){
+	    $id = $this->input->post('id');
+	    $employee_id = $this->input->post('employee_id');
+	    $data['details'] = $this->Employeemodel->getEmployeeRequestDetails($id,$employee_id);
+	    $this->load->view('employee/employeerequestmodal',$data);
+	}
 }

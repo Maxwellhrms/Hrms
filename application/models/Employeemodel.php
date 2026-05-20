@@ -1265,7 +1265,7 @@ public function addnew_previous_employment($data){
     }
 
     public function employeesinfoRequestlist($data){
-        $this->db->select('id,status,employee_id,field_name,old_value,new_value,mxcp_name,mxd_name,mxst_state,mxb_name,mxdesg_name,mxdpt_name,mxgrd_name,mxemp_emp_fname,mxemp_emp_lname,created_date');
+        $this->db->select('id,reference_id,status,employee_id,field_name,old_value,new_value,mxcp_name,mxd_name,mxst_state,mxb_name,mxdesg_name,mxdpt_name,mxgrd_name,mxemp_emp_fname,mxemp_emp_lname,created_date');
         $this->db->from('maxwell_employee_familyinfo_request');
         $this->db->join('maxwell_employees_info','mxemp_emp_id = employee_id','INNER');
         $this->db->join('maxwell_company_master','mxcp_id = mxemp_emp_comp_code','INNER');
@@ -1379,7 +1379,7 @@ public function addnew_previous_employment($data){
                 "field_name" => strtoupper(str_replace('mxemp_emp_fm_','',$val->field_name)),
                 "old_value" => $val->old_value,
                 "new_value" => $val->new_value,
-                "employee_id" => $val->employee_id,
+                "employee_id" => '<a href="javascript:void(0)"class="viewEmployeeRequest" data-id="'.$val->reference_id.'" data-empid="'.$val->employee_id.'">'.$val->employee_id.'</a>',
                 "mxemp_emp_fname" => $val->mxemp_emp_fname.' '.$val->mxemp_emp_lname,
                 "mxcp_name" => $val->mxcp_name,
                 "mxd_name" => $val->mxd_name,
@@ -1432,6 +1432,14 @@ public function addnew_previous_employment($data){
         $hideColumn = array();
         $reportName = 'Employee Family Info Update Requests';
         echo dynamicTable($retrunarray,$columns,$linkColumns,$editColumns,$dataMappingColumns,$renameHeaderColumns,$hideColumn,$reportName);
+    }
+
+    public function getEmployeeRequestDetails($id,$employee_id){
+        $this->db->select('*');
+        $this->db->from('maxwell_employees_family');
+        $this->db->where('mxemp_emp_fm_id',$id);
+        $this->db->where('mxemp_emp_fm_employee_id',$employee_id);
+        return $this->db->get()->row();
     }
 
     public function employeesinfoRequestinfosave($data){
