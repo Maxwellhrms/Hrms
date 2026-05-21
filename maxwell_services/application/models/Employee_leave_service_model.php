@@ -6,7 +6,7 @@ class Employee_leave_service_model extends Common_model
     public $sucessmsg='success have great day';
     
     public function api_current_leaves($employeecode)
-    {
+    { echo "hi";
         #$leave_types = array('CL', 'SL', 'EL', 'OH', 'OCH', 'SHRT','LOP');
         $leave_types = array();
         $leave_types_query = $this->db->query("select mxemp_leavetypes from maxwell_employees_login where mxemp_emp_lg_employee_id = '$employeecode'");
@@ -520,6 +520,7 @@ class Employee_leave_service_model extends Common_model
                         'leave_address'=>$leave_address
                     );
                     
+                    /*
                     foreach($result as $key =>$authval){
                         if($key == 0){  
                             if($authval['mxauth_auth_type'] == 3){
@@ -553,6 +554,18 @@ class Employee_leave_service_model extends Common_model
                                 $data['mxar_auth4_empcode'] = $authval['employeeid'];
                                 $data['mxar_auth4_empname'] = $authval['employeename'];
                             }
+                        }
+                    }
+                    */
+                    $authCounter = 1;
+                    foreach ($result as $authval) {
+                        if ($authval['mxauth_auth_type'] == 3) {
+                            $data['mxar_authfinal_empcode'] = $authval['employeeid'];
+                            $data['mxar_authfinal_empname'] = $authval['employeename'];
+                        } else {
+                            $data['mxar_auth' . $authCounter . '_empcode'] = $authval['employeeid'];
+                            $data['mxar_auth' . $authCounter . '_empname'] = $authval['employeename'];
+                            $authCounter++;
                         }
                     }
                     $resusrleave =$this->db->insert('attendance_user_leaveadjust',$data);
