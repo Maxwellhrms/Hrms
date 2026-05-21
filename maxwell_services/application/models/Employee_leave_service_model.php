@@ -6,7 +6,7 @@ class Employee_leave_service_model extends Common_model
     public $sucessmsg='success have great day';
     
     public function api_current_leaves($employeecode)
-    { echo "hi";
+    { 
         #$leave_types = array('CL', 'SL', 'EL', 'OH', 'OCH', 'SHRT','LOP');
         $leave_types = array();
         $leave_types_query = $this->db->query("select mxemp_leavetypes from maxwell_employees_login where mxemp_emp_lg_employee_id = '$employeecode'");
