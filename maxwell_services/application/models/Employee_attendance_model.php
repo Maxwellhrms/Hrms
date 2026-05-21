@@ -1768,6 +1768,8 @@ class Employee_attendance_model extends Common_model
                     'mxar_client_contact_email'=>$cl_contact_email,
                     'mxar_client_desc'=>$cl_description
                 );
+
+                /*
                 $x=0;
                 foreach($result as $key =>$authval){
                     if($x == 0){  
@@ -1806,6 +1808,18 @@ class Employee_attendance_model extends Common_model
                             $data['mxar_auth4_empname'] = $authval['employeename'];
                             $x++;
                         }
+                    }
+                }
+                */
+                $x = 1;
+                foreach ($result as $authval) {
+                    if ($authval['mxauth_auth_type'] == 3) {
+                        $data['mxar_authfinal_empcode'] = $authval['employeeid'];
+                        $data['mxar_authfinal_empname'] = $authval['employeename'];
+                    } else {
+                        $data['mxar_auth'.$x.'_empcode'] = $authval['employeeid'];
+                        $data['mxar_auth'.$x.'_empname'] = $authval['employeename'];
+                        $x++;
                     }
                 }
                 $this->db->insert('attendance_regulation',$data);
