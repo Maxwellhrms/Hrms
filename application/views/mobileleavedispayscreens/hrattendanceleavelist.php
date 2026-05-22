@@ -23,6 +23,7 @@
                                                     <th>Auth1</th>
                                                     <th>Auth2</th>
                                                     <th>Auth3</th>
+                                                    <th>Auth4</th>
                                                     <th>HR</th>
                                                     <th>Final Hr</th>
                                                 </tr>
@@ -67,12 +68,22 @@
                                                           <span style="color:#0066ff">Wating for approval </span>
                                                    <?php }  } ?>
                                                     </td>
+                                                    
                                                     <td><?php echo $authv['authemp3']; 
                                                     if($authv['auth3status'] == 1){ ?>
                                                         <span style="color:#00802b">Approved </span>
                                                     <?php }elseif($authv['auth3status'] == 2){ ?>
                                                         <span style="color:#e62e00">Rejected </span>
                                                    <?php  }else{ if(!empty($authv['auth3'])){ ?>
+                                                          <span style="color:#0066ff">Wating for approval </span>
+                                                   <?php  } }   ?></td>
+
+                                                    <td><?php echo $authv['authemp4']; 
+                                                    if($authv['auth4status'] == 1){ ?>
+                                                        <span style="color:#00802b">Approved </span>
+                                                    <?php }elseif($authv['auth4status'] == 2){ ?>
+                                                        <span style="color:#e62e00">Rejected </span>
+                                                   <?php  }else{ if(!empty($authv['auth4'])){ ?>
                                                           <span style="color:#0066ff">Wating for approval </span>
                                                    <?php  } }   ?></td>
 
