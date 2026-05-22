@@ -41,8 +41,10 @@
                                                     <th>Auth2 Approved Date</th>
                                                     <th>Auth3</th>
                                                     <th>Auth3 Approved Date</th>
-                                                    <th>HR</th>
+                                                    <th>Auth4</th>
                                                     <th>Auth4 Approved Date</th>
+                                                    <th>HR</th>
+                                                    <th>Auth Final Approved Date</th>
                                                     <th>Edit</th>
                                                     <th>Revert</th>
                                                 </tr>
@@ -96,8 +98,10 @@
 													<td><?php echo $authv['mxar_auth2_approve_date']; ?> </td>
 													<td><?php echo $authv['authemp3']; ?></td>
 													<td><?php echo $authv['mxar_auth3_approve_date']; ?> </td>
-													<td><?php echo $authv['authfinalhr']; ?></td>
+                                                    <td><?php echo $authv['authdirector']; ?></td>
 													<td><?php echo $authv['mxar_auth4_approve_date']; ?> </td>
+													<td><?php echo $authv['authfinalhr']; ?></td>
+													<td><?php echo $authv['mxar_authfinal_approve_date']; ?> </td>
 													<td> 
 													<?php //if($authv['status2'] == 'Approval'){ ?> 
                                                         <button class ="btn btn-primary attndreg" data-toggle="modal" data-target="#attreg" data-id="<?php echo $authv['uniqid'] .'~'.$authv['authfinalstatus'].'~'.$authv['auth1desc'].'~'.$authv['auth2desc'] .'~'.$authv['auth3desc'] .'~'.$authv['authfinaldesc']  ?>">Approve</button>

@@ -38,6 +38,7 @@
                                                     <th>Auth1</th>
                                                     <th>Auth2</th>
                                                     <th>Auth3</th>
+                                                    <th>Auth4</th>
                                                     <th>HR</th>
                                                     <th>Edit</th>
                                                     <th>Revert</th>
@@ -86,6 +87,7 @@
 													<td><?php echo $authv['authemp1']; ?> </td>
 													<td><?php echo $authv['authemp2']; ?></td>
 													<td><?php echo $authv['authemp3']; ?></td>
+													<td><?php echo $authv['authemp4']; ?></td>
 													<td><?php echo $authv['authfinalhr']; ?></td>
 													<td> 
 													<?php //if($authv['status2'] == 'Approval'){ ?> 

@@ -1243,7 +1243,9 @@ public function getAttendanceDashboard(){
         $formattedfrom = $datefrom->format('Y-m-d');
         $dateto = DateTime::createFromFormat('d-m-Y', $leavetodate);
         $formattedto = $dateto->format('Y-m-d');
-         $this->db->select(" concat(mxemp_emp_fname,' ',mxemp_emp_lname) as employeename,mxar_id as uniqid,
+
+        /*
+        $this->db->select(" concat(mxemp_emp_fname,' ',mxemp_emp_lname) as employeename,mxar_id as uniqid,
                             mxar_category_type as category_type,
                             mxar_auth1_empname as auth1emp,
                             mxar_auth2_empname as auth2emp,
@@ -1320,7 +1322,14 @@ public function getAttendanceDashboard(){
                             // echo $this->db->last_query();
                             // exit;
                             // print_r($result); exit;
-                            $retrunarray = array();                            
+                        */
+                        $datas['employee_ids'] = $managerempCodes;
+                        $datas['leavestatus'] = $leavestatus;
+                        $datas['customoption'] = $leavetype;
+                        $datas['fromdate'] = $formattedfrom;
+                        $datas['todate'] = $formattedto;
+                        $result = $this->CommonModel->manageremployeesleaveList($datas);
+                        $retrunarray = array();                            
                         foreach ($result as $key => $val){
                             $buldarray = (object)array(
                                 "employee_code" => $val->employeeid,
