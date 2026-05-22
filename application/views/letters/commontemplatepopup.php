@@ -235,10 +235,10 @@ lettertypes();
             $("#bdesc_dis").show();
         }else if(lettertype == 4){
             if($("#letterno").val() == ''){
-                $("#letterno").val('MAXWELL/SBD/PER & HR/APT/');
+                $("#letterno").val('MAXWELL/SBD/PER & HR/CNF/');
             }
-            $("#eff_dis").hide();
-            $("#intreview_dis").hide();
+            $("#eff_dis").show();
+            $("#intreview_dis").show();
             $("#reporting_dis").hide();
             $("#emp_dis").show();
             $("#sal_dis").hide();
@@ -246,7 +246,7 @@ lettertypes();
             $("#hra_dis").hide();
             $("#designation_dis").hide();
             $("#department_dis").hide();
-            $("#branch_dis").hide();
+            $("#branch_dis").show();
             $("#placeofposting_dis").hide();
             $("#desc_dis").hide();
             $("#bdesc_dis").hide();
