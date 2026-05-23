@@ -2107,7 +2107,7 @@ class Employee_attendance_model extends Common_model
         }elseif($status_type =='Rejected'){
             $status_type = 2;
         }elseif($status_type =='Pending'){
-            $status_type = 9;
+            $status_type = 0;
         }else{
             $status_type = '';
         }
