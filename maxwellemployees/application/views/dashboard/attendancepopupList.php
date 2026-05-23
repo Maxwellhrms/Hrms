@@ -23,7 +23,7 @@
                                     $value = isset($val[$header]) ? $val[$header] : '';
                                     // Employee Name with Image
                                     if($header == 'Employee Name'){
-                                        $image = !empty($val['Employee Image']) ? $val['Employee Image']: base_url('assets/images/default-user.png');
+                                        $image = !empty($val['Employee Image']) ? HRADMINROOTDOCUMENT.$val['Employee Image']: base_url('assets/images/default-user.png');
                                     ?>
                                         <div class="d-flex align-items-center gap-2">
                                             <img src="<?php echo $image; ?>" alt="Employee"style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid #ddd;">
