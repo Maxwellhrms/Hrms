@@ -1,9 +1,26 @@
    <!-- Search Filter -->
+    <?php if($selectedFilter['fromdatefilter'][0] == 'Y'){ ?>
+          <div class="col-sm-6 col-md-2"> 
+             <div class="form-group form-focus select-focus">
+                <input type="text" class="form-control datetimepicker1" name="<?php echo $selectedFilter['fromdatefilter'][1]; ?>" id="<?php echo $selectedFilter['fromdatefilter'][1]; ?>" value="<?php echo !empty($selectedFilter['fromdatefilter']['default']) ? $selectedFilter['fromdatefilter']['default'] : ''; ?>" autocomplete="off">
+                <label class="focus-label">From Date</label> 
+            </div>
+        </div>
+    <?php } ?>
+
+    <?php if($selectedFilter['todatefilter'][0] == 'Y'){ ?>
+      <div class="col-sm-6 col-md-2"> 
+         <div class="form-group form-focus select-focus">
+            <input type="text" class="form-control datetimepicker1" name="<?php echo $selectedFilter['todatefilter'][1]; ?>" id="<?php echo $selectedFilter['todatefilter'][1]; ?>" value="<?php echo !empty($selectedFilter['todatefilter']['default']) ? $selectedFilter['todatefilter']['default'] : ''; ?>" autocomplete="off">
+            <label class="focus-label">To Date</label> 
+        </div>
+    </div>
+    <?php } ?>
     <?php if($selectedFilter['monthyearfilter'][0] == 'Y'){ ?>
         <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12">  
             <div class="form-group form-focus">
                 <div class="cal-icon">
-                    <input class="form-control floating monthyearpicker" name="<?php echo $selectedFilter['monthyearfilter'][1]; ?>" id="<?php echo $selectedFilter['monthyearfilter'][1]; ?>" type="text" value="<?php echo date('m-Y'); ?>">
+                    <input class="form-control floating monthyearpicker" name="<?php echo $selectedFilter['monthyearfilter'][1]; ?>" id="<?php echo $selectedFilter['monthyearfilter'][1]; ?>" type="text" value="<?php echo !empty($selectedFilter['monthyearfilter']['default']) ? $selectedFilter['monthyearfilter']['default'] : ''; ?>">
                 </div>
                 <label class="focus-label">Month Year</label>
             </div>
