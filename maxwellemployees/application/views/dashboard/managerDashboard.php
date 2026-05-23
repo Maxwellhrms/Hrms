@@ -474,7 +474,7 @@
             <!-- Search Filter -->
             <?php 
             $controller->commonFiltersWithoutForm(array(
-                'monthyearfilter' => array('Y', 'monthyear'),
+                'monthyearfilter' => array('Y', 'monthyear', 'default' => date('m-Y')),
                 'manageremployees' => array('Y', 'employecodes'),
                 'companyfilter' => 'Y',
                 'divisionfilter' => 'Y',

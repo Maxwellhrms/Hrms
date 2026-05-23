@@ -1,6 +1,7 @@
 <?php
 $isApprovals = $this->session->userdata('is_approvals');
 $isLoans = $this->session->userdata('is_loans', 1);
+$employeecode = $this->session->userdata('session_loginperson_id');
 
 $menu = [
     [
@@ -18,6 +19,10 @@ $menu = [
             ($isApprovals == 1) ? [
                 "label" => "Manager Dashboard",
                 "url"   => "Employee/managerdashboard"
+            ] : null,
+            ($isApprovals == 1 &&in_array($employeecode, ['M0009','MD0001'])) ? [
+                "label" => "Charts Dashboard",
+                "url"   => "Employee/employeedeatiledsummary"
             ] : null
         ]))
     ],

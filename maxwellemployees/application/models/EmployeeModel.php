@@ -2088,4 +2088,641 @@ public function getAttendanceDashboard(){
         return $changes;
     }
     #Update Employee Info
+    #attendancesummary
+    public function allemployeesattendancesummary($data){
+        $company = !empty($data['esi_company_id'])? $data['esi_company_id']: '';
+        $division = !empty($data['esi_div_id'])? $data['esi_div_id']: '';
+        $state = !empty($data['esi_state_id'])? $data['esi_state_id']: '';
+        $branch = !empty($data['esi_branch_id'])? $data['esi_branch_id']: '';
+        $fromdate = !empty($data['fromdate'])? $data['fromdate']: date('Y-m-01');
+        $todate = !empty($data['todate'])? $data['todate']: date('Y-m-d');
+        $from_date = date('Y-m-d',strtotime($fromdate));
+        $to_date = date('Y-m-d',strtotime($todate));
+        $yearid = date('Y',strtotime($from_date));
+        $monthid = date('m',strtotime($from_date));
+
+        $table_name = 'maxwell_attendance_' . $yearid . '_' . $monthid;
+        // Check table exists
+        if(!$this->db->table_exists($table_name)){
+            return array(
+                'status'  => 0,
+                'message' => 'Attendance table not found'
+            );
+        }
+
+        $employee_codes = (!empty($data['employecode']) && $data['employecode'] != 'ALL')? array($data['employecode']): array();
+
+        if(count($employee_codes) > 0){
+            $employee_ids = $employee_codes;
+        }else{
+            $employee_ids = $this->CommonModel->getEmployeesWhoAreAssignToAuthorsations('');
+            $employee_ids = array_column($employee_ids,'mxauth_emp_code');
+        }
+
+        $attendance_types = array(
+            'OD',
+            'OT',
+            'PR',
+            'AB',
+            'SHRT',
+            'CL',
+            'SL',
+            'EL',
+            'WO',
+            'PH',
+            'LOP',
+            'OH',
+            'ML',
+            'AR'
+        );
+
+        $resp = array(
+            'status' => 1,
+            'totalemployees' => 0,
+            'ontime' => array(
+                'count' => 0,
+                'employeecodes' => array()
+            ),
+            'late' => array(
+                'count' => 0,
+                'employeecodes' => array()
+            )
+        );
+
+        foreach($attendance_types as $type){
+            $resp[$type] = array(
+                'firsthalf' => 0,
+                'secondhalf' => 0,
+                'total' => 0,
+                'employeecodes' => array()
+            );
+        }
+
+        $this->db->select('
+            mx_attendance_emp_code,
+            mx_attendance_date,
+            mx_attendance_first_half_punch,
+            mx_attendance_second_half_punch,
+            mx_attendance_first_half,
+            mx_attendance_second_half
+        ');
+
+        $this->db->from($table_name);
+        $this->db->where_in('mx_attendance_emp_code',$employee_ids);
+
+        if(!empty($company)){
+            $this->db->where('mx_attendance_cmp_id',$company);
+        }
+
+        if(!empty($division)){
+            $this->db->where('mx_attendance_division_id',$division);
+        }
+
+        if(!empty($state)){
+            $this->db->where('mx_attendance_state_id',$state);
+        }
+
+        if(!empty($branch)){
+            $this->db->where('mx_attendance_branch_id',$branch);
+        }
+
+        $this->db->where('mx_attendance_date >=',$from_date);
+        $this->db->where('mx_attendance_date <=',$to_date);
+
+        $query = $this->db->get();
+
+        // echo $this->db->last_query(); exit;
+
+        $qry = $query->result();
+
+        if(!empty($qry)){
+            $processedEmployees = array();
+
+            foreach($qry as $row){
+                $empcode = $row->mx_attendance_emp_code;
+
+                if(!in_array($empcode, $processedEmployees)){
+                    $processedEmployees[] = $empcode;
+                    $resp['totalemployees']++;
+                }
+
+                $first_half = trim($row->mx_attendance_first_half);
+                $second_half = trim($row->mx_attendance_second_half);
+                $first_half_punch = trim($row->mx_attendance_first_half_punch);
+                $second_half_punch = trim($row->mx_attendance_second_half_punch);
+
+                if(in_array($first_half, $attendance_types)){
+                    $resp[$first_half]['firsthalf'] += 0.5;
+                    $resp[$first_half]['total'] += 0.5;
+                    if(!in_array($empcode,$resp[$first_half]['employeecodes'])){
+                        $resp[$first_half]['employeecodes'][] = $empcode;
+                    }
+                }
+
+                if(in_array($second_half, $attendance_types)){
+                    $resp[$second_half]['secondhalf'] += 0.5;
+                    $resp[$second_half]['total'] += 0.5;
+                    if(!in_array($empcode,$resp[$second_half]['employeecodes'])){
+                        $resp[$second_half]['employeecodes'][] = $empcode;
+                    }
+                }
+
+                if(!empty($first_half_punch)){
+                    $punches = explode(',',$first_half_punch);
+                    $userfirstpunch = trim($punches[0]);
+                    if(!empty($userfirstpunch)){
+                        if(strtotime($userfirstpunch) > strtotime('09:35:00')){
+                            $resp['late']['count']++;
+                            if(!in_array($empcode,$resp['late']['employeecodes'])){
+                                $resp['late']['employeecodes'][] = $empcode;
+                            }
+                        }else{
+                            $resp['ontime']['count']++;
+                            if(!in_array($empcode,$resp['ontime']['employeecodes'])){
+                                $resp['ontime']['employeecodes'][] = $empcode;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $resp;
+    }
+
+    public function getEmployeeIncrementChartData($data){
+
+        $company  = !empty($data['esi_company_id']) ? $data['esi_company_id'] : '';
+        $division = !empty($data['esi_div_id']) ? $data['esi_div_id'] : '';
+        $state    = !empty($data['esi_state_id']) ? $data['esi_state_id'] : '';
+        $branch   = !empty($data['esi_branch_id']) ? $data['esi_branch_id'] : '';
+        $fromdate = !empty($data['fromdate'])? $data['fromdate']: date('Y-m-01');
+        $year     =  date('Y',strtotime($fromdate));
+
+        $employee_codes = (!empty($data['employecode']) && $data['employecode'] != 'ALL') ? array($data['employecode']) : array();
+
+        if(count($employee_codes) > 0){
+            $employee_ids = $employee_codes;
+        }else{
+            $employee_ids =$this->CommonModel->getEmployeesWhoAreAssignToAuthorsations('');
+            $employee_ids = array_column($employee_ids,'mxauth_emp_code');
+        }
+
+        $wherePromotion = "";
+        $whereSpecial   = "";
+        $whereArrears   = "";
+
+        /* Employee Condition */
+        $employeeConditionPromotion = "";
+        $employeeConditionSpecial   = "";
+        $employeeConditionArrears   = "";
+
+        if(!empty($employee_ids) && is_array($employee_ids)){
+            $employeeCodes = "'" . implode("','", $employee_ids) . "'";
+            $employeeConditionPromotion = " AND mxemp_prm_emp_code IN ($employeeCodes) ";
+            $employeeConditionSpecial = " AND mxemp_spl_inc_emp_code IN ($employeeCodes) ";
+            $employeeConditionArrears = " AND mxemp_arears_emp_code IN ($employeeCodes) ";
+        }
+
+        /* Promotion Conditions */
+        if(!empty($company)){
+            $wherePromotion .= " AND mxemp_prm_comp_id_to = '".$company."' ";
+        }
+
+        if(!empty($division)){
+            $wherePromotion .= " AND mxemp_prm_div_id_to = '".$division."' ";
+        }
+
+        if(!empty($state)){
+            $wherePromotion .= " AND mxemp_prm_state_id_to = '".$state."' ";
+        }
+
+        if(!empty($branch)){
+            $wherePromotion .= " AND mxemp_prm_branch_id_to = '".$branch."' ";
+        }
+
+        $wherePromotion .= $employeeConditionPromotion;
+
+        /* Special Increment Conditions */
+        if(!empty($company)){
+            $whereSpecial .= " AND mxemp_spl_inc_comp_id = '".$company."' ";
+        }
+
+        if(!empty($division)){
+            $whereSpecial .= " AND mxemp_spl_inc_div_id = '".$division."' ";
+        }
+
+        if(!empty($state)){
+            $whereSpecial .= " AND mxemp_spl_inc_state_id = '".$state."' ";
+        }
+
+        if(!empty($branch)){
+            $whereSpecial .= " AND mxemp_spl_inc_branch_id = '".$branch."' ";
+        }
+
+        $whereSpecial .= $employeeConditionSpecial;
+
+        /* Arrears Conditions */
+        if(!empty($company)){
+            $whereArrears .= " AND mxemp_arears_comp_id = '".$company."' ";
+        }
+
+        if(!empty($division)){
+            $whereArrears .= " AND mxemp_arears_div_id = '".$division."' ";
+        }
+
+        if(!empty($state)){
+            $whereArrears .= " AND mxemp_arears_state_id = '".$state."' ";
+        }
+
+        if(!empty($branch)){
+            $whereArrears .= " AND mxemp_arears_branch_id = '".$branch."' ";
+        }
+
+        $whereArrears .= $employeeConditionArrears;
+
+        $query = "
+            SELECT
+                mxemp_prm_amount AS amount,
+                mxemp_prm_emp_code AS employeecode,
+                mxemp_prm_affect_dt AS affectivedate,
+                'Promotional Increment' AS incrementtype
+            FROM maxwell_emp_promotion
+            WHERE mxemp_prm_status = 1
+            ".(!empty($year) ? "AND LEFT(mxemp_prm_affect_dt,4) = '".$year."'" : "")."
+            $wherePromotion
+            UNION ALL
+            SELECT
+                mxemp_spl_inc_amount AS amount,
+                mxemp_spl_inc_emp_code AS employeecode,
+                mxemp_spl_inc_affect_dt AS affectivedate,
+                'Current Month Increment' AS incrementtype
+            FROM maxwell_emp_special_increaments
+            WHERE mxemp_spl_inc_status = 1
+            ".(!empty($year) ? "AND LEFT(mxemp_spl_inc_affect_dt,4) = '".$year."'" : "")."
+            $whereSpecial
+            UNION ALL
+            SELECT
+                mxemp_arears_amount AS amount,
+                mxemp_arears_emp_code AS employeecode,
+                mxemp_arears_affect_dt AS affectivedate,
+                'Arrears Increment' AS incrementtype
+            FROM maxwell_emp_arears_increaments
+            WHERE mxemp_arears_status = 1
+            ".(!empty($year) ? "AND LEFT(mxemp_arears_affect_dt,4) = '".$year."'" : "")."
+            $whereArrears
+        ";
+
+        $incrementRecords = $this->db->query($query)->result_array();
+        $incrementData = array();
+        for($i=1; $i<=12; $i++){
+            $monthKey = date('Y-m', strtotime($year.'-'.$i.'-01'));
+            $incrementData[$monthKey] = array(
+                'month' => date('M Y',strtotime($year.'-'.$i.'-01')),
+                'count' => 0,
+                'promotionalamount' => 0,
+                'currentmonthamount' => 0,
+                'arrearsamount' => 0,
+                'totalamount' => 0,
+                'employeecodes' => array()
+            );
+        }
+
+        foreach($incrementRecords as $row){
+            $monthKey = substr($row['affectivedate'],0,4).'-'.substr($row['affectivedate'],4,2);
+
+            if(isset($incrementData[$monthKey])){
+                $incrementData[$monthKey]['count']++;
+                if(!in_array($row['employeecode'],$incrementData[$monthKey]['employeecodes'])){
+                    $incrementData[$monthKey]['employeecodes'][] = $row['employeecode'];
+                }
+
+                if($row['incrementtype'] == 'Promotional Increment'){
+                    $incrementData[$monthKey]['promotionalamount'] += (float)$row['amount'];
+
+                }elseif($row['incrementtype'] == 'Current Month Increment'){
+                    $incrementData[$monthKey]['currentmonthamount'] += (float)$row['amount'];
+                }elseif($row['incrementtype'] == 'Arrears Increment'){
+                    $incrementData[$monthKey]['arrearsamount'] += (float)$row['amount'];
+                }
+
+                $incrementData[$monthKey]['totalamount'] = $incrementData[$monthKey]['promotionalamount']+$incrementData[$monthKey]['currentmonthamount']+$incrementData[$monthKey]['arrearsamount'];
+            }
+        }
+
+        return array_values($incrementData);
+    }
+
+    public function getAllEmployeesAttendance($data){
+        $type = $data['type'];
+        $employeecodes = $data['employeecodes'];
+        $companyid = $data['companyid'];
+        $divisionid = $data['divisionid'];
+        $stateid = $data['stateid'];
+        $branchid = $data['branchid'];
+        $fromdate = $data['fromdate'];
+        $todate = $data['todate'];
+
+        $fromdate = !empty($data['fromdate'])? $data['fromdate']: date('Y-m-01');
+
+        $todate = !empty($data['todate'])? $data['todate']: date('Y-m-d');
+
+        $from_date = date('Y-m-d',strtotime($fromdate));
+
+        $to_date = date('Y-m-d',strtotime($todate));
+
+        $yearid = date('Y',strtotime($from_date));
+
+        $monthid = date('m',strtotime($from_date));
+
+        $table_name = 'maxwell_attendance_' . $yearid . '_' . $monthid;
+
+        $this->db->select('
+            mxemp_emp_fname as employeename,
+            mxemp_emp_img as employeeimage,
+            mx_attendance_emp_code,
+            mx_attendance_date,
+            mx_attendance_first_half_punch,
+            mx_attendance_second_half_punch,
+            mx_attendance_first_half,
+            mx_attendance_second_half,
+            mx_attendance_entry_type
+        ');
+
+        $this->db->from($table_name);
+        $this->db->join('maxwell_employees_info', 'mxemp_emp_id = mx_attendance_emp_code', 'INNER');
+        $this->db->where_in('mx_attendance_emp_code',$employeecodes);
+
+        if(!empty($companyid)){
+            $this->db->where('mx_attendance_cmp_id',$companyid);
+        }
+
+        if(!empty($divisionid)){
+            $this->db->where('mx_attendance_division_id',$divisionid);
+        }
+
+        if(!empty($stateid)){
+            $this->db->where('mx_attendance_state_id',$stateid);
+        }
+
+        if(!empty($branchid)){
+            $this->db->where('mx_attendance_branch_id',$branchid);
+        }
+
+        $this->db->where('mx_attendance_date >=',$from_date);
+
+        $this->db->where('mx_attendance_date <=',$to_date);
+
+        if($type == 'ONTIME'){
+            $this->db->where("SUBSTRING_INDEX(mx_attendance_first_half_punch,',',1) <=",'09:35:00');
+            $this->db->where('mx_attendance_first_half_punch !=','');
+        }else if($type == 'LATE'){
+            $this->db->where("SUBSTRING_INDEX(mx_attendance_first_half_punch,',',1) >",'09:35:00');
+            $this->db->where('mx_attendance_first_half_punch !=','');
+        }else{
+            $this->db->group_start();
+            $this->db->where('mx_attendance_first_half',$type);
+            $this->db->or_where('mx_attendance_second_half',$type);
+            $this->db->group_end();
+        }
+
+        $query = $this->db->get();
+
+        // echo $this->db->last_query(); exit;
+
+        $qry = $query->result();
+
+        $response = array();
+
+        if(!empty($qry)){
+
+            $sno = 1;
+
+            foreach($qry as $val){
+                $allpunches = array();
+                if(!empty($val->mx_attendance_first_half_punch)){
+                    $firsthalfpunches = explode(',',$val->mx_attendance_first_half_punch);
+                    $allpunches = array_merge($allpunches,$firsthalfpunches);
+                }
+
+                if(!empty($val->mx_attendance_second_half_punch)){
+                    $secondhalfpunches = explode(',',$val->mx_attendance_second_half_punch);
+                    $allpunches = array_merge($allpunches,$secondhalfpunches);
+                }
+
+                $allpunches = array_filter($allpunches);
+                $allpunches = array_values($allpunches);
+
+                $firstpunch = 'N/A';
+
+                if(!empty($allpunches[0])){
+                    $firstpunch = trim($allpunches[0]);
+                }
+
+                $lastpunch = 'N/A';
+
+                if(!empty($allpunches)){
+                    $lastpunch = trim(end($allpunches));
+                    if($firstpunch == $lastpunch){
+                        $lastpunch = 'N/A';
+                    }
+                }
+
+
+                $entrytypes = array();
+                if(!empty($val->mx_attendance_entry_type)){
+                    $entrytypes = explode(',',$val->mx_attendance_entry_type);
+                    $entrytypes = array_filter($entrytypes);
+                    $entrytypes = array_values($entrytypes);
+                }
+
+
+                $firstpunchentrytype = 'N/A';
+
+                if(!empty($entrytypes[0])){
+                    $firstpunchentrytype = trim($entrytypes[0]);
+                }
+
+                $lastpunchentrytype = 'N/A';
+                if(!empty($entrytypes)){
+                    $lastpunchentrytype = trim(end($entrytypes));
+                    if($firstpunchentrytype == $lastpunchentrytype){
+                        $lastpunchentrytype = 'N/A';
+                    }
+                }
+
+                $response[] = array(
+                    'Sno' => $sno,
+                    'Employee Name' => $val->employeename,
+                    'Employee Image' => $val->employeeimage,
+                    'Employee Code' => $val->mx_attendance_emp_code,
+                    'Attendance Date' => $val->mx_attendance_date,
+                    'First Half Punch' => $firstpunch,
+                    'Last Half Punch' => $lastpunch,
+                    'First Half Entry Type' => $firstpunchentrytype,
+                    'Last Half Entry Type' => $lastpunchentrytype,
+                    'First Half Status' => $val->mx_attendance_first_half,
+                    'Second Half Status' => $val->mx_attendance_second_half,
+                );
+                $sno++;
+            }
+        }
+        return $response;
+    }
+
+    public function getAllEmployeesIncrements($data){
+        $type          = !empty($data['type']) ? $data['type'] : '';
+        $employeecodes = !empty($data['employeecodes']) ? $data['employeecodes'] : array();
+        $company       = !empty($data['companyid']) ? $data['companyid'] : '';
+        $division      = !empty($data['divisionid']) ? $data['divisionid'] : '';
+        $state         = !empty($data['stateid']) ? $data['stateid'] : '';
+        $branch        = !empty($data['branchid']) ? $data['branchid'] : '';
+        $fromdate      = !empty($data['fromdate']) ? $data['fromdate'] : '';
+        $todate        = !empty($data['todate']) ? $data['todate'] : '';
+
+        /* Example : 202601 */
+        $year = !empty($fromdate) ? date('Ym', strtotime($fromdate)) : '';
+
+        $wherePromotion = "";
+        $whereSpecial   = "";
+        $whereArrears   = "";
+
+        /* Employee Codes Condition */
+        $employeeCodeConditionPromotion = "";
+        $employeeCodeConditionSpecial   = "";
+        $employeeCodeConditionArrears   = "";
+
+        if(!empty($employeecodes) && is_array($employeecodes)){
+            $employeeCodes = "'" . implode("','", $employeecodes) . "'";
+            $employeeCodeConditionPromotion = " AND mxemp_prm_emp_code IN ($employeeCodes) ";
+            $employeeCodeConditionSpecial = " AND mxemp_spl_inc_emp_code IN ($employeeCodes) ";
+            $employeeCodeConditionArrears = " AND mxemp_arears_emp_code IN ($employeeCodes) ";
+        }
+
+        /* Promotion Conditions */
+        if(!empty($company)){
+            $wherePromotion .= " AND mxemp_prm_comp_id_to = '".$company."' ";
+        }
+
+        if(!empty($division)){
+            $wherePromotion .= " AND mxemp_prm_div_id_to = '".$division."' ";
+        }
+
+        if(!empty($state)){
+            $wherePromotion .= " AND mxemp_prm_state_id_to = '".$state."' ";
+        }
+
+        if(!empty($branch)){
+            $wherePromotion .= " AND mxemp_prm_branch_id_to = '".$branch."' ";
+        }
+
+        $wherePromotion .= $employeeCodeConditionPromotion;
+
+        /* Special Increment Conditions */
+        if(!empty($company)){
+            $whereSpecial .= " AND mxemp_spl_inc_comp_id = '".$company."' ";
+        }
+
+        if(!empty($division)){
+            $whereSpecial .= " AND mxemp_spl_inc_div_id = '".$division."' ";
+        }
+
+        if(!empty($state)){
+            $whereSpecial .= " AND mxemp_spl_inc_state_id = '".$state."' ";
+        }
+
+        if(!empty($branch)){
+            $whereSpecial .= " AND mxemp_spl_inc_branch_id = '".$branch."' ";
+        }
+
+        $whereSpecial .= $employeeCodeConditionSpecial;
+
+        /* Arrears Conditions */
+        if(!empty($company)){
+            $whereArrears .= " AND mxemp_arears_comp_id = '".$company."' ";
+        }
+
+        if(!empty($division)){
+            $whereArrears .= " AND mxemp_arears_div_id = '".$division."' ";
+        }
+
+        if(!empty($state)){
+            $whereArrears .= " AND mxemp_arears_state_id = '".$state."' ";
+        }
+
+        if(!empty($branch)){
+            $whereArrears .= " AND mxemp_arears_branch_id = '".$branch."' ";
+        }
+
+        $whereArrears .= $employeeCodeConditionArrears;
+
+        $query = "
+        
+            SELECT
+                mxemp_prm_amount AS amount,
+                mxemp_prm_emp_code AS employeecode,
+                mxemp_prm_affect_dt AS affectivedate,
+                'Promotional Increment' AS incrementtype,
+                mxemp_emp_fname AS employeename,
+                mxemp_emp_img AS employeeimage
+            FROM maxwell_emp_promotion
+            INNER JOIN maxwell_employees_info ON mxemp_emp_id = mxemp_prm_emp_code
+            WHERE mxemp_prm_status = 1
+            ".(!empty($year) ? " AND mxemp_prm_affect_dt = '".$year."' " : "")."
+            $wherePromotion
+            UNION ALL
+            SELECT
+                mxemp_spl_inc_amount AS amount,
+                mxemp_spl_inc_emp_code AS employeecode,
+                mxemp_spl_inc_affect_dt AS affectivedate,
+                'Current Month Increment' AS incrementtype,
+                mxemp_emp_fname AS employeename,
+                mxemp_emp_img AS employeeimage
+            FROM maxwell_emp_special_increaments
+            INNER JOIN maxwell_employees_info ON mxemp_emp_id = mxemp_spl_inc_emp_code
+            WHERE mxemp_spl_inc_status = 1
+            ".(!empty($year) ? " AND mxemp_spl_inc_affect_dt = '".$year."' " : "")."
+            $whereSpecial
+            UNION ALL
+            SELECT
+                mxemp_arears_amount AS amount,
+                mxemp_arears_emp_code AS employeecode,
+                mxemp_arears_affect_dt AS affectivedate,
+                'Arrears Increment' AS incrementtype,
+                mxemp_emp_fname AS employeename,
+                mxemp_emp_img AS employeeimage
+            FROM maxwell_emp_arears_increaments
+            INNER JOIN maxwell_employees_info ON mxemp_emp_id = mxemp_arears_emp_code
+            WHERE mxemp_arears_status = 1
+            ".(!empty($year) ? " AND mxemp_arears_affect_dt = '".$year."' " : "")."
+            $whereArrears
+            ORDER BY affectivedate DESC
+        ";
+
+        $query = $this->db->query($query);
+
+        // echo $this->db->last_query(); exit;
+
+        $qry = $query->result();
+
+        $response = array();
+
+        if(!empty($qry)){
+            $sno = 1;
+            foreach($qry as $val){
+                $response[] = array(
+                    'Sno'             => $sno,
+                    'Employee Name'   => $val->employeename,
+                    'Employee Image'  => $val->employeeimage,
+                    'Employee Code'   => $val->employeecode,
+                    'Amount'          => $val->amount,
+                    'Increment Type'  => $val->incrementtype,
+                    'Affective Date'  => !empty($val->affectivedate) ? date('M Y', strtotime($val->affectivedate.'01')): '',
+                );
+                $sno++;
+            }
+        }
+
+        return $response;
+    }
+    #attedancesummary
 }

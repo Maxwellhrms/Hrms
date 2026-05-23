@@ -70,6 +70,34 @@ class Employee extends Common {
         $data['dashboardLeavesRegulations'] = $this->EmployeeModel->managersAssignedEmployeesRegulationsLeaves($userdata);
         $this->load->view('dashboard/leavesregulationsList',$data);
     }
+
+    public function employeedeatiledsummary(){
+        $this->checkissession();
+        $data['controller'] = $this;
+        $this->header();
+        $this->load->view('dashboard/employeedeatiledsummary',$data);
+        $this->footer();
+    }
+
+    public function employeedeatiledsummaryList(){
+        $this->checkissession();
+        $userdata = $this->input->post();
+        $data['incrementData'] = $this->EmployeeModel->getEmployeeIncrementChartData($userdata);
+        $data['dashboarddetails'] = $this->EmployeeModel->allemployeesattendancesummary($userdata);
+        $data['userfilters'] = $userdata;
+        $this->load->view('dashboard/employeedeatiledsummaryList',$data);
+    }
+
+    public function getAllEmployeesAttendance(){
+        $this->checkissession();
+        $userdata = $this->input->post();
+        if($userdata['type'] == 'INCREMENT'){
+            $data['popupdetails'] = $this->EmployeeModel->getAllEmployeesIncrements($userdata);
+        }else{
+            $data['popupdetails'] = $this->EmployeeModel->getAllEmployeesAttendance($userdata);
+        }
+        $this->load->view('dashboard/attendancepopupList',$data);
+    }
     # End Dash Board
     # Start Policy Info
     public function UserPolicies(){
