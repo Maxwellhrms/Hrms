@@ -23,7 +23,7 @@
                 <div class="col-lg-12 col-md-12 col-sm-12 line-tabs">
                     <ul class="nav nav-tabs nav-tabs-bottom">
                         <li class="nav-item"><a href="#promotons_tab" data-toggle="tab" class="nav-link active" id="promotion_inc_li">PROMOTION INCREMENT</a></li>
-                        <li class="nav-item"><a href="#special_inc_tab" data-toggle="tab" class="nav-link" id="bns_master_li">INCREMENTS</a></li>
+                        <li class="nav-item"><a href="#special_inc_tab" data-toggle="tab" class="nav-link" id="bns_master_li">CURRENT MONTH INCREMENTS</a></li>
                         <li class="nav-item"><a href="#arears_tab" data-toggle="tab" class="nav-link" id="bns_master_li">ARREARS INCREMENT</a></li>
                         <li class="nav-item"><a href="#transfer_tab" data-toggle="tab" class="nav-link" id="bns_master_li">TRANSFER</a></li>
                     </ul>
@@ -554,7 +554,7 @@
                         <div class="col-md-12">
                             <div class="card mb-0">
                                 <div class="card-header">
-                                    <h4 class="card-title mb-0">ENTER INCREMENTS DETAILS</h4>
+                                    <h4 class="card-title mb-0">ENTER CURRENT MONTH INCREMENTS DETAILS</h4>
                                 </div>
                                 <div class="card-body">
                                     <form id="special_increament_form" method="POST">

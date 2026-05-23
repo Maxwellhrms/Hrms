@@ -11472,7 +11472,7 @@ class Salaries_model extends Adminmodel
                 // echo $emp_code_org;exit;
                 // $paysheet_array = $this->get_Supplementary_Paysheet($date_new,$company = null,$divison = null,$state = null,$branch = null,$emp_type_id,$emp_code_org);
                 $paysheet_array = $this->getPaysheet($date_new,$company = null,$divison = null,$state = null,$branch = null,$emp_type_id,$saltype = null,$emp_code_org);
-                // print_r($paysheet_array);exit;
+                // echo "<pre>";print_r($paysheet_array);exit;
                 $original_rate_basic= $paysheet_array[0]->$basic_column_name;
                 $original_actual_basic= $paysheet_array[0]->mxsal_actual_basic;
                 $original_gross= $paysheet_array[0]->mxsal_gross_sal;
@@ -11645,6 +11645,9 @@ class Salaries_model extends Adminmodel
                     // print_r($final_array);exit;
 
 
+                    //echo " PRESENT DAYS FROM ATTENDANCE ".$present_days_from_attendance."     Total Days : ".$total_days." <br />";
+
+
 
                     //----------Filtering PAY STRUCTURE ARRAY
                     // $filtered_pay_data = [];
@@ -11800,7 +11803,9 @@ class Salaries_model extends Adminmodel
                                         // 5. Get Wage Master Benchmark
                                         $wage_data = $this->get_applicable_wage_benchmark($emp_data->mxemp_emp_state_code, $emp_data->mxemp_emp_branch_code, $affect_date);
                                         $benchmark_wage = $wage_data['benchmark'];
-                                        $current_gross = (float)$gross_sal;
+                                        $current_gross = (float)$emp_current_sal;
+
+                                        //echo " CURRENT GROSS: ".$current_gross."<br />";
 
                                         $final_rate_basic = 0;
 
@@ -11831,7 +11836,7 @@ class Salaries_model extends Adminmodel
                                             /*$final_rate_basic = ($calc_basic_split > $benchmark_wage) ? $calc_basic_split :
                                                 ($calc_basic_split < $benchmark_wage && $current_gross < $benchmark_wage) ? $current_gross : $benchmark_wage;*/
 
-                                            // echo "ROB : ".$final_rate_basic."  ";//exit();
+                                            //echo "ROB : ".$final_rate_basic." <br />";//exit();
 
                                             /* if Gross 30000
                                              *  ROB = (15000 > 14000) = 150000
@@ -11842,8 +11847,8 @@ class Salaries_model extends Adminmodel
                                              * */
 
 
-                                            $final_rate_hra = $gross_sal - $final_rate_basic;
-                                            // echo " ROH : ".$final_rate_hra;exit();
+                                            $final_rate_hra = $current_gross - $final_rate_basic;
+                                            //echo " ROH : ".$final_rate_hra." <br />";
 
                                             /* if Gross 30000
                                                 ROH = Gross = ROB
@@ -11853,7 +11858,43 @@ class Salaries_model extends Adminmodel
                                              * IF Gross 10000
                                              * ROH = 10000 - 10000 = 0
                                              * */
+
+
+                                             /* ARREARS RATE OF BASIC and RATE OF HRA calculation */
+                                            $new_final_rate_basic = 0;
+                                            $new_final_rate_hra = 0;
+                                            $arrear_basic_component = $final_rate_basic;
+                                            $arrear_hra_component = $final_rate_hra;
+
+
+                                            $new_total_gross = $arear_amount + $emp_current_sal;
+                                            // echo " NEW TOTAL GROSS : ".$new_total_gross." <br />";
+
+                                            $new_calc_basic_split = $new_total_gross * ($basic_pct / 100);
+                                            // echo " NEW BASIC SPLIT : ".$new_calc_basic_split." <br />";
+
+                                            if ($new_calc_basic_split > $benchmark_wage) {
+                                                $new_final_rate_basic = $new_calc_basic_split;
+                                            } else {
+                                                if ($new_calc_basic_split < $benchmark_wage && $new_total_gross < $benchmark_wage) {
+                                                    $new_final_rate_basic = $new_total_gross;
+                                                } else {
+                                                    $new_final_rate_basic = $benchmark_wage;
+                                                }
+                                            }
+
+                                            $new_final_rate_hra = $new_total_gross - $new_final_rate_basic;
+
+                                            //echo " FINAL RATE OF BASIC : ".$new_final_rate_basic." OLD RATE OF BASIC : ".$final_rate_basic." <br />";
+                                            //echo " FINAL RATE OF HRA : ".$new_final_rate_hra." OLD RATE OF BASIC : ".$final_rate_hra." <br />";
+
+                                            $arrear_basic_component = $new_final_rate_basic - $final_rate_basic;
+                                            $arrear_hra_component = $new_final_rate_hra - $final_rate_hra;
+
                                         }
+
+                                        //echo "  ARREAR COMPONENTS : ".$arrear_basic_component." --- ". $arrear_hra_component." <br />";
+                                        //exit();
 
                                         foreach ($child_records as $row) {
                                             $head_id = $row->mxpsc_inc_head_id;
@@ -11863,11 +11904,11 @@ class Salaries_model extends Adminmodel
                                                 $calc_split = $current_gross * ($current_pct / 100); // 20,000 * 50% = 10,000
 
                                                 if ($head_id == 1) { // BASIC
-                                                    $final_array['mxsal_basic'] = $final_rate_basic;
+                                                    $final_array['mxsal_basic'] = $arrear_basic_component;
                                                 } else if ($head_id == 2) { // HRA
                                                     // Scenario: If HRA split (10k) < Wage Master (14k),
                                                     // HRA becomes Residual (20k - 14k = 6k)
-                                                    $final_array['mxsal_hra'] = $final_rate_hra;
+                                                    $final_array['mxsal_hra'] = $arrear_hra_component;
                                                 }
                                             } else {
                                                 // SCENARIO: Old records or non-Basic/HRA heads
@@ -11875,6 +11916,8 @@ class Salaries_model extends Adminmodel
                                             }
                                         }
                                     }
+
+                                    //echo " FINAL VALUES: ".$final_array['mxsal_basic']."   ------   ".$final_array['mxsal_hra'];exit();
 
                                     /* END OF RATE OF BASIC AND HRA CALCULATION */
 
@@ -11910,7 +11953,7 @@ class Salaries_model extends Adminmodel
                                         $rate_basic_sal = $final_rate_basic;
                                         //$$$$$$$$$$$$$$$$$$$$$$$$$$$ CALCULATING ACTUAL BASIC  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                                         // $actual_basic = number_format(((($final_rate_basic) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', '');
-                                        $actual_basic = rounding_number(number_format(((($final_rate_basic) / $total_days_in_month) * $total_days), 2, '.', ''),2);
+                                        $actual_basic = rounding_number(number_format(((($arrear_basic_component) / $total_days_in_month) * $total_days), 2, '.', ''),2);
                                         // echo $actual_basic;exit;
 
                                         // GET PF MASTER DATA
@@ -11937,7 +11980,36 @@ class Salaries_model extends Adminmodel
                                                 if ($actual_basic > $pf_master->mxpf_basic_sal_limit) {
                                                     // Cap the actual_basic to the statutory limit (e.g., 15000)
                                                     $final_array['mxsal_epf_wages'] = $pf_master->mxpf_basic_sal_limit;
+                                                } else {
 
+
+                                                    /* Updated BY : Varaprasad
+                                                     * On : 12/06/2026
+                                                     * Purpose : EPF WAGE calculations in Arrear sheet after date of join
+                                                     */
+                                                    /*
+                                                     //  TO check mxsal_epf_wages from Main Salary of the month
+
+                                                        IF Main[mxsal_epf_wages] < $pf_master->mxpf_basic_sal_limit
+                                                            Deficit Wage = $pf_master->mxpf_basic_sal_limit - Main[mxsal_epf_wages]
+                                                            if Actua basic < Deficit Wage
+                                                                mxsal_epf_wages = Actua basic
+                                                            esle
+                                                                 mxsal_epf_wages =  Deficit Wage
+                                                        ElSE
+                                                            mxsal_epf_wages = 0
+                                                    */
+
+                                                    if($paysheet_array[0]->mxsal_epf_wages < $pf_master->mxpf_basic_sal_limit) {
+                                                        $deficit_wage = $pf_master->mxpf_basic_sal_limit - $paysheet_array[0]->mxsal_epf_wages;
+                                                        if($actual_basic < $deficit_wage) {
+                                                            $final_array['mxsal_epf_wages'] = $actual_basic;
+                                                        } else {
+                                                            $final_array['mxsal_epf_wages'] = $deficit_wage;
+                                                        }
+                                                    } else {
+                                                        $final_array['mxsal_epf_wages'] = 0;
+                                                    }
                                                 }
                                             }
                                             /**
@@ -12051,7 +12123,6 @@ class Salaries_model extends Adminmodel
                                                                 // $pf_eps_wages = $pf_eps_wages_limit;
                                                                 // echo $pf_basic_sal_3;exit;
                                                             }
-
                                                             //--------END EPS & EPF
 
                                                         } else { //----->For age grater than 58 make it as 0 for pension
@@ -12061,7 +12132,51 @@ class Salaries_model extends Adminmodel
                                                             $emp_pf_8 = 0;
                                                             $emp_pf_3 = 0;
                                                         }
-                                                        //--------------------------END PF  CALCULATION 8.33 &&  3.67 BASED ON AGE LIMIT
+
+                                                        /* Calculating mxsal_eps_wages and mxsal_edli_wages for Arrear data
+                                                            Same Formula for both mxsal_eps_wages && mxsal_edli_wages:
+                                                            If(MainSheet[mxsal_eps_wages] < $pf_data->mxpf_pf_eps_wages_limit
+                                                            {
+                                                                diff_in_wage = $pf_data->mxpf_pf_eps_wages_limit - MainSheet[mxsal_eps_wages]
+                                                                if Actua basic < Deficit Wage
+                                                                    mxsal_eps_wages = Actua basic
+                                                                esle
+                                                                     mxsal_eps_wages =  diff_in_wage
+                                                            } else {
+                                                                mxsal_eps_wages = 0
+                                                            }
+                                                        */
+
+                                                        /* Updated by : Varaprasad
+                                                         * On : 11/05/2026
+                                                         * Purpose :  mxsal_eps_wages calculations based on the $pf_data->mxpf_pf_eps_wages_limit LImit
+                                                         *  COmbined amount from Main and Suppl should not exceed $pf_data->mxpf_pf_eps_wages_limit
+                                                        */
+                                                        if ($paysheet_array[0]->mxsal_eps_wages < $pf_data->mxpf_pf_eps_wages_limit) {
+                                                            $deficit_eps_wages = $pf_data->mxpf_pf_eps_wages_limit - $paysheet_array[0]->mxsal_eps_wages;
+                                                            if($actual_basic < $deficit_eps_wages) {
+                                                                $pf_eps_wages = $actual_basic;
+                                                            } else {
+                                                                $pf_eps_wages = $deficit_eps_wages;
+                                                            }
+                                                        } else {
+                                                            $pf_eps_wages = 0;
+                                                        }
+
+                                                        /* Updated by : Varaprasad
+                                                         * on: 11/05/2026
+                                                         *  Purpose : EPF  (mxsal_pf_pension_cont) Calculation changes as per the New requirement
+                                                         *  Formula :  8.33 % of EPS WAGES (Max Capped to 1250 in Main+suppl) - UNDER AGE 58, else 0
+                                                         */
+                                                        if ($emp_current_age < ($pf_age_limit+1)) {
+                                                            $emp_pf_8 = ($pf_eps_wages * $pf_data->mxpf_pf_pension_cont)/100;
+                                                        } else {
+                                                            $emp_pf_8 = 0;
+                                                        }
+
+
+
+                                                            //--------------------------END PF  CALCULATION 8.33 &&  3.67 BASED ON AGE LIMIT
 
 
                                                         //------------------------EDLI CONT
@@ -12083,6 +12198,23 @@ class Salaries_model extends Adminmodel
                                                             // $pf_edli_wages = $pf_edli_wages_limit;
 
                                                         }
+
+                                                        /* Updated by : Varaprasad
+                                                         * On : 11/05/2026
+                                                         * Purpose :  mxsal_edli_wages && mxsal_edli_wages calculations based on the $pf_data->mxpf_pf_edli_wages_limit LImit
+                                                         *  COmbined amount from Main and Suppl should not exceed $pf_data->mxpf_pf_edli_wages_limit
+                                                        */
+                                                        if ($paysheet_array[0]->mxsal_edli_wages < $pf_data->mxpf_pf_edli_wages_limit) {
+                                                            $deficit_epli_wages = $pf_data->mxpf_pf_edli_wages_limit - $paysheet_array[0]->mxsal_edli_wages;
+                                                            if($actual_basic < $deficit_epli_wages) {
+                                                                $pf_edli_wages = $actual_basic;
+                                                            } else {
+                                                                $pf_edli_wages = $deficit_eps_wages;
+                                                            }
+                                                        } else {
+                                                            $pf_edli_wages = 0;
+                                                        }
+
                                                         //------------------------END EDLI CONT
 
                                                         //------------------------ADMIN CONT
@@ -12335,7 +12467,7 @@ class Salaries_model extends Adminmodel
                                                             if ($emp_current_age < $gratuity_data->mxgratuity_age_limit) { //emp_age<58
                                                                 $gratuity_month_wise_perc = $gratuity_data->mxgratuity_month_wise_perc;
                                                                 $gratuity_month_wise_perc_round_type = $gratuity_data->mxgratuity_month_wise_perc_round_type;
-                                                                $gratuity_amount = ($rate_basic_sal * $gratuity_month_wise_perc) / 100;
+                                                                $gratuity_amount = ($actual_basic * $gratuity_month_wise_perc) / 100;
                                                             }
                                                             // else {
                                                             //     $gratuity_amount = 0;
@@ -12361,7 +12493,7 @@ class Salaries_model extends Adminmodel
                                                         $lta_grades = $lta_data->mxlta_applicable_grades;
                                                         $lta_grades_ex = explode(',', substr(substr(trim($lta_grades), 0, -1), 1)); //-----removing first and last strings ie commas(,)
                                                         if (in_array($emp_employee_type, $lta_emp_types_ex) && in_array($emp_grade_code, $lta_grades_ex)) {
-                                                            $lta_amount = rounding_number(($rate_basic_sal * 1) / 12,2);
+                                                            $lta_amount = rounding_number(($actual_basic * 1) / 12,2);
                                                         }
                                                     }
                                                 }
@@ -12382,7 +12514,7 @@ class Salaries_model extends Adminmodel
                                                         $mediclaim_grades = $mediclaim_data->mxmediclaim_applicable_grades;
                                                         $mediclaim_grades_ex = explode(',', substr(substr(trim($mediclaim_grades), 0, -1), 1)); //-----removing first and last strings ie commas(,)
                                                         if (in_array($emp_employee_type, $mediclaim_emp_types_ex) && in_array($emp_grade_code, $mediclaim_grades_ex)) {
-                                                            $mediclaim_amount = rounding_number(($rate_basic_sal * 1) / 12,2);
+                                                            $mediclaim_amount = rounding_number(($actual_basic * 1) / 12,2);
                                                         }
                                                     }
                                                 }
@@ -12399,7 +12531,7 @@ class Salaries_model extends Adminmodel
                                         // exit;
                                         //---------------------CALCULATING ACTUAL HRA
                                         // $actual_hra = number_format(((($calculated_sal) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', '');
-                                        $actual_hra = rounding_number(number_format(((($final_array['mxsal_hra']) / $total_days_in_month) * $total_days), 2, '.', ''),2);
+                                        $actual_hra = rounding_number(number_format(((($arrear_hra_component) / $total_days_in_month) * $total_days), 2, '.', ''),2);
                                         //---------------------END CALCULATING ACTUAL HRA
                                         //------------------- ESI CALCULATION FOR HRA
                                         $esi_wages_flag = false;//----->NEW BY SHABABU(16-06-2022)
@@ -12645,7 +12777,9 @@ class Salaries_model extends Adminmodel
                     //---------END GET TDS AMOUNT
 
 
-                    $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $loan_amount + $miscellenous_amount+ $tds_amount;//----->NEW BY SHABABU(30-07-2022);
+                    //$total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $loan_amount + $miscellenous_amount+ $tds_amount;
+                    $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $loan_amount + $miscellenous_amount;
+                    //----->NEW BY VARAPRASAD (10-05-2026); NO TDS in Total Deductions
 
                     //-----
                     // get_leaves_count_data($employeecode = null, $ym = null);
@@ -12680,13 +12814,15 @@ class Salaries_model extends Adminmodel
 
                     // echo $emp_pf_12;exit;
                     // echo "actual_basic = ".$actual_basic." ,actual_hra = ".$actual_hra;exit;
-                    $final_array['mxsal_total_ded'] = $total_deductions;
+                    $final_array['mxsal_total_ded'] = round($total_deductions);
                     $final_array['mxsal_actual_basic'] = $actual_basic;
                     $final_array['mxsal_actual_hra'] = $actual_hra;
                     $final_array['mxsal_actual_tsp'] = rounding_number($tsp_amount,2);
                     $final_array['mxsal_actual_prof_charges'] = rounding_number($professional_charges_amount,2);
                     // $final_array['mxsal_tds_amount'] = rounding_number($tds_amount,2);
-                    $final_array['mxsal_tds_amount'] = (rounding_number($tds_amount,2) <=0)? 0 :rounding_number($tds_amount,2);
+                    // $final_array['mxsal_tds_amount'] = (rounding_number($tds_amount,2) <=0)? 0 :rounding_number($tds_amount,2);
+                    $final_array['mxsal_tds_amount'] = 0;
+                    // Updated BY : varaprasad (10/05/2026), TDS to be 0 in Supplimentary sheet
                     $final_array['mxsal_actual_gross'] = $actual_gross;
                     //-----NEW BY SHABABU(29-06-2022)
                     if($emp_pf_12 != ($emp_pf_8 + $emp_pf_3)){
