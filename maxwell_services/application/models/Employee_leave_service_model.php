@@ -1359,7 +1359,7 @@ class Employee_leave_service_model extends Common_model
         }elseif($status_type =='Rejected'){
             $status_type = 2;
         }elseif($status_type =='Pending'){
-            $status_type = 9;
+            $status_type = 0;
         }elseif($status_type =='Final_Hr_Accepted'){
             $status_type = 3;
         }else{
@@ -1445,9 +1445,55 @@ class Employee_leave_service_model extends Common_model
                             if(($finalhraccept !='')&&($finalhraccept !=0)){
                                 $this->db->where('mxar_final_accept_status',1);
                             }
-                            if($status_type != ''){
-                                $this->db->where('mxar_final_accept_status',$status_type);
+
+                            if($searchempid !=''){
+                               $this->db->where('mxar_appliedby_emp_code', $searchempid);
                             }
+                            if($status_type !== ''){
+                                $this->db->where("
+                                    (
+                                    CASE 
+                                    WHEN mxar_auth1_empcode = '$employeeidval' and mxar_auth1_status = 0 THEN '0'
+                                    WHEN mxar_auth1_empcode = '$employeeidval' and mxar_auth1_status = 1 THEN '1'
+                                    WHEN mxar_auth1_empcode = '$employeeidval' and mxar_auth1_status = 2 THEN '2'
+
+                                    WHEN mxar_auth2_empcode = '$employeeidval' and mxar_auth2_status = 0 THEN '0'
+                                    WHEN mxar_auth2_empcode = '$employeeidval' and mxar_auth2_status = 1 THEN '1'
+                                    WHEN mxar_auth2_empcode = '$employeeidval' and mxar_auth2_status = 2 THEN '2'
+
+                                    WHEN mxar_auth3_empcode = '$employeeidval' and mxar_auth3_status = 0 THEN '0'
+                                    WHEN mxar_auth3_empcode = '$employeeidval' and mxar_auth3_status = 1 THEN '1'
+                                    WHEN mxar_auth3_empcode = '$employeeidval' and mxar_auth3_status = 2 THEN '2'
+
+                                    WHEN mxar_auth4_empcode = '$employeeidval' and mxar_auth4_status = 0 THEN '0'
+                                    WHEN mxar_auth4_empcode = '$employeeidval' and mxar_auth4_status = 1 THEN '1'
+                                    WHEN mxar_auth4_empcode = '$employeeidval' and mxar_auth4_status = 2 THEN '2'
+
+                                    WHEN mxar_authfinal_empcode = '$employeeidval' and mxar_final_accept_status = 9 THEN '0'
+                                    WHEN mxar_authfinal_empcode = '$employeeidval' and mxar_final_accept_status = 3 THEN '1'
+                                    WHEN mxar_authfinal_empcode = '$employeeidval' and mxar_final_accept_status = 1 THEN '1'
+                                    WHEN mxar_authfinal_empcode = '$employeeidval' and mxar_final_accept_status = 2 THEN '2'
+
+                                    when mxar_appliedby_emp_code = '$employeeidval' then 
+                                    (
+                                        CASE 
+                                            WHEN mxar_authfinal_status = 9 THEN '0'
+                                            WHEN mxar_authfinal_status = 3 THEN '3'
+                                            WHEN mxar_authfinal_status = 1 THEN '1'
+                                            WHEN mxar_authfinal_status = 2 THEN '2'
+                                            ELSE ''
+                                        END
+                                    )
+
+                                    ELSE ''
+                                    END
+                                    ) = '".$status_type."'
+                                    ");
+                            }
+
+                            // if($status_type != ''){
+                            //     $this->db->where('mxar_final_accept_status',$status_type);
+                            // }
                             // if(($finalhraccept == 1)&&($uniqid !='')&&($uniqid !=0)){
                             //     $this->db->where('mxar_id',$uniqid);
                             // }
