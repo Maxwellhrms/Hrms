@@ -2162,6 +2162,8 @@ public function getAttendanceDashboard(){
         }
 
         $this->db->select('
+            mxemp_emp_fname as employeename,
+            mxemp_emp_img as employeeimage,
             mx_attendance_emp_code,
             mx_attendance_date,
             mx_attendance_first_half_punch,
@@ -2171,7 +2173,7 @@ public function getAttendanceDashboard(){
         ');
 
         $this->db->from($table_name);
-
+        $this->db->join('maxwell_employees_info', 'mxemp_emp_id = mx_attendance_emp_code', 'INNER');
         $this->db->where_in('mx_attendance_emp_code',$employee_ids);
 
         if(!empty($company)){
@@ -2213,6 +2215,8 @@ public function getAttendanceDashboard(){
                 if(!isset($resp['employee_wise_count'][$empcode])){
 
                     $resp['employee_wise_count'][$empcode]=array(
+                        'employeename'=>$row->employeename,
+                        'employeeimage'=>$row->employeeimage,
                         'late'=>0,
                         'ontime'=>0,
                         'totaldays'=>0

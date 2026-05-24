@@ -525,6 +525,74 @@
         </div>
     </div>
 </div>
+
+<br>
+    <div class="row hrms_dashboard_card">
+    <div class="table-responsive">
+
+        <table id="attendanceTable" class="table align-middle nowrap">
+
+            <thead>
+                <tr>
+                    <th>Employee Name</th>
+                    <th>Employee Code</th>
+                    <th>PR</th>
+                    <th>AB</th>
+                    <th>CL</th>
+                    <th>SL</th>
+                    <th>EL</th>
+                    <th>ML</th>
+                    <th>LOP</th>
+                    <th>OT</th>
+                    <th>WO</th>
+                    <th>PH</th>
+                    <th>Late</th>
+                    <th>On Time</th>
+                    <th>Total Days</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <?php foreach($dashboarddetails['employee_wise_count'] as $empcode=>$row){ ?>
+
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="<?php echo HRADMINROOTDOCUMENT.$row['employeeimage']; ?>" alt="Employee"style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid #ddd;">
+                            <span>
+                                <?php echo $row['employeename']; ?>
+                            </span>
+                        </div>
+                    </td>
+                    <td><?php echo $empcode; ?></td>
+                    <td><span class="hrms-badge bg-pr"><?php echo $row['PR']; ?></span></td>
+                    <td><span class="hrms-badge bg-ab"><?php echo $row['AB']; ?></span></td>
+                    <td><span class="hrms-badge bg-cl"><?php echo $row['CL']; ?></span></td>
+                    <td><span class="hrms-badge bg-sl"><?php echo $row['SL']; ?></span></td>
+                    <td><span class="hrms-badge bg-el"><?php echo $row['EL']; ?></span></td>
+                    <td><span class="hrms-badge bg-ml"><?php echo $row['ML']; ?></span></td>
+                    <td><span class="hrms-badge bg-lop"><?php echo $row['LOP']; ?></span></td>
+                    <td><span class="hrms-badge bg-ot"><?php echo $row['OT']; ?></span></td>
+                    <td><span class="hrms-badge bg-wo"><?php echo $row['WO']; ?></span></td>
+                    <td><span class="hrms-badge bg-ph"><?php echo $row['PH']; ?></span></td>
+                    <td><span class="hrms-badge bg-late"><?php echo $row['late']; ?></span></td>
+                    <td><span class="hrms-badge bg-ontime"><?php echo $row['ontime']; ?></span></td>
+
+                    <td>
+                        <strong>
+                            <?php echo $row['totaldays']; ?>
+                        </strong>
+                    </td>
+
+                </tr>
+
+                <?php } ?>
+
+            </tbody>
+        </table>
+    </div>
+    </div> 
 </div>
 
 
@@ -999,5 +1067,68 @@ function showAttendanceEmployeeDetails(type,employeecodes,companyid,divisionid,s
         }
     });
 }
+
+$(document).ready(function(){
+
+    if($.fn.DataTable.isDataTable('#attendanceTable')){
+        $('#attendanceTable').DataTable().destroy();
+    }
+
+    $('#attendanceTable').DataTable({
+        responsive:true,
+        scrollX:true,
+        autoWidth:false,
+        processing:true,
+        pageLength:10,
+        lengthMenu:[
+            [10,25,50,100,-1],
+            [10,25,50,100,'All']
+        ],
+        dom:"<'row mb-3'<'col-md-6 d-flex gap-2 align-items-center'B l><'col-md-6 text-end'f>>"+
+            "<'row'<'col-12'tr>>"+
+            "<'row mt-3'<'col-md-5'i><'col-md-7'p>>",
+
+        buttons:[
+            {
+                extend:'excelHtml5',
+                text:'Export Excel',
+                className:'btn btn-success btn-sm',
+                title:'Employee_Attendance_Report'
+            },
+            {
+                extend:'csvHtml5',
+                text:'Export CSV',
+                className:'btn btn-primary btn-sm',
+                title:'Employee_Attendance_Report'
+            }
+        ],
+
+        columnDefs:[
+            {
+                targets:'_all',
+                className:'text-center align-middle'
+            },
+            {
+                targets:0,
+                className:'text-start'
+            }
+        ],
+
+        language:{
+            search:'',
+            searchPlaceholder:'Search Employee...',
+            lengthMenu:'_MENU_ Records Per Page',
+            info:'Showing _START_ to _END_ of _TOTAL_ Employees',
+            paginate:{
+                first:'First',
+                last:'Last',
+                next:'›',
+                previous:'‹'
+            }
+        }
+
+    });
+
+});
 </script>
 </div>
