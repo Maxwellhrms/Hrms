@@ -2090,36 +2090,38 @@ public function getAttendanceDashboard(){
     #Update Employee Info
     #attendancesummary
     public function allemployeesattendancesummary($data){
-        $company = !empty($data['esi_company_id'])? $data['esi_company_id']: '';
-        $division = !empty($data['esi_div_id'])? $data['esi_div_id']: '';
-        $state = !empty($data['esi_state_id'])? $data['esi_state_id']: '';
-        $branch = !empty($data['esi_branch_id'])? $data['esi_branch_id']: '';
-        $fromdate = !empty($data['fromdate'])? $data['fromdate']: date('Y-m-01');
-        $todate = !empty($data['todate'])? $data['todate']: date('Y-m-d');
-        $from_date = date('Y-m-d',strtotime($fromdate));
-        $to_date = date('Y-m-d',strtotime($todate));
-        $yearid = date('Y',strtotime($from_date));
-        $monthid = date('m',strtotime($from_date));
+        $company=!empty($data['esi_company_id'])?$data['esi_company_id']:'';
+        $division=!empty($data['esi_div_id'])?$data['esi_div_id']:'';
+        $state=!empty($data['esi_state_id'])?$data['esi_state_id']:'';
+        $branch=!empty($data['esi_branch_id'])?$data['esi_branch_id']:'';
+        $fromdate=!empty($data['fromdate'])?$data['fromdate']:date('Y-m-01');
+        $todate=!empty($data['todate'])?$data['todate']:date('Y-m-d');
 
-        $table_name = 'maxwell_attendance_' . $yearid . '_' . $monthid;
-        // Check table exists
+        $from_date=date('Y-m-d',strtotime($fromdate));
+        $to_date=date('Y-m-d',strtotime($todate));
+
+        $yearid=date('Y',strtotime($from_date));
+        $monthid=date('m',strtotime($from_date));
+
+        $table_name='maxwell_attendance_'.$yearid.'_'.$monthid;
+
         if(!$this->db->table_exists($table_name)){
             return array(
-                'status'  => 0,
-                'message' => 'Attendance table not found'
+                'status'=>0,
+                'message'=>'Attendance table not found'
             );
         }
 
-        $employee_codes = (!empty($data['employecode']) && $data['employecode'] != 'ALL')? array($data['employecode']): array();
+        $employee_codes=(!empty($data['employecode'])&&$data['employecode']!='ALL')?array($data['employecode']):array();
 
-        if(count($employee_codes) > 0){
-            $employee_ids = $employee_codes;
+        if(count($employee_codes)>0){
+            $employee_ids=$employee_codes;
         }else{
-            $employee_ids = $this->CommonModel->getEmployeesWhoAreAssignToAuthorsations('');
-            $employee_ids = array_column($employee_ids,'mxauth_emp_code');
+            $employee_ids=$this->CommonModel->getEmployeesWhoAreAssignToAuthorsations('');
+            $employee_ids=array_column($employee_ids,'mxauth_emp_code');
         }
 
-        $attendance_types = array(
+        $attendance_types=array(
             'OD',
             'OT',
             'PR',
@@ -2136,25 +2138,26 @@ public function getAttendanceDashboard(){
             'AR'
         );
 
-        $resp = array(
-            'status' => 1,
-            'totalemployees' => 0,
-            'ontime' => array(
-                'count' => 0,
-                'employeecodes' => array()
+        $resp=array(
+            'status'=>1,
+            'totalemployees'=>0,
+            'ontime'=>array(
+                'count'=>0,
+                'employeecodes'=>array()
             ),
-            'late' => array(
-                'count' => 0,
-                'employeecodes' => array()
-            )
+            'late'=>array(
+                'count'=>0,
+                'employeecodes'=>array()
+            ),
+            'employee_wise_count'=>array()
         );
 
         foreach($attendance_types as $type){
-            $resp[$type] = array(
-                'firsthalf' => 0,
-                'secondhalf' => 0,
-                'total' => 0,
-                'employeecodes' => array()
+            $resp[$type]=array(
+                'firsthalf'=>0,
+                'secondhalf'=>0,
+                'total'=>0,
+                'employeecodes'=>array()
             );
         }
 
@@ -2168,6 +2171,7 @@ public function getAttendanceDashboard(){
         ');
 
         $this->db->from($table_name);
+
         $this->db->where_in('mx_attendance_emp_code',$employee_ids);
 
         if(!empty($company)){
@@ -2189,63 +2193,103 @@ public function getAttendanceDashboard(){
         $this->db->where('mx_attendance_date >=',$from_date);
         $this->db->where('mx_attendance_date <=',$to_date);
 
-        $query = $this->db->get();
+        $query=$this->db->get();
 
-        // echo $this->db->last_query(); exit;
-
-        $qry = $query->result();
+        $qry=$query->result();
 
         if(!empty($qry)){
-            $processedEmployees = array();
+
+            $processedEmployees=array();
 
             foreach($qry as $row){
-                $empcode = $row->mx_attendance_emp_code;
 
-                if(!in_array($empcode, $processedEmployees)){
-                    $processedEmployees[] = $empcode;
+                $empcode=$row->mx_attendance_emp_code;
+
+                if(!in_array($empcode,$processedEmployees)){
+                    $processedEmployees[]=$empcode;
                     $resp['totalemployees']++;
                 }
 
-                $first_half = trim($row->mx_attendance_first_half);
-                $second_half = trim($row->mx_attendance_second_half);
-                $first_half_punch = trim($row->mx_attendance_first_half_punch);
-                $second_half_punch = trim($row->mx_attendance_second_half_punch);
+                if(!isset($resp['employee_wise_count'][$empcode])){
 
-                if(in_array($first_half, $attendance_types)){
-                    $resp[$first_half]['firsthalf'] += 0.5;
-                    $resp[$first_half]['total'] += 0.5;
-                    if(!in_array($empcode,$resp[$first_half]['employeecodes'])){
-                        $resp[$first_half]['employeecodes'][] = $empcode;
+                    $resp['employee_wise_count'][$empcode]=array(
+                        'late'=>0,
+                        'ontime'=>0,
+                        'totaldays'=>0
+                    );
+
+                    foreach($attendance_types as $type){
+                        $resp['employee_wise_count'][$empcode][$type]=0;
                     }
                 }
 
-                if(in_array($second_half, $attendance_types)){
-                    $resp[$second_half]['secondhalf'] += 0.5;
-                    $resp[$second_half]['total'] += 0.5;
+                $first_half=trim($row->mx_attendance_first_half);
+                $second_half=trim($row->mx_attendance_second_half);
+
+                $first_half_punch=trim($row->mx_attendance_first_half_punch);
+                $second_half_punch=trim($row->mx_attendance_second_half_punch);
+
+                if(in_array($first_half,$attendance_types)){
+
+                    $resp[$first_half]['firsthalf']+=0.5;
+                    $resp[$first_half]['total']+=0.5;
+
+                    $resp['employee_wise_count'][$empcode][$first_half]+=0.5;
+
+                    $resp['employee_wise_count'][$empcode]['totaldays']+=0.5;
+
+                    if(!in_array($empcode,$resp[$first_half]['employeecodes'])){
+                        $resp[$first_half]['employeecodes'][]=$empcode;
+                    }
+                }
+
+                if(in_array($second_half,$attendance_types)){
+
+                    $resp[$second_half]['secondhalf']+=0.5;
+                    $resp[$second_half]['total']+=0.5;
+
+                    $resp['employee_wise_count'][$empcode][$second_half]+=0.5;
+
+                    $resp['employee_wise_count'][$empcode]['totaldays']+=0.5;
+
                     if(!in_array($empcode,$resp[$second_half]['employeecodes'])){
-                        $resp[$second_half]['employeecodes'][] = $empcode;
+                        $resp[$second_half]['employeecodes'][]=$empcode;
                     }
                 }
 
                 if(!empty($first_half_punch)){
-                    $punches = explode(',',$first_half_punch);
-                    $userfirstpunch = trim($punches[0]);
+
+                    $punches=explode(',',$first_half_punch);
+
+                    $userfirstpunch=trim($punches[0]);
+
                     if(!empty($userfirstpunch)){
-                        if(strtotime($userfirstpunch) > strtotime('09:35:00')){
+
+                        if(strtotime($userfirstpunch)>strtotime('09:35:00')){
+
                             $resp['late']['count']++;
+
+                            $resp['employee_wise_count'][$empcode]['late']++;
+
                             if(!in_array($empcode,$resp['late']['employeecodes'])){
-                                $resp['late']['employeecodes'][] = $empcode;
+                                $resp['late']['employeecodes'][]=$empcode;
                             }
+
                         }else{
+
                             $resp['ontime']['count']++;
+
+                            $resp['employee_wise_count'][$empcode]['ontime']++;
+
                             if(!in_array($empcode,$resp['ontime']['employeecodes'])){
-                                $resp['ontime']['employeecodes'][] = $empcode;
+                                $resp['ontime']['employeecodes'][]=$empcode;
                             }
                         }
                     }
                 }
             }
         }
+
         return $resp;
     }
 
