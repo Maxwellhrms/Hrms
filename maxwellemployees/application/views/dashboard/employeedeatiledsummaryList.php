@@ -41,6 +41,30 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-xl-3 col-lg-4">
+            <div class="hrms_dashboard_card">
+                <div class="hrms_card_title">
+                    Pending Leave/Regulations
+                </div>
+                <div id="hrms_pendingleave_chart"></div>
+                <div class="text-center mt-3">
+                    <h6>Total Leave/Regulations Requests</h6>
+                    <h2 class="fw-bold">
+                        <?php 
+                            echo 
+                                $dashboarddetails['OT']['pending']['total'] +
+                                $dashboarddetails['AR']['pending']['total'] +
+                                $dashboarddetails['CL']['pending']['total'] +
+                                $dashboarddetails['SL']['pending']['total'] +
+                                $dashboarddetails['EL']['pending']['total'] +
+                                $dashboarddetails['ML']['pending']['total'] +
+                                $dashboarddetails['SHRT']['pending']['total'];
+                        ?>
+                    </h2>
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -819,6 +843,125 @@ var leaveChart = new ApexCharts(
     leaveOptions
 );
 leaveChart.render();
+
+
+var pendingleaveOptions = {
+    series: [
+        <?php echo $dashboarddetails['OT']['pending']['total']; ?>,
+        <?php echo $dashboarddetails['AR']['pending']['total']; ?>,
+        <?php echo $dashboarddetails['CL']['pending']['total']; ?>,
+        <?php echo $dashboarddetails['SL']['pending']['total']; ?>,
+        <?php echo $dashboarddetails['EL']['pending']['total']; ?>,
+        <?php echo $dashboarddetails['ML']['pending']['total']; ?>,
+        <?php echo $dashboarddetails['SHRT']['pending']['total']; ?>
+    ],
+    chart: {
+        type: 'donut',
+        height: 320,
+        events: {
+            dataPointSelection: function (
+                event,
+                chartContext,
+                config
+            ){
+                let label =
+                    config.w.config.labels[
+                        config.dataPointIndex
+                    ];
+                let type = '';
+                let employeecodes = [];
+                switch(label){
+                     case 'On Tour':
+                        type = 'OT';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['OT']['pending']['employeecodes']); ?>;
+                    break;
+                    case 'Regulations':
+                        type = 'AR';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['AR']['pending']['employeecodes']); ?>;
+                    break;
+                    case 'Casual Leave':
+                        type = 'CL';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['CL']['pending']['employeecodes']); ?>;
+                    break;
+                    case 'Sick Leave':
+                        type = 'SL';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['SL']['pending']['employeecodes']); ?>;
+                    break;
+                    case 'Earn Leave':
+                        type = 'EL';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['EL']['pending']['employeecodes']); ?>;
+                    break;
+                    case 'Maternity Leave':
+                        type = 'ML';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['ML']['pending']['employeecodes']); ?>;
+                    break;
+                    case 'Short Leave':
+                        type = 'SHRT';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['SHRT']['pending']['employeecodes']); ?>;
+                    break;
+                }
+                showAttendanceEmployeeDetails(
+                    type,
+                    employeecodes,
+                    companyid = '<?php echo $userfilters['esi_company_id']; ?>',
+                    divisionid = '<?php echo $userfilters['esi_div_id']; ?>',
+                    stateid = '<?php echo $userfilters['esi_state_id']; ?>',
+                    branchid = '<?php echo $userfilters['esi_branch_id']; ?>',
+                    fromdate = '<?php echo $userfilters['fromdate']; ?>',
+                    todate = '<?php echo $userfilters['todate']; ?>'
+                );
+            }
+        }
+    },
+    labels: [
+        'On Tour',
+        'Regulations',
+        'Casual Leave',
+        'Sick Leave',
+        'Earn Leave',
+        'Maternity Leave',
+        'Short Leave'
+    ],
+    colors: [
+        '#6b7280',
+        '#06b6d4',
+        '#3b82f6',
+        '#ef4444',
+        '#22c55e',
+        '#a855f7',
+        '#f59e0b'
+    ],
+    legend: {
+        position: 'bottom'
+    },
+    responsive: [{
+        breakpoint: 480,
+        options: {
+            chart: {
+                width: '100%'
+            },
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }]
+};
+var pendingleaveChart = new ApexCharts(
+    document.querySelector("#hrms_pendingleave_chart"),
+    pendingleaveOptions
+);
+pendingleaveChart.render();
+
+
+
+
 
 
 var incrementMonths =

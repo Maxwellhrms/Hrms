@@ -2112,7 +2112,7 @@ public function getAttendanceDashboard(){
             );
         }
 
-        $employee_codes=(!empty($data['employecode'])&&$data['employecode']!='ALL')?array($data['employecode']):array();
+        $employee_codes=(!empty($data['employecode'])&& $data['employecode']!='ALL')?array($data['employecode']):array();
 
         if(count($employee_codes)>0){
             $employee_ids=$employee_codes;
@@ -2157,7 +2157,15 @@ public function getAttendanceDashboard(){
                 'firsthalf'=>0,
                 'secondhalf'=>0,
                 'total'=>0,
-                'employeecodes'=>array()
+                'employeecodes'=>array(),
+                'pending'=>array(
+                    'total'=>0,
+                    'employeecodes'=>array()
+                ),
+                'rejected'=>array(
+                    'total'=>0,
+                    'employeecodes'=>array()
+                )
             );
         }
 
@@ -2224,6 +2232,8 @@ public function getAttendanceDashboard(){
 
                     foreach($attendance_types as $type){
                         $resp['employee_wise_count'][$empcode][$type]=0;
+                        $resp['employee_wise_count'][$empcode][$type.'_pending']=0;
+                        $resp['employee_wise_count'][$empcode][$type.'_rejected']=0;
                     }
                 }
 
@@ -2294,6 +2304,183 @@ public function getAttendanceDashboard(){
             }
         }
 
+         $login_emp_code=$this->session->userdata('session_loginperson_id');
+
+            /* =========================
+            LEAVE QUERY
+            ========================= */
+
+            $this->db->select("
+                mxar_leave_type AS request_type,
+                mxar_appliedby_emp_code,
+
+                SUM(
+                    CASE
+                        WHEN mxar_final_accept_status = 9
+                        THEN mxar_noofdays
+
+                        WHEN (
+                            (mxar_auth1_empcode='$login_emp_code' AND mxar_auth1_status=0)
+                            OR
+                            (mxar_auth2_empcode='$login_emp_code' AND mxar_auth2_status=0)
+                            OR
+                            (mxar_auth3_empcode='$login_emp_code' AND mxar_auth3_status=0)
+                            OR
+                            (mxar_auth4_empcode='$login_emp_code' AND mxar_auth4_status=0)
+                            OR
+                            (mxar_authfinal_empcode='$login_emp_code' AND mxar_authfinal_status=0)
+                        )
+                        AND mxar_final_accept_status != 3
+                        THEN mxar_noofdays
+
+                        ELSE 0
+                    END
+                ) AS pending_days,
+
+                SUM(
+                    CASE
+                        WHEN mxar_final_accept_status = 2
+                        THEN mxar_noofdays
+
+                        WHEN (
+                            (mxar_auth1_empcode='$login_emp_code' AND mxar_auth1_status=2)
+                            OR
+                            (mxar_auth2_empcode='$login_emp_code' AND mxar_auth2_status=2)
+                            OR
+                            (mxar_auth3_empcode='$login_emp_code' AND mxar_auth3_status=2)
+                            OR
+                            (mxar_auth4_empcode='$login_emp_code' AND mxar_auth4_status=2)
+                            OR
+                            (mxar_authfinal_empcode='$login_emp_code' AND mxar_authfinal_status=2)
+                        )
+                        AND mxar_final_accept_status != 3
+                        THEN mxar_noofdays
+
+                        ELSE 0
+                    END
+                ) AS rejected_days,
+
+                'Leave' AS request_category
+            ", false);
+
+            $this->db->from('attendance_user_leaveadjust');
+            $this->db->where('mxar_from >=', $from_date);
+            $this->db->where('mxar_to <=', $to_date);
+            $this->db->where_in('mxar_appliedby_emp_code', $employee_ids);
+            $this->db->group_by('mxar_leave_type');
+            $this->db->group_by('mxar_appliedby_emp_code');
+
+            $leave_query = $this->db->get_compiled_select();
+
+            /* =========================
+            REGULATION QUERY
+            ========================= */
+
+            $this->db->select("
+                mxar_type AS request_type,
+                mxar_appliedby_emp_code,
+
+                SUM(
+                    CASE
+                        WHEN (
+                            (mxar_auth1_empcode='$login_emp_code' AND mxar_auth1_status=0)
+                            OR
+                            (mxar_auth2_empcode='$login_emp_code' AND mxar_auth2_status=0)
+                            OR
+                            (mxar_auth3_empcode='$login_emp_code' AND mxar_auth3_status=0)
+                            OR
+                            (mxar_auth4_empcode='$login_emp_code' AND mxar_auth4_status=0)
+                            OR
+                            (mxar_authfinal_empcode='$login_emp_code' AND mxar_authfinal_status=9)
+                        )
+                        THEN
+                            CASE
+                                WHEN mxar_category_type IN (1,2) THEN 0.5
+                                WHEN mxar_category_type = 3 THEN 1
+                                ELSE mxar_attend_countdays
+                            END
+                        ELSE 0
+                    END
+                ) AS pending_days,
+
+                SUM(
+                    CASE
+                        WHEN (
+                            (mxar_auth1_empcode='$login_emp_code' AND mxar_auth1_status=2)
+                            OR
+                            (mxar_auth2_empcode='$login_emp_code' AND mxar_auth2_status=2)
+                            OR
+                            (mxar_auth3_empcode='$login_emp_code' AND mxar_auth3_status=2)
+                            OR
+                            (mxar_auth4_empcode='$login_emp_code' AND mxar_auth4_status=2)
+                            OR
+                            (mxar_authfinal_empcode='$login_emp_code' AND mxar_authfinal_status=2)
+                        )
+                        THEN
+                            CASE
+                                WHEN mxar_category_type IN (1,2) THEN 0.5
+                                WHEN mxar_category_type = 3 THEN 1
+                                ELSE mxar_attend_countdays
+                            END
+                        ELSE 0
+                    END
+                ) AS rejected_days,
+
+                'Regulation' AS request_category
+            ", false);
+
+            $this->db->from('attendance_regulation');
+            $this->db->where('mxar_from >=', $from_date);
+            $this->db->where('mxar_to <=', $to_date);
+            $this->db->where_in('mxar_appliedby_emp_code', $employee_ids);
+            $this->db->group_by('mxar_type');
+            $this->db->group_by('mxar_appliedby_emp_code');
+
+            $regulation_query = $this->db->get_compiled_select();
+            /* =========================
+            UNION ALL
+            ========================= */
+            $final_query = $leave_query . " UNION ALL " . $regulation_query;
+            $query = $this->db->query($final_query);
+            $result1 = $query->result_array();
+            // echo $this->db->last_query(); exit;
+            // echo '<pre>';
+            // print_r($result1);exit;
+
+            foreach($result1 as $res){
+                $empcode = $res['mxar_appliedby_emp_code'];
+                $request_type = $res['request_type'];
+                 $pending_days  = !empty($res['pending_days']) ? (float)$res['pending_days'] : 0;
+                $rejected_days = !empty($res['rejected_days']) ? (float)$res['rejected_days'] : 0;
+                if(isset($resp['employee_wise_count'][$empcode])){
+                        $resp['employee_wise_count'][$empcode][$request_type.'_pending'] = isset($res['pending_days']) ? $res['pending_days'] : 0;
+                        $resp['employee_wise_count'][$empcode][$request_type.'_rejected'] = isset($res['rejected_days']) ? $res['rejected_days'] : 0;
+                    }
+
+                if(isset($resp[$request_type])){
+
+                    /* PENDING TOTAL */
+                    $resp[$request_type]['pending']['total'] += $pending_days;
+
+                    /* REJECTED TOTAL */
+                    $resp[$request_type]['rejected']['total'] += $rejected_days;
+
+
+                    /* PENDING EMPLOYEE CODES */
+                    if($pending_days > 0){ 
+                        if(!in_array($empcode,$resp[$request_type]['pending']['employeecodes'])){
+                                $resp[$request_type]['pending']['employeecodes'][] = $empcode;
+                        }
+                    }
+                    /* REJECTED EMPLOYEE CODES */
+                    if($rejected_days > 0){
+                        if(!in_array($empcode,$resp[$request_type]['rejected']['employeecodes'])){
+                            $resp[$request_type]['rejected']['employeecodes'][] = $empcode;
+                        }
+                    }
+                }
+           }
+  
         return $resp;
     }
 
