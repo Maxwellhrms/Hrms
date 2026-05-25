@@ -1477,10 +1477,10 @@ class Employee_leave_service_model extends Common_model
                                     when mxar_appliedby_emp_code = '$employeeidval' then 
                                     (
                                         CASE 
-                                            WHEN mxar_authfinal_status = 9 THEN '0'
-                                            WHEN mxar_authfinal_status = 3 THEN '3'
-                                            WHEN mxar_authfinal_status = 1 THEN '1'
-                                            WHEN mxar_authfinal_status = 2 THEN '2'
+                                            WHEN mxar_final_accept_status = 9 THEN '0'
+                                            WHEN mxar_final_accept_status = 3 THEN '1'
+                                            WHEN mxar_final_accept_status = 1 THEN '1'
+                                            WHEN mxar_final_accept_status = 2 THEN '2'
                                             ELSE ''
                                         END
                                     )
