@@ -2369,7 +2369,7 @@ public function getAttendanceDashboard(){
             $this->db->where_in('mxar_appliedby_emp_code', $employee_ids);
             $this->db->group_by('mxar_leave_type');
             $this->db->group_by('mxar_appliedby_emp_code');
-
+            $this->db->having('(pending_days > 0 OR rejected_days > 0)', null, false);
             $leave_query = $this->db->get_compiled_select();
 
             /* =========================
@@ -2435,7 +2435,7 @@ public function getAttendanceDashboard(){
             $this->db->where_in('mxar_appliedby_emp_code', $employee_ids);
             $this->db->group_by('mxar_type');
             $this->db->group_by('mxar_appliedby_emp_code');
-
+            $this->db->having('(pending_days > 0 OR rejected_days > 0)', null, false);
             $regulation_query = $this->db->get_compiled_select();
             /* =========================
             UNION ALL
@@ -2983,7 +2983,7 @@ public function getAttendanceDashboard(){
 
         $monthid = date('m',strtotime($from_date));
 
-         $login_emp_code=$this->session->userdata('session_loginperson_id');
+        $login_emp_code=$this->session->userdata('session_loginperson_id');
 
             /* =========================
             LEAVE QUERY
@@ -3062,8 +3062,20 @@ public function getAttendanceDashboard(){
             $this->db->where('mxar_to <=', $to_date);
             $this->db->where_in('mxar_appliedby_emp_code', $employeecodes);
             $this->db->where('mxar_leave_type', $type);
-            $this->db->group_by('mxar_leave_type');
-            $this->db->group_by('mxar_appliedby_emp_code');
+           $this->db->where("
+            (
+            CASE 
+            WHEN mxar_auth1_empcode = '$login_emp_code' and mxar_auth1_status = 0 THEN '0'
+            WHEN mxar_auth2_empcode = '$login_emp_code' and mxar_auth2_status = 0 THEN '0'
+            WHEN mxar_auth3_empcode = '$login_emp_code' and mxar_auth3_status = 0 THEN '0'            
+            WHEN mxar_auth4_empcode = '$login_emp_code' and mxar_auth4_status = 0 THEN '0'           
+            WHEN mxar_authfinal_empcode = '$login_emp_code' and mxar_final_accept_status = 9 THEN '0'           
+            ELSE ''
+            END
+            ) = '0'
+            ");
+            // $this->db->group_by('mxar_leave_type');
+            // $this->db->group_by('mxar_appliedby_emp_code');
 
             $leave_query = $this->db->get_compiled_select();
 
@@ -3148,8 +3160,20 @@ public function getAttendanceDashboard(){
             $this->db->where('mxar_to <=', $to_date);
             $this->db->where_in('mxar_appliedby_emp_code', $employeecodes);
             $this->db->where('mxar_type', $type);
-            $this->db->group_by('mxar_type');
-            $this->db->group_by('mxar_appliedby_emp_code');
+            $this->db->where("
+                (
+                CASE 
+                WHEN mxar_auth1_empcode = '$login_emp_code' and mxar_auth1_status = 0 THEN '0'
+                WHEN mxar_auth2_empcode = '$login_emp_code' and mxar_auth2_status = 0 THEN '0'
+                WHEN mxar_auth3_empcode = '$login_emp_code' and mxar_auth3_status = 0 THEN '0'
+                WHEN mxar_auth4_empcode = '$login_emp_code' and mxar_auth4_status = 0 THEN '0'
+                WHEN mxar_authfinal_empcode = '$login_emp_code' and mxar_authfinal_status = 9 THEN '0'
+                ELSE ''
+                END
+                ) = '0'
+            ");
+            // $this->db->group_by('mxar_type');
+            // $this->db->group_by('mxar_appliedby_emp_code');
 
             $regulation_query = $this->db->get_compiled_select();
             /* =========================
@@ -3158,6 +3182,7 @@ public function getAttendanceDashboard(){
             $final_query = $leave_query . " UNION ALL " . $regulation_query;
             $query = $this->db->query($final_query);
             $qry = $query->result();
+            // echo $this->db->last_query(); exit;
 
         $response = array();
 
