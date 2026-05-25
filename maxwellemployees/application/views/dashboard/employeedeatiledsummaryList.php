@@ -737,7 +737,8 @@ var attendanceChart = new ApexCharts(
                         stateid = '<?php echo $userfilters['esi_state_id']; ?>',
                         branchid = '<?php echo $userfilters['esi_branch_id']; ?>',
                         fromdate = '<?php echo $userfilters['fromdate']; ?>',
-                        todate = '<?php echo $userfilters['todate']; ?>'
+                        todate = '<?php echo $userfilters['todate']; ?>',
+                        categories = 'APPROVED'
                     );
                 }
             }
@@ -834,7 +835,8 @@ var leaveOptions = {
                     stateid = '<?php echo $userfilters['esi_state_id']; ?>',
                     branchid = '<?php echo $userfilters['esi_branch_id']; ?>',
                     fromdate = '<?php echo $userfilters['fromdate']; ?>',
-                    todate = '<?php echo $userfilters['todate']; ?>'
+                    todate = '<?php echo $userfilters['todate']; ?>',
+                    categories = 'APPROVED'
                 );
             }
         }
@@ -945,7 +947,8 @@ var pendingleaveOptions = {
                     stateid = '<?php echo $userfilters['esi_state_id']; ?>',
                     branchid = '<?php echo $userfilters['esi_branch_id']; ?>',
                     fromdate = '<?php echo $userfilters['fromdate']; ?>',
-                    todate = '<?php echo $userfilters['todate']; ?>'
+                    todate = '<?php echo $userfilters['todate']; ?>',
+                    categories = 'PENDING'
                 );
             }
         }
@@ -1017,7 +1020,8 @@ function openIncrementPopup(index){
         '<?php echo $userfilters['esi_state_id']; ?>',
         '<?php echo $userfilters['esi_branch_id']; ?>',
         month,
-        month
+        month,
+        categories = ''
     );
 }
 
@@ -1160,7 +1164,7 @@ setTimeout(function(){
 }, 1000);
 
 
-function showAttendanceEmployeeDetails(type,employeecodes,companyid,divisionid,stateid,branchid,fromdate,todate){
+function showAttendanceEmployeeDetails(type,employeecodes,companyid,divisionid,stateid,branchid,fromdate,todate,categories=''){
     $('#hrmsModalTitle').html(type + ' Employee Details');
     $('#hrmsEmployeeTableBody').html(`
         <tr>
@@ -1184,7 +1188,8 @@ function showAttendanceEmployeeDetails(type,employeecodes,companyid,divisionid,s
             stateid:stateid,
             branchid:branchid,
             fromdate:fromdate,
-            todate:todate
+            todate:todate,
+            categories : categories
         },
         success:function(response){
             $('#hrmsEmployeeTableBody').html(response);

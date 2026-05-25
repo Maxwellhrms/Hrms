@@ -95,6 +95,8 @@ class Employee extends Common {
         $userdata = $this->input->post();
         if($userdata['type'] == 'INCREMENT'){
             $data['popupdetails'] = $this->EmployeeModel->getAllEmployeesIncrements($userdata);
+        }elseif ($userdata['categories'] == 'PENDING') {
+            $data['popupdetails'] = $this->EmployeeModel->getAllEmployeesleaveesrequest($userdata);
         }else{
             $data['popupdetails'] = $this->EmployeeModel->getAllEmployeesAttendance($userdata);
         }

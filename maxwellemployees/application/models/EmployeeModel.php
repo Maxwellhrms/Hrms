@@ -2271,22 +2271,22 @@ public function getAttendanceDashboard(){
                     }
                 }
 
-                if(!empty($first_half_punch)){
+                if(!empty($first_half_punch) && !in_array($first_half, ['OT','OD'])){
 
-                    $punches=explode(',',$first_half_punch);
+                    $punches = explode(',', $first_half_punch);
 
-                    $userfirstpunch=trim($punches[0]);
+                    $userfirstpunch = trim($punches[0]);
 
                     if(!empty($userfirstpunch)){
 
-                        if(strtotime($userfirstpunch)>strtotime('09:35:00')){
+                        if(strtotime($userfirstpunch) > strtotime('09:35:00')){
 
                             $resp['late']['count']++;
 
                             $resp['employee_wise_count'][$empcode]['late']++;
 
                             if(!in_array($empcode,$resp['late']['employeecodes'])){
-                                $resp['late']['employeecodes'][]=$empcode;
+                                $resp['late']['employeecodes'][] = $empcode;
                             }
 
                         }else{
@@ -2296,7 +2296,7 @@ public function getAttendanceDashboard(){
                             $resp['employee_wise_count'][$empcode]['ontime']++;
 
                             if(!in_array($empcode,$resp['ontime']['employeecodes'])){
-                                $resp['ontime']['employeecodes'][]=$empcode;
+                                $resp['ontime']['employeecodes'][] = $empcode;
                             }
                         }
                     }
@@ -2958,6 +2958,239 @@ public function getAttendanceDashboard(){
         }
 
         return $response;
+    }
+
+    public function getAllEmployeesleaveesrequest($data){
+        // print_r($data);
+        $type = $data['type'];
+        $employeecodes = $data['employeecodes'];
+        $companyid = $data['companyid'];
+        $divisionid = $data['divisionid'];
+        $stateid = $data['stateid'];
+        $branchid = $data['branchid'];
+        $fromdate = $data['fromdate'];
+        $todate = $data['todate'];
+
+        $fromdate = !empty($data['fromdate'])? $data['fromdate']: date('Y-m-01');
+
+        $todate = !empty($data['todate'])? $data['todate']: date('Y-m-d');
+
+        $from_date = date('Y-m-d',strtotime($fromdate));
+
+        $to_date = date('Y-m-d',strtotime($todate));
+
+        $yearid = date('Y',strtotime($from_date));
+
+        $monthid = date('m',strtotime($from_date));
+
+         $login_emp_code=$this->session->userdata('session_loginperson_id');
+
+            /* =========================
+            LEAVE QUERY
+            ========================= */
+
+            $this->db->select("
+                mxar_leave_type AS request_type,
+                mxar_appliedby_emp_code as employeecode,
+                mxemp_emp_fname as employeename,
+                mxemp_emp_img as employeeimage,
+                mxar_from,
+                mxar_to,
+                mxar_noofdays as days,
+                mxar_desc as employeedesc,
+                CONCAT(
+                    COALESCE(mxar_auth1_empcode, 'N/A'),
+                    ' - ',
+                    COALESCE(mxar_auth1_empname, 'N/A')
+                ) AS auth1_details,
+                CASE 
+                    WHEN mxar_auth1_status = 0 THEN 'Pending'
+                    WHEN mxar_auth1_status = 1 THEN 'Approved'
+                    WHEN mxar_auth1_status = 2 THEN 'Rejected'
+                    ELSE mxar_auth1_status
+                END AS mxar_auth1_status,
+                CONCAT(
+                    COALESCE(mxar_auth2_empcode, 'N/A'),
+                    ' - ',
+                    COALESCE(mxar_auth2_empname, 'N/A')
+                ) AS auth2_details,
+                CASE 
+                    WHEN mxar_auth2_status = 0 THEN 'Pending'
+                    WHEN mxar_auth2_status = 1 THEN 'Approved'
+                    WHEN mxar_auth2_status = 2 THEN 'Rejected'
+                    ELSE mxar_auth2_status
+                END AS mxar_auth2_status,
+                CONCAT(
+                    COALESCE(mxar_auth3_empcode, 'N/A'),
+                    ' - ',
+                    COALESCE(mxar_auth3_empname, 'N/A')
+                ) AS auth3_details,
+                CASE 
+                    WHEN mxar_auth3_status = 0 THEN 'Pending'
+                    WHEN mxar_auth3_status = 1 THEN 'Approved'
+                    WHEN mxar_auth3_status = 2 THEN 'Rejected'
+                    ELSE mxar_auth3_status
+                END AS mxar_auth3_status,
+                CONCAT(
+                    COALESCE(mxar_auth4_empcode, 'N/A'),
+                    ' - ',
+                    COALESCE(mxar_auth4_empname, 'N/A')
+                ) AS auth4_details,
+                CASE 
+                    WHEN mxar_auth4_status = 0 THEN 'Pending'
+                    WHEN mxar_auth4_status = 1 THEN 'Approved'
+                    WHEN mxar_auth4_status = 2 THEN 'Rejected'
+                    ELSE mxar_auth4_status
+                END AS mxar_auth4_status,
+                CONCAT(
+                    COALESCE(mxar_authfinal_empcode, 'N/A'),
+                    ' - ',
+                    COALESCE(mxar_authfinal_empname, 'N/A')
+                ) AS auth5_details,
+                CASE 
+                    WHEN mxar_final_accept_status = 9 THEN 'Pending'
+                    WHEN mxar_final_accept_status = 3 THEN 'Approved'
+                    WHEN mxar_final_accept_status = 1 THEN 'Approved'
+                    WHEN mxar_final_accept_status = 2 THEN 'Rejected'
+                    ELSE mxar_final_accept_status
+                END AS mxar_auth5_status
+            ", false);
+
+            $this->db->from('attendance_user_leaveadjust');
+            $this->db->join('maxwell_employees_info', 'mxemp_emp_id = mxar_appliedby_emp_code', 'INNER');
+            $this->db->where('mxar_from >=', $from_date);
+            $this->db->where('mxar_to <=', $to_date);
+            $this->db->where_in('mxar_appliedby_emp_code', $employeecodes);
+            $this->db->where('mxar_leave_type', $type);
+            $this->db->group_by('mxar_leave_type');
+            $this->db->group_by('mxar_appliedby_emp_code');
+
+            $leave_query = $this->db->get_compiled_select();
+
+            /* =========================
+            REGULATION QUERY
+            ========================= */
+
+            $this->db->select("
+                mxar_type AS request_type,
+                mxar_appliedby_emp_code as employeecode,
+                mxemp_emp_fname as employeename,
+                mxemp_emp_img as employeeimage,
+                mxar_from,
+                mxar_to,
+               CASE
+                    WHEN mxar_category_type IN (1,2) THEN 0.5
+                    WHEN mxar_category_type = 3 THEN 1
+                    ELSE mxar_attend_countdays
+                END as days,
+                mxar_desc as employeedesc,
+                CONCAT(
+                    COALESCE(mxar_auth1_empcode, 'N/A'),
+                    ' - ',
+                    COALESCE(mxar_auth1_empname, 'N/A')
+                ) AS auth1_details,
+                CASE 
+                    WHEN mxar_auth1_status = 0 THEN 'Pending'
+                    WHEN mxar_auth1_status = 1 THEN 'Approved'
+                    WHEN mxar_auth1_status = 2 THEN 'Rejected'
+                    ELSE mxar_auth1_status
+                END AS mxar_auth1_status,
+                CONCAT(
+                    COALESCE(mxar_auth2_empcode, 'N/A'),
+                    ' - ',
+                    COALESCE(mxar_auth2_empname, 'N/A')
+                ) AS auth2_details,
+                CASE 
+                    WHEN mxar_auth2_status = 0 THEN 'Pending'
+                    WHEN mxar_auth2_status = 1 THEN 'Approved'
+                    WHEN mxar_auth2_status = 2 THEN 'Rejected'
+                    ELSE mxar_auth2_status
+                END AS mxar_auth2_status,
+                CONCAT(
+                    COALESCE(mxar_auth3_empcode, 'N/A'),
+                    ' - ',
+                    COALESCE(mxar_auth3_empname, 'N/A')
+                ) AS auth3_details,
+                CASE 
+                    WHEN mxar_auth3_status = 0 THEN 'Pending'
+                    WHEN mxar_auth3_status = 1 THEN 'Approved'
+                    WHEN mxar_auth3_status = 2 THEN 'Rejected'
+                    ELSE mxar_auth3_status
+                END AS mxar_auth3_status,
+                CONCAT(
+                    COALESCE(mxar_auth4_empcode, 'N/A'),
+                    ' - ',
+                    COALESCE(mxar_auth4_empname, 'N/A')
+                ) AS auth4_details,
+                CASE 
+                    WHEN mxar_auth4_status = 0 THEN 'Pending'
+                    WHEN mxar_auth4_status = 1 THEN 'Approved'
+                    WHEN mxar_auth4_status = 2 THEN 'Rejected'
+                    ELSE mxar_auth4_status
+                END AS mxar_auth4_status,
+                CONCAT(
+                    COALESCE(mxar_authfinal_empcode, 'N/A'),
+                    ' - ',
+                    COALESCE(mxar_authfinal_empname, 'N/A')
+                ) AS auth5_details,
+                CASE 
+                    WHEN mxar_authfinal_status = 9 THEN 'Pending'
+                    WHEN mxar_authfinal_status = 3 THEN 'Approved'
+                    WHEN mxar_authfinal_status = 1 THEN 'Approved'
+                    WHEN mxar_authfinal_status = 2 THEN 'Rejected'
+                    ELSE mxar_authfinal_status
+                END AS mxar_auth5_status
+            ", false);
+
+            $this->db->from('attendance_regulation');
+            $this->db->join('maxwell_employees_info', 'mxemp_emp_id = mxar_appliedby_emp_code', 'INNER');
+            $this->db->where('mxar_from >=', $from_date);
+            $this->db->where('mxar_to <=', $to_date);
+            $this->db->where_in('mxar_appliedby_emp_code', $employeecodes);
+            $this->db->where('mxar_type', $type);
+            $this->db->group_by('mxar_type');
+            $this->db->group_by('mxar_appliedby_emp_code');
+
+            $regulation_query = $this->db->get_compiled_select();
+            /* =========================
+            UNION ALL
+            ========================= */
+            $final_query = $leave_query . " UNION ALL " . $regulation_query;
+            $query = $this->db->query($final_query);
+            $qry = $query->result();
+
+        $response = array();
+
+        if(!empty($qry)){
+            $sno = 1;
+            foreach($qry as $val){
+                $response[] = array(
+                    'Sno'             => $sno,
+                    'Employee Name'   => $val->employeename,
+                    'Employee Image'  => $val->employeeimage,
+                    'Employee Code'   => $val->employeecode,
+                    'From'            => $val->mxar_from,
+                    'To'              => $val->mxar_to,
+                    'Applied Days'    => $val->days,
+                    'Request Type'    => $val->request_type,
+                    'Employee Desc'   => $val->employeedesc,
+                    'First Authorization'   => $val->auth1_details,
+                    'Status First Authorization' => $val->mxar_auth1_status,
+                    'Second Authorization'   => $val->auth2_details,
+                    'Status Second Authorization' => $val->mxar_auth2_status,
+                    'Third Authorization'   => $val->auth3_details,
+                    'Status Third Authorization' => $val->mxar_auth3_status,
+                    'Fourth Authorization'   => $val->auth4_details,
+                    'Status Fourth Authorization' => $val->mxar_auth4_status,
+                    'HR Authorization'   => $val->auth5_details,
+                    'Status HR Authorization' => $val->mxar_auth5_status,
+                );
+                $sno++;
+            }
+        }
+
+        return $response;
+            
     }
     #attedancesummary
 }
