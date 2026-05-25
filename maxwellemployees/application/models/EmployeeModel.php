@@ -2271,30 +2271,25 @@ public function getAttendanceDashboard(){
                     }
                 }
 
-                if(!empty($first_half_punch) && !in_array($first_half, ['OT','OD'])){
+                $is_od_or_ot = (
+                    in_array($first_half, ['OT','OD']) ||
+                    in_array($second_half, ['OT','OD'])
+                );
 
+                if(!$is_od_or_ot && !empty($first_half_punch)){
                     $punches = explode(',', $first_half_punch);
-
                     $userfirstpunch = trim($punches[0]);
-
                     if(!empty($userfirstpunch)){
-
                         if(strtotime($userfirstpunch) > strtotime('09:35:00')){
-
                             $resp['late']['count']++;
-
                             $resp['employee_wise_count'][$empcode]['late']++;
 
                             if(!in_array($empcode,$resp['late']['employeecodes'])){
                                 $resp['late']['employeecodes'][] = $empcode;
                             }
-
                         }else{
-
                             $resp['ontime']['count']++;
-
                             $resp['employee_wise_count'][$empcode]['ontime']++;
-
                             if(!in_array($empcode,$resp['ontime']['employeecodes'])){
                                 $resp['ontime']['employeecodes'][] = $empcode;
                             }
