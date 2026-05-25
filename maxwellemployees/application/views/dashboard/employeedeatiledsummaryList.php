@@ -41,6 +41,30 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-xl-3 col-lg-4">
+            <div class="hrms_dashboard_card">
+                <div class="hrms_card_title">
+                    Pending Leave/Regulations
+                </div>
+                <div id="hrms_pendingleave_chart"></div>
+                <div class="text-center mt-3">
+                    <h6>Total Leave/Regulations Requests</h6>
+                    <h2 class="fw-bold">
+                        <?php 
+                            echo 
+                                $dashboarddetails['OT']['pending']['total'] +
+                                $dashboarddetails['AR']['pending']['total'] +
+                                $dashboarddetails['CL']['pending']['total'] +
+                                $dashboarddetails['SL']['pending']['total'] +
+                                $dashboarddetails['EL']['pending']['total'] +
+                                $dashboarddetails['ML']['pending']['total'] +
+                                $dashboarddetails['SHRT']['pending']['total'];
+                        ?>
+                    </h2>
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -162,7 +186,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    0
+                                    <?php echo $dashboarddetails['PR']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -199,7 +223,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    0
+                                    <?php echo $dashboarddetails['AB']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -238,7 +262,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    0
+                                     <?php echo $dashboarddetails['OD']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -277,7 +301,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    0
+                                    <?php echo $dashboarddetails['OT']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -316,7 +340,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    0
+                                    <?php echo $dashboarddetails['AR']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -366,7 +390,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    <?php echo $dashboarddetails['CL_PENDING']; ?>
+                                    <?php echo $dashboarddetails['CL']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -404,7 +428,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    <?php echo $dashboarddetails['SL_PENDING']; ?>
+                                    <?php echo $dashboarddetails['SL']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -442,7 +466,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    <?php echo $dashboarddetails['EL_PENDING']; ?>
+                                    <?php echo $dashboarddetails['EL']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -515,7 +539,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    <?php echo $dashboarddetails['SHRT_PENDING']; ?>
+                                    <?php echo $dashboarddetails['SHRT']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -529,7 +553,6 @@
 <br>
     <div class="row hrms_dashboard_card">
     <div class="table-responsive">
-
         <table id="attendanceTable" class="table align-middle nowrap">
 
             <thead>
@@ -539,11 +562,28 @@
                     <th>PR</th>
                     <th>AB</th>
                     <th>CL</th>
+                    <th>CL Pending</th>
+                    <th>CL Rejected</th>
                     <th>SL</th>
+                    <th>SL Pending</th>
+                    <th>SL Rejected</th>                    
                     <th>EL</th>
+                    <th>EL Pending</th>
+                    <th>EL Rejected</th>   
+                    <th>SHRT</th>
+                    <th>SHRT Pending</th>
+                    <th>SHRT Rejected</th>
+                    <th>OH</th>        
                     <th>ML</th>
                     <th>LOP</th>
+                    <th>LOP Pending</th>
+                    <th>LOP Rejected</th>
                     <th>OT</th>
+                    <th>OT Pending</th>
+                    <th>OT Rejected</th>
+                    <th>AR</th>
+                    <th>AR Pending</th>
+                    <th>AR Rejected</th>                    
                     <th>WO</th>
                     <th>PH</th>
                     <th>Late</th>
@@ -551,11 +591,8 @@
                     <th>Total Days</th>
                 </tr>
             </thead>
-
             <tbody>
-
                 <?php foreach($dashboarddetails['employee_wise_count'] as $empcode=>$row){ ?>
-
                 <tr>
                     <td>
                         <div class="d-flex align-items-center gap-2">
@@ -569,11 +606,28 @@
                     <td><span class="hrms-badge bg-pr"><?php echo $row['PR']; ?></span></td>
                     <td><span class="hrms-badge bg-ab"><?php echo $row['AB']; ?></span></td>
                     <td><span class="hrms-badge bg-cl"><?php echo $row['CL']; ?></span></td>
+                    <td><span class="hrms-badge bg-clp"><?php echo $row['CL_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-clr"><?php echo $row['CL_rejected']; ?></span></td>
                     <td><span class="hrms-badge bg-sl"><?php echo $row['SL']; ?></span></td>
+                    <td><span class="hrms-badge bg-slp"><?php echo $row['SL_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-slr"><?php echo $row['SL_rejected']; ?></span></td>
                     <td><span class="hrms-badge bg-el"><?php echo $row['EL']; ?></span></td>
+                    <td><span class="hrms-badge bg-slp"><?php echo $row['EL_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-slr"><?php echo $row['EL_rejected']; ?></span></td>
+                    <td><span class="hrms-badge bg-el"><?php echo $row['SHRT']; ?></span></td>
+                    <td><span class="hrms-badge bg-slp"><?php echo $row['SHRT_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-slr"><?php echo $row['SHRT_rejected']; ?></span></td>
+                    <td><span class="hrms-badge bg-el"><?php echo $row['OH']; ?></span></td>
                     <td><span class="hrms-badge bg-ml"><?php echo $row['ML']; ?></span></td>
                     <td><span class="hrms-badge bg-lop"><?php echo $row['LOP']; ?></span></td>
+                    <td><span class="hrms-badge bg-slp"><?php echo $row['LOP_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-slr"><?php echo $row['LOP_rejected']; ?></span></td>
                     <td><span class="hrms-badge bg-ot"><?php echo $row['OT']; ?></span></td>
+                    <td><span class="hrms-badge bg-ot"><?php echo $row['OT_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-ot"><?php echo $row['OT_rejected']; ?></span></td>
+                    <td><span class="hrms-badge bg-ot"><?php echo $row['AR']; ?></span></td>
+                    <td><span class="hrms-badge bg-ot"><?php echo $row['AR_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-ot"><?php echo $row['AR_rejected']; ?></span></td>
                     <td><span class="hrms-badge bg-wo"><?php echo $row['WO']; ?></span></td>
                     <td><span class="hrms-badge bg-ph"><?php echo $row['PH']; ?></span></td>
                     <td><span class="hrms-badge bg-late"><?php echo $row['late']; ?></span></td>
@@ -819,6 +873,125 @@ var leaveChart = new ApexCharts(
     leaveOptions
 );
 leaveChart.render();
+
+
+var pendingleaveOptions = {
+    series: [
+        <?php echo $dashboarddetails['OT']['pending']['total']; ?>,
+        <?php echo $dashboarddetails['AR']['pending']['total']; ?>,
+        <?php echo $dashboarddetails['CL']['pending']['total']; ?>,
+        <?php echo $dashboarddetails['SL']['pending']['total']; ?>,
+        <?php echo $dashboarddetails['EL']['pending']['total']; ?>,
+        <?php echo $dashboarddetails['ML']['pending']['total']; ?>,
+        <?php echo $dashboarddetails['SHRT']['pending']['total']; ?>
+    ],
+    chart: {
+        type: 'donut',
+        height: 320,
+        events: {
+            dataPointSelection: function (
+                event,
+                chartContext,
+                config
+            ){
+                let label =
+                    config.w.config.labels[
+                        config.dataPointIndex
+                    ];
+                let type = '';
+                let employeecodes = [];
+                switch(label){
+                     case 'On Tour':
+                        type = 'OT';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['OT']['pending']['employeecodes']); ?>;
+                    break;
+                    case 'Regulations':
+                        type = 'AR';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['AR']['pending']['employeecodes']); ?>;
+                    break;
+                    case 'Casual Leave':
+                        type = 'CL';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['CL']['pending']['employeecodes']); ?>;
+                    break;
+                    case 'Sick Leave':
+                        type = 'SL';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['SL']['pending']['employeecodes']); ?>;
+                    break;
+                    case 'Earn Leave':
+                        type = 'EL';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['EL']['pending']['employeecodes']); ?>;
+                    break;
+                    case 'Maternity Leave':
+                        type = 'ML';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['ML']['pending']['employeecodes']); ?>;
+                    break;
+                    case 'Short Leave':
+                        type = 'SHRT';
+                        employeecodes =
+                            <?php echo json_encode($dashboarddetails['SHRT']['pending']['employeecodes']); ?>;
+                    break;
+                }
+                showAttendanceEmployeeDetails(
+                    type,
+                    employeecodes,
+                    companyid = '<?php echo $userfilters['esi_company_id']; ?>',
+                    divisionid = '<?php echo $userfilters['esi_div_id']; ?>',
+                    stateid = '<?php echo $userfilters['esi_state_id']; ?>',
+                    branchid = '<?php echo $userfilters['esi_branch_id']; ?>',
+                    fromdate = '<?php echo $userfilters['fromdate']; ?>',
+                    todate = '<?php echo $userfilters['todate']; ?>'
+                );
+            }
+        }
+    },
+    labels: [
+        'On Tour',
+        'Regulations',
+        'Casual Leave',
+        'Sick Leave',
+        'Earn Leave',
+        'Maternity Leave',
+        'Short Leave'
+    ],
+    colors: [
+        '#6b7280',
+        '#06b6d4',
+        '#3b82f6',
+        '#ef4444',
+        '#22c55e',
+        '#a855f7',
+        '#f59e0b'
+    ],
+    legend: {
+        position: 'bottom'
+    },
+    responsive: [{
+        breakpoint: 480,
+        options: {
+            chart: {
+                width: '100%'
+            },
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }]
+};
+var pendingleaveChart = new ApexCharts(
+    document.querySelector("#hrms_pendingleave_chart"),
+    pendingleaveOptions
+);
+pendingleaveChart.render();
+
+
+
+
 
 
 var incrementMonths =
