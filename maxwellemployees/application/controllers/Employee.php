@@ -84,6 +84,8 @@ class Employee extends Common {
         $userdata = $this->input->post();
         $data['incrementData'] = $this->EmployeeModel->getEmployeeIncrementChartData($userdata);
         $data['dashboarddetails'] = $this->EmployeeModel->allemployeesattendancesummary($userdata);
+        // echo '<pre>';
+        // print_r($data['dashboarddetails']); exit;
         $data['userfilters'] = $userdata;
         $this->load->view('dashboard/employeedeatiledsummaryList',$data);
     }

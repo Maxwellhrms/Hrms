@@ -186,7 +186,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    0
+                                    <?php echo $dashboarddetails['PR']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -223,7 +223,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    0
+                                    <?php echo $dashboarddetails['AB']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -262,7 +262,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    0
+                                     <?php echo $dashboarddetails['OD']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -301,7 +301,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    0
+                                    <?php echo $dashboarddetails['OT']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -340,7 +340,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    0
+                                    <?php echo $dashboarddetails['AR']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -390,7 +390,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    <?php echo $dashboarddetails['CL_PENDING']; ?>
+                                    <?php echo $dashboarddetails['CL']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -428,7 +428,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    <?php echo $dashboarddetails['SL_PENDING']; ?>
+                                    <?php echo $dashboarddetails['SL']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -466,7 +466,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    <?php echo $dashboarddetails['EL_PENDING']; ?>
+                                    <?php echo $dashboarddetails['EL']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -539,7 +539,7 @@
                                     Pending
                                 </span>
                                 <span class="badge bg-warning text-dark">
-                                    <?php echo $dashboarddetails['SHRT_PENDING']; ?>
+                                    <?php echo $dashboarddetails['SHRT']['pending']['total']; ?>
                                 </span>
                             </div>
                         </div>
@@ -553,7 +553,6 @@
 <br>
     <div class="row hrms_dashboard_card">
     <div class="table-responsive">
-
         <table id="attendanceTable" class="table align-middle nowrap">
 
             <thead>
@@ -563,11 +562,28 @@
                     <th>PR</th>
                     <th>AB</th>
                     <th>CL</th>
+                    <th>CL Pending</th>
+                    <th>CL Rejected</th>
                     <th>SL</th>
+                    <th>SL Pending</th>
+                    <th>SL Rejected</th>                    
                     <th>EL</th>
+                    <th>EL Pending</th>
+                    <th>EL Rejected</th>   
+                    <th>SHRT</th>
+                    <th>SHRT Pending</th>
+                    <th>SHRT Rejected</th>
+                    <th>OH</th>        
                     <th>ML</th>
                     <th>LOP</th>
+                    <th>LOP Pending</th>
+                    <th>LOP Rejected</th>
                     <th>OT</th>
+                    <th>OT Pending</th>
+                    <th>OT Rejected</th>
+                    <th>AR</th>
+                    <th>AR Pending</th>
+                    <th>AR Rejected</th>                    
                     <th>WO</th>
                     <th>PH</th>
                     <th>Late</th>
@@ -575,11 +591,8 @@
                     <th>Total Days</th>
                 </tr>
             </thead>
-
             <tbody>
-
                 <?php foreach($dashboarddetails['employee_wise_count'] as $empcode=>$row){ ?>
-
                 <tr>
                     <td>
                         <div class="d-flex align-items-center gap-2">
@@ -593,11 +606,28 @@
                     <td><span class="hrms-badge bg-pr"><?php echo $row['PR']; ?></span></td>
                     <td><span class="hrms-badge bg-ab"><?php echo $row['AB']; ?></span></td>
                     <td><span class="hrms-badge bg-cl"><?php echo $row['CL']; ?></span></td>
+                    <td><span class="hrms-badge bg-clp"><?php echo $row['CL_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-clr"><?php echo $row['CL_rejected']; ?></span></td>
                     <td><span class="hrms-badge bg-sl"><?php echo $row['SL']; ?></span></td>
+                    <td><span class="hrms-badge bg-slp"><?php echo $row['SL_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-slr"><?php echo $row['SL_rejected']; ?></span></td>
                     <td><span class="hrms-badge bg-el"><?php echo $row['EL']; ?></span></td>
+                    <td><span class="hrms-badge bg-slp"><?php echo $row['EL_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-slr"><?php echo $row['EL_rejected']; ?></span></td>
+                    <td><span class="hrms-badge bg-el"><?php echo $row['SHRT']; ?></span></td>
+                    <td><span class="hrms-badge bg-slp"><?php echo $row['SHRT_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-slr"><?php echo $row['SHRT_rejected']; ?></span></td>
+                    <td><span class="hrms-badge bg-el"><?php echo $row['OH']; ?></span></td>
                     <td><span class="hrms-badge bg-ml"><?php echo $row['ML']; ?></span></td>
                     <td><span class="hrms-badge bg-lop"><?php echo $row['LOP']; ?></span></td>
+                    <td><span class="hrms-badge bg-slp"><?php echo $row['LOP_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-slr"><?php echo $row['LOP_rejected']; ?></span></td>
                     <td><span class="hrms-badge bg-ot"><?php echo $row['OT']; ?></span></td>
+                    <td><span class="hrms-badge bg-ot"><?php echo $row['OT_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-ot"><?php echo $row['OT_rejected']; ?></span></td>
+                    <td><span class="hrms-badge bg-ot"><?php echo $row['AR']; ?></span></td>
+                    <td><span class="hrms-badge bg-ot"><?php echo $row['AR_pending']; ?></span></td>
+                    <td><span class="hrms-badge bg-ot"><?php echo $row['AR_rejected']; ?></span></td>
                     <td><span class="hrms-badge bg-wo"><?php echo $row['WO']; ?></span></td>
                     <td><span class="hrms-badge bg-ph"><?php echo $row['PH']; ?></span></td>
                     <td><span class="hrms-badge bg-late"><?php echo $row['late']; ?></span></td>

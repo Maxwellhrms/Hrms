@@ -192,6 +192,7 @@ class Employee_leave_service_model extends Common_model
     $this->db->where('mxar_to', $to);
     $this->db->where('mxar_status','1');
     $this->db->where('mxar_category_type !=','SHRT');
+    $this->db->where('mxar_final_accept_status !=', '2');
     // $this->db->where('mxar_category_type !=','OH');
     $query= $this->db->get();
     $result = $query->result();  
@@ -1470,17 +1471,17 @@ class Employee_leave_service_model extends Common_model
                                     WHEN mxar_auth4_empcode = '$employeeidval' and mxar_auth4_status = 2 THEN '2'
 
                                     WHEN mxar_authfinal_empcode = '$employeeidval' and mxar_final_accept_status = 9 THEN '0'
-                                    WHEN mxar_authfinal_empcode = '$employeeidval' and mxar_final_accept_status = 3 THEN '1'
+                                    WHEN mxar_authfinal_empcode = '$employeeidval' and mxar_final_accept_status = 3 THEN '3'
                                     WHEN mxar_authfinal_empcode = '$employeeidval' and mxar_final_accept_status = 1 THEN '1'
                                     WHEN mxar_authfinal_empcode = '$employeeidval' and mxar_final_accept_status = 2 THEN '2'
 
                                     when mxar_appliedby_emp_code = '$employeeidval' then 
                                     (
                                         CASE 
-                                            WHEN mxar_authfinal_status = 9 THEN '0'
-                                            WHEN mxar_authfinal_status = 3 THEN '3'
-                                            WHEN mxar_authfinal_status = 1 THEN '1'
-                                            WHEN mxar_authfinal_status = 2 THEN '2'
+                                            WHEN mxar_final_accept_status = 9 THEN '0'
+                                            WHEN mxar_final_accept_status = 3 THEN '3'
+                                            WHEN mxar_final_accept_status = 1 THEN '1'
+                                            WHEN mxar_final_accept_status = 2 THEN '2'
                                             ELSE ''
                                         END
                                     )
