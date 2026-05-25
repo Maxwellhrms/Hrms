@@ -13,7 +13,7 @@
             <!-- Search Filter -->
             <?php 
             $controller->commonFiltersWithoutForm(array(
-                'fromdatefilter' => array('Y', 'fromdate', 'default' => date('01-m-Y')),
+                'fromdatefilter' => array('Y', 'fromdate', 'default' => date('d-m-Y')),
                 'todatefilter' => array('Y', 'todate', 'default' => date('d-m-Y')),
                 'manageremployees' => array('Y', 'employecodes'),
                 'companyfilter' => 'Y',
