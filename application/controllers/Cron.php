@@ -701,5 +701,10 @@ public function cronyearlist(){
         ];
     }
 
+    public function cron_get_attendance_before_grace_time(){
+        $attendance_date = date('Y-m-d');
+        $data['resp'] = $this->Cronmodel->get_attendance_before_grace_time($attendance_date);
+        echo json_encode( $data['resp']);
+    }
 
 } ?>

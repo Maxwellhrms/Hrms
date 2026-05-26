@@ -3947,5 +3947,63 @@ class Cronmodel extends Adminmodel
       return $response;
         
     }
+
+    public function get_attendance_before_grace_time($attendance_date){
+        $insertedCount = 0;
+        $updatedCount  = 0;
+        $failedCount   = 0;
+
+        // Get company timing details
+        $this->db->select('mxcp_firsthalf_time, mxcp_firsthalf_gracetime');
+        $company = $this->db->get('maxwell_company_master')->row_array();
+        $firsthalf_time      = $company['mxcp_firsthalf_time'];
+        $firsthalf_gracetime = $company['mxcp_firsthalf_gracetime'];
+
+        // Create grace datetime
+        $grace_datetime = date('Y-m-d H:i:s',strtotime($attendance_date . ' ' . $firsthalf_time .' +' . $firsthalf_gracetime . ' minutes'));
+
+        // Get attendance logs before grace time
+        $this->db->select('employeecode,punchdatetime');
+        $this->db->from('essl_attendance_logs');
+        $this->db->where('DATE(punchdatetime)', $attendance_date);
+        $this->db->where('punchdatetime <=', $grace_datetime);
+        $query  = $this->db->get();
+        $esslqr = $query->result();
+
+        $table = 'maxwell_attendance_' . date('Y', strtotime($attendance_date)) . '_' .date('m', strtotime($attendance_date));
+
+        foreach ($esslqr as $key => $val){
+            $attdt = date('Y-m-d', strtotime($val->punchdatetime));
+            $this->db->select('mx_attendance_id,mx_attendance_emp_code,mx_attendance_date,mx_attendance_first_half');
+            $this->db->from($table);
+            $this->db->where('mx_attendance_date', $attdt);
+            $this->db->where('mx_attendance_emp_code', $val->employeecode);
+            $querymain  = $this->db->get();
+            $attendance = $querymain->row_array();
+            
+            if (!empty($attendance)){
+                if ($attendance['mx_attendance_first_half'] != 'PR'){
+                    $esslup = array("mx_attendance_first_half" => 'PR');
+                    $this->db->where("mx_attendance_id", $attendance['mx_attendance_id']);
+                    $this->db->where("mx_attendance_date", $attendance['mx_attendance_date']);
+                    $this->db->where("mx_attendance_emp_code", $attendance['mx_attendance_emp_code']);
+                    $resup = $this->db->update($table, $esslup);
+                    if ($resup){
+                        $updatedCount++;
+                    }else{
+                        $failedCount++;
+                    }
+                }
+            }
+        }
+
+        $response = [
+            "status" => true,
+            "data" => ["updated" => $updatedCount,"failed"  => $failedCount],
+            "message" => "Data Processed for date: " . $attendance_date
+        ];
+
+        return $response;
+    }
 }
 ?>
