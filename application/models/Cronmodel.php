@@ -3714,6 +3714,10 @@ class Cronmodel extends Adminmodel
     }
     
     public function essl_attendance_cron($attendancedate,$employeeid){
+        $insertedCount = 0;
+        $updatedCount  = 0;
+        $failedCount   = 0;
+
         $countofessldata = 0;
         $companyid = 1;
         $month = date('m',strtotime($attendancedate));
@@ -3804,11 +3808,12 @@ class Cronmodel extends Adminmodel
                         
                         $punclogtable = 'employee_punches_'. $takeyear . '';
                         $this->db->insert($punclogtable, $log);
-                        
+                        $insertedCount++;
+
                         $esslup = array("synced" => 1, "synceddatetime" => DBDT);
                         $this->db->where("id", $row->id);
                         $res = $this->db->update('essl_attendance_logs', $esslup);
-                        
+                        $updatedCount++;
                         create_notes($employeeid,'1','Punch Has Been Registered Type- '.$entrytype.' Punch Time- '.$currenttime ,$employeeid);
 
                         
@@ -3834,7 +3839,7 @@ class Cronmodel extends Adminmodel
                         $this->db->where("mx_attendance_emp_code", $employeeid);
                         $this->db->where("mx_attendance_date", $attendancedate);
                         $res = $this->db->update($tablename, $fparray);
-                        
+                        $updatedCount++;
                         $log = array(
                           'employee_code' => $employeeid,
                           'attendance_date' => $attendancedate,
@@ -3851,11 +3856,12 @@ class Cronmodel extends Adminmodel
                         
                         $punclogtable = 'employee_punches_'. $takeyear . '';
                         $this->db->insert($punclogtable, $log);
-                        
+                        $insertedCount++;
+
                         $esslup = array("synced" => 1, "synceddatetime" => DBDT);
                         $this->db->where("id", $row->id);
                         $res = $this->db->update('essl_attendance_logs', $esslup);
-                        
+                        $updatedCount++;
                         create_notes($employeeid,'1','Punch Has Been Registered Type- '.$entrytype.' Punch Time- '.$currenttime ,$employeeid);
                         
                     }
@@ -3868,46 +3874,57 @@ class Cronmodel extends Adminmodel
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
             
-            $data1 = [
-                'status' => '500',
-                'msg' => 'Failed',
-                'description' => 'data_rollback',
-                'Count' => 0,
+            // $data1 = [
+            //     'status' => '500',
+            //     'msg' => 'Failed',
+            //     'description' => 'data_rollback',
+            //     'Count' => 0,
+            // ];
+             $response = [
+                "status" => false,
+                "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
+                "message" => "Data Processed for date: " . $fromDateTime
             ];
             
             create_notes($employeeid,'2',$desc.' Type- '.$entrytype ,$employeeid);
-            return $data1;
+            return $response;
         } else {
             
-            $array = array('name'=> 'Essl Attendance Sync','Url' => 'https://maxwellhrms.in/cron/essl_attendance_cron');
+            $array = array('name'=> 'Essl Attendance Sync','Url' => 'https://maxwellhrms.in/cron/essl_attendance_cron','cron_refrence_id' => 2);
             $res = $this->db->insert('cron_log',$array);
             
             $this->db->trans_commit();
             
-            $data1 = [
-                'status' => '200',
-                'msg' => 'Success',
-                'description' => 'Punch Has Been Processed',
+            // $data1 = [
+            //     'status' => '200',
+            //     'msg' => 'Success',
+            //     'description' => 'Punch Has Been Processed',
+            //     'Count' => $countofessldata,
+            // ];
+            $response = [
+                "status" => true,
+                "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
+                "message" => "Data Processed for date: " . $fromDateTime,
                 'Count' => $countofessldata,
+                'description' => 'Punch Has Been Processed',
             ];
-            return $data1;
+            return $response;
         }
     }
     
     public function get_essl_attendance_cron($data,$deviceId,$punchType,$fromDateTime){
-        
+        $insertedCount = 0;
+        $updatedCount  = 0;
+        $failedCount   = 0;
+
         if (empty($data['GetTransactionsLogResult'])) {
             $response = [
                 "status" => true,
                 "data" => [],
                 "message" => "No data exists for date: ".$fromDateTime
             ];
-        $array = array('name'=> 'Get Essl Attendance Sync','Url' => 'https://maxwellhrms.in/cron/get_essl_attendance_cron');
-        $res = $this->db->insert('cron_log',$array);
             return $response;
         } 
-        
-        $insertedCount = 0;
             // Loop data
         foreach ($data['strDataList'] as $log) {
     
@@ -3935,13 +3952,11 @@ class Cronmodel extends Adminmodel
         // Final response
         $response = [
             "status" => true,
-            "data" => [
-                "inserted" => $insertedCount
-            ],
+            "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
             "message" => "Data Processed for date: " . $fromDateTime
         ];
         
-        $array = array('name'=> 'Get Essl Attendance Sync','Url' => 'https://maxwellhrms.in/cron/get_essl_attendance_cron');
+        $array = array('name'=> 'Get Essl Attendance Sync','Url' => 'https://maxwellhrms.in/cron/get_essl_attendance_cron','cron_refrence_id' => 1);
         $res = $this->db->insert('cron_log',$array);
         
       return $response;
@@ -3999,10 +4014,11 @@ class Cronmodel extends Adminmodel
 
         $response = [
             "status" => true,
-            "data" => ["updated" => $updatedCount,"failed"  => $failedCount],
+            "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
             "message" => "Data Processed for date: " . $attendance_date
         ];
-
+        $array = array('name'=> 'Get Attendance Before Grace Time','Url' => 'https://maxwellhrms.in/cron/cron_get_attendance_before_grace_time','cron_refrence_id' => 12);
+        $res = $this->db->insert('cron_log',$array);
         return $response;
     }
 }
