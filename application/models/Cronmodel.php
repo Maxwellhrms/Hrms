@@ -2553,6 +2553,10 @@ class Cronmodel extends Adminmodel
 */
 
     public function attendance_cron($companyid,$attendancedate,$employeeid,$printable){
+        $insertedCount = 0;
+        $updatedCount  = 0;
+        $failedCount   = 0;
+        $desc = '';
         $this->db->select('mxcp_firsthalf_time,mxcp_secondhalf_time,mxcp_logoff_time,mxcp_secondbreak_time,mxcp_secondbreak_endtime,mxcp_firsthalf_gracetime,mxcp_secondhalf_gracetime');
         $this->db->from('maxwell_company_master');
         $this->db->where('mxcp_status = 1');
@@ -2634,6 +2638,7 @@ class Cronmodel extends Adminmodel
                         $this->db->where("mx_attendance_emp_code", $val->mx_attendance_emp_code);
                         $this->db->where("mx_attendance_date", $attendancedate);
                         $resf = $this->db->update($tablename, $farray);
+                        $updatedCount++;
                         if($printable == 'Y'){
                             array_push($print_array,$this->db->last_query());
                         }
@@ -2681,6 +2686,7 @@ class Cronmodel extends Adminmodel
                         $this->db->where("mx_attendance_emp_code", $val->mx_attendance_emp_code);
                         $this->db->where("mx_attendance_date", $attendancedate);
                         $reps = $this->db->update($tablename, $psarray);
+                        $updatedCount++;
                         if($printable == 'Y'){
                             array_push($print_array,$this->db->last_query());
                         }
@@ -2788,6 +2794,7 @@ class Cronmodel extends Adminmodel
                             $this->db->where("mx_attendance_emp_code", $val->mx_attendance_emp_code);
                             $this->db->where("mx_attendance_date", $attendancedate);
                             $ress = $this->db->update($tablename, $parray);
+                            $updatedCount++;
                             if($printable == 'Y'){
                             array_push($print_array,$this->db->last_query());
                             }
@@ -2833,6 +2840,7 @@ class Cronmodel extends Adminmodel
                                 $this->db->where("mx_attendance_emp_code", $val->mx_attendance_emp_code);
                                 $this->db->where("mx_attendance_date", $attendancedate);
                                 $ress = $this->db->update($tablename, $pfsarray);
+                                $updatedCount++;
                                 if($printable == 'Y'){
                                     array_push($print_array,$this->db->last_query());
                                 }
@@ -2903,22 +2911,26 @@ class Cronmodel extends Adminmodel
                 
             } // foreachloopends here
                 if($printable == 'Y'){
-                    $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-                    $array = array('name'=>'ATTENDANCE CRON MANUAL','Url' => $actual_link);
+                    $array = array('name'=>'ATTENDANCE CRON MANUAL','Url' => 'https://maxwellhrms.in/cron/attendance_cron','cron_refrence_id' => 3);
                     $res = $this->db->insert('cron_log',$array);
-                    return $print_array;
+                    // return $print_array;
                 }else{
-                    $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-                    $array = array('name'=>'ATTENDANCE','Url' => $actual_link);
+                    $array = array('name'=>'ATTENDANCE','Url' => 'https://maxwellhrms.in/cron/attendance_cron','cron_refrence_id' => 3);
                     $res = $this->db->insert('cron_log',$array);
                 }
                 
         }else{
             $desc = 'No Modifications Found For - ' . $attendancedate;
             crons_log($val->mx_attendance_emp_code,'ATTENDANCE CRON',$desc,$this->db->last_query(),'NO Modification Found',(isset($_SESSION['user_id'])) ? $this->session->userdata('user_id') : '',$attendancedate);
-            return $desc;
         }
 
+        $response = [
+            "status" => true,
+            "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
+            "message" => "Data Processed",
+            'description' => $desc,
+        ];
+        return $response;
     }
 
     public function calculatetotalworkinghours($userfirstpunch,$userlastpunch,$attendancedate){
@@ -3084,6 +3096,10 @@ class Cronmodel extends Adminmodel
     // -------------------- end added 09-04-2022 -----------
 
    public function notification_datesupdate(){
+        $insertedCount = 0;
+        $updatedCount  = 0;
+        $failedCount   = 0;
+        $desc = '';
         $cdate = date('Y-m-d');
         $reminder = config('notification_months');
         $ids = array('13','14');
@@ -3106,7 +3122,8 @@ class Cronmodel extends Adminmodel
                             "mx_ntf_cron_status" => date('Ym')
                             );
                         $this->db->where('mx_ntf_id', $val->mx_ntf_id );            
-                        $this->db->update('maxwell_legal_notifications',$uparray);  
+                        $this->db->update('maxwell_legal_notifications',$uparray);
+                        $updatedCount++;  
                     }elseif($val->mx_ntf_ym == 14){
                         $date = DateTime::createFromFormat('d', $reminder[0]->notification_months)->add(new DateInterval('P1Y'));
                         $next_followup_date = $date->format('Y-m-d');
@@ -3115,12 +3132,12 @@ class Cronmodel extends Adminmodel
                             "mx_ntf_cron_status" => date('Ym')
                             );
                         $this->db->where('mx_ntf_id', $val->mx_ntf_id );            
-                        $this->db->update('maxwell_legal_notifications',$uparray);    
+                        $this->db->update('maxwell_legal_notifications',$uparray);
+                        $updatedCount++;    
                     }
                 }
             }else{
                 if(date('Ymd',$val->mx_ntf_followup_date) > date('Ymd')){
-                    echo 'inside';
                     if($val->mx_ntf_ym == 13){
                         $date = DateTime::createFromFormat('d', $reminder[0]->notification_months)->add(new DateInterval('P1M'));
                         $next_followup_date = $date->format('Y-m-d');
@@ -3129,7 +3146,8 @@ class Cronmodel extends Adminmodel
                             "mx_ntf_cron_status" => date('Ym')
                             );
                         $this->db->where('mx_ntf_id', $val->mx_ntf_id );            
-                        $this->db->update('maxwell_legal_notifications',$uparray);  
+                        $this->db->update('maxwell_legal_notifications',$uparray);
+                        $updatedCount++;  
                     }elseif($val->mx_ntf_ym == 14){
                         $date = DateTime::createFromFormat('d', $reminder[0]->notification_months)->add(new DateInterval('P1Y'));
                         $next_followup_date = $date->format('Y-m-d');
@@ -3138,18 +3156,26 @@ class Cronmodel extends Adminmodel
                             "mx_ntf_cron_status" => date('Ym')
                             );
                         $this->db->where('mx_ntf_id', $val->mx_ntf_id );            
-                        $this->db->update('maxwell_legal_notifications',$uparray);    
+                        $this->db->update('maxwell_legal_notifications',$uparray);
+                        $updatedCount++;    
                     }
                 }else{
-                    echo 'No follow updates found';
+                    $desc = 'No follow updates found';
                 }
                 
             }
         }
         $nametype = 'ADMIN NOTIFICATIONS';
-        $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-        $array = array('name'=> $nametype,'Url' => $actual_link);
+        $actual_link ="https://maxwellhrms.in/cron/notification_datesupdate";
+        $array = array('name'=> $nametype,'Url' => $actual_link,'cron_refrence_id' => 8);
         $res = $this->db->insert('cron_log',$array);
+        $response = [
+            "status" => true,
+            "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
+            "message" => "Data Processed",
+            'description' => $desc,
+        ];
+        return $response;
    } 
    
    public function SHRTcronmodel($leavetypeid,$userdate,$printable){

@@ -347,10 +347,11 @@ public function cronyearlist(){
         }
 
         $data['resp'] = $this->Cronmodel->attendance_cron($companyid,$attendancedate,$employeeid,$printable);
-        $data['attendancedate'] = $attendancedate;
-        $data['titlehead'] = 'Attendancedate Accumulation';
-        $data['excelheading'] = 'Attendancedate Accumulation';
-        $this->load->view('cron/attendance_punch_process_list',$data);
+        echo json_encode( $data['resp']);
+        // $data['attendancedate'] = $attendancedate;
+        // $data['titlehead'] = 'Attendancedate Accumulation';
+        // $data['excelheading'] = 'Attendancedate Accumulation';
+        // $this->load->view('cron/attendance_punch_process_list',$data);
     }
     
     public function test_cron(){
@@ -412,7 +413,8 @@ public function cronyearlist(){
     }
     
     public function notification_datesupdate(){
-       $this->Cronmodel->notification_datesupdate(); 
+      $data['resp'] = $this->Cronmodel->notification_datesupdate(); 
+       echo json_encode($data['resp']);
     }
 
     public function SHRTcronmodel(){
