@@ -23,6 +23,10 @@
 <button type="button" class="btn btn-success" id="updateAttendance">
     Update Attendance
 </button>
+
+<a type="button" class="btn btn-info" href="https://maxwellhrms.in/cron/cron_get_attendance_before_grace_time" target="_blank">
+    Mark Pr's onTime
+</a>
 <hr>
 <!-- /Page Content -->
 </div>
