@@ -567,6 +567,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 $reportName
             );
         }
+
+    public function get_cron_jobs(){
+        $this->db->select('cron_id,cron_category,cron_name,cron_url,cron_server_url,cron_timing,cron_description,cron_frequency,cron_status,created_at,updated_at');
+        $this->db->from('cron_schedule_master');
+        $this->db->where('cron_status', 'Active');
+        $this->db->order_by('cron_category', 'ASC');
+        $this->db->order_by('cron_name', 'ASC');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
         
     }
 ?>

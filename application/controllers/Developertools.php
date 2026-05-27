@@ -284,5 +284,13 @@ class Developertools extends Common {
 
         force_download($path, NULL);
     }
+
+    public function getAllCronlist(){
+        $this->verifylogin();
+        $data['cronslist'] = $this->Developertoolsmodels->get_cron_jobs();
+        $this->header();
+        $this->load->view('developertools/cronslist',$data);
+        $this->footer(); 
+    }
     
 }
