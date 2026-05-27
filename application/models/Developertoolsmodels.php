@@ -569,11 +569,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         }
 
     public function get_cron_jobs(){
-        $this->db->select('cron_id,cron_category,cron_name,cron_url,cron_server_url,cron_timing,cron_description,cron_frequency,cron_status,created_at,updated_at');
-        $this->db->from('cron_schedule_master');
-        $this->db->where('cron_status', 'Active');
-        $this->db->order_by('cron_category', 'ASC');
-        $this->db->order_by('cron_name', 'ASC');
+        $this->db->select("csm.cron_id,csm.cron_category,csm.cron_name,csm.cron_url,csm.cron_server_url,csm.cron_timing,csm.cron_description,csm.cron_frequency,csm.cron_status,csm.created_at,csm.updated_at,(SELECT GROUP_CONCAT(cl1.entry_dt ORDER BY cl1.entry_dt ASC SEPARATOR ', ') FROM cron_log cl1 WHERE cl1.cron_refrence_id = csm.cron_id AND DATE(cl1.entry_dt) = (SELECT DATE(MAX(cl2.entry_dt)) FROM cron_log cl2 WHERE cl2.cron_refrence_id = csm.cron_id)) AS latest_run_times");
+        $this->db->from('cron_schedule_master csm');
+        $this->db->where('csm.cron_status', 'Active');
+        $this->db->order_by('csm.cron_category', 'ASC');
+        $this->db->order_by('csm.cron_name', 'ASC');
         $query = $this->db->get();
         return $query->result_array();
     }

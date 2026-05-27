@@ -406,14 +406,21 @@ function explain_cron_timing($cron_time){
                                                 </th>
 
                                                 <td>
-
                                                     <?php
-                                                    echo date(
-                                                        'd-M-Y h:i A',
-                                                        strtotime($cron['updated_at'])
-                                                    );
-                                                    ?>
+                                                    if (!empty($cron['latest_run_times'])) {
 
+                                                        $dates = explode(',', $cron['latest_run_times']);
+
+                                                        $formatted_dates = array_map(function($date){
+                                                            return date('d-M-Y h:i A', strtotime(trim($date)));
+                                                        }, $dates);
+
+                                                        echo implode('<br>', $formatted_dates);
+
+                                                    } else {
+                                                        echo 'N/A';
+                                                    }
+                                                    ?>
                                                 </td>
 
                                             </tr>
