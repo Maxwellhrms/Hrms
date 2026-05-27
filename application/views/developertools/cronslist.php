@@ -12,72 +12,69 @@ function explain_cron_timing($cron_time){
     switch($cron_time){
 
         case '0 * * * *':
-            return 'Runs every hour at 0th minute.<br>
-                    Example Timings: 01:00 AM, 02:00 AM, 03:00 AM, etc.';
+            return 'Runs every hour at 0th minute.<br>Example: 01:00 AM, 02:00 AM, 03:00 AM';
 
         case '30 0,10,14 * * *':
-            return 'Runs daily 3 times.<br>
-                    Timings: 12:30 AM, 10:30 AM, and 02:30 PM.';
+            return 'Runs daily 3 times.<br>12:30 AM, 10:30 AM, 02:30 PM';
 
         case '0 0,5 * * *':
-            return 'Runs daily 2 times.<br>
-                    Timings: 12:00 AM and 05:00 AM.';
+            return 'Runs daily 2 times.<br>12:00 AM and 05:00 AM';
 
         case '0 19,20,22 * * *':
-            return 'Runs daily during evening hours.<br>
-                    Timings: 07:00 PM, 08:00 PM, and 10:00 PM.';
+            return 'Runs daily in evening hours.<br>07:00 PM, 08:00 PM and 10:00 PM';
 
         case '45 9,10 * * *':
-            return 'Runs daily before grace time validation.<br>
-                    Timings: 09:45 AM and 10:45 AM.';
+            return 'Runs daily before grace time validation.<br>09:45 AM and 10:45 AM';
 
         case '0 0 * * *':
-            return 'Runs once every day at midnight (12:00 AM).';
+            return 'Runs once daily at 12:00 AM midnight';
 
         case '0 0 1 * *':
-            return 'Runs once every month on the 1st day at 12:00 AM.';
+            return 'Runs monthly on 1st day at 12:00 AM';
 
         default:
             return 'Cron schedule configured.';
     }
 }
 ?>
-<!-- Page Wrapper -->
+
+<!-- PAGE WRAPPER -->
+
 <div class="page-wrapper">
+
     <div class="content container-fluid">
-		<!-- Page Header -->
-		<div class="page-header">
-			<div class="row">
-				<div class="col">
-					<h3 class="page-title">Crons List</h3>
-					<ul class="breadcrumb">
-						<li class="breadcrumb-item"><a href="<?php echo base_url() ?>dashboard">Dashboard</a></li>
-						<li class="breadcrumb-item active">Crons List Details</li>
-					</ul>
-				</div>
-			</div>
-		</div>
-		<!-- /Page Header -->
 
-    <div class="container-fluid mt-4">
+        <!-- PAGE HEADER -->
 
-    <!-- SUMMARY -->
+        <div class="page-header">
 
-    <div class="row mb-4">
+            <div class="row">
 
-        <div class="col-md-3 mb-3">
+                <div class="col">
 
-            <div class="card border-primary">
-
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Total Cron Jobs
-                    </h6>
-
-                    <h3>
-                        <?php echo count($cron_jobs); ?>
+                    <h3 class="page-title">
+                        Crons List
                     </h3>
+
+                    <ul class="breadcrumb">
+
+                        <li class="breadcrumb-item">
+
+                            <a href="<?php echo base_url() ?>dashboard">
+
+                                Dashboard
+
+                            </a>
+
+                        </li>
+
+                        <li class="breadcrumb-item active">
+
+                            Crons List Details
+
+                        </li>
+
+                    </ul>
 
                 </div>
 
@@ -86,348 +83,377 @@ function explain_cron_timing($cron_time){
         </div>
 
 
-        <div class="col-md-3 mb-3">
+        <!-- SUMMARY -->
 
-            <div class="card border-success">
+        <div class="row mb-4">
 
-                <div class="card-body">
+            <div class="col-md-3 mb-3">
 
-                    <h6 class="text-muted">
-                        Active Jobs
-                    </h6>
+                <div class="card border-primary">
 
-                    <h3 class="text-success">
+                    <div class="card-body">
 
-                        <?php
-                        echo count(array_filter($cron_jobs,function($row){
-                            return $row['cron_status'] == 'Active';
-                        }));
-                        ?>
+                        <h6 class="text-muted">
+                            Total Cron Jobs
+                        </h6>
 
-                    </h3>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="col-md-3 mb-3">
-
-            <div class="card border-danger">
-
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Inactive Jobs
-                    </h6>
-
-                    <h3 class="text-danger">
-
-                        <?php
-                        echo count(array_filter($cron_jobs,function($row){
-                            return $row['cron_status'] == 'Inactive';
-                        }));
-                        ?>
-
-                    </h3>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="col-md-3 mb-3">
-
-            <div class="card border-dark">
-
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Categories
-                    </h6>
-
-                    <h3>
-                        <?php echo count($grouped_crons); ?>
-                    </h3>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- ACCORDION -->
-
-    <div class="accordion" id="cronAccordion">
-
-        <?php
-
-        $i = 0;
-
-        foreach($grouped_crons as $category => $jobs){
-
-            $collapse_id = 'collapse_'.$i;
-
-            if($category == 'Attendance'){
-                $btn_class = 'btn-primary';
-                $icon = 'fa-user-clock';
-            }
-            elseif($category == 'Leave'){
-                $btn_class = 'btn-success';
-                $icon = 'fa-calendar-alt';
-            }
-            elseif($category == 'Notification'){
-                $btn_class = 'btn-warning';
-                $icon = 'fa-bell';
-            }
-            elseif($category == 'Transfer'){
-                $btn_class = 'btn-info';
-                $icon = 'fa-exchange-alt';
-            }
-            elseif($category == 'Resignation'){
-                $btn_class = 'btn-danger';
-                $icon = 'fa-user-times';
-            }
-            else{
-                $btn_class = 'btn-dark';
-                $icon = 'fa-cogs';
-            }
-        ?>
-
-        <div class="card mb-3">
-
-            <div class="card-header p-0">
-
-                <button class="btn <?php echo $btn_class; ?> btn-block text-left p-3"
-                        type="button"
-                        data-toggle="collapse"
-                        data-target="#<?php echo $collapse_id; ?>">
-
-                    <div class="d-flex justify-content-between align-items-center">
-
-                        <div>
-
-                            <i class="fas <?php echo $icon; ?> mr-2"></i>
-
-                            <?php echo $category; ?> Cron Jobs
-
-                        </div>
-
-                        <span class="badge badge-light">
-
-                            <?php echo count($jobs); ?> Jobs
-
-                        </span>
+                        <h3>
+                            <?php echo count($cron_jobs); ?>
+                        </h3>
 
                     </div>
 
-                </button>
+                </div>
 
             </div>
 
 
-            <div id="<?php echo $collapse_id; ?>"
-                 class="collapse <?php echo ($i == 0) ? 'show' : ''; ?>"
-                 data-parent="#cronAccordion">
+            <div class="col-md-3 mb-3">
 
-                <div class="card-body">
+                <div class="card border-success">
 
-                    <div class="row">
+                    <div class="card-body">
 
-                        <?php foreach($jobs as $cron){ ?>
+                        <h6 class="text-muted">
+                            Active Jobs
+                        </h6>
 
-                        <div class="col-md-6 mb-4">
+                        <h3 class="text-success">
 
-                            <div class="card h-100 border">
+                            <?php
+                            echo count(array_filter($cron_jobs,function($row){
+                                return $row['cron_status'] == 'Active';
+                            }));
+                            ?>
 
-                                <div class="card-body">
+                        </h3>
 
-                                    <!-- TITLE -->
+                    </div>
 
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                </div>
 
-                                        <h5 class="mb-0">
-
-                                            <?php echo $cron['cron_name']; ?>
-
-                                        </h5>
-
-                                        <?php if($cron['cron_status'] == 'Active'){ ?>
-
-                                            <span class="badge badge-success">
-                                                Active
-                                            </span>
-
-                                        <?php } else { ?>
-
-                                            <span class="badge badge-danger">
-                                                Inactive
-                                            </span>
-
-                                        <?php } ?>
-
-                                    </div>
+            </div>
 
 
+            <div class="col-md-3 mb-3">
 
-                                    <!-- DESCRIPTION -->
+                <div class="card border-danger">
 
-                                    <p class="text-muted">
+                    <div class="card-body">
 
-                                        <?php echo $cron['cron_description']; ?>
+                        <h6 class="text-muted">
+                            Inactive Jobs
+                        </h6>
 
-                                    </p>
+                        <h3 class="text-danger">
 
+                            <?php
+                            echo count(array_filter($cron_jobs,function($row){
+                                return $row['cron_status'] == 'Inactive';
+                            }));
+                            ?>
 
+                        </h3>
 
-                                    <!-- TABLE -->
+                    </div>
 
-                                    <table class="table table-bordered table-sm">
+                </div>
 
-                                        <tr>
-
-                                            <th width="35%">
-                                                Cron Timing
-                                            </th>
-
-                                            <td>
-
-                                                <strong>
-                                                    <?php echo $cron['cron_timing']; ?>
-                                                </strong>
-
-                                                <hr class="mt-2 mb-2">
-
-                                                <small class="text-muted">
-
-                                                    <?php
-                                                    echo explain_cron_timing($cron['cron_timing']);
-                                                    ?>
-
-                                                </small>
-
-                                            </td>
-
-                                        </tr>
+            </div>
 
 
-                                        <tr>
+            <div class="col-md-3 mb-3">
 
-                                            <th>
-                                                Frequency
-                                            </th>
+                <div class="card border-dark">
 
-                                            <td>
+                    <div class="card-body">
 
-                                                <span class="badge badge-info">
+                        <h6 class="text-muted">
+                            Categories
+                        </h6>
 
-                                                    <?php echo ucfirst($cron['cron_frequency']); ?>
+                        <h3>
+                            <?php echo count($grouped_crons); ?>
+                        </h3>
 
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ACCORDION -->
+
+        <div class="accordion" id="cronAccordion">
+
+            <?php
+
+            $i = 0;
+
+            foreach($grouped_crons as $category => $jobs){
+
+                $collapse_id = 'collapse_'.$i;
+
+                if($category == 'Attendance'){
+                    $btn_class = 'btn-primary';
+                    $icon = 'fa-user-clock';
+                }
+                elseif($category == 'Leave'){
+                    $btn_class = 'btn-success';
+                    $icon = 'fa-calendar-alt';
+                }
+                elseif($category == 'Notification'){
+                    $btn_class = 'btn-warning';
+                    $icon = 'fa-bell';
+                }
+                elseif($category == 'Transfer'){
+                    $btn_class = 'btn-info';
+                    $icon = 'fa-exchange-alt';
+                }
+                elseif($category == 'Resignation'){
+                    $btn_class = 'btn-danger';
+                    $icon = 'fa-user-times';
+                }
+                else{
+                    $btn_class = 'btn-dark';
+                    $icon = 'fa-cogs';
+                }
+            ?>
+
+            <div class="card mb-3">
+
+                <div class="card-header p-0">
+
+                    <button class="btn <?php echo $btn_class; ?> btn-block text-left p-3"
+                            type="button"
+                            data-toggle="collapse"
+                            data-target="#<?php echo $collapse_id; ?>">
+
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <div>
+
+                                <i class="fas <?php echo $icon; ?> mr-2"></i>
+
+                                <?php echo $category; ?> Cron Jobs
+
+                            </div>
+
+                            <span class="badge badge-light">
+
+                                <?php echo count($jobs); ?> Jobs
+
+                            </span>
+
+                        </div>
+
+                    </button>
+
+                </div>
+
+
+                <div id="<?php echo $collapse_id; ?>"
+                     class="collapse <?php echo ($i == 0) ? 'show' : ''; ?>"
+                     data-parent="#cronAccordion">
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <?php foreach($jobs as $cron){ ?>
+
+                            <div class="col-md-6 mb-4">
+
+                                <div class="card h-100 border">
+
+                                    <div class="card-body">
+
+                                        <!-- TITLE -->
+
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+
+                                            <h5 class="mb-0">
+
+                                                <?php echo $cron['cron_name']; ?>
+
+                                            </h5>
+
+                                            <?php if($cron['cron_status'] == 'Active'){ ?>
+
+                                                <span class="badge badge-success">
+                                                    Active
                                                 </span>
 
-                                            </td>
+                                            <?php } else { ?>
 
-                                        </tr>
+                                                <span class="badge badge-danger">
+                                                    Inactive
+                                                </span>
 
+                                            <?php } ?>
 
-                                        <tr>
-
-                                            <th>
-                                                Cron URL
-                                            </th>
-
-                                            <td>
-
-                                                <code>
-
-                                                    <?php echo $cron['cron_url']; ?>
-
-                                                </code>
-
-                                            </td>
-
-                                        </tr>
+                                        </div>
 
 
-                                        <tr>
+                                        <!-- DESCRIPTION -->
 
-                                            <th>
-                                                Server Command
-                                            </th>
+                                        <p class="text-muted">
 
-                                            <td style="word-break: break-all;">
+                                            <?php echo $cron['cron_description']; ?>
 
-                                                <small>
-
-                                                    <?php echo $cron['cron_server_url']; ?>
-
-                                                </small>
-
-                                            </td>
-
-                                        </tr>
+                                        </p>
 
 
-                                        <tr>
+                                        <!-- TABLE -->
 
-                                            <th>
-                                                Updated At
-                                            </th>
+                                        <table class="table table-bordered table-sm">
 
-                                            <td>
+                                            <tr>
 
-                                                <?php
-                                                echo date(
-                                                    'd-M-Y h:i A',
-                                                    strtotime($cron['updated_at'])
-                                                );
-                                                ?>
+                                                <th width="35%">
+                                                    Cron Timing
+                                                </th>
 
-                                            </td>
+                                                <td>
 
-                                        </tr>
+                                                    <strong>
 
-                                    </table>
+                                                        <?php echo $cron['cron_timing']; ?>
 
+                                                    </strong>
 
+                                                    <hr class="mt-2 mb-2">
 
-                                    <!-- BUTTONS -->
+                                                    <small class="text-muted">
 
-                                    <div class="mt-3">
+                                                        <?php
+                                                        echo explain_cron_timing(
+                                                            $cron['cron_timing']
+                                                        );
+                                                        ?>
 
-                                        <button class="btn <?php echo $btn_class; ?> btn-sm">
+                                                    </small>
 
-                                            <i class="fas fa-play"></i>
+                                                </td>
 
-                                            Trigger Now
-
-                                        </button>
-
-
-                                        <button class="btn btn-outline-dark btn-sm">
-
-                                            <i class="fas fa-history"></i>
-
-                                            Logs
-
-                                        </button>
+                                            </tr>
 
 
-                                        <button class="btn btn-outline-secondary btn-sm">
+                                            <tr>
 
-                                            <i class="fas fa-edit"></i>
+                                                <th>
+                                                    Frequency
+                                                </th>
 
-                                            Edit
+                                                <td>
 
-                                        </button>
+                                                    <span class="badge badge-info">
+
+                                                        <?php echo ucfirst($cron['cron_frequency']); ?>
+
+                                                    </span>
+
+                                                </td>
+
+                                            </tr>
+
+
+                                            <tr>
+
+                                                <th>
+                                                    Cron URL
+                                                </th>
+
+                                                <td>
+
+                                                    <code>
+
+                                                        <?php echo $cron['cron_url']; ?>
+
+                                                    </code>
+
+                                                </td>
+
+                                            </tr>
+
+
+                                            <tr>
+
+                                                <th>
+                                                    Server Command
+                                                </th>
+
+                                                <td style="word-break: break-all;">
+
+                                                    <small>
+
+                                                        <?php echo $cron['cron_server_url']; ?>
+
+                                                    </small>
+
+                                                </td>
+
+                                            </tr>
+
+
+                                            <tr>
+
+                                                <th>
+                                                    Updated At
+                                                </th>
+
+                                                <td>
+
+                                                    <?php
+                                                    echo date(
+                                                        'd-M-Y h:i A',
+                                                        strtotime($cron['updated_at'])
+                                                    );
+                                                    ?>
+
+                                                </td>
+
+                                            </tr>
+
+                                        </table>
+
+
+                                        <!-- BUTTONS -->
+
+                                        <div class="mt-3">
+
+                                            <button class="btn <?php echo $btn_class; ?> btn-sm"
+                                                    data-toggle="modal"
+                                                    data-target="#triggerCronModal<?php echo $cron['cron_id']; ?>">
+
+                                                <i class="fas fa-play"></i>
+
+                                                Trigger Now
+
+                                            </button>
+
+
+                                            <button class="btn btn-outline-dark btn-sm">
+
+                                                <i class="fas fa-history"></i>
+
+                                                Logs
+
+                                            </button>
+
+
+                                            <button class="btn btn-outline-secondary btn-sm">
+
+                                                <i class="fas fa-edit"></i>
+
+                                                Edit
+
+                                            </button>
+
+                                        </div>
 
                                     </div>
 
@@ -435,9 +461,251 @@ function explain_cron_timing($cron_time){
 
                             </div>
 
-                        </div>
 
-                        <?php } ?>
+
+                            <!-- MODAL -->
+
+                            <div class="modal fade"
+                                 id="triggerCronModal<?php echo $cron['cron_id']; ?>"
+                                 tabindex="-1"
+                                 role="dialog">
+
+                                <div class="modal-dialog modal-lg"
+                                     role="document">
+
+                                    <div class="modal-content">
+
+                                        <div class="modal-header bg-primary text-white">
+
+                                            <h5 class="modal-title">
+
+                                                Trigger Cron Job
+
+                                            </h5>
+
+                                            <button type="button"
+                                                    class="close text-white"
+                                                    data-dismiss="modal">
+
+                                                <span>&times;</span>
+
+                                            </button>
+
+                                        </div>
+
+
+
+                                        <!-- FORM -->
+
+                                        <form class="runCronForm"
+                                              id="runCronForm<?php echo $cron['cron_id']; ?>">
+
+                                            <input type="hidden"
+                                                   name="cron_id"
+                                                   value="<?php echo $cron['cron_id']; ?>">
+
+                                            <input type="hidden"
+                                                   name="cron_name"
+                                                   value="<?php echo $cron['cron_name']; ?>">
+
+                                            <input type="hidden"
+                                                   name="cron_url"
+                                                   value="<?php echo $cron['cron_url']; ?>">
+
+
+                                            <div class="modal-body">
+
+                                                <div class="alert alert-info">
+
+                                                    <strong>Cron Name :</strong>
+
+                                                    <?php echo $cron['cron_name']; ?>
+
+                                                    <br>
+
+                                                    <strong>Category :</strong>
+
+                                                    <?php echo $cron['cron_category']; ?>
+
+                                                    <br>
+
+                                                    <strong>Schedule :</strong>
+
+                                                    <?php echo $cron['cron_timing']; ?>
+
+                                                </div>
+
+
+                                                <div class="row">
+
+                                                    <div class="col-md-6">
+
+                                                        <div class="form-group">
+
+                                                            <label>
+                                                                Employee Code
+                                                            </label>
+
+                                                            <input type="text"
+                                                                   name="employee_code"
+                                                                   class="form-control"
+                                                                   placeholder="Enter Employee Code">
+
+                                                        </div>
+
+                                                    </div>
+
+
+                                                    <div class="col-md-6">
+
+                                                        <div class="form-group">
+
+                                                            <label>
+                                                                Company
+                                                            </label>
+
+                                                            <select name="company_id"
+                                                                    class="form-control">
+
+                                                                <option value="">
+                                                                    Select Company
+                                                                </option>
+
+                                                            </select>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+
+                                                <div class="row">
+
+                                                    <div class="col-md-6">
+
+                                                        <div class="form-group">
+
+                                                            <label>
+                                                                From Date
+                                                            </label>
+
+                                                            <input type="date"
+                                                                   name="from_date"
+                                                                   class="form-control">
+
+                                                        </div>
+
+                                                    </div>
+
+
+                                                    <div class="col-md-6">
+
+                                                        <div class="form-group">
+
+                                                            <label>
+                                                                To Date
+                                                            </label>
+
+                                                            <input type="date"
+                                                                   name="to_date"
+                                                                   class="form-control">
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+
+                                                <div class="form-group">
+
+                                                    <label>
+                                                        Remarks
+                                                    </label>
+
+                                                    <textarea name="remarks"
+                                                              class="form-control"
+                                                              rows="3"
+                                                              placeholder="Enter remarks"></textarea>
+
+                                                </div>
+
+
+                                                <div class="form-group">
+
+                                                    <div class="custom-control custom-checkbox">
+
+                                                        <input type="checkbox"
+                                                               class="custom-control-input"
+                                                               id="forceRun<?php echo $cron['cron_id']; ?>"
+                                                               name="force_run"
+                                                               value="1">
+
+                                                        <label class="custom-control-label"
+                                                               for="forceRun<?php echo $cron['cron_id']; ?>">
+
+                                                            Force Run This Cron
+
+                                                        </label>
+
+                                                    </div>
+
+                                                </div>
+
+
+                                                <div class="form-group">
+
+                                                    <label>
+                                                        Server Command
+                                                    </label>
+
+                                                    <textarea class="form-control"
+                                                              rows="3"
+                                                              readonly><?php echo $cron['cron_server_url']; ?></textarea>
+
+                                                </div>
+
+
+                                                <!-- RESPONSE -->
+
+                                                <div class="cronResponse mt-3"></div>
+
+                                            </div>
+
+
+                                            <div class="modal-footer">
+
+                                                <button type="button"
+                                                        class="btn btn-secondary"
+                                                        data-dismiss="modal">
+
+                                                    Close
+
+                                                </button>
+
+                                                <button type="submit"
+                                                        class="btn btn-primary runCronBtn">
+
+                                                    <i class="fas fa-play"></i>
+
+                                                    Run Cron
+
+                                                </button>
+
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <?php } ?>
+
+                        </div>
 
                     </div>
 
@@ -445,22 +713,70 @@ function explain_cron_timing($cron_time){
 
             </div>
 
-        </div>
+            <?php
+            $i++;
+            }
+            ?>
 
-        <?php
-        $i++;
-        }
-        ?>
+        </div>
 
     </div>
 
 </div>
 
-        
 
-	
-	</div>
-	<!-- /Page Content -->
+<!-- AJAX -->
 
-</div>
-<!-- /Page Wrapper -->
+<script>
+$(document).on('submit','.runCronForm',function(e){
+    e.preventDefault();
+    var form = $(this);
+    var formData = form.serialize();
+    var cronUrl = form.find('input[name="cron_url"]').val();
+    var submitBtn = form.find('.runCronBtn');
+    var responseDiv = form.find('.cronResponse');
+    submitBtn.prop('disabled',true);
+    submitBtn.html(
+        '<i class="fas fa-spinner fa-spin"></i> Running...'
+    );
+    responseDiv.html('');
+    $.ajax({
+        url : baseurl + cronUrl,
+        type : 'POST',
+        data : formData,
+        dataType : 'json',
+        success:function(response){
+            if(response.status == true){
+                responseDiv.html(
+                    '<div class="alert alert-success">'+
+                        '<strong>'+response.message+'</strong><hr>'+
+                        '<b>Updated :</b> '+response.data.updated+'<br>'+
+                        '<b>Failed :</b> '+response.data.failed+
+                    '</div>'
+                );
+            }else{
+                responseDiv.html(
+                    '<div class="alert alert-danger">'+
+                        response.message+
+                    '</div>'
+                );
+            }
+        },
+        error:function(){
+            responseDiv.html(
+                '<div class="alert alert-danger">'+
+                    'Something went wrong while processing cron.'+
+                '</div>'
+            );
+        },
+        complete:function(){
+            submitBtn.prop('disabled',false);
+            submitBtn.html(
+                '<i class="fas fa-play"></i> Run Cron'
+            );
+        }
+    });
+});
+</script>
+
+<!-- /PAGE WRAPPER -->
