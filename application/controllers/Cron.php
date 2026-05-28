@@ -162,11 +162,7 @@ public function Clcronmodeldatewise(){
     }
     $ymdate=$this->yearmonthdate();
     $res = $this->Cronmodel->clcronmodeldatewise(2,$ymdate,$printable);
-    if($res == 200){
-        echo '200';die();
-    }else{
-        echo '500';die();
-    }
+    echo json_encode($res);
 }
 
 public function Elcronmodeldatewise(){
@@ -176,11 +172,7 @@ public function Elcronmodeldatewise(){
     }
     $ymdate=$this->yearmonthdate();
     $res=$this->Cronmodel->clcronmodeldatewise(1,$ymdate,$printable);
-        if($res == 200){
-        echo '200';die();
-    }else{
-        echo '500';die();
-    }
+    echo json_encode($res);
 }
 
 public function Slcronmodeldatewise(){
@@ -191,11 +183,7 @@ public function Slcronmodeldatewise(){
     }
     $ymdate=$this->yearmonthdate();
     $res=$this->Cronmodel->clcronmodeldatewise(3,$ymdate,$printable);
-        if($res == 200){
-        echo '200';die();
-    }else{
-        echo '500';die();
-    }
+    echo json_encode($res);
 }
 
 // --------------  end added C 03-12-2021 ------------
@@ -256,6 +244,7 @@ public function transfer_cron(){
         $data['cron_status'] = "auto";
     }
     $res = $this->Cronmodel->transfer_cron($data);
+    echo json_encode($res);
 }
 public function increments_cron(){
     if($this->input->post('cron_month_year')){
@@ -484,7 +473,7 @@ public function cronyearlist(){
                 $printable = 'N';
         }
         $res=$this->Cronmodel->resignattendance($cntdt='',$empid='',$printable);
-        echo $res;  exit;        
+        echo json_encode($res);      
     }
      
      //  ----------- end added 21-01-2024 ----------
@@ -529,6 +518,7 @@ public function cronyearlist(){
         }
         // print_r($data);exit;
         $res = $this->Cronmodel->update_resign_status($data);
+        echo json_encode($res);
     }
     
     public function monthlyleavessummary(){

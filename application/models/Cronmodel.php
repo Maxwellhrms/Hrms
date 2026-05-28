@@ -37,6 +37,9 @@ class Cronmodel extends Adminmodel
     
     //  -------- added 21-01-2024 -----
         public function resignattendance($resdt,$empid,$printable){
+            $insertedCount = 0;
+            $updatedCount  = 0;
+            $failedCount   = 0;
         if($resdt == ''){
             $cntdt=date('Y-m-d');
         }else{
@@ -89,6 +92,7 @@ class Cronmodel extends Adminmodel
                         if(count($atttbl)>0){
                             $this->db->where('mx_attendance_id', $atttbl[0]->mx_attendance_id);
                             $this->db->delete("maxwell_attendance_".$ryear."_".$rmnth);
+                            $updatedCount++;
                         }
                     }
                 } 
@@ -104,6 +108,7 @@ class Cronmodel extends Adminmodel
                         foreach($attendmthid as $attmtkey=>$attval){
                             $this->db->where('mx_attendance_id', $attval->mx_attendance_id);
                             $this->db->delete("maxwell_attendance_".$ryear."_".$m);
+                            $updatedCount++;
                         }
                     }
                 }  
@@ -122,6 +127,7 @@ class Cronmodel extends Adminmodel
                                 foreach($attendmthid as $attmtkey=>$attval){
                                     $this->db->where('mx_attendance_id', $attval->mx_attendance_id);
                                     $this->db->delete("maxwell_attendance_".$currentyear."_".$m);
+                                    $updatedCount++;
                                 }
                             }else{
                                 break;
@@ -152,26 +158,25 @@ class Cronmodel extends Adminmodel
             }
         }
         
-        if($printable == 'Y'){
-            $nametype = 'Resignation Relieving CRON MANUAL';
-            $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-            $array = array('name'=> $nametype,'Url' => $actual_link);
+            $array = array('name'=>$nametype ,'Url' => 'https://maxwellhrms.in/cron/cron_resignattendance','cron_refrence_id' => 10);
             $res = $this->db->insert('cron_log',$array);
-          
-        }elseif($printable == 'N'){
-            $nametype = 'Resignation Relieving';
-            $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-            $array = array('name'=>$nametype ,'Url' => $actual_link);
-            $res = $this->db->insert('cron_log',$array);
-        }
 
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
-            return 500;
+            $statuscode = 500;
         } else {
             $this->db->trans_commit();
-            return 200;
+            $statuscode =  200;
         }
+
+        $response = [
+            "status" => true,
+            'statusCode' => $statuscode,
+            "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
+            "message" => "Data Processed",
+            'description' => $desc,
+        ];
+        return $response;
 
     }
     //  -------- end added 21-01-2024 ----
@@ -337,9 +342,14 @@ class Cronmodel extends Adminmodel
        // $date = date('Y-m-d');
         //$yearmnt = date('Y_m');
         
-
+        $insertedCount = 0;
+        $updatedCount  = 0;
+        $failedCount   = 0;
+        $desc = '';
+        $actual_link = '';
+        $cron_refrence_id = '';
         
-         if($userdate != 0 ){
+        if($userdate != 0 ){
             //  $date = $userdate;
              $date = date('Y-m-d',strtotime($userdate));
              $yearmnt = date('Y_m',strtotime($date));        
@@ -360,14 +370,20 @@ class Cronmodel extends Adminmodel
         
         if($leavetypeid == 2){ //Cl
             $shrtleanm = 'CL';
+            $actual_link = 'https://maxwellhrms.in/cron/Clcronmodel';
+            $cron_refrence_id = 5;
             $this->db->select("( select max(case when mxemp_leave_bal_leave_type_shrt_name = 'CL' then mxemp_leave_bal_crnt_bal end) 
             from maxwell_emp_leave_balance where mx_attendance_emp_code = mxemp_leave_bal_emp_id group by mxemp_leave_bal_emp_id) as Currentbal ,");
         }elseif($leavetypeid == 1){ //EL
             $shrtleanm = 'EL';
+            $actual_link = 'https://maxwellhrms.in/cron/Elcronmodel';
+            $cron_refrence_id = 6;
             $this->db->select(" (select max(case when mxemp_leave_bal_leave_type_shrt_name = 'EL' then mxemp_leave_bal_crnt_bal end) 
             from maxwell_emp_leave_balance where mx_attendance_emp_code = mxemp_leave_bal_emp_id group by mxemp_leave_bal_emp_id) as Currentbal,");
         }elseif($leavetypeid == 3){ //SL
             $shrtleanm = 'SL';
+            $actual_link = 'https://maxwellhrms.in/cron/Slcronmodel';
+            $cron_refrence_id = 7;
             $this->db->select(" ( select max(case when mxemp_leave_bal_leave_type_shrt_name = 'SL' then mxemp_leave_bal_crnt_bal end) 
             from maxwell_emp_leave_balance where mx_attendance_emp_code = mxemp_leave_bal_emp_id group by mxemp_leave_bal_emp_id) as Currentbal, ");
         }
@@ -520,7 +536,7 @@ class Cronmodel extends Adminmodel
                                     );
                                     $this->db->insert('maxwell_emp_leave_detailed_history',$cornarraydet);
                                   // echo $this->db->last_query().'<br>';                      
-                                    
+                                    $insertedCount++;
                                     $mstleavebal = array(
                                         'mxemp_leave_bal_crnt_bal' =>$currentadding,
                                         'mxemp_leave_bal_modifyby' => $this->session->userdata('user_id'),
@@ -529,7 +545,8 @@ class Cronmodel extends Adminmodel
                                     );  
                                   $this->db->where('mxemp_leave_bal_emp_id', $ltdt->EmployeeID);  
                                   $this->db->where('mxemp_leave_bal_leave_type', $leavetypeid );            
-                                  $this->db->update('maxwell_emp_leave_balance',$mstleavebal);                                      
+                                  $this->db->update('maxwell_emp_leave_balance',$mstleavebal);  
+                                  $updatedCount++;                                    
                                  //echo $this->db->last_query().'<br>';
 
                             }
@@ -608,6 +625,7 @@ class Cronmodel extends Adminmodel
                                             'mxemp_leave_history_created_ip' => $ip
                                         );
                                         $this->db->insert('maxwell_emp_leave_detailed_history',$cornarraydet);
+                                        $insertedCount++;
                                         // echo $this->db->last_query().'<br>';                      
                                         
                                         $mstleavebal = array(
@@ -618,7 +636,8 @@ class Cronmodel extends Adminmodel
                                         );  
                                         $this->db->where('mxemp_leave_bal_emp_id', $ltdt->EmployeeID);  
                                         $this->db->where('mxemp_leave_bal_leave_type', $leavetypeid );            
-                                        $this->db->update('maxwell_emp_leave_balance',$mstleavebal);                                      
+                                        $this->db->update('maxwell_emp_leave_balance',$mstleavebal); 
+                                        $updatedCount++;                                     
                                         // echo $this->db->last_query().'<br>';
                                     }
                                 }
@@ -628,27 +647,26 @@ class Cronmodel extends Adminmodel
                 }
         }
         
-        if($printable == 'Y'){
-            $nametype = $shrtleanm .' CRON MANUAL';
-            // print_r($nametype); exit;
-            $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-            $array = array('name'=> $nametype,'Url' => $actual_link);
+            $nametype = $shrtleanm;
+            $array = array('name'=>$nametype ,'Url' => $actual_link, 'cron_refrence_id' => $cron_refrence_id);
             $res = $this->db->insert('cron_log',$array);
-          
-        }elseif($printable == 'N'){
-            $nametype = $shrtleanm .' CRON';
-            $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-            $array = array('name'=>$nametype ,'Url' => $actual_link);
-            $res = $this->db->insert('cron_log',$array);
-        }
         
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
-            return 500;
+            $statuscode = 500;
         } else {
             $this->db->trans_commit();
-            return 200;
+            $statuscode = 200;
         }
+
+        $response = [
+            "status" => true,
+            'statusCode' => $statuscode,
+            "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
+            "message" => "Data Processed",
+            'description' => $desc,
+        ];
+        return $response;
 }
     //--------------NEW BY SHABABU(06-06-2021)
     public function sat_sun_mon_cron_model(){
@@ -1794,6 +1812,9 @@ class Cronmodel extends Adminmodel
             Author : S.C.SHABABU
             DESCRIPTION : ONCE PER DAY AT NYT 12 ADDED ALREADY IN CRON
         */
+        $insertedCount = 0;
+        $updatedCount  = 0;
+        $failedCount   = 0;
         $this->db->trans_begin($data);
         //-------GETTING COMPANY IDS FROM COMPANY MASTER
         // $emp_code = $this->input->post('emp_code');//---.NEW BY SHABABU(19-08-2022)
@@ -1860,6 +1881,7 @@ class Cronmodel extends Adminmodel
                                                                             // echo "<pre>";print_r($transfer_update_master_array);exit;
                                             $this->db->where('mxemp_emp_id',$trns_emp_cod);
                                             $res_master =  $this->db->update('maxwell_employees_info',$transfer_update_master_array);
+                                            $updatedCount++;
                                             // echo $this->db->last_query();exit;
                                             //----------END UPDATING MASTER TABLE EMPLOYEE INFO
                                             // $res_master = true;
@@ -1867,6 +1889,7 @@ class Cronmodel extends Adminmodel
                                                 # Update Authorisations
                                                 // $prom_is_auth = $trns_result->mxemp_prm_is_authorisations;
                                                 $this->update_authorisations($trns_parent_id,$trns_emp_cod);
+                                                $updatedCount++;
                                                 # UPDATING ATTENDANCE TABLE
                                                 $update_attendance_array = array(
                                                     'mx_attendance_cmp_id' => $trns_result->mxemp_trs_comp_id_to,
@@ -1876,6 +1899,7 @@ class Cronmodel extends Adminmodel
                                                 );
                                                 // print_r($update_attendance_array);exit;
                                                 $this->update_emp_attendance($trns_join_date_ymd,$trns_emp_cod,$update_attendance_array);
+                                                $updatedCount++;
                                                 # END UPDATING ATTENDANCE TABLE
                                                 
                                                 //-------UPDATING CRON STATUS IN LOG TABLE
@@ -1884,13 +1908,14 @@ class Cronmodel extends Adminmodel
                                                                               );
                                                 $this->db->where('mxtrns_prm_id',$trns_parent_id);
                                                 $res_master =  $this->db->update('maxwell_emp_trans_prom_log',$transfers_update_log_array);
-                                                
+                                                $updatedCount++;
                                                 //-------UPDATING CRON STATUS TO 1 in PROMOTION TABLE
                                                 $transfers_update_array = array(
                                                                                 'maxwell_emp_cron_status_flag' => 1
                                                                               );
                                                 $this->db->where('mxemp_trs_id',$trns_id);
                                                 $res_master =  $this->db->update('maxwell_emp_trasfers',$transfers_update_array);
+                                                $updatedCount++;
                                                 #END UPDATE CRON STATUS
                                             }
                                         }
@@ -1936,12 +1961,14 @@ class Cronmodel extends Adminmodel
                                                                         );
                                         $this->db->where('mxemp_emp_id',$trns_emp_cod);
                                         $res_master =  $this->db->update('maxwell_employees_info',$transfer_update_master_array);
+                                        $updatedCount++;
                                         //----------END UPDATING MASTER TABLE EMPLOYEE INFO
                                         // $res_master = true;
                                         if($res_master){
                                             # Update Authorisations
                                             // $prom_is_auth = $trns_result->mxemp_prm_is_authorisations;
                                             $this->update_authorisations($trns_parent_id,$trns_emp_cod);
+                                            $updatedCount++;
                                             # UPDATING ATTENDANCE TABLE
                                             $update_attendance_array = array(
                                                 'mx_attendance_cmp_id' => $trns_result->mxemp_trs_comp_id_to,
@@ -1951,6 +1978,7 @@ class Cronmodel extends Adminmodel
                                             );
                                             // print_r($update_attendance_array);exit;
                                             $this->update_emp_attendance($trns_join_date_ymd,$trns_emp_cod,$update_attendance_array);
+                                            $updatedCount++;
                                             # END UPDATING ATTENDANCE TABLE
                                             
                                             //-------UPDATING CRON STATUS IN LOG TABLE
@@ -1959,13 +1987,14 @@ class Cronmodel extends Adminmodel
                                                                           );
                                             $this->db->where('mxtrns_prm_id',$trns_parent_id);
                                             $res_master =  $this->db->update('maxwell_emp_trans_prom_log',$transfers_update_log_array);
-                                            
+                                            $updatedCount++;
                                             //-------UPDATING CRON STATUS TO 1 in PROMOTION TABLE
                                             $transfers_update_array = array(
                                                                             'maxwell_emp_cron_status_flag' => 1
                                                                           );
                                             $this->db->where('mxemp_trs_id',$trns_id);
                                             $res_master =  $this->db->update('maxwell_emp_trasfers',$transfers_update_array);
+                                            $updatedCount++;
                                             #END UPDATE CRON STATUS
                                         }
                                     }
@@ -1978,26 +2007,30 @@ class Cronmodel extends Adminmodel
                     
                     
             }
-            if($this->input->post('cron_status') == 'manual'){
-                    $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-                    $array = array('name'=>'TRANSFER CRON MANUAL','Url' => $actual_link);
-                    $res = $this->db->insert('cron_log',$array);
-                    // return $print_array;
-            }else{
-                    $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-                    $array = array('name'=>'TRANSFER','Url' => $actual_link);
-                    $res = $this->db->insert('cron_log',$array);
-            }
+
+            $array = array('name'=>'TRANSFER','Url' => 'https://maxwellhrms.in/cron/transfer_cron','cron_refrence_id' => 9);
+            $res = $this->db->insert('cron_log',$array);
         }
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
             $message = "Something Went Wrong........";
-            getjsondata(0,$message);
+            $statuscode = 500;
+            // getjsondata(0,$message);
         } else {
             $this->db->trans_commit();
             $message = "Successfully Executed The Cron........";
-            getjsondata(1,$message);
+            $statuscode = 200;
+            // getjsondata(1,$message);
         }
+
+        $response = [
+            "status" => true,
+            'statusCode' => $statuscode,
+            "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
+            "message" => "Data Processed",
+            'description' => $message,
+        ];
+        return $response;
     }
     
     //--------NEW BY SHABABU(20-03-2022)
@@ -3660,6 +3693,9 @@ class Cronmodel extends Adminmodel
     }
     
     public function update_resign_status($postData){
+        $insertedCount = 0;
+        $updatedCount  = 0;
+        $failedCount   = 0;
         $empid = '';
         // print_r($postData);exit;
         $fromDate = $postData['fromDate'];
@@ -3684,20 +3720,29 @@ class Cronmodel extends Adminmodel
                 $this->db->where('mxemp_emp_resignation_status !=', 'R');  
                 $this->db->where('mxemp_emp_id', $empid);            
                 $res = $this->db->update('maxwell_employees_info',$resign_status_array); 
+                $updatedCount++;
             }
         }
         if($res){
             // echo "success";
             $nametype = 'RESIGN STATUS UPDATE';
-            $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-            $array = array('name'=> $nametype,'Url' => $actual_link);
+            $array = array('name'=> $nametype,'Url' => 'https://maxwellhrms.in/cron/update_resign_status','cron_refrence_id' => 11);
             $res = $this->db->insert('cron_log',$array);
             $message = "Successfully executed";
-            getjsondata(1,$message);
+            // getjsondata(1,$message);
         }else{
             $message =  "No Resign Employees Found from ".$fromDate ." to ".$toDate."To Update";
-            getjsondata(0,$message);
+            // getjsondata(0,$message);
         }
+
+        $response = [
+            "status" => true,
+            'statusCode' => $statuscode,
+            "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
+            "message" => "Data Processed",
+            'description' => $message,
+        ];
+        return $response;
     }
     
     public function lastmonthleavesappiledsummary(){
