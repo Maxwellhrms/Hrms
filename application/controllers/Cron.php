@@ -55,11 +55,7 @@ public function Clcronmodel(){
     $userdata = 0;
     // print_r($printable); exit;
     $res = $this->Cronmodel->clcronmodel(2,$userdata,$printable);
-    if($res == 200){
-        echo '200';die();
-    }else{
-        echo '500';die();
-    }
+    echo json_encode($res);
 }
 
 public function Elcronmodel(){
@@ -69,11 +65,7 @@ public function Elcronmodel(){
     }
     $userdata=0;
     $res=$this->Cronmodel->clcronmodel(1,$userdata,$printable);
-        if($res == 200){
-        echo '200';die();
-    }else{
-        echo '500';die();
-    }
+    echo json_encode($res);
 }
 
 public function Slcronmodel(){
@@ -83,11 +75,7 @@ public function Slcronmodel(){
     }
     $userdata=0;
     $res=$this->Cronmodel->clcronmodel(3,$userdata,$printable);
-        if($res == 200){
-        echo '200';die();
-    }else{
-        echo '500';die();
-    }
+    echo json_encode($res);
 }
 
 public function ohcronmodel(){
