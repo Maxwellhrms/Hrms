@@ -2100,6 +2100,8 @@ public function getAttendanceDashboard(){
         $from_date=date('Y-m-d',strtotime($fromdate));
         $to_date=date('Y-m-d',strtotime($todate));
 
+        $is_current_date =($from_date == date('Y-m-d') && $to_date == date('Y-m-d'));
+
         $yearid=date('Y',strtotime($from_date));
         $monthid=date('m',strtotime($from_date));
 
@@ -2243,33 +2245,64 @@ public function getAttendanceDashboard(){
                 $first_half_punch=trim($row->mx_attendance_first_half_punch);
                 $second_half_punch=trim($row->mx_attendance_second_half_punch);
 
+                $is_ab_valid = (empty($first_half_punch) && empty($second_half_punch));
+
                 if(in_array($first_half,$attendance_types)){
-
-                    $resp[$first_half]['firsthalf']+=0.5;
-                    $resp[$first_half]['total']+=0.5;
-
-                    $resp['employee_wise_count'][$empcode][$first_half]+=0.5;
-
-                    $resp['employee_wise_count'][$empcode]['totaldays']+=0.5;
-
-                    if(!in_array($empcode,$resp[$first_half]['employeecodes'])){
-                        $resp[$first_half]['employeecodes'][]=$empcode;
+                // AB should be counted only if both punches are empty
+                    if($first_half == 'AB' && !$is_ab_valid){
+                        // Skip AB counting
+                    }else{
+                        $resp[$first_half]['firsthalf']+=0.5;
+                        $resp[$first_half]['total']+=0.5;
+                        $resp['employee_wise_count'][$empcode][$first_half]+=0.5;
+                        $resp['employee_wise_count'][$empcode]['totaldays']+=0.5;
+                        if(!in_array($empcode,$resp[$first_half]['employeecodes'])){
+                            $resp[$first_half]['employeecodes'][]=$empcode;
+                        }
                     }
                 }
 
-                if(in_array($second_half,$attendance_types)){
-
-                    $resp[$second_half]['secondhalf']+=0.5;
-                    $resp[$second_half]['total']+=0.5;
-
-                    $resp['employee_wise_count'][$empcode][$second_half]+=0.5;
-
-                    $resp['employee_wise_count'][$empcode]['totaldays']+=0.5;
-
-                    if(!in_array($empcode,$resp[$second_half]['employeecodes'])){
-                        $resp[$second_half]['employeecodes'][]=$empcode;
+                if(!$is_current_date && in_array($second_half,$attendance_types)){
+                    // AB should be counted only if both punches are empty
+                    if($second_half == 'AB' && !$is_ab_valid){
+                        // Skip AB counting
+                    }else{
+                        $resp[$second_half]['secondhalf']+=0.5;
+                        $resp[$second_half]['total']+=0.5;
+                        $resp['employee_wise_count'][$empcode][$second_half]+=0.5;
+                        $resp['employee_wise_count'][$empcode]['totaldays']+=0.5;
+                        if(!in_array($empcode,$resp[$second_half]['employeecodes'])){
+                            $resp[$second_half]['employeecodes'][]=$empcode;
+                        }
                     }
                 }
+                // if(in_array($first_half,$attendance_types)){
+
+                //     $resp[$first_half]['firsthalf']+=0.5;
+                //     $resp[$first_half]['total']+=0.5;
+
+                //     $resp['employee_wise_count'][$empcode][$first_half]+=0.5;
+
+                //     $resp['employee_wise_count'][$empcode]['totaldays']+=0.5;
+
+                //     if(!in_array($empcode,$resp[$first_half]['employeecodes'])){
+                //         $resp[$first_half]['employeecodes'][]=$empcode;
+                //     }
+                // }
+
+                // if(in_array($second_half,$attendance_types)){
+
+                //     $resp[$second_half]['secondhalf']+=0.5;
+                //     $resp[$second_half]['total']+=0.5;
+
+                //     $resp['employee_wise_count'][$empcode][$second_half]+=0.5;
+
+                //     $resp['employee_wise_count'][$empcode]['totaldays']+=0.5;
+
+                //     if(!in_array($empcode,$resp[$second_half]['employeecodes'])){
+                //         $resp[$second_half]['employeecodes'][]=$empcode;
+                //     }
+                // }
 
                 $is_od_or_ot = (
                     in_array($first_half, ['OT','OD']) ||
