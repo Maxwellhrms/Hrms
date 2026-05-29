@@ -12,6 +12,10 @@ $menu = [
         "icon" => "la la-dashboard",
         "label" => "Dashboard",
         "submenu" => array_values(array_filter([
+            ($isApprovals == 1 &&in_array($employeecode, ['M0009','MD0001'])) ? [
+                "label" => "Charts Dashboard",
+                "url"   => "Employee/employeedeatiledsummary"
+            ] : null,
             [
                 "label" => "Employee Dashboard",
                 "url"   => "Employee/employeedashboard"
@@ -20,10 +24,6 @@ $menu = [
                 "label" => "Manager Dashboard",
                 "url"   => "Employee/managerdashboard"
             ] : null,
-            ($isApprovals == 1 &&in_array($employeecode, ['M0009','MD0001'])) ? [
-                "label" => "Charts Dashboard",
-                "url"   => "Employee/employeedeatiledsummary"
-            ] : null
         ]))
     ],
 
