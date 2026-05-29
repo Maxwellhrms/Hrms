@@ -69,9 +69,9 @@ class EmployeeModel extends CI_Model
 
             $emp_id=$qry[0]->mxemp_emp_lg_employee_id;
             $insert_date=date('Y-m-d');
-            
+            if(IP == '103.152.184.207'){
             $data=$this->db->query("INSERT INTO login_attempts (emp_id, login_date)VALUES ('$emp_id', '$insert_date');"); 
-           
+            }
            echo $resp = json_encode(array('statusCode' => 200, 'message' => 'Success'));
             }else{
            echo $resp = json_encode(array('statusCode' => 400, 'errorMsg' => 'Invalid Details or You Dont Have Access'));
