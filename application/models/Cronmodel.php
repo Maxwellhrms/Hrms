@@ -2240,9 +2240,11 @@ class Cronmodel extends Adminmodel
             if ($this->db->trans_status() === FALSE) {
                     $this->db->trans_rollback();
                     $statuscode = 500;
+                    $desc = 'There was an error while executing the year end cron for the year '.$year.'. The transaction has been rolled back to maintain data integrity. Please review the error logs and try executing the cron again. If the issue persists, please contact your system administrator for further assistance.';
             } else {
                     $this->db->trans_commit();
                     $statuscode = 200;
+                    $desc = 'Year end cron executed successfully for the year '.$year.'. All the leave balances have been updated and carried forward as per the leave policy. Please review the leave balances and carry forward details in the leave balance section. If you have any questions or concerns regarding the year end cron execution, please contact your system administrator.';
             }
 
             $nametype = 'YEARLY_CARRY_FORWARD_CRON';
@@ -3143,9 +3145,11 @@ class Cronmodel extends Adminmodel
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
             $statuscode = 500;
+            $desc = 'Data Not Processed';
         } else {
             $this->db->trans_commit();
             $statuscode = 200;
+            $desc = 'Data Processed';
         }
 
         $response = [
@@ -3353,9 +3357,11 @@ class Cronmodel extends Adminmodel
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
             $statuscode = 500;
+            $desc = 'Data Not Processed for SHRT Leave Type';
         } else {
             $this->db->trans_commit();
             $statuscode = 200;
+            $desc = 'Data Processed for SHRT Leave Type';
         }
             $nametype = $shrtleanm;
             $array = array('name'=>$nametype ,'Url' => $actual_link, 'cron_refrence_id' => $cron_refrence_id);
