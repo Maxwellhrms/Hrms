@@ -366,7 +366,8 @@ $(document).on('submit','.runCronForm',function(e){
             if(response.status == true){
                 responseDiv.html(
                     '<div class="alert alert-success">'+
-                        '<strong>'+response.message+'</strong><hr>'+
+                      '<strong>'+response.message+'</strong>'+
+                        (response.description ? '<br><small>'+response.description+'</small>' : '')+
                         '<b>Updated :</b> '+response.data.updated+'<br>'+
                         '<b>Failed :</b> '+response.data.failed+
                     '</div>'
