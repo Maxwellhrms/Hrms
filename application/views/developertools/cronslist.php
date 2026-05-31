@@ -23,6 +23,14 @@ function explain_cron_timing($cron_time){
             return 'Runs once daily at 12:00 AM midnight';
         case '0 0 1 * *':
             return 'Runs monthly on 1st day at 12:00 AM';
+        case '10 1 1 * *':
+            return 'Runs monthly on the 1st day at 01:10 AM.<br>Used for Short Leave (SHRT) processing and balance updates.';
+        case '20 1 1 4 *':
+            return 'Runs yearly on April 1st at 01:20 AM.<br>Used for year-end leave processing, carry-forward, and leave reset activities.';
+        case '20 2 1 * *':
+            return 'Runs monthly on the 1st day at 02:20 AM.<br>Used for Optional Holiday (OH) allocation and balance updates.';
+        case '10 2 1 * *':
+            return 'Runs monthly on the 1st day at 02:10 AM.<br>Used for Optional Compensatory Holiday (OCH) processing and balance updates.';
         default:
             return 'Cron schedule configured.';
     }
