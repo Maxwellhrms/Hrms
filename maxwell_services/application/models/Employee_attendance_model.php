@@ -355,8 +355,17 @@ class Employee_attendance_model extends Common_model
                 $entry_type = $qry1[0]->mx_attendance_entry_type . $type .'-'. CURRENTTIMESECONDS;
                 $uparray = array("mx_attendance_first_half_punch"=>$punchtime,"mx_attendance_entry_type"=>$entry_type,"mx_attendance_latitude" => $latitude, "mx_attendance_longitude" => $longitude, "mx_attendance_location" => $location);
                 $gracefirst = $this->add_grace_calculator($firsthalf_gracetime,$qry[0]->mxcp_firsthalf_time);
-                if(strtotime($currenttime) <= strtotime($gracefirst)){
-                    $uparray["mx_attendance_first_half"] = "PR"; 
+                // if(strtotime($currenttime) <= strtotime($gracefirst)){
+                //     $uparray["mx_attendance_first_half"] = "PR"; 
+                // }
+
+                // Skip if Sunday
+                if (date('w', strtotime($attendancedate)) == 0) {
+                    // Sunday, do nothing
+                } else {
+                    if (strtotime($currenttime) <= strtotime($gracefirst)) {
+                        $uparray["mx_attendance_first_half"] = "PR";
+                    }
                 }
                 
                 // if($entrytype == 'GEOTAG' && $islocation == 'NO'){
@@ -636,8 +645,16 @@ class Employee_attendance_model extends Common_model
                 $entry_type = $qry1[0]->mx_attendance_entry_type . $type .'-'. CURRENTTIMESECONDS;
                 $uparray = array("mx_attendance_first_half_punch"=>$punchtime,"mx_attendance_entry_type"=>$entry_type,"mx_attendance_latitude" => $latitude, "mx_attendance_longitude" => $longitude, "mx_attendance_location" => $location);
                 $gracefirst = $this->add_grace_calculator($firsthalf_gracetime,$qry[0]->mxcp_firsthalf_time);
-                if(strtotime($currenttime) <= strtotime($gracefirst)){
-                    $uparray["mx_attendance_first_half"] = "PR"; 
+                // if(strtotime($currenttime) <= strtotime($gracefirst)){
+                //     $uparray["mx_attendance_first_half"] = "PR"; 
+                // }
+                // Skip if Sunday
+                if (date('w', strtotime($attendancedate)) == 0) {
+                    // Sunday, do nothing
+                } else {
+                    if (strtotime($currenttime) <= strtotime($gracefirst)) {
+                        $uparray["mx_attendance_first_half"] = "PR";
+                    }
                 }
                 // $this->db->where("mx_attendance_id", $attendance_uniqid);
                 $this->db->where("mx_attendance_emp_code", $employeeid);
@@ -882,8 +899,16 @@ class Employee_attendance_model extends Common_model
                 $entry_type = $qry1[0]->mx_attendance_entry_type . $type .'-'. date('H:i:s',strtotime($timestamp));
                 $uparray = array("mx_attendance_first_half_punch"=>$punchtime,"mx_attendance_entry_type"=>$entry_type,"mx_attendance_latitude" => $latitude, "mx_attendance_longitude" => $longitude, "mx_attendance_location" => $location);
                 $gracefirst = $this->add_grace_calculator($firsthalf_gracetime,$qry[0]->mxcp_firsthalf_time);
-                if(strtotime($currenttime) <= strtotime($gracefirst)){
-                    $uparray["mx_attendance_first_half"] = "PR"; 
+                // if(strtotime($currenttime) <= strtotime($gracefirst)){
+                //     $uparray["mx_attendance_first_half"] = "PR"; 
+                // }
+                // Skip if Sunday
+                if (date('w', strtotime($attendancedate)) == 0) {
+                    // Sunday, do nothing
+                } else {
+                    if (strtotime($currenttime) <= strtotime($gracefirst)) {
+                        $uparray["mx_attendance_first_half"] = "PR";
+                    }
                 }
                 $this->db->where("mx_attendance_id", $attendance_uniqid);
                 $this->db->where("mx_attendance_emp_code", $employeeid);
