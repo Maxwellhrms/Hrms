@@ -387,6 +387,7 @@ class Cronmodel extends Adminmodel
             $this->db->select(" ( select max(case when mxemp_leave_bal_leave_type_shrt_name = 'SL' then mxemp_leave_bal_crnt_bal end) 
             from maxwell_emp_leave_balance where mx_attendance_emp_code = mxemp_leave_bal_emp_id group by mxemp_leave_bal_emp_id) as Currentbal, ");
         }
+        
         /*
         $this->db->select("(select mxlt_leave_short_name from maxwell_leave_type_master where mxlt_id = $leavetypeid and mxlt_status=1 ) as leavetypeSN, 
         mxemp_emp_comp_code,mxemp_emp_division_code,mxemp_emp_type as emptype,
@@ -2109,6 +2110,13 @@ class Cronmodel extends Adminmodel
     }
 
     public function year_end_corn($year,$printable){
+        $insertedCount = 0;
+        $updatedCount  = 0;
+        $failedCount   = 0;
+        $desc = '';
+        $actual_link = 'https://maxwellhrms.in/cron/yearendcorn';
+        $cron_refrence_id = 14;
+
         $this->db->select('mxemp_leave_cron_createdtime');
         $this->db->from('maxwell_emp_leave_cron_history');
         $this->db->where('mxemp_leave_cron_processdate',$year);
@@ -2117,7 +2125,15 @@ class Cronmodel extends Adminmodel
         $crondata = $query->result();
         $crownnorows = $query->num_rows();
         if($crownnorows > 0 ){
-            echo '800'; die;
+            $desc = 'It seems that the year end cron has already been executed for the year '.$year.' on '.date('d-m-Y',strtotime($crondata[0]->mxemp_leave_cron_createdtime)).' at '.date('h:i:s A',strtotime($crondata[0]->mxemp_leave_cron_createdtime)).'. So, the cron is not executing again for the same year to avoid data duplication. If you want to execute the cron again for the same year, please contact your system administrator.';
+            $response = [
+                "status" => true,
+                'statusCode' => 800,
+                "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
+                "message" => "Data Processed",
+                'description' => $desc,
+            ];
+            return $response;
         }else{
             $currentdate = date('Y');
             $cronmonth = date('m');
@@ -2152,7 +2168,7 @@ class Cronmodel extends Adminmodel
             $cronyear = $query->result();
             // echo $this->db->last_query(); 
             $this->db->trans_begin();
-                foreach($cronyear as $cykey=>$cyear){
+            foreach($cronyear as $cykey=>$cyear){
                 // if( ($cyear->mxemp_emp_id == 'M00143') || ($cyear->mxemp_emp_id == 'M00144') ){
                     if($cyear->mxlass_is_carry_forward_year == 1 ){
                         if( $cyear->mxemp_leave_bal_crnt_bal > $cyear->mxlass_max_leaves_carry_forward ){
@@ -2207,49 +2223,50 @@ class Cronmodel extends Adminmodel
                                             // print_r($cornarraydet);
                                             // echo 'cndet';
                                             $this->db->insert('maxwell_emp_leave_detailed_history',$cornarraydet);
+                                            $insertedCount++;
                                             // echo $this->db->last_query().'<br>';                      
                                             $mstleavebal = array(
                                                 'mxemp_leave_bal_crnt_bal' =>$cuntbal,
                                                 'mxemp_leave_bal_modifyby' => $this->session->userdata('user_id'),
                                                 'mxemp_leave_bal_modifiedtime' => date('Y-m-d h:m:s'),
                                                 'mxemp_leave_bal_modified_ip' => $ip
-                                            );  
-                                            // echo '<pre>';
-                                            // print_r($mstleavebal);
-                                            // echo 'mstup';
+                                            );                                              
                                            $this->db->where('mxemp_leave_bal_emp_id', $cyear->mxemp_emp_id);  
                                            $this->db->where('mxemp_leave_bal_leave_type' , $cyear->mxlass_leave_type_id);            
-                                           $this->db->update('maxwell_emp_leave_balance' , $mstleavebal);                                      
-                                        //    echo $this->db->last_query().'<br>';
-                // }
+                                           $this->db->update('maxwell_emp_leave_balance' , $mstleavebal);
+                                           $updatedCount++;
             }
-            
-            if($printable == 'Y'){
-                $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-                $array = array('name'=> 'YEARLY COLLAPSE CRON MANUAL','Url' => $actual_link);
-                $res = $this->db->insert('cron_log',$array);
-            }elseif($printable == 'N'){
-                $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-                $array = array('name'=> 'YEARLY COLLAPSE','Url' => $actual_link);
-                $res = $this->db->insert('cron_log',$array);
-            }
-            
+                                   
             if ($this->db->trans_status() === FALSE) {
                     $this->db->trans_rollback();
-                    return 500;
+                    $statuscode = 500;
             } else {
                     $this->db->trans_commit();
-                    return 200;
+                    $statuscode = 200;
             }
 
- }else{
-        return 700;
-        //insert into maxwell_submenu_page values( 38 , 11 ,  'Yearly_Collapse_Cron' , 'cron/year_end_corn','',1,888666,0);
+            $nametype = 'YEARLY_CARRY_FORWARD_CRON';
+            $array = array('name'=>$nametype ,'Url' => $actual_link, 'cron_refrence_id' => $cron_refrence_id);
+            $res = $this->db->insert('cron_log',$array);
 
-}
-
-
-
+            $response = [
+            "status" => true,
+            'statusCode' => $statuscode,
+            "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
+            "message" => "Data Processed",
+            'description' => $desc,
+        ];
+        return $response;
+    }else{
+            $response = [
+            "status" => true,
+            'statusCode' => 700,
+            "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
+            "message" => "Data Processed",
+            'description' => $desc,
+        ];
+        return $response;
+    }
 }
 
     // ------------------------- end added 13-08-2021 -----------
@@ -3000,14 +3017,25 @@ class Cronmodel extends Adminmodel
         // ----------------------  added 09-04-2022 ------------
     public function ohcronmodel($leavetypeid,$userdate=0,$printable){
 
+        $insertedCount = 0;
+        $updatedCount  = 0;
+        $failedCount   = 0;
+        $desc = '';
+        $actual_link = '';
+        $cron_refrence_id = '';
+
         $date = date('Y-m-d');
         $yearmnt = date('Y');
         $yearmnt =$yearmnt.'_00';  // to apply only year yearly collapse cron is running so that appended 00 for year
         $createddate = date('Y-m-d H:i:s');
         $ip = $this->get_client_ip();
         if($leavetypeid == 4 ){
+            $actual_link = 'https://maxwellhrms.in/cron/ohcronmodel';
+            $cron_refrence_id = 15;
             $shrtleanm = ' OH';
         }else if($leavetypeid == 12 ){
+            $actual_link = 'https://maxwellhrms.in/cron/ochcronmodel';
+            $cron_refrence_id = 16;
             $shrtleanm =' OCH';
         }
         $this->db->trans_begin();
@@ -3089,6 +3117,7 @@ class Cronmodel extends Adminmodel
                             'mxemp_leave_history_created_ip' => $ip
                         );
                         $this->db->insert('maxwell_emp_leave_detailed_history',$cornarraydet);
+                        $insertedCount++;
                         // echo $this->db->last_query().'<br>';                      
                         // print_r($cornarraydet);
                         $mstleavebal = array(
@@ -3100,31 +3129,35 @@ class Cronmodel extends Adminmodel
                         $this->db->where('mxemp_leave_bal_emp_id', $ltdt->EmployeeID);  
                         $this->db->where('mxemp_leave_bal_leave_type', $leavetypeid );            
                         $this->db->update('maxwell_emp_leave_balance',$mstleavebal);   
+                        $updatedCount++;
                         // print_r($mstleavebal); 
                     } 
                 }
             } 
         }  // exit;
-        
-        if($printable == 'Y'){
-            $nametype = $shrtleanm .'CRON MANUAL';
-            $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-            $array = array('name'=> $nametype,'Url' => $actual_link);
-            $res = $this->db->insert('cron_log',$array);
-        }elseif($printable == 'N'){
-            $nametype = $shrtleanm .'CRON';
-            $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-            $array = array('name'=> $nametype,'Url' => $actual_link);
-            $res = $this->db->insert('cron_log',$array);
-        }
-                
+
+        $nametype = $shrtleanm;
+        $array = array('name'=>$nametype ,'Url' => $actual_link, 'cron_refrence_id' => $cron_refrence_id);
+        $res = $this->db->insert('cron_log',$array);
+
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
-            return 500;
+            $statuscode = 500;
         } else {
             $this->db->trans_commit();
-            return 200;
+            $statuscode = 200;
         }
+
+        $response = [
+            "status" => true,
+            'statusCode' => $statuscode,
+            "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
+            "message" => "Data Processed",
+            'description' => $desc,
+        ];
+        return $response;
+                
+        
     }
     // -------------------- end added 09-04-2022 -----------
 
@@ -3212,6 +3245,14 @@ class Cronmodel extends Adminmodel
    } 
    
    public function SHRTcronmodel($leavetypeid,$userdate,$printable){
+        $insertedCount = 0;
+        $updatedCount  = 0;
+        $failedCount   = 0;
+        $desc = '';
+        $actual_link = 'https://maxwellhrms.in/cron/SHRTcronmodel';
+        $cron_refrence_id = 13;
+        $shrtleanm = 'SHRT';
+
         if($userdate != 0 ){
              $date = date('Y-m-d',strtotime($userdate));
              $yearmnt = date('Y_m',strtotime($date));        
@@ -3302,18 +3343,32 @@ class Cronmodel extends Adminmodel
                             );
                             $this->db->insert('maxwell_emp_leave_detailed_history',$cornarraydet);
                             // print_r($cornarraydet);
+                            $insertedCount++;
                     }
             }
         }else{
             echo 'No one found may be upto date updated'; exit;
         }
+
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
-            return 500;
+            $statuscode = 500;
         } else {
             $this->db->trans_commit();
-            return 200;
+            $statuscode = 200;
         }
+            $nametype = $shrtleanm;
+            $array = array('name'=>$nametype ,'Url' => $actual_link, 'cron_refrence_id' => $cron_refrence_id);
+            $res = $this->db->insert('cron_log',$array);
+
+        $response = [
+            "status" => true,
+            'statusCode' => $statuscode,
+            "data" => ["updated" => $updatedCount,"failed"  => $failedCount,"inserted" => $insertedCount],
+            "message" => "Data Processed",
+            'description' => $desc,
+        ];
+        return $response;
    }
     
   

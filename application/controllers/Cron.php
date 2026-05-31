@@ -40,12 +40,13 @@ public function manualleavescronrunning(){
         $this->footer();
 }
 
- public function manual_leaves_cron(){
+    public function manual_leaves_cron(){
         $this->verifylogin();
         $this->header();
         $this->load->view('cron/attendance_punch');
         $this->footer();
     }
+
 
 public function Clcronmodel(){
     $printable = $this->input->post('printable');
@@ -68,7 +69,7 @@ public function Elcronmodel(){
     echo json_encode($res);
 }
 
-public function Slcronmodel(){
+public function Slcronmodel(){ 
     $printable = $this->input->post('printable');
     if(empty($printable)){
             $printable = 'N';
@@ -85,11 +86,7 @@ public function ohcronmodel(){
     }
     $userdata=0;
     $res=$this->Cronmodel->ohcronmodel(4,$userdata,$printable);
-        if($res == 200){
-            echo '200'; die();
-        }else{
-            echo '500'; die();
-        }
+    echo json_encode($res);
 }
 
 public function ochcronmodel(){
@@ -99,12 +96,9 @@ public function ochcronmodel(){
     }
     $userdata=0;
     $res=$this->Cronmodel->ohcronmodel(12,$userdata,$printable);
-        if($res == 200){
-            echo '200'; die();
-        }else{
-            echo '500'; die();
-        }
+    echo json_encode($res);
 }
+
 // --------------------  added C 03-12-2021 ------------
 
 public function manualyearcron(){
@@ -269,13 +263,7 @@ public function yearendcorn(){
     }
    
     $res = $this->Cronmodel->year_end_corn($year,$printable);
-    if($res == 200){
-        echo '200'; die();
-    }else if($res == 500){
-        echo '500'; die();
-    }else{
-        echo '700'; die();
-    }
+    echo json_encode($res);
 }
 
 public function cronyearlist(){
@@ -401,12 +389,7 @@ public function cronyearlist(){
         }
         $userdata=0;
         $res=$this->Cronmodel->SHRTcronmodel(11,$userdata,$printable);
-        if($res == 200){
-            echo '200';die();
-        }else{
-            //echo '500';die();
-            echo $res;
-        }
+        echo json_encode($res);
     }
     
     // -------------------added 02-02-2023----------------
