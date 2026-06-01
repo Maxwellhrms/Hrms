@@ -122,6 +122,15 @@
                         Increments
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link"
+                            id="branchsalary-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#branchsalary"
+                            type="button">
+                        Branch Wise Salaries
+                    </button>
+                </li>
             </ul>
 
             <!-- Tab Content -->
@@ -153,6 +162,17 @@
                     </div>
 
                     <div id="hrms_increments_chart"></div>
+                </div>
+
+                <!-- Branch Wise Salaries -->
+                <div class="tab-pane fade" id="branchsalary" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+
+                            All India Branch Salaries
+                        </h5>
+                    </div>
+                    <div id="branch_salary_chart"></div>
                 </div>
 
             </div>
@@ -1497,5 +1517,173 @@ var joinResignChart = new ApexCharts(
 
 joinResignChart.render();
 
+</script>
+<script>
+
+var salaryData = <?php echo json_encode($branchwisesalary); ?>;
+
+if(window.salaryChart){
+    window.salaryChart.destroy();
+}
+
+var options = {
+
+    // series: salaryData.series,
+
+    series: salaryData.series.map(function(series){
+
+    return {
+        name: series.name,
+        data: series.data,
+        hidden: series.name !== 'HEAD OFFICE'
+    };
+
+}),
+
+    chart: {
+        type: 'bar',
+        height: 450,
+        toolbar:{
+            show:true
+        },
+
+        events: {
+
+            // Keep mounted empty
+            // mounted: function(){},
+
+            dataPointSelection: function(
+                event,
+                chartContext,
+                config
+            ){
+
+                var branchName =
+                    config.w.config.series[
+                        config.seriesIndex
+                    ].name;
+
+                if(
+                    !salaryData.details[branchName] ||
+                    !salaryData.details[branchName][config.dataPointIndex]
+                ){
+                    return false;
+                }
+
+                var detail =
+                    salaryData.details[branchName][
+                        config.dataPointIndex
+                    ];
+
+                var employeecodes =
+                    detail.employees.join(',');
+
+                var yearMonth =
+                    detail.yearmonth.toString();
+
+                var year =
+                    yearMonth.substring(0,4);
+
+                var month =
+                    yearMonth.substring(4,6);
+
+                var fromdate =
+                    year + '-' +
+                    month + '-01';
+
+                var lastDay =
+                    new Date(
+                        parseInt(year),
+                        parseInt(month),
+                        0
+                    ).getDate();
+
+                var todate =
+                    year + '-' +
+                    month + '-' +
+                    String(lastDay).padStart(2,'0');
+
+                // showAttendanceEmployeeDetails(
+                //     'Salary',
+                //     employeecodes,
+                //     '<?php echo $userfilters['esi_company_id']; ?>',
+                //     '<?php echo $userfilters['esi_div_id']; ?>',
+                //     '<?php echo $userfilters['esi_state_id']; ?>',
+                //     detail.branchcode,
+                //     fromdate,
+                //     todate,
+                //     branchName
+                // );
+
+            }
+        }
+    },
+
+    plotOptions:{
+        bar:{
+            columnWidth:'50%',
+            borderRadius:5
+        }
+    },
+
+    dataLabels:{
+        enabled:true,
+        formatter:function(val){
+
+            return (
+                val / 100000
+            ).toFixed(1) + 'L';
+
+        }
+    },
+
+    xaxis:{
+        categories: salaryData.months
+    },
+
+    yaxis:{
+        labels:{
+            formatter:function(val){
+
+                return (
+                    val / 100000
+                ).toFixed(1) + 'L';
+
+            }
+        }
+    },
+
+    tooltip:{
+        y:{
+            formatter:function(val){
+
+                return '₹ ' +
+                    Number(val)
+                    .toLocaleString('en-IN');
+
+            }
+        }
+    },
+
+    legend:{
+        show:true,
+        position:'top',
+        horizontalAlign:'left'
+    },
+
+    title:{
+        text:'Branch Salary Trend'
+    }
+
+};
+
+window.salaryChart =
+new ApexCharts(
+    document.querySelector(
+        "#branch_salary_chart"
+    ),
+    options
+);
+window.salaryChart.render();
 </script>
 </div>

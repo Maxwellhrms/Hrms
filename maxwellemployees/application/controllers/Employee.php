@@ -85,8 +85,9 @@ class Employee extends Common {
         $data['incrementData'] = $this->EmployeeModel->getEmployeeIncrementChartData($userdata);
         $data['dashboarddetails'] = $this->EmployeeModel->allemployeesattendancesummary($userdata);
         $data['joinResign'] = $this->EmployeeModel->joinResignSummary($userdata);
+        $data['branchwisesalary'] = $this->EmployeeModel->getBranchWiseSalarySummary($userdata);
         // echo '<pre>';
-        // print_r($data['joinResign']); exit;
+        // print_r($data['branchwisesalary']); exit;
         $data['userfilters'] = $userdata;
         $this->load->view('dashboard/employeedeatiledsummaryList',$data);
     }

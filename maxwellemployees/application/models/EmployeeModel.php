@@ -3534,4 +3534,214 @@ public function getAttendanceDashboard(){
 
     }
     #joinResignsummary
+    #branchwisesalaries
+    public function getBranchWiseSalarySummary($data){
+        $companyid  = $data['esi_company_id'];
+        $divisionid = $data['esi_div_id'];
+        $stateid    = $data['esi_state_id'];
+        $branchid   = $data['esi_branch_id'];
+        $employecode = $data['employecode'];
+
+        // Current month and last 11 months
+        $currentYearMonth = date('Ym');
+        $fromYearMonth    = date('Ym', strtotime('-12 months'));
+
+        $tables = $this->db->query("
+            SELECT DISTINCT mxemp_ty_table_name
+            FROM maxwell_employee_type_master
+            WHERE mxemp_ty_table_name IS NOT NULL
+            AND mxemp_ty_table_name != ''
+        ")->result_array();
+
+        $salaryData = [];
+
+        foreach ($tables as $row) {
+
+            $table = trim($row['mxemp_ty_table_name']);
+
+            if (!$this->db->table_exists($table)) {
+                continue;
+            }
+
+            $where = [];
+
+            // Last 12 months filter
+            $where[] = "
+                s.mxsal_year_month BETWEEN
+                '{$fromYearMonth}' AND '{$currentYearMonth}'
+            ";
+
+            if (!empty($companyid) && $companyid != 0) {
+                $where[] = "
+                    s.mxsal_cmp_id =
+                    '".$this->db->escape_str($companyid)."'
+                ";
+            }
+
+            if (!empty($divisionid) && $divisionid != 0) {
+                $where[] = "
+                    s.mxsal_div_id =
+                    '".$this->db->escape_str($divisionid)."'
+                ";
+            }
+
+            if (!empty($stateid) && $stateid != 0) {
+                $where[] = "
+                    s.mxsal_state_code =
+                    '".$this->db->escape_str($stateid)."'
+                ";
+            }
+
+            if (!empty($branchid) && $branchid != 0) {
+                $where[] = "
+                    s.mxsal_branch_code =
+                    '".$this->db->escape_str($branchid)."'
+                ";
+            }
+
+            $sql = "
+                SELECT
+                    s.mxsal_year_month,
+                    s.mxsal_branch_code,
+                    b.mxb_name AS branchname,
+                    SUM(s.mxsal_gross_sal) AS gross_salary,
+                    GROUP_CONCAT(DISTINCT s.mxsal_emp_code) AS employee_codes
+                FROM {$table} s
+                INNER JOIN maxwell_branch_master b
+                    ON b.mxb_id = s.mxsal_branch_code
+            ";
+
+            if (!empty($where)) {
+                $sql .= " WHERE " . implode(' AND ', $where);
+            }
+
+            $sql .= "
+                GROUP BY
+                    s.mxsal_year_month,
+                    s.mxsal_branch_code
+            ";
+
+            $results = $this->db->query($sql)->result_array();
+
+            foreach ($results as $result) {
+
+                $key = $result['mxsal_year_month'] .
+                    '_' .
+                    $result['mxsal_branch_code'];
+
+                if (!isset($salaryData[$key])) {
+
+                    $salaryData[$key] = [
+                        'yearmonth'    => $result['mxsal_year_month'],
+                        'branchcode'   => $result['mxsal_branch_code'],
+                        'branchname'   => $result['branchname'],
+                        'gross_salary' => 0,
+                        'employees'    => []
+                    ];
+                }
+
+                $salaryData[$key]['gross_salary'] +=
+                    (float)$result['gross_salary'];
+
+                if (!empty($result['employee_codes'])) {
+
+                    $employees = explode(
+                        ',',
+                        $result['employee_codes']
+                    );
+
+                    $salaryData[$key]['employees'] =
+                        array_values(
+                            array_unique(
+                                array_merge(
+                                    $salaryData[$key]['employees'],
+                                    $employees
+                                )
+                            )
+                        );
+                }
+            }
+        }
+
+        $salaryData = array_values($salaryData);
+
+        usort($salaryData, function ($a, $b) {
+            return strcmp(
+                $a['yearmonth'],
+                $b['yearmonth']
+            );
+        });
+
+        $months = [];
+        $series = [];
+        $details = [];
+
+        foreach ($salaryData as $row) {
+
+            if (!in_array($row['yearmonth'], $months)) {
+                $months[] = $row['yearmonth'];
+            }
+        }
+
+        foreach ($salaryData as $row) {
+
+            $branchName = trim($row['branchname']);
+
+            if (!isset($series[$branchName])) {
+
+                $series[$branchName] = [
+                    'name' => $branchName,
+                    'data' => array_fill(
+                        0,
+                        count($months),
+                        0
+                    )
+                ];
+            }
+        }
+
+        foreach ($salaryData as $row) {
+
+            $monthIndex = array_search(
+                $row['yearmonth'],
+                $months
+            );
+
+            $branchName = trim($row['branchname']);
+
+            $series[$branchName]['data'][$monthIndex] =
+                round($row['gross_salary'], 2);
+
+            $details[$branchName][$monthIndex] = [
+                'yearmonth'    => $row['yearmonth'],
+                'branchcode'   => $row['branchcode'],
+                'branchname'   => $row['branchname'],
+                'gross_salary' => $row['gross_salary'],
+                'employees'    => $row['employees']
+            ];
+        }
+
+        // Format months
+        $formattedMonths = [];
+
+        foreach ($months as $month) {
+
+            $formattedMonths[] = date(
+                'M Y',
+                strtotime(
+                    substr($month, 0, 4)
+                    . '-' .
+                    substr($month, 4, 2)
+                    . '-01'
+                )
+            );
+        }
+
+        return [
+            'months'  => $formattedMonths,
+            'series'  => array_values($series),
+            'details' => $details
+        ];
+    }
+    #branchwisesalaries
 }
