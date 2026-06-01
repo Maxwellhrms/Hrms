@@ -761,6 +761,7 @@ $("#emptype").change(function(){
     load_employees();
 });
 
+
 $("#delete_sal").click(function(){
     yearmonth = $("#yearmonth").val();
     emp_code = $("#promotion_employeeid").val();
@@ -790,6 +791,95 @@ $("#delete_sal").click(function(){
             }
         });
 });
+
+$("#generate_resigned_emp_sal").click(function(){
+
+        var yearmonth = $("#yearmonth").val();
+        if (yearmonth == 0 || yearmonth == "") {
+            $("#yearmonth").focus();
+            $('#yearmontherror').html("Please Select Date");
+            return false;
+        } else {
+            $('#yearmontherror').html("");
+        }
+
+        var cmp_id = $("#promotion_company_id").val();
+        if (cmp_id == 0 || cmp_id == "") {
+            $("#promotion_company_id").focus();
+            $('#promotion_company_id_error').html("Please Select Company Name");
+            return false;
+        } else {
+            $('#promotion_company_id_error').html("");
+        }
+
+        var div_id = $("#promotion_div_id").val();
+        if (div_id == 0 || div_id == "") {
+            $("#promotion_div_id").focus();
+            $('#promotion_div_id_error').html("Please Select Division Name");
+            return false;
+        } else {
+            $('#promotion_div_id_error').html("");
+        }
+
+        var state_id = $("#promotion_state_id").val();
+        if (state_id == 0 || state_id == "") {
+            $("#promotion_state_id").focus();
+            $('#promotion_state_id_error').html("Please Select State");
+            return false;
+        } else {
+            $('#promotion_state_id_error').html("");
+        }
+
+        var branch_id = $("#promotion_branch_id").val();
+        if (branch_id == 0 || branch_id == "") {
+            $("#promotion_branch_id").focus();
+            $('#promotion_branch_id_error').html("Please Select Branch");
+            return false;
+        } else {
+            $('#promotion_branch_id_error').html("");
+        }
+        var emptype = $("#emptype").val();
+        if (emptype == 0 || emptype == "") {
+            $("#emptype").focus();
+            $('#emptype_error').html("Please Select Employee Type");
+            return false;
+        } else {
+            $('#emptype_error').html("");
+        }
+
+        var emp_code = $("#promotion_employeeid").val();
+        if (emp_code == 0 || emp_code == "") {
+            $("#promotion_employeeid").focus();
+            $('#promotion_employeeid_error').html("Please Select Employee Id");
+            return false;
+        } else {
+            $('#promotion_employeeid_error').html("");
+        }
+
+        $.ajax({
+            async: false,
+            type: "POST",
+            data: {cmp_id:cmp_id, yearmonth:yearmonth, emp_code:emp_code, emptype:emptype },
+            url: baseurl + 'Salaries_controller/generate_single_emp_salarie_resign',
+            datatype: "html",
+            success: function (data) {
+
+                var parsedData = JSON.parse(data);
+                // console.log(parsedData);
+                if(parsedData.status == 0){
+                    alert(parsedData.message);
+                    return false;
+                }else if(parsedData.status == 1){
+                    alert(parsedData.message);
+                    return false;
+                }else{
+                    alert("Some Error Getting Contact Developer...");
+                    return false;
+                }
+
+            }
+        });
+    });
 
 
 });

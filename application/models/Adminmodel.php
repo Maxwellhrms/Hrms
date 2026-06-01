@@ -5861,7 +5861,7 @@ die;
         // }
         
         
-        $this->db->select('mxemp_emp_autouniqueid,mxemp_emp_id,mxemp_emp_fname,mxemp_emp_lname,mxemp_emp_comp_code,mxcp_name,mxemp_emp_division_code,mxd_name,mxemp_emp_state_code,mxst_state,mxemp_emp_branch_code,mxb_name,mxemp_emp_desg_code,mxdesg_name,mxemp_emp_dept_code,mxdpt_name,mxemp_emp_desg_code,mxdesg_name,mxemp_emp_type,mxemp_ty_name,mxemp_emp_current_salary,mxemp_emp_grade_code,mxgrd_name,mxemp_emp_date_of_birth,mxemp_emp_resignation_status,mxemp_emp_resignation_date,mxemp_emp_resignation_relieving_date,mxemp_emp_date_of_join,mxemp_is_eps_to_pf');
+        $this->db->select('mxemp_emp_autouniqueid,mxemp_emp_id,mxemp_emp_fname,mxemp_emp_lname,mxemp_emp_comp_code,mxcp_name,mxemp_emp_division_code,mxd_name,mxemp_emp_state_code,mxst_state,mxemp_emp_branch_code,mxb_name,mxemp_emp_desg_code,mxdesg_name,mxemp_emp_dept_code,mxdpt_name,mxemp_emp_desg_code,mxdesg_name,mxemp_emp_type,mxemp_ty_name,mxemp_emp_current_salary,mxemp_emp_grade_code,mxgrd_name,mxemp_emp_date_of_birth,mxemp_emp_resignation_status,mxemp_emp_resignation_date,mxemp_emp_resignation_relieving_date,mxemp_emp_date_of_join,mxemp_is_eps_to_pf,mxemp_emp_unpay_sal_months');
         $this->db->from('maxwell_employees_info');
         $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
         $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');

@@ -1863,7 +1863,7 @@ class Salaries_model extends Adminmodel
                 $res2 = $qry2->result();
                 if(count($res2) > 0){
                     $message = "Employee salary Already Generated for the (".$table_name .") Table Name...";
-                    getjsondata(0,$message);    
+                    getjsondata(0,$message);
                 }
             }
             //-------------------END CHECK DATA ALREADY EXISTS OR NOT FOR ALL EMPLOYEEMENT SALARY TABLES
@@ -8342,7 +8342,7 @@ class Salaries_model extends Adminmodel
             $affect_date = $year . '-' . $month . '-01';
 
             // //------>VALIDATING
-            $this->check_paysheet_validations($cmp_id,$year_month,$affect_date);
+            $this->check_paysheet_validations_new($cmp_id,$year_month,$affect_date);
             $this->validate_emp_attendance($cmp_id,$affect_date);
             $this->vlidate_ph_attendance($cmp_id,$affect_date);//---->FOR PH ABSENT ie AB PH AB EXIST IN ATTENDANCE TABLE
 
@@ -15782,6 +15782,2079 @@ class Salaries_model extends Adminmodel
             $this->db->trans_commit();
             getjsondata(1, "Global salary data for " . $yearmonth . " successfully deleted for all employee types.");
         }
+    }
+
+    /*
+     * Developed By : Varaprasad
+     * Developed On: 25-May-2026
+     * Purpose: For SIngle Employee salary generation for the month after resignation
+     * */
+
+    public function generate_single_emp_salarie_resigned($data)
+    {
+        // print_r($data);exit;
+        $this->db->trans_begin();
+
+        if (isset($data['cmp_id']) && isset($data['sal_month_year'])) {
+            $cmp_id = $this->cleanInput($data['cmp_id']);
+            $emp_code_data = explode('~',$this->cleanInput($data['emp_code']));
+            $emp_code = $emp_code_data[0];
+            $sal_month_year = $this->cleanInput($data['sal_month_year']);
+            $ex = explode('-', $sal_month_year);
+            // print_r($ex);
+            $month = $ex[0];
+            $month = (strlen($month) == 1) ? "0" . $month : $month;
+            $year = $ex[1];
+            $year_month = $year . $month;
+            // echo $emp_code;exit;
+            $affect_date = $year . '-' . $month . '-01';
+
+            //------>VALIDATING
+            // $this->check_paysheet_validations($cmp_id,$year_month,$affect_date);
+            // $this->validate_emp_attendance($cmp_id,$affect_date);
+            // $this->vlidate_ph_attendance($cmp_id,$affect_date);//---->FOR PH ABSENT ie AB PH AB EXIST IN ATTENDANCE TABLE
+
+
+            //------>END VALIDATING
+
+
+            $attendance_table_name = "maxwell_attendance_" . $year . "_" . $month;
+            $sundays_of_a_month = getsundays_in_month($month, $year);
+
+
+            //--------CHECK ATTENDANCE TABLE EXIST OR NOT
+            if ($this->db->table_exists($attendance_table_name)) {
+
+                //-------------VALIDATING
+                $month_year = date('Ym',strtotime('01-'.$data['yearmonth']));
+                $emptype = $data['emptype'];
+                // print_r($data);exit;
+                //---------GET TABLE NAME BASED ON EMP_TYPE
+                $this->db->select('mxemp_ty_table_name');
+                $this->db->from('maxwell_employee_type_master');
+                $this->db->where('mxemp_ty_id',$emptype);
+                $this->db->where('mxemp_ty_status',1);
+                $query = $this->db->get();
+                $res = $query->result();
+                // print_r($res);exit;
+                $table_name1 = $res[0]->mxemp_ty_table_name;
+                //---------END GET TABLE NAME BASED ON EMP_TYPE
+
+                //------CHECK DATA IN SAL
+                #CHECK CURRENT EMP SAL DATA
+                $this->db->select();
+                $this->db->from($table_name1);
+                $this->db->where('mxsal_emp_code',$emp_code);
+                $this->db->where('mxsal_year_month',$month_year);
+                $query = $this->db->where('mxsal_status',1)->get();
+                $res2 = $query->result();
+                if(count($res2) > 0){
+                    $this->db->trans_rollback();
+                    $message = "SALARY ALREADY CREATED FOR THESE EMPLOYEE...";
+                    getjsondata(0,$message);
+                }
+                #CHECK OTHER EMP SAL DATA
+                /*$this->db->select();
+                $this->db->from($table_name1);
+                // $this->db->where('mxsal_emp_code',$emp_code);
+                $this->db->where('mxsal_year_month',$month_year);
+                $query = $this->db->where('mxsal_status',1)->get();
+                $res1 = $query->result();
+                if(count($res1) <= 0){
+                    $this->db->trans_rollback();
+                    $message = "You Cant Generate Single Emp Salary Without Generating Regular Salary...";
+                    getjsondata(0,$message);
+                }*/
+
+                //------END CHECK DATA IN SAL
+
+                //-------------END VALIDATING
+
+
+                $user_data = array("cmpname" => $cmp_id,"emp_id" => $emp_code);
+                //----NEW BY SHABABU(01-05-2022)
+                $unpaid_sal_emp_array = $data['unpaid_empids'];
+                // echo '<pre>';print_r($unpaid_sal_emp_array);exit;
+                //----END NEW BY SHABABU(01-05-2022)
+                //-------------GETTING ALL ARRAYS
+                $employees_array = $this->getemployeesinfo($user_data);
+                //echo "<pre> Employee Array: ";print_r($employees_array);exit;
+                $table_names_array = $this->getemployeetypemasterdetails($id = null, $cmp_id);
+                $column_names_array = $this->get_income_types($income_id = null, $cmp_id, $emp_type_id = null);
+                // $pay_structure_array = $this->getpay_structure($cmp_id, $emp_type_id = '', $affect_date);
+                $incentives_array = $this->getincentivedetails($year . $month, $cmp_id);
+                $miscelleneous_array = $this->getmiscellaneousdetails($year . $month, $cmp_id);
+                // print_r($employees_array);exit;
+
+                //---PF
+                $pf_array = $this->get_pf_statutory_master($pf_id = null, $cmp_id, $affect_date);
+                $esi_array = $this->get_esi_statutory_master($esi_id = null, $cmp_id, $div_id = null, $state_id = null, $branch_id = null, $affect_date);
+                $lwf_array = $this->get_lwf_statutory_master($lwf_id = null, $cmp_id, $div_id = null, $state_id = null, $branch_id = null, $affect_date, $paysheet_flag = "paysheetflag");
+                $bonus_array = $this->get_bns_statutory_master($bns_id = null, $cmp_id, $div_id = null, $state_id = null, $branch_id = null, $affect_date, $paysheet_flag = "paysheetflag");
+                $pt_master = $this->get_pt_statutory_master($pt_id = null, $cmp_id, $div_id = null, $state_id = null, $branch_id = null, $affect_date, $paysheet_flag = "paysheetflag");
+                $gratuity_array = $this->get_gratuity_master($gratuity_id = null, $cmp_id, $div_id = null, $affect_date, $paysheet_flag = "paysheetflag");
+                $lta_array = $this->get_lta_master($gratuity_id = null, $cmp_id, $div_id, $affect_date, $paysheet_flag = "paysheetflag");
+                $mediclaim_array = $this->get_mediclaim_master($med_id = null, $cmp_id, $div_id, $affect_date, $paysheet_flag = "paysheetflag");
+                // print_r($pt_master);exit;
+
+                //--------------WE SHOULD GET ONLY ONE ARRAY
+                // if (count($pf_array) > 1) {
+                // $message = "We Got Two Arrays For The Pf Please Contact Developer For The Month-Year = " . $year_month . " ....";
+                // getjsondata(0,$message);
+                //     echo "pf";
+                // $this->rollback();
+                //     exit;
+                // }
+                //---END PF
+
+                //---ESI
+                //--------------WE SHOULD GET ONLY ONE ARRAY
+                // if (count($esi_array) > 1) {
+                // $message = "We Got Two Arrays For The esi Please Contact Developer For The Month-Year = " . $year_month . " ....";
+                // getjsondata(0,$message);
+                //     echo "esi";
+                // $this->rollback();
+                //     exit;
+                // }
+                //---END ESI
+                $show_emps_array = array();
+
+                //----------------------EMPLOYEES ARRAY
+                foreach ($employees_array as $emp_data) {
+                    // print_r($emp_data);exit;
+                    //------------SKIPPING THE SALARY GENERATION FOR THE RELIVING DATE SAME AS SALARY YEAR MONTH
+                    /*if($emp_data->mxemp_emp_resignation_status == 'N' || $emp_data->mxemp_emp_resignation_status == 'L'){
+                        if($sal_month_year == date('m-Y',strtotime($emp_data->mxemp_emp_resignation_relieving_date))){
+                            continue;
+                        }
+                        // echo date('m-Y',strtotime($emp_data->mxemp_emp_resignation_relieving_date));
+                    }*/
+                    // echo"hello";exit;
+                    //------------END SKIPPING THE SALARY GENERATION FOR THE RELIVING DATE SAME AS SALARY YEAR MONTH
+
+                    $final_array = [];
+                    $new_pt_filtered_array = [];
+                    $filtered_columns = [];
+
+                    $actual_basic = 0;
+                    $actual_hra = 0;
+
+                    //---------PF
+                    $pt_flag = "NO";
+                    $emp_pf_12 = 0;
+                    $emp_pf_8 = 0;
+                    $emp_pf_3 = 0;
+                    $pf_edli_sal = 0;
+                    $pf_admin_sal = 0;
+                    $pf_eps_wages = 0;
+                    $pf_edli_wages = 0;
+                    //---------END PF
+
+
+                    //-----ESI
+                    $esi_emp_cont_on_basic = 0;
+                    $esi_comp_cont_on_basic = 0;
+                    $esi_emp_cont_on_hra = 0;
+                    $esi_comp_cont_on_hra = 0;
+                    $esi_wages = 0;
+                    //-----END ESI
+
+                    //-----PT
+                    $pt_amount = 0;
+                    //-----END PT
+
+                    //----BONUS
+                    $bonus_amount = 0;
+                    $bns_bonus_perc = 0;
+                    //----END BONUS
+
+                    //-----LWF
+                    $lwf_emp_rs = 0;
+                    $lwf_comp_rs = 0;
+                    //-----END LWF
+
+                    //-----GRATUITY
+                    $gratuity_amount = 0;
+                    //-----END GRATUITY
+
+                    //-----LTA
+                    $lta_amount = 0;
+                    //-----END LTA
+
+                    $mediclaim_amount = 0;
+                    $incentive_amount = 0;
+                    $miscellenous_amount = 0;
+                    $total_deductions = 0;
+                    $net_sal = 0;
+                    $actual_gross =0;
+                    $tsp_amount = 0;
+                    $tds_amount = 0;
+                    $professional_charges_amount = 0;
+
+                    $emp_code               = $emp_data->mxemp_emp_id;
+
+                    // //------------SPECIAL INCREAMENT
+                    // $special_inc_data       = $this->Adminmodel->getSpeciaIncreamnent($emp_code);
+                    // // print_r($special_inc_data);exit;
+                    // if(count($special_inc_data)>0){
+                    //     // $special_inc_amount = 0;
+                    //     $special_inc_amount = $special_inc_data[0]->mxemp_spl_inc_amount;
+                    //     // foreach($special_inc_data as $spec_inc){
+                    //     //      $special_inc_amount += $spec_inc->mxemp_spl_inc_amount;
+                    //     // }
+                    //     $emp_data->mxemp_emp_current_salary += $special_inc_amount;
+                    // }
+                    // //------------END SPECIAL INCREAMENT
+
+                    // //------------PROMOTION INCREAMENT
+                    // // echo $emp_data->mxemp_emp_current_salary;exit;
+                    // $promotion_inc_data = $this->Adminmodel->getPromotionIncreamnent($emp_code);
+                    // // print_r($promotion_inc_data);exit;
+                    // if(count($promotion_inc_data)>0){
+                    //     $promotion_inc_amount = $promotion_inc_data[0]->mxemp_prm_amount;
+                    //     $emp_data->mxemp_emp_current_salary += $promotion_inc_amount;
+                    // }
+                    // //------------END PROMOTION INCREAMENT
+
+                    // echo $emp_data->mxemp_emp_current_salary;exit;
+                    //-------AREARS PAYSHEET
+                    $minus_one_year_month = date('Ym', strtotime('-1 months', strtotime($affect_date)));
+                    $arrear_inc_data = $this->Adminmodel->getArearsIncreamnent($emp_code,$minus_one_year_month);
+                    // print_r($arrear_inc_data);exit;
+                    if(count($arrear_inc_data)>0){
+                        $arear_inc_amount = $arrear_inc_data[0]->mxemp_arears_amount;
+                        $emp_data->mxemp_emp_current_salary += $arear_inc_amount;
+                    }
+                    // echo $emp_data->mxemp_emp_current_salary;exit;
+                    //-------END AREARS PAYSHEET
+
+                    $emp_comp_code          = $emp_data->mxemp_emp_comp_code;
+                    $emp_comp_name          = $emp_data->mxcp_name;
+                    $emp_div_code           = $emp_data->mxemp_emp_division_code;
+                    $emp_div_name           = $emp_data->mxd_name;
+                    $emp_state_code         = $emp_data->mxemp_emp_state_code;
+                    $emp_state_name         = $emp_data->mxst_state;
+                    $emp_branch_code        = $emp_data->mxemp_emp_branch_code;
+                    $emp_branch_name        = $emp_data->mxb_name;
+                    $emp_desg_code          = $emp_data->mxemp_emp_desg_code;
+                    $emp_dept_code          = $emp_data->mxemp_emp_dept_code;
+                    $emp_grade_code         = $emp_data->mxemp_emp_grade_code;
+                    $emp_employee_type      = $emp_data->mxemp_emp_type;
+                    $emp_employee_type_name = $emp_data->mxemp_ty_name;
+                    $gross_sal              = $emp_data->mxemp_emp_current_salary;
+                    $emp_date_of_birth      = $emp_data->mxemp_emp_date_of_birth;
+                    //----NEW BY SHABABU(01/05/2022)
+                    $emp_resign_status      = $emp_data->mxemp_emp_resignation_status;
+                    $emp_unpay_sal_months   = $emp_data->mxemp_emp_unpay_sal_months;
+                    //----END NEW BY SHABABU(01/05/2022)
+                    //--------------------AGE CALCULATION
+                    $dob_emp = date('d-m-Y', strtotime($emp_date_of_birth));
+                    // $dateOfBirth = "19-06-1994";
+                    $today = date("Y-m-d");
+                    $diff = date_diff(date_create($dob_emp), date_create($today));
+                    $emp_current_age = $diff->format('%y');
+                    //--------------------END AGE CALCULATION
+
+                    //--------------------GET BRANCH DATA
+                    $branch_data = $this->getbranchdetails($emp_branch_code, $emp_comp_code, $emp_div_code, $is_zonal_ofc = null);
+                    // print_r($branch_data);exit;
+                    $esi_eligibility_in_branch = $branch_data[0]->mxb_esi_eligibility;
+                    $lwf_eligibility_in_branch = $branch_data[0]->mxb_lwf_eligibility;
+                    $pt_eligibility_in_branch = $branch_data[0]->mxb_pt_eligibility;
+                    //--------------------END GET BRANCH DATA
+
+
+
+                    $final_array['mxsal_emp_code'] = $emp_code;
+                    $final_array['mxsal_year_month'] = $year_month;
+                    $final_array['mxsal_cmp_id'] = $emp_comp_code;
+                    $final_array['mxsal_div_id'] = $emp_div_code;
+                    $final_array['mxsal_branch_code'] = $emp_branch_code;
+                    $final_array['mxsal_dept_code'] = $emp_dept_code;
+                    $final_array['mxsal_grade_code'] = $emp_grade_code;
+                    $final_array['mxsal_desg_code'] = $emp_desg_code;
+                    $final_array['mxsal_state_code'] = $emp_state_code;
+                    $final_array['mxsal_emp_type'] = $emp_employee_type;
+                    $final_array['mxsal_gross_sal'] = $gross_sal;
+
+
+                    $leaves_data =  $this->get_leaves_count_data($emp_code,$year."_".$month);
+                    // print_r($leaves_data);exit;
+                    /*$present_days = $present_days_from_attendance = $leaves_data[0]->Present + $leaves_data[0]->First_Half_Present + $leaves_data[0]->Second_Half_Present + $leaves_data[0]->First_Half_Present_Cl_Applied + $leaves_data[0]->Second_Half_Present_Cl_Applied + $leaves_data[0]->First_Half_Present_Sl_Applied + $leaves_data[0]->Second_Half_Present_Sl_Applied + $leaves_data[0]->First_Half_Present_El_Applied + $leaves_data[0]->Second_Half_Present_El_Applied + $leaves_data[0]->First_Half_Present_AR_Applied + $leaves_data[0]->Second_Half_Present_AR_Applied + $leaves_data[0]->First_Half_Present_OD_Applied + $leaves_data[0]->Second_Half_Present_OD_Applied + $leaves_data[0]->First_Half_Present_OT_Applied + $leaves_data[0]->Second_Half_Present_OT_Applied + $leaves_data[0]->First_Half_Present_SHRT_Applied + $leaves_data[0]->Second_Half_Present_SHRT_Applied  + $leaves_data[0]->regulation_full_day + $leaves_data[0]->First_Half_regulation + $leaves_data[0]->Second_Half_regulation + $leaves_data[0]->onduty_full_day + $leaves_data[0]->First_Half_onduty + $leaves_data[0]->Second_Half_onduty + $leaves_data[0]->ot_full_day + $leaves_data[0]->First_Half_ot + $leaves_data[0]->Second_Half_ot + $leaves_data[0]->Shortleave + $leaves_data[0]->First_Half_Shortleave + $leaves_data[0]->Second_Half_Shortleave;*/
+
+                    $present_days =  $present_days_from_attendance = $leaves_data[0]->Present + $leaves_data[0]->First_Half_Present + $leaves_data[0]->Second_Half_Present +  $leaves_data[0]->regulation_full_day + $leaves_data[0]->First_Half_regulation + $leaves_data[0]->Second_Half_regulation + $leaves_data[0]->First_Half_Shortleave + $leaves_data[0]->Second_Half_Shortleave +  $leaves_data[0]->ot_full_day + $leaves_data[0]->First_Half_ot + $leaves_data[0]->Second_Half_ot;
+                    // echo $present_days;exit;
+                    $wo = ($leaves_data[0]->Week_Off == null) ? 0 : $leaves_data[0]->Week_Off;
+                    $PH = $leaves_data[0]->Public_Holiday + $leaves_data[0]->First_Half_Public_Holiday + $leaves_data[0]->Second_Half_Public_Holiday;
+                    $OH = $leaves_data[0]->Optional_Holiday + $leaves_data[0]->First_Half_Optional_Holiday + $leaves_data[0]->Second_Half_Optional_Holiday;
+                    $public_holiday = $PH + $OH;
+                    // echo $public_holiday;exit;
+                    $CL = $leaves_data[0]->Casualleave + $leaves_data[0]->First_Half_Casualleave + $leaves_data[0]->Second_Half_Casualleave;
+                    $SL = $leaves_data[0]->Sickleave + $leaves_data[0]->First_Half_Sickleave + $leaves_data[0]->Second_Half_Sickleave;
+                    $EL = $leaves_data[0]->Earnedleave + $leaves_data[0]->First_Half_Earnedleave + $leaves_data[0]->Second_Half_Earnedleave;
+                    $ML = $leaves_data[0]->Meternityleave + $leaves_data[0]->First_Half_Meternityleave + $leaves_data[0]->Second_Half_Meternityleave;
+                    $LOP = $leaves_data[0]->Absent + $leaves_data[0]->First_Half_Absent + $leaves_data[0]->Second_Half_Absent;
+
+                    // echo "PR =". $present_days .", WO =".$wo.", PH=".$public_holiday.", CL=".$CL.", SL=".$SL.", EL=".$EL.", ML=".$ML;exit;
+                    $total_days = $present_days + $wo + $public_holiday + $CL + $SL + $EL + $ML;
+
+
+                    $final_array['mxsal_present_days_from_attendance'] = $present_days_from_attendance;
+                    $final_array['mxsal_sundays_from_attendance'] = $wo;
+                    $final_array['mxsal_public_holidays_from_attendance'] = $PH;
+                    $final_array['mxsal_optional_holidays_from_attendance'] = $OH;
+                    // $final_array['mxsal_emp_code'] = $public_holiday;
+                    $final_array['mxsal_cl_from_attendance']            = $CL;
+                    $final_array['mxsal_sl_from_attendance']            = $SL;
+                    $final_array['mxsal_el_from_attendance']            = $EL;
+                    $final_array['mxsal_ml_from_attendance']            = $ML;
+                    $final_array['mxsal_lop_from_attendance']           = $LOP;
+                    $final_array['mxsal_total_days_from_attendance']    = $total_days;
+                    // print_r($final_array);exit;
+                    //------NEW BY SHABABU(01/05/2022)
+                    #----------PAID AND UNPAID STATUS CHECK
+                    $paid_status = 1;//---->DEFAULT 1 = PAID
+                    if($emp_resign_status == 'N' && $emp_unpay_sal_months){
+                        if(in_array($year_month,json_decode($emp_unpay_sal_months))){//---->IF PAYSHEET MONTH EXIST IN UNPAY SAL MONTH ARRAY WILL MAKE PAID STATUS = 0 ie UNPAID
+                            $paid_status = 0; //-->UNPAID
+                        }
+                    }
+                    // echo"<pre>";print_r($unpaid_sal_emp_array);// exit;
+                    if(count($unpaid_sal_emp_array) > 0 && in_array($emp_code,$unpaid_sal_emp_array)){ //---->IF EMPLOYEE CODE EXIST IN USER SELECTED EMPLOYEES MAKING STATUS TO 0 ie UNPAID
+                        $paid_status = 0; //-->UNPAID
+                    }
+                     //echo " paid_status =".$paid_status;exit;
+                    $final_array['mxsal_paid_status_flag'] = $paid_status;
+                    #----------END PAID AND UNPAID STATUS CHECK
+                    //------END NEW BY SHABABU(01/05/2022)
+
+
+
+                    //----------Filtering PAY STRUCTURE ARRAY
+                    // $filtered_pay_data = [];
+
+                    // print_r($pay_structure_array);exit;
+                    // echo count($pay_structure_array);exit;
+                    $filtered_pay_data = $this->getpay_structure($emp_comp_code, $emp_employee_type, $affect_date);
+                    // echo count($pay_structure_array);exit;
+                    // if (count($pay_structure_array) > 0) {
+                    //     foreach ($pay_structure_array as $pay_data) {
+                    //         $pay_cmp_id = $pay_data->mxpsc_comp_id;
+                    //         $pay_emptype_id = $pay_data->mxpsc_emptype_id;
+                    //         if ($pay_cmp_id == $emp_comp_code && $pay_emptype_id == $emp_employee_type) {
+                    //             $filtered_pay_data[] = $pay_data;
+                    //         }
+                    //     }
+                    // } else {
+                    //     $message = "Paystructure Table Is Empty......";
+                    //     getjsondata(0,$message);
+                    //     // echo "221"; //------>PAYSTRUCTURE TABLE EMPTY
+                    //     // $this->rollback();
+                    //     // exit;
+                    // }
+                    if (count($filtered_pay_data) <= 0) {
+                        $this->db->trans_rollback();
+                        $message = "No Data Found In The PayStructure Child For the Employement Type = (".$emp_employee_type_name."),Division = (".$emp_div_name."),State = (".$emp_state_name."),Branch = (".$emp_branch_name.")";
+                        getjsondata(0,$message);
+                    }
+                    // print_r($filtered_pay_data);exit;
+                    //----------END Filtering PAY STRUCTURE ARRAY
+
+                    //-----------Filtering Table Name
+                    $filtered_table_name = "";
+                    foreach ($table_names_array as $table_name_data) {
+                        // print_r($table_name_data);exit;
+                        $table_cmp_id = $table_name_data->mxemp_ty_cmpid;
+                        $table_emp_type_id = $table_name_data->mxemp_ty_id;
+                        if ($table_cmp_id == $emp_comp_code && $table_emp_type_id == $emp_employee_type) {
+                            $filtered_table_name = $table_name_data->mxemp_ty_table_name;
+                        }
+                    }
+                    //-----------END Filtering Table Name
+
+                    //-----------CHECK FILTERED TABE DATA
+                    if ($this->db->table_exists($filtered_table_name) == false) {
+                        $this->db->trans_rollback();
+                        $message = "Some One Deleted Employement Salary Type Table or Table Not Exist.....";
+                        getjsondata(0,$message);
+                        // echo "223";
+                        // $this->rollback();
+                        // exit;
+                    }
+                    //-----------END CHECK FILTERED TABE DATA
+
+
+                    //***************************************ATTENDANCE DATA
+                    $attendance_array = $this->getPresentAttendance($year, $month, $emp_code, $emp_comp_code);
+                    // print_r($attendance_array);exit;
+                    $attendance_present_days = 0;
+                    $attendance_present_count = 0;
+                    // echo $emp_code;
+                    // echo "count = ".count($attendance_array);exit;
+                    //-----------------EMPLOYEE PRESENT DAYS IN ATTENDANCE*********************************
+                    if (count($attendance_array) > 0) {
+                        foreach ($attendance_array as $attendance_data) {
+                            // print_r($attendance_data);exit;
+                            $first_half = $attendance_data->mx_attendance_first_half;
+                            $second_half = $attendance_data->mx_attendance_second_half;
+                            // echo $attendance_data->mx_attendance_emp_code;
+                            // echo $attendance_data->mx_attendance_date;
+                            // echo $second_half;exit;
+                            if ($first_half != "AB" && $first_half != "LOP") {
+                                $first_half_count = 0.5;
+                            } else {
+                                $first_half_count = 0;
+                            }
+                            if ($second_half != "AB" && $second_half != "LOP") {
+                                $second_half_count = 0.5;
+                            } else {
+                                $second_half_count = 0;
+                            }
+                            $attendance_present_count = $first_half_count + $second_half_count;
+                            $attendance_present_days += $attendance_present_count;
+                        }
+                    }
+                    $present_days_of_employees_in_month = number_format($attendance_present_days, 2, '.', '');
+                    // if($emp_code == "M0007"){
+                    // echo $present_days_of_employees_in_month;exit;
+
+                    // }
+                    // $data['mxsal_present_days'] = $present_days_of_employees_in_month;
+                    //-----------------END EMPLOYEE PRESENT DAYS IN ATTENDANCE
+
+
+                    //-------------NO OF DAYS IN A MONTH
+                    $total_days_in_month = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+                    //-------------END NO OF DAYS IN A MONTH
+
+                    // echo $total_days_in_month;exit;
+                    // echo $present_days_of_employees_in_month;exit;
+
+                    //**************************************END ATTENDANCE DATA*****************************
+
+
+                    //-----------Filtered Column Names
+
+
+                    foreach ($column_names_array as $column_name_data) { //---COLUMNS ARRAY
+                        // print_r($column_names_array);exit;
+                        $column_inc_id = $column_name_data->mxincm_id;
+                        $column_cmp_id = $column_name_data->mxincm_comp_id;
+                        $column_emp_type_id = $column_name_data->mxincm_emp_type_id;
+                        //*************CHECKING WITH COMP CODE & EMP TYPE OF INC HEADS WITH EMPLOYEE INFO
+                        if ($column_cmp_id == $emp_comp_code && $column_emp_type_id == $emp_employee_type) {
+                            //******************FILTERED PAY STRUCTURE DATA**********************
+                            $rate_basic_sal = 0;
+                            foreach ($filtered_pay_data as $pay_data) { //------FILTERED PAY ARRAY
+                                // print_r($column_names_array);exit;
+                                //****************************COMPARING cmpid ,in_head_id,emp_type_id from income head table and  EMPLOYEE INFO TABLE AND TAKING mxpsc_type = 1(ie employee paystructure)
+                                if ($pay_data->mxpsc_inc_head_id == $column_inc_id && $pay_data->mxpsc_comp_id == $emp_comp_code && $pay_data->mxpsc_emptype_id == $emp_employee_type && $pay_data->mxpsc_type == 1) { // mxpsc_type = 1 is nothing but in paystructure table we are taking employeee PAY STRUCTURE
+                                    //------------GETTING ALL COLUMNS FROM THE INC HEAD TABLE
+
+                                    // print_r($pay_data);exit;
+                                    //&&&&&&&&&&&&&&&&&&&&&&&&&& BUILDING FINAL ARRAY WITH COUMNS FROM INCOME HEAD TABLE AND CALCULATING PERCENTAGES DATA
+                                    $final_array[$column_name_data->mxincm_emp_col_name] = ($gross_sal / 100) * $pay_data->mxpsc_percentage;
+                                    //&&&&&&&&&&&&&&&&&&&&&&&&&& BUILDING FINAL ARRAY WITH COUMNS FROM INCOME HEAD TABLE AND CALCULATING PERCENTAGES DATA
+
+                                    // $calculated_sal = ($gross_sal / 100) * $pay_data->mxpsc_percentage;
+
+                                    $final_rate_basic = ($gross_sal / 100) * $pay_data->mxpsc_percentage;
+
+                                    /* RATE OF BASIC AND HRA CALCULATION */
+
+                                    // FETCH the applicable ROW from maxwell_pay_structure_master based on
+                                    // Salary generate date and employee Type
+                                    $this->db->where('mxps_comp_id', $emp_data->mxemp_emp_comp_code);
+                                    $this->db->where('mxps_emptype_id', $emp_data->mxemp_emp_type);
+                                    /*$this->db->where("'$affect_date' >= mxps_affect_from");
+                                    $this->db->where("'$affect_date' <= mxps_affect_to");*/
+                                    $this->db->where("'$affect_date' BETWEEN mxps_affect_from AND mxps_affect_to");
+                                    $master_row = $this->db->get('maxwell_pay_structure_master')->row();
+
+                                    // echo "<pre>";print_r($master_row);exit();
+
+
+                                    if ($master_row) {
+                                        $mxps_id = $master_row->mxps_id; // This will be ID 10 for April 2026
+                                        $wef_date = $master_row->mxps_affect_from;
+
+                                        //echo $affect_date." --- ".$wef_date;exit();
+
+                                        // Check if this specific Master Record belongs to the Reformation Era
+                                        $is_50_50_rule = (strtotime($affect_date) >= strtotime($wef_date));
+
+                                        // Get Child records linked to this Master ID
+                                        $child_records = $this->db->where('mxpsc_parent_id', $mxps_id)->where('mxpsc_status', 1)
+                                            ->get('maxwell_pay_structure_child')
+                                            ->result();
+
+                                        // echo "<pre>";print_r($child_records);exit();
+
+                                        // Get Wage Master Benchmark
+                                        $wage_data = $this->get_applicable_wage_benchmark($emp_data->mxemp_emp_state_code, $emp_data->mxemp_emp_branch_code, $affect_date);
+
+                                        // echo "<pre>".$is_50_50_rule;print_r($wage_data);exit();
+                                        $benchmark_wage = $wage_data['benchmark'];
+                                        $current_gross = (float)$gross_sal;
+
+                                        $final_rate_basic = 0;
+
+                                        if ($is_50_50_rule) {
+                                            $basic_pct = 0;
+
+                                            foreach($child_records as $c_row) {
+                                                if($c_row->mxpsc_inc_head_id == 1) {
+                                                    $basic_pct = (float)$c_row->mxpsc_percentage;
+                                                    break;
+                                                }
+                                            }
+
+                                            $calc_basic_split = $current_gross * ($basic_pct / 100); // 20,000 * 50% = 10,000
+
+                                            // echo "50_percent_basic: ".$calc_basic_split." BEnch mark: ".$benchmark_wage."  ";//exit();
+
+                                            // Scenario: If 50% Gross (10k) < Wage Master (14k), Basic becomes 14k.
+
+                                            if($calc_basic_split > $benchmark_wage) {
+                                                $final_rate_basic = $calc_basic_split;
+                                            } else {
+                                                if($calc_basic_split < $benchmark_wage && $current_gross < $benchmark_wage) {
+                                                    $final_rate_basic = $current_gross;
+                                                } else {
+                                                    $final_rate_basic = $benchmark_wage;
+                                                }
+                                            }
+                                            /*$final_rate_basic = ($calc_basic_split > $benchmark_wage) ? $calc_basic_split :
+                                                ($calc_basic_split < $benchmark_wage && $current_gross < $benchmark_wage) ? $current_gross : $benchmark_wage;*/
+
+                                            // echo "ROB : ".$final_rate_basic."  ";//exit();
+
+                                            /* if Gross 30000
+                                             *  ROB = (15000 > 14000) = 150000
+                                             * IF Gross 26000
+                                             *  ROB = (13000 > 14000) ? (13000 < 14000 && 26000 < 14000) : 26000: 14000  = 14000
+                                             * IF Gross 10000
+                                             * ROB = (5000 > 14000) ? (5000 < 14000 && 10000 < 14000) : 10000 : 140000 = 10000;
+                                             * */
+
+
+                                            $final_rate_hra = $gross_sal - $final_rate_basic;
+                                            // echo " ROH : ".$final_rate_hra;exit();
+
+                                            /* if Gross 30000
+                                                ROH = Gross = ROB
+                                             *  ROH = 30000 - 15000 = 15000
+                                             * IF Gross 26000
+                                             *  ROH = 26000-14000 = 12000
+                                             * IF Gross 10000
+                                             * ROH = 10000 - 10000 = 0
+                                             * */
+
+                                        }
+
+                                        foreach ($child_records as $row) {
+                                            $head_id = $row->mxpsc_inc_head_id;
+                                            $current_pct = (float)$row->mxpsc_percentage;
+
+                                            if ($is_50_50_rule && ($head_id == 1 || $head_id == 2)) {
+                                                $calc_split = $current_gross * ($current_pct / 100); // 20,000 * 50% = 10,000
+
+                                                if ($head_id == 1) { // BASIC
+                                                    $final_array['mxsal_basic'] = $final_rate_basic;
+                                                } else if ($head_id == 2) { // HRA
+                                                    // Scenario: If HRA split (10k) < Wage Master (14k),
+                                                    // HRA becomes Residual (20k - 14k = 6k)
+                                                    $final_array['mxsal_hra'] = $final_rate_hra;
+                                                    //echo $calc_split." -- ".$benchmark_wage." === ".$current_gross." ---> ".$final_rate_basic." ===> ".$final_array['mxsal_hra'];exit();
+                                                }
+                                            } else {
+                                                // SCENARIO: Old records or non-Basic/HRA heads
+                                                $final_rate_basic = ($current_gross / 100) * $current_pct;
+                                            }
+                                        }
+                                    }
+
+                                    /* END OF RATE OF BASIC AND HRA CALCULATION */
+
+
+
+                                    $pf_cal_array[] = $column_name_data->mxincm_emp_col_name;
+                                    $filtered_columns[] = $column_name_data->mxincm_emp_col_name;
+
+                                    $column_inc_is_basic = $column_name_data->mxincm_is_basic;
+                                    $column_inc_is_hra = $column_name_data->mxincm_is_hra;
+                                    $column_inc_is_tsp = $column_name_data->mxincm_is_tsp;
+                                    $column_inc_is_proffesionals_charges = $column_name_data->mxincm_is_professional_charges;
+                                    $pay_data_is_pf = $pay_data->mxpsc_ispf;
+                                    $pay_data_is_esi = $pay_data->mxpsc_isesi;
+                                    $pay_data_is_pt = $pay_data->mxpsc_ispt;
+                                    $pay_data_is_lwf = $pay_data->mxpsc_islwf;
+                                    $pay_data_is_bns = $pay_data->mxpsc_isbns;
+                                    $pay_data_is_gartuity = $pay_data->mxpsc_isgratuity;
+                                    $pay_data_is_lta = $pay_data->mxpsc_islta;
+                                    $pay_data_is_mediclaim = $pay_data->mxpsc_ismediclaim;
+                                    // print_r($pay_data);exit;
+
+                                    // echo $column_inc_is_proffesionals_charges;exit;
+                                    //************************************   FOR BASIC   **********************************
+                                    // echo $column_inc_is_basic;
+                                    // exit;
+                                    if ($column_inc_is_basic == 1) {
+
+                                        // echo"calculated_sal = ". $calculated_sal.'<br>';
+                                        // echo "total_days in a month =".$total_days_in_month.'<br>';
+                                        // echo "present days =".$present_days_of_employees_in_month.'<br>';
+                                        // exit;
+                                        $rate_basic_sal = $final_rate_basic;
+                                        //$$$$$$$$$$$$$$$$$$$$$$$$$$$ CALCULATING ACTUAL BASIC  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+                                        $actual_basic = rounding_number(number_format(((($final_rate_basic) / $total_days_in_month) * $total_days), 2, '.', ''),2);
+                                        //echo " ACTUAL BASIC ". $actual_basic." -- ".$final_rate_basic." -- ".$total_days_in_month." -- ".$present_days_of_employees_in_month;exit();
+
+                                        // GET PF MASTER DATA
+
+                                        $this->db->where('mxpf_comp_id', $emp_data->mxemp_emp_comp_code);
+                                        /**
+                                         * Handle flexible comma-separated formats (,4, or 4 or ,4 or 4,)
+                                         * using REPLACE to ensure a clean comma-separated list for FIND_IN_SET
+                                         */
+                                        $clean_types = "REPLACE(TRIM(BOTH ',' FROM mxpf_emp_types), ',,', ',')";
+                                        $this->db->where("FIND_IN_SET('".$emp_data->mxemp_emp_type."', $clean_types) >", 0);
+                                        $this->db->where("'$affect_date' BETWEEN mxpf_affect_from AND mxpf_affect_to");
+                                        $this->db->where('mxpf_status', 1);
+                                        // $this->db->select('mxpf_affect_from');
+                                        $pf_master = $this->db->get('maxwell_pf_master')->row();
+
+                                        // VALIDATE PF DATA EXISTENCE
+                                        if (!empty($pf_master)) {
+
+                                            /**
+                                             * UPDATE PF basis based on DOJ vs Master Affect Date
+                                             * Scenario A: NEW Employees (Joined AFTER affect date)
+                                             */
+                                            if ($emp_data->mxemp_emp_date_of_join >= $pf_master->mxpf_affect_from) {
+                                                if ($actual_basic > $pf_master->mxpf_basic_sal_limit) {
+                                                    // Cap the actual_basic to the statutory limit (e.g., 15000)
+                                                    $final_array['mxsal_epf_wages'] = $pf_master->mxpf_basic_sal_limit;
+
+                                                }
+                                            }
+                                            /**
+                                             * Scenario B: OLD Employees (Joined ON or BEFORE affect date)
+                                             * No cutoff applied; actual_basic remains the proportional earned basic.
+                                             */
+                                            else {
+                                                // We explicitly keep actual_basic as is.
+                                                $final_array['mxsal_epf_wages']  = $actual_basic;
+                                            }
+                                        }
+
+                                        //$$$$$$$$$$$$$$$$$$$$$$$$$$$ END CALCULATING ACTUAL BASIC  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+                                        //------------PF CALCULATION
+                                        if ($pay_data_is_pf == 1) {
+                                            // print_r($emp_data);exit;
+                                            $pf_emp_cont_round_type=4;
+                                            $pf_pension_cont_round_type=4;
+                                            $pf_comp_cont_round_type=4;
+                                            $pf_edli_perc_round_type=4;
+                                            $pf_admin_perc_round_type=4;
+                                            if (count($pf_array) > 0) {
+                                                foreach ($pf_array as $pf_data) {
+                                                    $pf_cmp_id = $pf_data->mxpf_comp_id;
+                                                    // echo $column_emp_type_id;
+                                                    //--------------------CHECKING EMPLOYEE TYPE IN PF STATUTORY ARRAY && comparing company code
+                                                    $pf_emp_types_ex = explode(',', substr(substr(trim($pf_data->mxpf_emp_types), 0, -1), 1)); //----REMOVING FIRST & LAST LETTER  commas(,)
+                                                    if ($pf_cmp_id == $emp_comp_code  && in_array($column_emp_type_id, $pf_emp_types_ex)) {
+
+                                                        // echo "MATCH FOUND";
+                                                        $pf_basic_sal_limit = $pf_data->mxpf_basic_sal_limit;
+                                                        $pf_emp_cont = $pf_data->mxpf_pf_emp_cont;
+                                                        $pf_comp_cont = $pf_data->mxpf_pf_comp_cont;
+                                                        $pf_pension_cont = $pf_data->mxpf_pf_pension_cont;
+                                                        $pf_emp_cont_round_type = $pf_data->mxpf_pf_emp_cont_round_type;
+                                                        $pf_comp_cont_round_type = $pf_data->mxpf_pf_comp_cont_round_type;
+                                                        // $pf_comp_cont_round_type = $pf_data->mxpf_pf_emp_cont_round_type;
+                                                        $pf_pension_cont_round_type = $pf_data->mxpf_pf_pension_cont_round_type;
+                                                        $pf_eps_wages_limit = $pf_data->mxpf_pf_eps_wages_limit;
+                                                        $pf_edli_wages_limit = $pf_data->mxpf_pf_edli_wages_limit;
+                                                        $pf_edli_perc = $pf_data->mxpf_pf_edli_perc;
+                                                        $pf_edli_perc_round_type = $pf_data->mxpf_pf_edli_perc_round_type;
+                                                        $pf_admin_perc = $pf_data->mxpf_pf_admin_perc;
+                                                        $pf_admin_perc_round_type = $pf_data->mxpf_pf_admin_perc_round_type;
+                                                        $pf_basic_sal_limit_above_then_same = $pf_data->mxpf_basic_sal_limit_above_then_same;
+                                                        $pf_basic_sal_limit_above = $pf_data->mxpf_basic_sal_limit_above; //------>it means company wish to calculate pf on above 15000 basic sal or not 1= calculate 0= dont calculate
+
+                                                        // //--------------------AGE CALCULATION
+                                                        // $dob_emp = date('d-m-Y', strtotime($emp_date_of_birth));
+                                                        // // $dateOfBirth = "19-06-1994";
+                                                        // $today = date("Y-m-d");
+                                                        // $diff = date_diff(date_create($dob_emp), date_create($today));
+                                                        // $emp_current_age = $diff->format('%y');
+                                                        // //--------------------END AGE CALCULATION
+
+                                                        //--------PF AGE LIMIT FROM PF MASTER TABLE
+                                                        $pf_age_limit = $pf_data->mxpf_pf_age_limit;
+                                                        //--------END PF AGE LIMIT FROM PF MASTER TABLE
+
+                                                        if ($pf_basic_sal_limit_above == 1) { //------>it means company wish to calculate PF on basic limit above eg : on basic = 16000 it will calculate on 16000
+                                                            $basic_sal_cal_12 = $actual_basic;
+                                                        } else if ($pf_basic_sal_limit_above_then_same == 1) { //------->To Take Same Basic Sal for pf calculation we will tick these as 1 eg : basic = 16000 then it will take 15000
+
+                                                            if($emp_data->mxemp_emp_date_of_join <= '2026-03-31' ) {
+                                                                $basic_sal_cal_12 = $actual_basic;
+                                                            } else {
+                                                                if ($actual_basic > $pf_basic_sal_limit) { //---->if actual sal > than basic sal limit then take basic sal limit
+                                                                    $basic_sal_cal_12 = $pf_basic_sal_limit;
+                                                                } else { //--->if actual sal less than basic sal then take actual sal
+                                                                    $basic_sal_cal_12 = $actual_basic;
+                                                                }
+                                                            }
+                                                        } else { //------>in no check boxes selected then we will take only less than or equal to basic sal limit for above we wont calculate pf eg : basic <= 15000 it will calculate else it will take as zero (0)
+                                                            if ($actual_basic <= $pf_basic_sal_limit) { //---->if actual sal > than basic sal limit then take basic sal limit
+                                                                $basic_sal_cal_12 = $actual_basic;
+                                                            } else {
+                                                                $basic_sal_cal_12 = 0;
+                                                            }
+                                                        }
+                                                        //-----PF 12%
+                                                        $emp_pf_12 = ($basic_sal_cal_12 * $pf_emp_cont) / 100;
+                                                        $emp_pf_12 = rounding_number($emp_pf_12,$pf_emp_cont_round_type,"pf");
+                                                        //-----END PF 12%
+
+                                                        // echo $emp_code.'<br>';
+                                                        // echo $actual_basic.'<br>';
+                                                        // echo $basic_sal_cal.'<br>';
+                                                        // echo $emp_pf_12;exit;
+                                                        // echo $pf_eps_wages;exit;
+                                                        // echo $pf_age_limit+1;exit;
+                                                        //--------------------------PF  CALCULATION 8.33 &&  3.67 BASED ON AGE LIMIT
+                                                        if ($emp_current_age < ($pf_age_limit+1)) {
+                                                            //--------EPS & EPF
+                                                            if ($actual_basic <= $pf_eps_wages_limit) {
+                                                                $emp_pf_8 = ($actual_basic * $pf_pension_cont) / 100;
+                                                                $emp_pf_3 = ($actual_basic * $pf_comp_cont) / 100;
+                                                                $pf_eps_wages = $actual_basic;
+                                                            } else {
+                                                                $emp_pf_8 = ($pf_eps_wages_limit * $pf_pension_cont) / 100;
+                                                                $emp_pf_8 = rounding_number($emp_pf_8,$pf_pension_cont_round_type,"pf");
+                                                                $emp_pf_3 = $emp_pf_12 - $emp_pf_8;
+                                                                $pf_eps_wages = $pf_eps_wages_limit;
+                                                                // $emp_pf_3 = $basic_sal_cal_12 - $emp_pf_8;
+                                                                // $diff_amount = $actual_basic - $pf_eps_wages_limit; //----> (basic - pf_wage_limit)-->  20000 - 15000 = 5000
+                                                                // $pf_diff_8 = ($diff_amount * $pf_pension_cont) / 100;//---> eg : ((diff_amount * 8.33) / 100)---> 5000 * 8.33 /100 = 416.50
+                                                                // $pf_diff_3 = ($actual_basic * $pf_comp_cont) / 100;//---> eg : ((basic * 3.67) / 100)--> 20000 * 3.67 / 100 = 734
+                                                                // $emp_pf_3  = $pf_diff_8 + $pf_diff_3; //---> 416.50 + 734  = 1150.50
+                                                                // $pf_eps_wages = $pf_eps_wages_limit;
+                                                                // echo $pf_basic_sal_3;exit;
+                                                            }
+
+                                                            //--------END EPS & EPF
+
+                                                        } else { //----->For age grater than 58 make it as 0 for pension
+                                                            // $emp_pf_8 = 0;
+                                                            // $emp_pf_3 = ($actual_basic * $pf_emp_cont) / 100;
+                                                            $emp_pf_12 = 0;
+                                                            $emp_pf_8 = 0;
+                                                            $emp_pf_3 = 0;
+                                                        }
+                                                        //--------------------------END PF  CALCULATION 8.33 &&  3.67 BASED ON AGE LIMIT
+
+
+                                                        //------------------------EDLI CONT
+                                                        if ($actual_basic <= $pf_edli_wages_limit) {
+                                                            $pf_edli_sal = ($actual_basic * $pf_edli_perc) / 100;
+                                                            $pf_edli_wages = $actual_basic;
+                                                        } else {
+                                                            $pf_edli_sal = ($pf_edli_wages_limit * $pf_edli_perc) / 100;
+                                                            $pf_edli_wages = $pf_edli_wages_limit;
+                                                        }
+                                                        //------------------------END EDLI CONT
+
+                                                        //------------------------ADMIN CONT
+                                                        $pf_admin_sal = ($actual_basic * $pf_admin_perc) / 100;
+                                                        // if($pf_admin_sal < 500){
+                                                        //     $pf_admin_sal =500;
+                                                        // }
+                                                        //------------------------END ADMIN CONT
+
+                                                        // echo $emp_code . '<br>';
+                                                        // echo $actual_basic . '<br>';
+                                                        // echo "emp_cont = " . $emp_pf_12 . '<br>';
+                                                        // echo "pension_cont = " . $emp_pf_8 . '<br>';
+                                                        // echo "comp_cont = " . $emp_pf_3 . '<br>';
+                                                        // echo "EDLI = " . $pf_edli_sal . '<br>';
+                                                        // echo "ADMIN = " . $pf_admin_sal;
+                                                        // exit;
+
+
+
+
+
+                                                    } else {
+                                                        $emp_pf_12 = 0;
+                                                        $emp_pf_8 = 0;
+                                                        $emp_pf_3 = 0;
+                                                        $pf_edli_sal = 0;
+                                                        $pf_admin_sal = 0;
+                                                    }
+                                                    $emp_pf_12 = rounding_number($emp_pf_12,$pf_emp_cont_round_type,"pf");
+                                                    $emp_pf_8 = rounding_number($emp_pf_8,$pf_pension_cont_round_type,"pf");
+                                                    $emp_pf_3 = rounding_number($emp_pf_3,$pf_comp_cont_round_type,"pf");
+                                                    $pf_edli_sal = rounding_number($pf_edli_sal,$pf_edli_perc_round_type,"pf");
+                                                    $pf_admin_sal = rounding_number($pf_admin_sal,$pf_admin_perc_round_type,"pf");
+                                                    //--------------------END CHECKING EMPLOYEE TYPE IN PF STATUTORY ARRAY
+                                                    //  exit;
+                                                    // print_r($pf_emp_types_ex);exit;
+                                                    // print_r($pf_data);
+                                                    // exit;
+
+
+
+                                                    // echo $emp_code . '<br>';
+                                                    // echo "Actual basic = ".$actual_basic . '<br>';
+                                                    // echo "emp_cont = " . $emp_pf_12 . '<br>';
+                                                    // echo "pension_cont = " . $emp_pf_8 . '<br>';
+                                                    // echo "comp_cont = " . $emp_pf_3 . '<br>';
+                                                    // echo "EDLI = " . $pf_edli_sal . '<br>';
+                                                    // echo "ADMIN = " . $pf_admin_sal;
+                                                    // exit;
+                                                }
+                                            }
+                                        }
+                                        //------------END PF CALCULATION
+                                        //---------------------ESI CALCULATION FOR BASIC
+                                        // print_r($esi_array);exit;
+                                        $esi_wages_flag = false;//----->NEW BY SHABABU(16-06-2022)
+                                        if ($pay_data_is_esi == 1) {
+                                            //--------------------------ESI ARRAY
+                                            // print_r($esi_array);exit;
+                                            if($esi_eligibility_in_branch == 1){
+                                                $esi_emp_cont_round_type = 1;
+                                                $esi_comp_cont_round_type =1;
+                                                foreach ($esi_array as $esi_data) {
+                                                    // print_r($esi_data);exit;
+                                                    $esi_cmp_id = $esi_data->mxesi_comp_id;
+                                                    $esi_div_id = $esi_data->mxesi_div_id;
+                                                    $esi_state_id = $esi_data->mxesi_state_id;
+                                                    $esi_branch_id = $esi_data->mxesi_branch_id;
+                                                    //--------------------COMPARING compcode,div_code,state_code,branch_code with both esi master table data and employee info table data
+
+                                                    if ($esi_cmp_id == $emp_comp_code  && $esi_div_id == $emp_div_code  && $esi_state_id == $emp_state_code  && $esi_branch_id == $emp_branch_code) {
+                                                        // echo "bye";
+                                                        $esi_emp_type = $esi_data->mxesi_emp_types;
+                                                        $esi_emp_types_ex = explode(',', substr(substr(trim($esi_emp_type), 0, -1), 1)); //-----removing first and last strings ie commas(,)
+                                                        //---------------CHECKING EMPLOYEE TYPE EXIST OR NOT AFTER EXPLODING WITH COMMA (ESI MASTER TABLE)
+                                                        if (in_array($emp_employee_type, $esi_emp_types_ex)) {
+
+                                                            // print_r($esi_emp_types_ex);exit;
+                                                            $esi_emp_cont = $esi_data->mxesi_emp_cont;
+                                                            $esi_emp_cont_round_type = $esi_data->mxesi_emp_cont_round_type;
+                                                            $esi_comp_cont = $esi_data->mxesi_comp_cont;
+                                                            $esi_comp_cont_round_type = $esi_data->mxesi_comp_cont_round_type;
+                                                            // echo $esi_emp_cont;exit;
+
+                                                            $esi_gross_sal_limit = $esi_data->mxesi_gross_sal_limit;
+                                                            // echo $gross_sal.'<br>'.$esi_gross_sal_limit;exit;
+                                                            if ($gross_sal <= ($esi_gross_sal_limit)) {
+                                                                $esi_emp_cont_on_basic = ($actual_basic * $esi_emp_cont) / 100;
+                                                                $esi_comp_cont_on_basic = ($actual_basic * $esi_comp_cont) / 100;
+                                                                $esi_wages = $gross_sal;
+                                                                $esi_wages_flag = true;//----->NEW BY SHABABU(16-06-2022)
+                                                            } else {
+                                                                $esi_emp_cont_on_basic = 0;
+                                                                $esi_comp_cont_on_basic = 0;
+                                                                $esi_wages = 0;
+                                                            }
+                                                            // echo $gross_sal.'<br>'.$esi_gross_sal_limit.'br';
+                                                            // echo "EMP code = ". $emp_code.'<br>';
+                                                            // echo "ACTUAL BASIC=".$actual_basic . '<br>';
+                                                            // // echo "ACTUAL HRA=".$actual_hra . '<br>';
+                                                            // echo "EMP CONT FINAL= ". $esi_emp_cont_on_basic.'<br>';
+                                                            // echo "comp CONT FINAL= ". $esi_comp_cont_on_basic.'<br>';
+
+                                                        } else {
+                                                            $esi_emp_cont_on_basic = 0;
+                                                            $esi_comp_cont_on_basic = 0;
+                                                        }
+
+                                                        // echo "esi_emp_cont_on_basic_original=".$esi_emp_cont_on_basic."<br>";
+                                                        // echo "esi_comp_cont_on_basic_original=".$esi_comp_cont_on_basic."<br>";
+                                                        // $esi_emp_cont_on_basic = 5.10;
+                                                        // $esi_emp_cont_on_basic = rounding_number($esi_emp_cont_on_basic,$esi_emp_cont_round_type);
+                                                        // $esi_comp_cont_on_basic = rounding_number($esi_comp_cont_on_basic,$esi_comp_cont_round_type);
+                                                        //------------END CHECKING EMPLOYEE TYPE EXIST OR NOT AFTER EXPLODING WITH COMMA (ESI MASTER TABLE)
+                                                        // echo "esi_emp_cont_on_basic=".$esi_emp_cont_on_basic."<br>";
+                                                        // echo "esi_comp_cont_on_basic=".$esi_comp_cont_on_basic."<br>";die;
+                                                    }
+                                                    //--------------- END COMPARING compcode,div_code,state_code,branch_code with both esi master table data and employee info table data
+                                                }
+                                            }
+                                            //----------------------END ESI ARRAY
+                                        }
+                                        //-----------------END ESI CALCULATION FOR BASIC
+
+                                        //---------------PT ON BASIC CALCULATION
+                                        if ($pay_data_is_pt == 1) {
+                                            // print_r($pt_master);exit;
+                                            if($pt_eligibility_in_branch == 1){
+                                                if (count($pt_master) > 0) {
+                                                    $new_pt_filtered_array = [];
+                                                    foreach ($pt_master as $pt_data_master) {
+                                                        // print_r($pt_data_master);
+                                                        if ($pt_data_master->mxpt_comp_id == $emp_comp_code && $pt_data_master->mxpt_div_id == $emp_div_code && $pt_data_master->mxpt_state_id == $emp_state_code && $pt_data_master->mxpt_branch_id == $emp_branch_code) {
+                                                            // echo "PT IF CONDITION";
+                                                            $pt_emp_type = $pt_data_master->mxpt_emp_types;
+                                                            $pt_emp_types_ex = explode(',', substr(substr(trim($pt_emp_type), 0, -1), 1)); //-----removing first and last strings ie commas(,)
+                                                            //---------------CHECKING EMPLOYEE TYPE EXIST OR NOT AFTER EXPLODING WITH COMMA (PT MASTER TABLE)
+                                                            if (in_array($emp_employee_type, $pt_emp_types_ex)) {
+                                                                // echo "hello";exit;
+                                                                $new_pt_filtered_array[] = $pt_data_master;
+                                                                $pt_flag = "YES";
+                                                            }
+                                                            // else {
+                                                            //     echo "PT NO CONDITION";
+                                                            //     $pt_flag = "NO";
+                                                            // }
+                                                            //---------------END CHECKING EMPLOYEE TYPE EXIST OR NOT AFTER EXPLODING WITH COMMA (PT MASTER TABLE)
+                                                        }
+                                                    }
+                                                } else {
+                                                    // echo "PT NO CONDITION IN ELSE";
+                                                    // $pt_flag = "NO";
+                                                    $this->db->trans_rollback();
+                                                    $message = "In Pay Structure PT Is Checked But We Dont Have Data In The PT Statutory Table.....";
+                                                    getjsondata(0,$message);
+                                                }
+                                            }
+                                        }
+                                        //---------------END PT ON BASIC CALCULATION
+
+                                        //---------------LWF CALCULATION
+                                        // print_r($lwf_array);exit;
+                                        $lwf_emp_rs = 0;
+                                        $lwf_comp_rs = 0;
+                                        if ($pay_data_is_lwf == 1) {
+                                            if($lwf_eligibility_in_branch == 1){
+                                                if (count($lwf_array) > 0) {
+                                                    foreach ($lwf_array as $lwf_data) {
+                                                        // print_r($lwf_data);
+                                                        $lwf_comp_id = $lwf_data->mxlwf_comp_id;
+                                                        $lwf_div_id = $lwf_data->mxlwf_div_id;
+                                                        $lwf_state_id = $lwf_data->mxlwf_state_id;
+                                                        $lwf_branch_id = $lwf_data->mxlwf_branch_id;
+                                                        // echo "$lwf_comp_id == $emp_comp_code && $lwf_div_id == $emp_div_code && $lwf_state_id == $emp_state_code && $lwf_branch_id == $emp_branch_code";
+                                                        if ($lwf_comp_id == $emp_comp_code && $lwf_div_id == $emp_div_code && $lwf_state_id == $emp_state_code && $lwf_branch_id == $emp_branch_code) {
+                                                            // print_r($lwf_data);
+                                                            $lwf_emp_type = $lwf_data->mxlwf_emp_types;
+                                                            $lwf_emp_types_ex = explode(',', substr(substr(trim($lwf_emp_type), 0, -1), 1)); //-----removing first and last strings ie commas(,)
+
+                                                            $lwf_grade_ids = $lwf_data->mxlwf_applicable_grades;
+                                                            $lwf_grades_ex = explode(',', substr(substr(trim($lwf_grade_ids), 0, -1), 1)); //-----removing first and last strings ie commas(,)
+                                                            if (in_array($emp_employee_type, $lwf_emp_types_ex) && in_array($emp_grade_code, $lwf_grades_ex)) {
+                                                                // print_r($lwf_data);exit;
+                                                                $lwf_deduct_date_y_m = date('Y-m', strtotime($lwf_data->mxlwf_deduct_date));
+                                                                // echo $lwf_deduct_date_y_m;exit;
+                                                                if ($year . "-" . $month == $lwf_deduct_date_y_m) { //------checking deduct year month with salary generation year month
+                                                                    // echo "both months matching to deduct";exit;
+                                                                    $lwf_emp_rs = $lwf_data->mxlwf_emp_contr;
+                                                                    $lwf_comp_rs = $lwf_data->mxlwf_comp_contr;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        //---------------END LWF CALCULATION
+
+                                        //---------------BONUS CALCULATION
+                                        // echo $pay_data_is_bns;exit;
+                                        $bns_bonus_perc = 0;
+                                        $bns_round_type = 4;
+                                        if ($pay_data_is_bns == 1) {
+                                            if (count($bonus_array) > 0) {
+                                                foreach ($bonus_array as $bns_data) {
+                                                    $bns_cmp_id = $bns_data->mxbns_comp_id;
+                                                    $bns_div_id = $bns_data->mxbns_div_id;
+                                                    if ($emp_comp_code == $bns_cmp_id && $emp_div_code == $bns_div_id) {
+                                                        $bns_emp_type = $bns_data->mxbns_employement_type;
+                                                        $bns_emp_types_ex = explode(',', substr(substr(trim($bns_emp_type), 0, -1), 1)); //-----removing first and last strings ie commas(,)
+                                                        if (in_array($emp_employee_type, $bns_emp_types_ex)) {
+                                                            // print_r($bns_data);exit;
+                                                            $bns_applicability_on_rate_basic = $bns_data->mxbns_bonus_applicability;
+                                                            $bns_bonus_perc = $bns_data->mxbns_bonus_perc;
+                                                            $bns_max_bonus_limit = $bns_data->mxbns_max_bns;
+                                                            $bns_round_type = $bns_data->mxbns_bonus_perc_round_type;
+                                                            if (floatval($rate_basic_sal) <= floatval($bns_applicability_on_rate_basic)) { // rateof_basic <= 21000
+                                                                if (floatval($actual_basic) <= floatval($bns_max_bonus_limit)) {
+                                                                    $bonus_amount = rounding_number($actual_basic, $bns_round_type);
+                                                                } else {
+                                                                    $bonus_amount = rounding_number($bns_max_bonus_limit, $bns_round_type);
+                                                                }
+                                                            } else {
+                                                                $bonus_amount = 0;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        $bonus_amount = rounding_number($bonus_amount,$bns_round_type);
+
+                                        //---------------END BONUS CALCULATION
+                                        // print_r($gratuity_array);exit;
+                                        //--------------GRATUITY
+                                        $gratuity_amount = 0;
+                                        $gratuity_month_wise_perc_round_type = 4;
+                                        if ($pay_data_is_gartuity == 1) {
+                                            if (count($gratuity_array) > 0) {
+                                                foreach ($gratuity_array as $gratuity_data) {
+                                                    $gratuity_cmp_id = $gratuity_data->mxgratuity_comp_id;
+                                                    $gratuity_div_id = $gratuity_data->mxgratuity_div_id;
+                                                    if ($emp_comp_code == $gratuity_cmp_id && $emp_div_code == $gratuity_div_id) {
+                                                        $gratuity_emp_type = $gratuity_data->mxgratuity_emp_types;
+                                                        $gratuity_emp_types_ex = explode(',', substr(substr(trim($gratuity_emp_type), 0, -1), 1)); //-----removing first and last strings ie commas(,)
+                                                        if (in_array($emp_employee_type, $gratuity_emp_types_ex)) {
+                                                            // echo "hi";exit;
+                                                            if ($emp_current_age < $gratuity_data->mxgratuity_age_limit) { //emp_age<58
+                                                                $gratuity_month_wise_perc = $gratuity_data->mxgratuity_month_wise_perc;
+                                                                $gratuity_month_wise_perc_round_type = $gratuity_data->mxgratuity_month_wise_perc_round_type;
+                                                                $gratuity_amount = ($rate_basic_sal * $gratuity_month_wise_perc) / 100;
+                                                            }
+                                                            // else {
+                                                            //     $gratuity_amount = 0;
+                                                            // }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        $gratuity_amount = rounding_number($gratuity_amount,$gratuity_month_wise_perc_round_type);
+                                        //--------------END GRATUITY
+                                        //--------------LTA
+                                        // print_r($lta_array);exit;
+                                        $lta_amount = 0;
+                                        if ($pay_data_is_lta == 1) {
+                                            if (count($lta_array) > 0) {
+                                                foreach ($lta_array as $lta_data) {
+                                                    $lta_cmp_id = $lta_data->mxlta_comp_id;
+                                                    $lta_div_id = $lta_data->mxlta_div_id;
+                                                    if ($emp_comp_code == $lta_cmp_id && $emp_div_code == $lta_div_id) {
+                                                        $lta_emp_type = $lta_data->mxlta_emp_types;
+                                                        $lta_emp_types_ex = explode(',', substr(substr(trim($lta_emp_type), 0, -1), 1)); //-----removing first and last strings ie commas(,)
+                                                        $lta_grades = $lta_data->mxlta_applicable_grades;
+                                                        $lta_grades_ex = explode(',', substr(substr(trim($lta_grades), 0, -1), 1)); //-----removing first and last strings ie commas(,)
+                                                        if (in_array($emp_employee_type, $lta_emp_types_ex) && in_array($emp_grade_code, $lta_grades_ex)) {
+                                                            $lta_amount = rounding_number(($rate_basic_sal * 1) / 12,2);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        //--------------END LTA
+                                        //--------------MEDICLAIM
+                                        // print_r($mediclaim_array);exit;
+                                        $mediclaim_amount = 0;
+                                        if ($pay_data_is_mediclaim == 1) {
+                                            if (count($mediclaim_array) > 0) {
+                                                foreach ($mediclaim_array as $mediclaim_data) {
+                                                    $mediclaim_cmp_id = $mediclaim_data->mxmediclaim_comp_id;
+                                                    $mediclaim_div_id = $mediclaim_data->mxmediclaim_div_id;
+                                                    if ($emp_comp_code == $mediclaim_cmp_id && $emp_div_code == $mediclaim_div_id) {
+                                                        $mediclaim_emp_type = $mediclaim_data->mxmediclaim_emp_types;
+                                                        $mediclaim_emp_types_ex = explode(',', substr(substr(trim($mediclaim_emp_type), 0, -1), 1)); //-----removing first and last strings ie commas(,)
+                                                        $mediclaim_grades = $mediclaim_data->mxmediclaim_applicable_grades;
+                                                        $mediclaim_grades_ex = explode(',', substr(substr(trim($mediclaim_grades), 0, -1), 1)); //-----removing first and last strings ie commas(,)
+                                                        if (in_array($emp_employee_type, $mediclaim_emp_types_ex) && in_array($emp_grade_code, $mediclaim_grades_ex)) {
+                                                            $mediclaim_amount = rounding_number(($rate_basic_sal * 1) / 12,2);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        //--------------END MEDICLAIM
+
+                                        //************************************   END FOR BASIC   *******************************
+                                    } else if ($column_inc_is_hra == 1) {
+                                        //************************************   FOR HRA   **********************************
+                                        // echo"calculated_sal = ". $calculated_sal.'<br>';
+                                        // echo "total_days in a month =".$total_days_in_month.'<br>';
+                                        // echo "present days =".$present_days_of_employees_in_month.'<br>';
+                                        // exit;
+                                        //---------------------CALCULATING ACTUAL HRA
+                                        $actual_hra = rounding_number(number_format(((($final_array['mxsal_hra']) / $total_days_in_month) * $total_days), 2, '.', ''),2);
+                                        //---------------------END CALCULATING ACTUAL HRA
+                                        //------------------- ESI CALCULATION FOR HRA
+                                        $esi_wages_flag = false;//----->NEW BY SHABABU(16-06-2022)
+                                        if ($pay_data_is_esi == 1) {
+                                            //---------------ESI ARRAY FROM ESI MASTER
+                                            // print_r($esi_array);exit;
+                                            if($esi_eligibility_in_branch == 1){
+                                                $esi_emp_cont_round_type = 1;
+                                                $esi_comp_cont_round_type = 1;
+                                                foreach ($esi_array as $esi_data) {
+                                                    // print_r($esi_data);exit;
+                                                    $esi_cmp_id = $esi_data->mxesi_comp_id;
+                                                    $esi_div_id = $esi_data->mxesi_div_id;
+                                                    $esi_state_id = $esi_data->mxesi_state_id;
+                                                    $esi_branch_id = $esi_data->mxesi_branch_id;
+                                                    //--------------------COMPARING compcode,div_code,state_code,branch_code with both esi master table data and employee info table data
+
+                                                    if ($esi_cmp_id == $emp_comp_code  && $esi_div_id == $emp_div_code  && $esi_state_id == $emp_state_code  && $esi_branch_id == $emp_branch_code) {
+
+                                                        $esi_emp_type = $esi_data->mxesi_emp_types;
+                                                        $esi_emp_types_ex = explode(',', substr(substr(trim($esi_emp_type), 0, -1), 1)); //----REMOVING FIRST AND LAST DIGIT COMMAS(,)
+                                                        //---------------CHECKING EMPLOYEE TYPE EXIST OR NOT AFTER EXPLODING WITH COMMA (ESI MASTER TABLE)
+                                                        if (in_array($emp_employee_type, $esi_emp_types_ex)) {
+
+                                                            // print_r($esi_emp_types_ex);exit;
+                                                            $esi_emp_cont = $esi_data->mxesi_emp_cont;
+                                                            $esi_emp_cont_round_type = $esi_data->mxesi_emp_cont_round_type;
+                                                            $esi_comp_cont = $esi_data->mxesi_comp_cont;
+                                                            $esi_comp_cont_round_type = $esi_data->mxesi_comp_cont_round_type;
+
+                                                            $esi_gross_sal_limit = $esi_data->mxesi_gross_sal_limit;
+                                                            // echo $gross_sal.'<br>'.$esi_gross_sal_limit;exit;
+                                                            if ($gross_sal <= ($esi_gross_sal_limit)) {
+                                                                $esi_emp_cont_on_hra = ($actual_hra * $esi_emp_cont) / 100;
+                                                                $esi_comp_cont_on_hra = ($actual_hra * $esi_comp_cont) / 100;
+                                                                $esi_wages = $gross_sal;
+                                                                $esi_wages_flag = true;//----->NEW BY SHABABU(16-06-2022)
+                                                            } else {
+                                                                $esi_emp_cont_on_hra = 0;
+                                                                $esi_comp_cont_on_hra = 0;
+                                                                $esi_wages = 0;
+                                                            }
+                                                            // echo $gross_sal . '<br>' . $esi_gross_sal_limit . 'br';
+                                                            // echo "EMP code = " . $emp_code . '<br>';
+                                                            // echo "ACTUAL BASIC=" . $actual_basic . '<br>';
+                                                            // echo "ACTUAL HRA=" . $actual_hra . '<br>';
+                                                            // echo "EMP CONT FINAL= " . $esi_emp_cont_on_basic + $esi_emp_cont_on_hra . '<br>';
+                                                            // echo "COMP CONT FINAL= " . $esi_comp_cont_on_basic + $esi_comp_cont_on_hra;
+                                                            // exit;
+                                                        } else {
+                                                            $esi_emp_cont_on_hra = 0;
+                                                            $esi_comp_cont_on_hra = 0;
+                                                        }
+                                                        //---------------END CHECKING EMPLOYEE TYPE EXIST OR NOT AFTER EXPLODING WITH COMMA (ESI MASTER TABLE)
+                                                    }
+                                                    //--------------------END COMPARING compcode,div_code,state_code,branch_code with both esi master table data and employee info table data
+                                                }
+                                            }else{
+                                                $esi_emp_cont_on_hra = 0;
+                                                $esi_comp_cont_on_hra = 0;
+                                            }
+                                            // $esi_emp_cont_on_hra = rounding_number($esi_emp_cont_on_hra,$esi_emp_cont_round_type);
+                                            // $esi_comp_cont_on_hra = rounding_number($esi_comp_cont_on_hra,$esi_comp_cont_round_type);
+                                            //---------------END ESI ARRAY FROM ESI MASTER
+                                        }
+                                        //------------------- END ESI CALCULATION FOR HRA
+                                        //************************************   END FOR HRA   **********************************
+                                    }else if($column_inc_is_tsp == 1){
+                                        $tsp_amount = number_format(((($final_rate_basic) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', '');
+                                    }else if($column_inc_is_proffesionals_charges == 1){
+                                        $professional_charges_amount = number_format(((($final_rate_basic) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', '');
+                                    }
+
+                                    // echo $professional_charges_amount;exit;
+
+                                    // echo "EMP CONT FINAL= " . $esi_emp_cont_on_basic + $esi_emp_cont_on_hra . '<br>';
+                                    // echo "COMP CONT FINAL= " . $esi_comp_cont_on_basic + $esi_comp_cont_on_hra;
+                                    // exit;
+                                    // print_r($final_array);
+                                    // exit;
+
+
+                                    //------------END GETTING ALL COLUMNS FROM THE INC HEAD TABLE
+
+                                }
+                                //****************************END COMPARING cmpid ,in_head_id,emp_type_id from income head table and  EMPLOYEE INFO TABLE AND TAKING mxpsc_type = 1(ie employee paystructure)
+                            }
+
+
+                            //******************END FILTERED PAY STRUCTURE DATA**********************
+                        }
+                        //*************END CHECKING WITH COMP CODE & EMP TYPE OF INC HEADS WITH EMPLOYEE INFO
+                    } //---->columns loop close
+
+                    //*****************************FINAL PT CALCULATION
+
+                    $actual_gross = floatval(rounding_number($actual_basic + $actual_hra, 4));
+                    // $actual_gross =floatval(150000.0001);
+                    // echo $actual_gross;exit;
+                    // echo $pt_flag;exit;
+                    if ($pt_flag == "YES") {
+                        // print_r($new_pt_filtered_array);
+                        // exit;
+                        // echo count($new_pt_filtered_array);exit;
+                        if (count($new_pt_filtered_array) == 1) {
+                            $pt_id = $new_pt_filtered_array[0]->mxpt_id;
+                            $pt_no = $new_pt_filtered_array[0]->mxpt_pt_in_no;
+                            $pt_type = $new_pt_filtered_array[0]->mxpt_pt_type;
+                            $pt_year_type = $new_pt_filtered_array[0]->mxpt_year_type;
+                            // echo $actual_gross;exit;
+                            $pt_slab_rate_array = $this->getPt_slab_rates_for_sal($pt_id, $emp_comp_code, $emp_div_code, $emp_state_code, $emp_branch_code, $emp_employee_type, $pt_year_type, $month, $actual_gross, $pt_type);
+
+                            // echo count($pt_slab_rate_array);exit;
+                            if (count($pt_slab_rate_array) == 1) {
+                                $pt_amount = $pt_slab_rate_array[0]->mxpt_slb_amount;
+                            } else if (count($pt_slab_rate_array) > 1) {
+                                // print_r($pt_slab_rate_array);
+                                // exit;
+                                $this->db->trans_rollback();
+                                $message = "WE ARE GETTING PT SLAB MASTER MULTIPLE ARRAYS CONTACT DEVELOPER.......";
+                                getjsondata(0,$message);
+                                // echo "225";
+                                // $this->rollback();
+                                // exit;
+                            } else {
+                                $pt_amount = 0;
+                            }
+                        } else {
+                            $this->db->trans_rollback();
+                            // echo "224"; //---->If we get two arrays for pt we will fire error message
+                            $message = "WE ARE GETTING PT MASTER MULTIPLE ARRAYS CONTACT DEVELOPER.......";
+                            getjsondata(0,$message);
+                            // $this->rollback();
+                            // exit;
+                        }
+                    } else {
+                        $pt_amount = 0;
+                        $pt_id = 0;
+                        $pt_no = '';
+                    }
+                    // echo $pt_amount;exit;
+                    //********************END FINAL PT CALCULATION
+
+                    //-------------------INCENTIVE CALCULATION
+                    $incentive_amount = 0;
+                    if (count($incentives_array) > 0) {
+                        foreach ($incentives_array as $incentive_data) {
+                            // print_r($incentive_data);exit;
+                            $incentive_comp_id = $incentive_data->mxinc_company_id;
+                            $incentive_div_id = $incentive_data->mxinc_division_id;
+                            $incentive_state_id = $incentive_data->mxinc_state_id;
+                            $incentive_branch_id = $incentive_data->mxinc_branch_id;
+                            $incentive_emp_type_id = $incentive_data->mxinc_employeement_type_id;
+                            $incentive_emp_code = $incentive_data->mxinc_employee_code;
+                            if ($incentive_comp_id == $emp_comp_code && $incentive_div_id == $emp_div_code && $incentive_state_id == $emp_state_code && $incentive_branch_id == $emp_branch_code && $incentive_emp_type_id == $emp_employee_type && $incentive_emp_code == $emp_code) {
+                                $incentive_emp_col_name = $incentive_data->mxincm_emp_col_name;
+                                $incentive_variable_pay_amount = $incentive_data->mxinc_variablepay_amount;
+                                $final_array[$incentive_emp_col_name] = $incentive_variable_pay_amount;
+                                $incentive_amount += $incentive_variable_pay_amount;
+                            }
+                        }
+                    }
+                    //-------------------END INCENTIVE CALCULATION
+                    //-------------------MISCELENOUS CALCULATION
+                    $miscellenous_amount = 0;
+                    if (count($miscelleneous_array) > 0) {
+                        foreach ($miscelleneous_array as $miscelleneous_data) {
+                            // print_r($miscelleneous_data);exit;
+                            $miscellenous_comp_id = $miscelleneous_data->mxmsc_ded_company_id;
+                            $miscellenous_div_id = $miscelleneous_data->mxmsc_ded_division_id;
+                            $miscellenous_state_id = $miscelleneous_data->mxmsc_ded_state_id;
+                            $miscellenous_branch_id = $miscelleneous_data->mxmsc_ded_branch_id;
+                            $miscellenous_emp_type_id = $miscelleneous_data->mxmsc_ded_employeement_type_id;
+                            $miscellenous_emp_code = $miscelleneous_data->mxmsc_ded_employee_code;
+                            if ($miscellenous_comp_id == $emp_comp_code && $miscellenous_div_id == $emp_div_code && $miscellenous_state_id == $emp_state_code && $miscellenous_branch_id == $emp_branch_code && $miscellenous_emp_type_id == $emp_employee_type && $miscellenous_emp_code == $emp_code) {
+                                // $incentive_emp_col_name = $miscelleneous_data->mxincm_emp_col_name;
+                                $miscellenous_amount = $miscelleneous_data->mxmsc_ded_variablepay_amount;
+                                // $final_array[$incentive_emp_col_name] = $incentive_variable_pay_amount;
+                                // $miscellenous_amount += $incentive_variable_pay_amount;
+                            }
+                        }
+                    }
+                    // echo $miscellenous_amount;exit;
+                    //-------------------END INCENTIVE CALCULATION
+
+
+                    $actual_gross = $actual_gross + $incentive_amount;
+                    if(intval($actual_gross) <= 0){
+                        $lwf_emp_rs = 0;
+                        $lwf_comp_rs = 0;
+                    }
+
+                    //---------GET TDS AMOUNT
+                    $ded_types_array = $this->get_deduction_types($deduction_id = null, $emp_comp_code,$is_tds = 1);
+                    // print_r($ded_types_array);exit;
+                    if(count($ded_types_array) > 0){
+                        $tds_array = $this->get_misc_income($misc_id = null,$emp_comp_code,$emp_code,$year_month);
+                        // print_r($tds_array);exit;
+                        if(count($tds_array == 1)){
+                            $tds_amount = $tds_array[0]->mxemp_misc_inc_tds_amt;
+                        }
+                    }
+                    // echo $tds_amount;exit;
+                    //---------END GET TDS AMOUNT
+
+
+                    // $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $loan_amount + $miscellenous_amount;//----->commeneted By shababu(30-07-2022)
+                    $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;//----->NEW BY SHABABU(30-07-2022)
+                    // echo "tds_amount =".$tds_amount."<br>";
+                    // echo "emp_pf_12 = ".$emp_pf_12."<br>";
+                    // echo "esi_emp_cont_on_basic =".$esi_emp_cont_on_basic."<br>";
+                    // echo "esi_emp_cont_on_hra =".$esi_emp_cont_on_hra."<br>";
+                    // echo "pt_amount =".$pt_amount."<br>";
+                    // echo "lwf_emp_rs =".$lwf_emp_rs."<br>";
+                    // echo "loan_amount =".$loan_amount."<br>";
+                    // echo "miscellenous_amount =".$miscellenous_amount."<br>";
+                    // echo "total Deductions = ".$total_deductions;exit;
+                    //-----
+                    // get_leaves_count_data($employeecode = null, $ym = null);
+                    // $ctc = $gross_sal + $emp_pf_3 + ($esi_comp_cont_on_basic + $esi_comp_cont_on_hra) + $bonus_amount + $gratuity_amount + $lwf_comp_rs + $mediclaim_amount + $lta_amount;
+                    // $ctc = $net_sal + $emp_pf_3 + ($esi_comp_cont_on_basic + $esi_comp_cont_on_hra) + $bonus_amount + $gratuity_amount + $lwf_comp_rs + $mediclaim_amount + $lta_amount;
+                    $ctc = $actual_gross + $emp_pf_3 + $emp_pf_8 + $pf_edli_sal + $pf_admin_sal + ($esi_comp_cont_on_basic + $esi_comp_cont_on_hra) + $bonus_amount + $gratuity_amount + $lwf_comp_rs + $mediclaim_amount + $lta_amount;
+                    if($column_inc_is_tsp == 1){
+                        $net_sal = $tsp_amount - $tds_amount;
+                        if($net_sal <= 0){
+                            // $tds_amount = $tsp_amount;//--->if netsal < tdsamount we will insert tdsamount as $tsp_amount//----->commeneted By shababu(30-07-2022)
+                            $tds_amount = 0;//----->new By shababu(30-07-2022)
+                            $show_emps_array[] = $emp_code;
+                        }
+                    }else if($column_inc_is_proffesionals_charges == 1){
+                        $net_sal = $professional_charges_amount - $tds_amount;//----->commeneted By shababu(30-07-2022)
+                        // $net_sal = $professional_charges_amount;//----->New By shababu(30-07-2022)
+                        if($net_sal <= 0){
+                            // $tds_amount = $professional_charges_amount;//--->if netsal < tdsamount we will insert tdsamount as $professional_charges_amount//----->commeneted By shababu(30-07-2022)
+                            $tds_amount = 0;//----->new By shababu(30-07-2022)
+                            $show_emps_array[] = $emp_code;
+                        }
+                    }else{
+                        // $net_sal = $actual_gross - $total_deductions - $tds_amount;//----->commeneted By shababu(30-07-2022)
+                        $net_sal = $actual_gross - $total_deductions;//----->new By shababu(30-07-2022)
+                        if($net_sal <= 0){
+                            $net_sal = 0;
+                            // $tds_amount = $actual_gross - $total_deductions;//--->if netsal < tdsamount we will insert tdsamount as $actual_gross - $total_deductions//----->commeneted By shababu(30-07-2022)
+                            $tds_amount = 0;//----->new By shababu(30-07-2022)
+                            $show_emps_array[] = $emp_code;
+                        }
+                    }
+                    // echo $net_sal;exit;
+                    //-------------------LOAN MASTER
+                    // echo "net_sal = ".$net_sal;exit;
+                    $loan_amount = $total_loan_amount = 0;
+                    $loan_array = $this->Loan_model->getloandetails_sals($emp_comp_code, $emp_div_code=null, $emp_state_code=null, $emp_branch_code=null, $emp_code, $year_month);
+                    /*if($emp_code == 'M0978'){
+                        echo "<pre>";print_r($loan_array);exit;
+                    }*/
+
+                    if (count($loan_array) > 0 && $net_sal > 0) {
+                        foreach ($loan_array as $loan_data) {
+                            // echo "<pre>"; print_r($loan_data);exit;
+                            $outstanding_amount = $loan_data->mxemploan_emp_loan_outstanding_amt;
+                            if ($outstanding_amount > 0) {
+                                $monthly_emi_amount = $loan_data->mxemploan_emp_loan_monthly_emi_amt;
+
+                                // new by sha(10-03-2025)
+                                if($net_sal < $monthly_emi_amount){
+                                    $monthly_emi_amount = $net_sal;
+                                }
+                                // END new by sha(10-03-2025)
+                                if ($outstanding_amount >= $monthly_emi_amount) { //---->if oustanding(10000) greater than monthly emi(2000) we take monthly emi(2000)
+                                    $loan_amount = $monthly_emi_amount;
+                                    $total_loan_amount += $loan_amount;
+                                    $primaryid = $loan_data->mxemploan_pri_id;
+                                    $new_oustanding_amount = $outstanding_amount - $loan_amount;
+                                    $this->update_loan_master($new_oustanding_amount, $loan_amount, $primaryid, $emp_code);
+                                    //-----------NEW BY SHABABU(26-06-2022)
+                                    $insert_id = $this->db->insert_id();
+                                    //-----------END NEW BY SHABABU(26-06-2022)
+                                } else if ($outstanding_amount < $monthly_emi_amount) { //------>if outstanding(1500) less than monthly EMI(2000) we take outstanding(1500)
+                                    $loan_amount = $outstanding_amount;
+                                    $total_loan_amount += $loan_amount;
+                                    $primaryid = $loan_data->mxemploan_pri_id;
+                                    $new_oustanding_amount = $outstanding_amount - $loan_amount;
+                                    $this->update_loan_master($new_oustanding_amount, $loan_amount, $primaryid, $emp_code);
+                                    //-----------NEW BY SHABABU(26-06-2022)
+                                    $insert_id = $this->db->insert_id();
+
+                                    //-----------END NEW BY SHABABU(26-06-2022)
+                                }
+                                //----NEW BY SHABABU(26-06-2022)
+                                $loan_log_array = array(
+                                    'mx_loan_emp_id' => $emp_code,
+                                    'mx_loan_month' => $year_month,
+                                    'mx_loan_emi_amount' => $loan_amount,
+                                    'mx_loan_master_id' => $primaryid,
+                                    'mx_loan_transaction_id' => $insert_id
+                                );
+                                $this->db->insert('maxwell_loan_sal_log',$loan_log_array);
+                                //----END NEW BY SHABABU(26-06-2022)
+                            }
+                        }
+                    }
+                    // new by sha(10-03-2025)
+                    $total_deductions = $total_deductions + $total_loan_amount;
+                    if($net_sal > 0){
+                        $net_sal = $net_sal - $total_loan_amount;
+                    }
+                    // new by sha(10-03-2025)
+                    //-------------------END LOAN MASTER
+
+
+
+
+                    // echo $net_sal;exit;
+                    $final_array['mxsal_total_ded'] = $total_deductions;
+                    $final_array['mxsal_actual_basic'] = $actual_basic;
+                    $final_array['mxsal_actual_hra'] = $actual_hra;
+                    $final_array['mxsal_actual_tsp'] = rounding_number($tsp_amount,2);
+                    $final_array['mxsal_actual_prof_charges'] = rounding_number($professional_charges_amount,2);
+                    // $final_array['mxsal_tds_amount'] = rounding_number($tds_amount,2);
+                    $final_array['mxsal_tds_amount'] = (rounding_number($tds_amount,2) <=0)? 0 :rounding_number($tds_amount,2);
+                    $final_array['mxsal_actual_gross'] = $actual_gross;
+                    //-----NEW BY SHABABU(29-06-2022)
+                    if($emp_pf_12 != ($emp_pf_8 + $emp_pf_3)){
+                        $emp_pf_3 = $emp_pf_12 - $emp_pf_8;
+                    }
+                    //-----END NEW BY SHABABU(29-06-2022)
+
+                    /* Updated BY : Varaprasad
+                     * Updated on: 27/04/2026
+                     * Purpose: EPS Non-Contribution (Checkbox) Functionality from Add Employee
+                     */
+
+                    $final_array['mxsal_eps_wages'] = $pf_eps_wages;
+                    $final_array['mxsal_pf_pension_cont'] = $emp_pf_8;
+                    $final_array['mxsal_pf_comp_cont'] = $emp_pf_3;
+
+                    if($emp_data->mxemp_is_eps_to_pf == 1){
+                        $final_array['mxsal_eps_wages'] = 0;
+                        $final_array['mxsal_pf_pension_cont'] = 0;
+                        $final_array['mxsal_pf_comp_cont'] = $emp_pf_3 + $emp_pf_8;
+                    }
+
+                    // End of EPS Non-Contribution (Checkbox) Functionality from Add Employee
+
+                    $final_array['mxsal_pf_emp_cont'] = $emp_pf_12;
+                    $final_array['mxsal_pf_edli'] = $pf_edli_sal;
+                    $final_array['mxsal_pf_admin'] = $pf_admin_sal;
+                    $final_array['mxsal_edli_wages'] = $pf_edli_wages;
+
+                    // echo "esi_emp_cont_on_basic=".$esi_emp_cont_on_basic."esi_emp_cont_on_hra=".$esi_emp_cont_on_hra;die;
+                    // echo $esi_emp_cont_round_type;exit;
+                    //-----------NEW BY SHABABU(30-06-2022)
+                    $final_emp_esi_cont_basic = rounding_number(($esi_emp_cont_on_basic + $esi_emp_cont_on_hra),$esi_emp_cont_round_type);
+                    $final_comp_esi_cont_basic = rounding_number(($esi_comp_cont_on_basic + $esi_comp_cont_on_hra),$esi_comp_cont_round_type);
+                    $final_array['mxsal_esi_emp_cont'] = $final_emp_esi_cont_basic;
+                    $final_array['mxsal_esi_comp_cont'] = $final_comp_esi_cont_basic;
+                    //-----------End NEW BY SHABABU(30-06-2022)
+                    // $final_array['mxsal_esi_emp_cont'] = $esi_emp_cont_on_basic + $esi_emp_cont_on_hra;
+                    // $final_array['mxsal_esi_comp_cont'] = $esi_comp_cont_on_basic + $esi_comp_cont_on_hra;
+                    if($esi_wages_flag == true){//----->NEW BY SHABABU(16-06-2022)
+                        if($actual_gross < $gross_sal){
+                            $esi_wages = $actual_gross;
+                        }
+                    }
+                    if($actual_gross <= 0){
+                        $esi_wages = 0;
+                    }
+                    $final_array['mxsal_esi_wages'] = $esi_wages;
+                    $final_array['mxsal_pt'] = $pt_amount;
+                    $final_array['mxsal_pt_id'] = $pt_id;
+                    $final_array['mxsal_pt_no'] = $pt_no;
+                    $final_array['mxsal_pt_status'] = $pt_flag;
+                    $final_array['mxsal_lwf_emp_cont'] = $lwf_emp_rs;
+                    $final_array['mxsal_lwf_comp_cont'] = $lwf_comp_rs;
+                    $final_array['mxsal_bonus'] = $bonus_amount;
+                    $final_array['mxsal_bonus_percentage'] = $bns_bonus_perc;
+                    //---------NEW BY SHABABU(20-07-2022)
+                    $bonus_percentage_amount = ($bonus_amount/100) * $bns_bonus_perc;
+                    $final_array['mxsal_bonus_percentage_amount'] = $bonus_percentage_amount;
+                    //---------END NEW BY SHABABU(20-07-2022)
+                    $final_array['mxsal_gratuity_amount'] = $gratuity_amount;
+                    $final_array['mxsal_lta_amount'] = $lta_amount;
+                    $final_array['mxsal_mediclaim_amount'] = $mediclaim_amount;
+                    $final_array['mxsal_emp_weak_offs'] = $sundays_of_a_month;
+                    $final_array['mxsal_present_days'] = $total_days;
+                    $final_array['mxsal_emp_days_in_month'] = cal_days_in_month(CAL_GREGORIAN, $month, $year); //---->Get no of days in a month
+                    $final_array['mxsal_incentive_amount'] = $incentive_amount;//----------->NEW BY SHABABU(20-06-2022);
+                    $final_array['mxsal_miscelleneous_amount'] = $miscellenous_amount;
+                    $final_array['mxsal_loan_amount'] = $total_loan_amount;
+                    $final_array['mxsal_net_sal'] = rounding_number($net_sal,2);
+
+                    $final_array['mxsal_ctc'] = $ctc;
+
+                    // print_r($final_array);
+                    // exit;
+                    //-----------END Filtered Column Names
+                    $this->db->insert($filtered_table_name, $final_array);
+                }
+                //----------------------END EMPLOYEES ARRAY
+            } else {
+                $this->db->trans_rollback();
+                $message = "Attendance Table Not Exist For the Selected Month And Year Try to Create Attendance Table First...";
+                getjsondata(0,$message);//-------No Attendance table
+            }
+            //------------CHECK SALARIES GENERATED OR NOT
+
+        } else { //-------->NO COMPANY ID and Month year WE GOT
+            $message = "Please Pass The Company Name or Month Year.....";
+            getjsondata(0,$message);
+        }
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            $message = "Something Went Wrong Please Contact Developer....";
+            getjsondata(0,$message);
+        } else {
+            $this->db->trans_commit();
+            if(count($show_emps_array) > 0){
+                $message = "Salaries Successfully Generated but got negative netsalary so check tds and etc for these employees (". implode($show_emps_array) .").....";
+                getjsondata(1,$message);
+            }else{
+                $message = "Salaries Successfully Generated.....";
+                getjsondata(1,$message);
+            }
+
+        }
+        //--------END CHECK ATTENDANCE TABLE EXIST OR NOT
+    }
+
+
+    /*
+    * Developed By : Varaprasad
+    * Developed On: 29-May-2026
+    * Purpose: Salary to generate for all other employees for the selected month even though
+    * for one/more resigned employee salary already generated for the month selected by ignoring those records
+    * */
+    public function check_paysheet_validations_new($cmp_id,$year_month,$affect_date){
+
+
+
+
+        //--------------------GETTING ALL DISTINCT DATA FROM EMPLYEE INFO TABLE(comp_code,div_code,state_code,branch_code)
+        $this->db->distinct();
+        $this->db->select("mxemp_emp_comp_code,mxemp_emp_division_code,mxemp_emp_state_code,mxemp_emp_branch_code,mxemp_emp_type");
+        $this->db->from("maxwell_employees_info");
+        $this->db->where("mxemp_emp_status",1);
+        $this->db->order_by("mxemp_emp_comp_code,mxemp_emp_division_code,mxemp_emp_state_code,mxemp_emp_branch_code,mxemp_emp_type");
+        $emp_qry = $this->db->get();
+        // echo $this->db->last_query();exit;
+        $emp_data = $emp_qry->result();
+        // print_r($emp_data);exit;
+        if(count($emp_data) <= 0){
+            $message = "No Employees Found.......";
+            getjsondata(0,$message);
+        }
+        //--------------------END GETTING ALL DISTINCT DATA FROM EMPLYEE INFO TABLE(comp_code,div_code,state_code,branch_code)
+
+
+        //-------------------GETTING DISTINCT DIVISIONS
+        $this->db->distinct();
+        $this->db->select("mxemp_emp_comp_code,mxemp_emp_division_code,mxemp_emp_type");
+        $this->db->from("maxwell_employees_info");
+        $this->db->where("mxemp_emp_status",1);
+        $this->db->order_by("mxemp_emp_comp_code,mxemp_emp_division_code,mxemp_emp_type");
+        $emp_div_qry = $this->db->get();
+        // echo $this->db->last_query();exit;
+        $emp_div_data = $emp_div_qry->result();
+        // print_r($emp_data);exit;
+        if(count($emp_div_data) <= 0){
+            $message = "No Employees Found.......";
+            getjsondata(0,$message);
+        }
+        //-------------GET DISTINCT EMPLOYEE TYPE
+        $this->db->distinct();
+        $this->db->select("mxemp_emp_type,mxemp_emp_comp_code,mxemp_ty_name,mxemp_ty_table_name");
+        $this->db->from("maxwell_employees_info");
+        $this->db->join('maxwell_employee_type_master',"mxemp_ty_id = mxemp_emp_type","inner");
+        $this->db->where("mxemp_emp_status",1);
+        $this->db->where("mxemp_ty_cmpid",$cmp_id);
+        $this->db->order_by("mxemp_emp_type");
+        $emp_type_qry = $this->db->get();
+        // echo $this->db->last_query();exit;
+        $emp_type_data = $emp_type_qry->result();
+
+        if(count($emp_type_data) > 0){
+
+            //-------------------CHECK DATA ALREADY EXISTS OR NOT FOR ALL EMPLOYEEMENT SALARY TABLES
+            /*foreach($emp_type_data as $emp_type_data_1){
+                // print_r($emp_type_data_1);exit;
+                $table_name = $emp_type_data_1->mxemp_ty_table_name;
+                $this->db->select();
+                $this->db->from($table_name);
+                $this->db->where("mxsal_cmp_id",$cmp_id);
+                $this->db->where("mxsal_year_month",$year_month);
+                $this->db->where("mxsal_status",1);
+                $qry2 = $this->db->get();
+                // echo $this->db->last_query();exit;
+                $res2 = $qry2->result();
+                if(count($res2) > 0){
+                    $message = "Employee salary Already Generated for the (".$table_name .") Table Name...";
+                    getjsondata(0,$message);
+                }
+            }*/
+            //-------------------END CHECK DATA ALREADY EXISTS OR NOT FOR ALL EMPLOYEEMENT SALARY TABLES
+
+            //----------------NEW BY SHABABU(08-05-2022)
+            # PROMOTION INCREMENTS VALIDATION
+            $this->db->select("mxemp_prm_id,mxemp_parent_log_id,mxemp_prm_affect_dt,mxemp_prm_joining_date,mxemp_prm_emp_code,mxemp_prm_is_authorisations,mxemp_prm_comp_id_to,mxemp_prm_div_id_to,mxemp_prm_state_id_to,mxemp_prm_branch_id_to,mxemp_prm_amount,mxemp_prm_desg_id_to,mxemp_prm_grade_id_to");
+            $this->db->from("maxwell_emp_promotion");
+            $this->db->where("mxemp_prm_affect_dt",$year_month);
+            $this->db->where("mxemp_prm_cron_status_flag", 0); // means taking without cron executed records
+            $this->db->where("mxemp_prm_status",1);
+            $qry_prom = $this->db->get();
+            // echo $this->db->last_query();exit;
+            $prom_res = $qry_prom->result();
+            if(count($prom_res) > 0){
+                $message = "PLEASE RUN INCREMENTS CRON BEFORE YOU GENERATE SALARY";
+                getjsondata(0,$message);
+            }
+            # END PROMOTION INCREMENTS VALIDATION
+            # INCREMENTS VALIDATION
+            $this->db->select("mxemp_spl_inc_id,mxemp_spl_inc_parent_log_id,mxemp_spl_inc_emp_code,mxemp_spl_inc_affect_dt,mxemp_spl_inc_affect_dt_ymd,mxemp_spl_inc_amount");
+            $this->db->from("maxwell_emp_special_increaments");
+            $this->db->where("mxemp_spl_inc_affect_dt",$year_month);
+            $this->db->where("mxemp_spl_inc_cron_status", 0); // means taking without cron executed records
+            $this->db->where("mxemp_spl_inc_status",1);
+            $qry_spcl_inc = $this->db->get();
+            // echo $this->db->last_query();exit;
+            $spcl_inc_res = $qry_spcl_inc->result();
+            if(count($spcl_inc_res) > 0){
+                $message = "PLEASE RUN INCREMENTS CRON BEFORE YOU GENERATE SALARY";
+                getjsondata(0,$message);
+            }
+            # END INCREMENTS VALIDATION
+
+            # TRANSFERS CRON
+            $this->db->select("mxemp_trs_id,mxemp_parent_log_id,mxemp_trs_emp_code,mxemp_trs_joining_date,mxemp_trs_joining_date,mxemp_trs_emp_joining_date,mxemp_trs_comp_id_to,mxemp_trs_div_id_to,mxemp_trs_state_id_to,mxemp_trs_branch_id_to");
+            $this->db->from("maxwell_emp_trasfers");
+            $this->db->where("mxemp_trs_joining_date",$year_month);
+            $this->db->where("mxemp_trs_type",'TRANSFERED');
+            $this->db->where("maxwell_emp_cron_status_flag",0);
+            $this->db->where("mxemp_trs_status",1);
+            $qry_trns = $this->db->get();
+            // echo $this->db->last_query();exit;
+            $trns_res = $qry_trns->result();
+            if(count($trns_res) > 0){
+                $message = "PLEASE RUN TRANSFERS CRON BEFORE YOU GENERATE SALARY";
+                getjsondata(0,$message);
+            }
+            # END TRANSFERS CRON
+
+            //----------------END NEW BY SHABABU(08-05-2022)
+
+            // print_r($emp_type_data);exit;
+            //-------------------CHECK PAYSTRUCTURE DATA EXIST OR NOT
+            foreach($emp_type_data as $emp_type_data_2){
+                $emp_type_id = $emp_type_data_2->mxemp_emp_type;
+                $emp_type_name = $emp_type_data_2->mxemp_ty_name;
+
+                $this->db->select('mxps_id,mxps_affect_from,mxps_comp_id,mxps_emptype_id');
+                $this->db->from('maxwell_pay_structure_master');
+                $this->db->where('mxps_affect_from <= ', $affect_date);
+                $this->db->where('mxps_affect_to >= ', $affect_date);
+                $this->db->where('mxps_emptype_id', $emp_type_id);
+                $this->db->where('mxps_status', 1);
+                $pay_structure_master_qry = $this->db->get();
+                // echo $this->db->last_query();exit;
+                $pay_structure_master_res = $pay_structure_master_qry->result();
+                if(count($pay_structure_master_res) <= 0){
+                    $message = "PayStructure Data Not Assigned For The Employement Type = ( ".$emp_type_name." )";
+                    getjsondata(0,$message);
+                }else{
+                    if(count($pay_structure_master_res) == 1){
+
+                        $pay_structure_id = $pay_structure_master_res[0]->mxps_id;
+                        $this->db->select();
+                        $this->db->from("maxwell_pay_structure_child");
+                        $this->db->where("mxpsc_parent_id",$pay_structure_id);
+                        $pay_structure_child_qry = $this->db->get();
+                        // echo $this->db->last_query();exit;
+                        $pay_structure_child_res = $pay_structure_child_qry->result();
+                        // print_r($pay_structure_child_res);exit;
+                        if(count($pay_structure_child_res) <= 0){
+                            $message = "PayStructure CHILD Data Not Exist For The Employement Type = ( ".$emp_type_name." )";
+                            getjsondata(0,$message);
+                        }else{
+                            //----------------------CHECK ALL STATUTORY DATA FROM HERE ONWARDS
+
+                            // print_r($pay_structure_child_res);exit;
+                            foreach($pay_structure_child_res as $pay_child_data){
+                                // print_r($pay_child_data);exit;
+                                //-----PF CHECK
+                                $is_pf = $pay_child_data->mxpsc_ispf;
+                                if($is_pf == 1){
+                                    $this->db->select('*');
+                                    $this->db->from('maxwell_pf_master');
+                                    $this->db->where('mxpf_status', 1);
+                                    $this->db->where('mxpf_comp_id', $cmp_id);
+                                    $this->db->where('mxpf_affect_from <= ', $affect_date);
+                                    $this->db->where('mxpf_affect_to >= ', $affect_date);
+                                    $is_pf_qry = $this->db->get();
+                                    // echo $this->db->last_query();exit;
+                                    $is_pf_res = $is_pf_qry->result();
+                                    // echo count($is_pf_res);exit;
+                                    if(count($is_pf_res) <= 0){
+                                        $message = "In PayStructure CHILD PF is Checked For The Employement Type = ( ".$emp_type_name." ) But We Dont Have Data In PF Statutory Table...";
+                                        getjsondata(0,$message);
+                                    }else if(count($is_pf_res) > 1){
+                                        $message = "For The Employement Type = ( ".$emp_type_name." ) We are Getting More than One Record From The PF Statutory Table Contact Developer...";
+                                        getjsondata(0,$message);
+                                    }
+                                }
+                                //-----END PF CHECK
+
+                                //----ESI CHECK
+                                $is_esi = $pay_child_data->mxpsc_isesi;
+                                if($is_esi == 1){
+                                    $new_emp_distinct_data = array();
+                                    if(count($emp_data) > 0){
+                                        //---------FILTERING THE DISTINCT EMPLOYEE DATA WITH EMPLOYEE TYPE AND PUSHING TO NEW ARRAY
+                                        // print_r($emp_data);exit;
+                                        foreach($emp_data as $emp_data1){
+                                            $emp_data_emp_type = $emp_data1->mxemp_emp_type;
+                                            // print_r($emp_data1);exit;
+                                            if($emp_data_emp_type == $emp_type_id){
+                                                $cmp_id = $emp_data1->mxemp_emp_comp_code;
+                                                $div_id = $emp_data1->mxemp_emp_division_code;
+                                                $state_id = $emp_data1->mxemp_emp_state_code;
+                                                $branch_id = $emp_data1->mxemp_emp_branch_code;
+                                                $flag = "ESI";
+                                                $result_data = $this->check_branch_data($cmp_id,$div_id,$state_id,$branch_id,$flag);
+                                                if($result_data == 1){
+                                                    $new_emp_distinct_data[] = $emp_data1;
+                                                }
+                                            }
+                                        }
+                                        // print_r($new_emp_distinct_data);exit;
+                                        //---------END FILTERING THE DISTINCT EMPLOYEE DATA WITH EMPLOYEE TYPE AND PUSHING TO NEW ARRAY
+
+                                        //--------AFTER FILTERING EMPLOYEE TYPE FROM DISTINCT EMP INFO CHECK ESI STATUTORY FOR ALL THE DISTINCT comp,div,state,branch
+                                        if(count($new_emp_distinct_data) > 0){
+                                            foreach($new_emp_distinct_data as $new_data_1){
+                                                // print_r($new_data_1);
+                                                $this->db->select();
+                                                $this->db->from('maxwell_esi_master');
+                                                $this->db->where('mxesi_comp_id', $new_data_1->mxemp_emp_comp_code);
+                                                $this->db->where('mxesi_div_id', $new_data_1->mxemp_emp_division_code);
+                                                $this->db->where('mxesi_state_id', $new_data_1->mxemp_emp_state_code);
+                                                $this->db->where('mxesi_branch_id', $new_data_1->mxemp_emp_branch_code);
+                                                $this->db->where('mxesi_affect_from <= ', $affect_date);
+                                                $this->db->where('mxesi_affect_to >= ', $affect_date);
+                                                $this->db->like('mxesi_emp_types', ','.$new_data_1->mxemp_emp_type.',');
+                                                $this->db->where('mxesi_status', 1);
+                                                $esi_qry = $this->db->get();
+                                                $error_qry = $this->db->last_query();
+                                                $esi_res = $esi_qry->result();
+                                                // echo "Employement Type = ( ".$emp_type_name." ), Div = ( ".$new_data_1->mxd_name." ), State = ( ".$new_data_1->mxst_state." ), Branch = ( ".$new_data_1->mxb_name." ) count = ".count($esi_res) . "<-------------->";
+                                                if(count($esi_res) <= 0){
+                                                    // print_r($new_data_1);exit;
+                                                    // echo $error_qry;exit;
+                                                    // get_emp_data($cmp_id = null,$div_id = null,$state_id = null,$branch_id = null)
+                                                    $data_emp = $this->get_emp_data($new_data_1->mxemp_emp_comp_code,$new_data_1->mxemp_emp_division_code,$new_data_1->mxemp_emp_state_code,$new_data_1->mxemp_emp_branch_code);
+                                                    // print_r($data_emp);exit;
+                                                    $message = "No DATA FOUND  IN ESI Statutory For The Employement Type = ( ".$emp_type_name." ), Div = ( ".$data_emp->mxd_name." ), State = ( ".$data_emp->mxst_state." ), Branch = ( ".$data_emp->mxb_name." )......";
+                                                    getjsondata(0,$message);
+                                                }else if(count($esi_res) > 1){
+                                                    $message = "We Are Getting More than One Array from ESI Statutory For The Employement Type = ( ".$emp_type_name." ), Div = ( ".$new_data_1->mxd_name." ), State = ( ".$new_data_1->mxst_state." ), Branch = ( ".$new_data_1->mxb_name." )......";
+                                                    getjsondata(0,$message);
+                                                }
+                                            }
+                                        }else{
+                                            $message = "In PayStructure CHILD ESI is Checked For The Employement Type = ( ".$emp_type_name." ) But We Dont Have NEW ARRAY DATA AFTER FILTERING DISTINCT EMP DATA CONTACT DEVELOPER......";
+                                            getjsondata(0,$message);
+                                        }
+                                        //--------END AFTER FILTERING EMPLOYEE TYPE FROM DISTINCT EMP INFO CHECK ESI STATUTORY FOR ALL THE DISTINCT comp,div,state,branch
+                                    }
+
+
+                                }
+                                //----END ESI CHECK
+
+
+                                //----PT CHECK
+                                $is_pt = $pay_child_data->mxpsc_ispt;
+                                if($is_pt == 1){
+                                    $new_emp_distinct_data = array();
+                                    if(count($emp_data) > 0){
+                                        //---------FILTERING THE DISTINCT EMPLOYEE DATA WITH EMPLOYEE TYPE AND PUSHING TO NEW ARRAY
+                                        foreach($emp_data as $emp_data1){
+                                            $emp_data_emp_type = $emp_data1->mxemp_emp_type;
+                                            if($emp_data_emp_type == $emp_type_id){
+                                                $cmp_id = $emp_data1->mxemp_emp_comp_code;
+                                                $div_id = $emp_data1->mxemp_emp_division_code;
+                                                $state_id = $emp_data1->mxemp_emp_state_code;
+                                                $branch_id = $emp_data1->mxemp_emp_branch_code;
+                                                $flag = "PT";
+                                                $result_data = $this->check_branch_data($cmp_id,$div_id,$state_id,$branch_id,$flag);
+                                                if($result_data == 1){
+                                                    $new_emp_distinct_data[] = $emp_data1;
+                                                }
+                                            }
+                                        }
+                                        // print_r($new_emp_distinct_data);exit;
+                                        //---------END FILTERING THE DISTINCT EMPLOYEE DATA WITH EMPLOYEE TYPE AND PUSHING TO NEW ARRAY
+
+                                        //--------AFTER FILTERING EMPLOYEE TYPE FROM DISTINCT EMP INFO CHECK ESI STATUTORY FOR ALL THE DISTINCT comp,div,state,branch
+                                        if(count($new_emp_distinct_data) > 0){
+                                            foreach($new_emp_distinct_data as $new_data_1){
+                                                // print_r($new_data_1);
+                                                $this->db->select();
+                                                $this->db->from('maxwell_pt_master');
+                                                $this->db->where('mxpt_comp_id', $new_data_1->mxemp_emp_comp_code);
+                                                $this->db->where('mxpt_div_id', $new_data_1->mxemp_emp_division_code);
+                                                $this->db->where('mxpt_state_id', $new_data_1->mxemp_emp_state_code);
+                                                $this->db->where('mxpt_branch_id', $new_data_1->mxemp_emp_branch_code);
+                                                $this->db->where('mxpt_affect_from <= ', $affect_date);
+                                                $this->db->where('mxpt_affect_to >= ', $affect_date);
+                                                $this->db->like('mxpt_emp_types', ','.$new_data_1->mxemp_emp_type.',');
+                                                $this->db->where('mxpt_status', 1);
+                                                $pt_qry = $this->db->get();
+                                                $error_qry_1 = $this->db->last_query();
+                                                $pt_res = $pt_qry->result();
+                                                // print_r($pt_res);exit;
+                                                // echo "Employement Type = ( ".$emp_type_name." ), Div = ( ".$new_data_1->mxd_name." ), State = ( ".$new_data_1->mxst_state." ), Branch = ( ".$new_data_1->mxb_name." ) count = ".count($esi_res) . "<-------------->";
+                                                if(count($pt_res) <= 0){
+                                                    // print_r($new_data_1);exit;
+                                                    // echo $error_qry_1;exit;
+                                                    // get_emp_data($cmp_id = null,$div_id = null,$state_id = null,$branch_id = null)
+                                                    $data_emp = $this->get_emp_data($new_data_1->mxemp_emp_comp_code,$new_data_1->mxemp_emp_division_code,$new_data_1->mxemp_emp_state_code,$new_data_1->mxemp_emp_branch_code);
+                                                    // print_r($data_emp);exit;
+                                                    $message = "No DATA FOUND  IN PT Statutory For The Employement Type = ( ".$emp_type_name." ), Div = ( ".$data_emp->mxd_name." ), State = ( ".$data_emp->mxst_state." ), Branch = ( ".$data_emp->mxb_name." )......";
+                                                    getjsondata(0,$message);
+                                                }else if(count($esi_res) > 1){
+                                                    $data_emp = $this->get_emp_data($new_data_1->mxemp_emp_comp_code,$new_data_1->mxemp_emp_division_code,$new_data_1->mxemp_emp_state_code,$new_data_1->mxemp_emp_branch_code);
+                                                    $message = "We Are Getting More than One Array from PT Statutory For The Employement Type = ( ".$emp_type_name." ), Div = ( ".$data_emp->mxd_name." ), State = ( ".$data_emp->mxst_state." ), Branch = ( ".$data_emp->mxb_name." )......";
+                                                    getjsondata(0,$message);
+                                                }else{
+                                                    $this->db->select();
+                                                    $this->db->from('maxwell_pt_slab_master');
+                                                    $this->db->where('mxpt_parent_id', $pt_res[0]->mxpt_id);
+                                                    $this->db->where('mxpt_slb_status', 1);
+                                                    $pt_slab_qry = $this->db->get();
+                                                    $error_qry_2 = $this->db->last_query();
+                                                    $pt_slab_res = $pt_slab_qry->result();
+                                                    // print_r($pt_slab_res);exit;
+                                                    if(count($pt_slab_res) <= 0){
+                                                        $data_emp = $this->get_emp_data($new_data_1->mxemp_emp_comp_code,$new_data_1->mxemp_emp_division_code,$new_data_1->mxemp_emp_state_code,$new_data_1->mxemp_emp_branch_code);
+                                                        $message = "PT data contain but No Data Found For PT Slab(child) Statutory table For The Employement Type = ( ".$emp_type_name." ), Div = ( ".$data_emp->mxd_name." ), State = ( ".$data_emp->mxst_state." ), Branch = ( ".$data_emp->mxb_name." )......";
+                                                        getjsondata(0,$message);
+                                                    }
+                                                }
+                                            }
+                                        }else{
+                                            $message = "In PayStructure CHILD ESI is Checked For The Employement Type = ( ".$emp_type_name." ) But We Dont Have NEW ARRAY DATA AFTER FILTERING DISTINCT EMP DATA CONTACT DEVELOPER......";
+                                            getjsondata(0,$message);
+                                        }
+                                        //--------END AFTER FILTERING EMPLOYEE TYPE FROM DISTINCT EMP INFO CHECK ESI STATUTORY FOR ALL THE DISTINCT comp,div,state,branch
+                                    }
+
+
+                                }
+                                //----END PT CHECK
+
+                                //------LWF CHECK
+                                $is_lwf = $pay_child_data->mxpsc_islwf;
+                                if($is_lwf == 1){
+                                    $new_emp_distinct_data = array();
+                                    if(count($emp_data) > 0){
+                                        //---------FILTERING THE DISTINCT EMPLOYEE DATA WITH EMPLOYEE TYPE AND PUSHING TO NEW ARRAY
+                                        // print_r($emp_data);exit;
+                                        // echo "<------------>";
+                                        foreach($emp_data as $emp_data1){
+                                            $emp_data_emp_type = $emp_data1->mxemp_emp_type;
+                                            // print_r($emp_data1);
+                                            if($emp_data_emp_type == $emp_type_id){
+                                                // print_r($emp_data1);
+                                                // echo "<------------>";
+                                                $cmp_id = $emp_data1->mxemp_emp_comp_code;
+                                                $div_id = $emp_data1->mxemp_emp_division_code;
+                                                $state_id = $emp_data1->mxemp_emp_state_code;
+                                                $branch_id = $emp_data1->mxemp_emp_branch_code;
+                                                $flag = "LWF";
+                                                $result_data = $this->check_branch_data($cmp_id,$div_id,$state_id,$branch_id,$flag);
+                                                if($result_data == 1){
+                                                    $new_emp_distinct_data[] = $emp_data1;
+                                                }
+                                            }
+                                        }
+                                        // print_r($new_emp_distinct_data);
+                                        // echo "<------------>";
+                                        //---------END FILTERING THE DISTINCT EMPLOYEE DATA WITH EMPLOYEE TYPE AND PUSHING TO NEW ARRAY
+
+                                        //--------AFTER FILTERING EMPLOYEE TYPE FROM DISTINCT EMP INFO CHECK ESI STATUTORY FOR ALL THE DISTINCT comp,div,state,branch
+                                        if(count($new_emp_distinct_data) > 0){
+                                            foreach($new_emp_distinct_data as $new_data_1){
+                                                // print_r($new_data_1);
+                                                $this->db->select();
+                                                $this->db->from('maxwell_lwf_master');
+                                                $this->db->where('mxlwf_comp_id', $new_data_1->mxemp_emp_comp_code);
+                                                $this->db->where('mxlwf_div_id', $new_data_1->mxemp_emp_division_code);
+                                                $this->db->where('mxlwf_state_id', $new_data_1->mxemp_emp_state_code);
+                                                $this->db->where('mxlwf_branch_id', $new_data_1->mxemp_emp_branch_code);
+                                                $this->db->where('mxlwf_affect_from <= ', $affect_date);
+                                                $this->db->where('mxlwf_affect_to >= ', $affect_date);
+                                                $this->db->like('mxlwf_emp_types', ','.$new_data_1->mxemp_emp_type.',');
+                                                $this->db->where('mxlwf_status', 1);
+                                                $lwf_qry = $this->db->get();
+                                                $error_qry = $this->db->last_query();
+                                                $lwf_res = $lwf_qry->result();
+                                                // echo "Employement Type = ( ".$emp_type_name." ), Div = ( ".$new_data_1->mxd_name." ), State = ( ".$new_data_1->mxst_state." ), Branch = ( ".$new_data_1->mxb_name." ) count = ".count($esi_res) . "<-------------->";
+                                                if(count($lwf_res) <= 0){
+                                                    // print_r($new_data_1);exit;
+                                                    // echo $error_qry;exit;
+                                                    // get_emp_data($cmp_id = null,$div_id = null,$state_id = null,$branch_id = null)
+                                                    $data_emp = $this->get_emp_data($new_data_1->mxemp_emp_comp_code,$new_data_1->mxemp_emp_division_code,$new_data_1->mxemp_emp_state_code,$new_data_1->mxemp_emp_branch_code);
+                                                    // print_r($data_emp);exit;
+                                                    $message = "No DATA FOUND  IN LWF Statutory For The Employement Type = ( ".$emp_type_name." ), Div = ( ".$data_emp->mxd_name." ), State = ( ".$data_emp->mxst_state." ), Branch = ( ".$data_emp->mxb_name." )......";
+                                                    getjsondata(0,$message);
+                                                }else if(count($esi_res) > 1){
+                                                    $message = "We Are Getting More than One Array from LWF Statutory For The Employement Type = ( ".$emp_type_name." ), Div = ( ".$new_data_1->mxd_name." ), State = ( ".$new_data_1->mxst_state." ), Branch = ( ".$new_data_1->mxb_name." )......";
+                                                    getjsondata(0,$message);
+                                                }
+                                            }
+                                        }else{
+                                            $message = "In PayStructure CHILD LWF is Checked For The Employement Type = ( ".$emp_type_name." ) But We Dont Have NEW ARRAY DATA AFTER FILTERING DISTINCT EMP DATA CONTACT DEVELOPER......";
+                                            getjsondata(0,$message);
+                                        }
+                                        //--------END AFTER FILTERING EMPLOYEE TYPE FROM DISTINCT EMP INFO CHECK ESI STATUTORY FOR ALL THE DISTINCT comp,div,state,branch
+                                    }
+
+
+                                }
+                                //------END LWF CHECK
+
+                                //------BONUS
+                                $is_bonus = $pay_child_data->mxpsc_isbns;
+                                if($is_bonus == 1){
+                                    $new_emp_distinct_data = array();
+                                    if(count($emp_div_data) > 0){
+                                        //---------FILTERING THE DISTINCT EMPLOYEE DATA WITH EMPLOYEE TYPE AND PUSHING TO NEW ARRAY
+                                        // print_r($emp_data);exit;
+                                        // echo "<------------>";
+                                        foreach($emp_div_data as $emp_data1){
+                                            $emp_data_emp_type = $emp_data1->mxemp_emp_type;
+                                            // print_r($emp_data1);
+                                            if($emp_data_emp_type == $emp_type_id){
+                                                $new_emp_distinct_data[] = $emp_data1;
+                                            }
+                                        }
+                                        // print_r($new_emp_distinct_data);
+                                        // echo "<------------>";
+                                        //---------END FILTERING THE DISTINCT EMPLOYEE DATA WITH EMPLOYEE TYPE AND PUSHING TO NEW ARRAY
+
+                                        //--------AFTER FILTERING EMPLOYEE TYPE FROM DISTINCT EMP INFO CHECK ESI STATUTORY FOR ALL THE DISTINCT comp,div,state,branch
+                                        if(count($new_emp_distinct_data) > 0){
+                                            foreach($new_emp_distinct_data as $new_data_1){
+                                                // print_r($new_data_1);
+                                                $this->db->select();
+                                                $this->db->from('maxwell_bonus_master');
+                                                $this->db->where('mxbns_comp_id', $new_data_1->mxemp_emp_comp_code);
+                                                $this->db->where('mxbns_div_id', $new_data_1->mxemp_emp_division_code);
+                                                $this->db->where('mxbns_affect_from <= ', $affect_date);
+                                                $this->db->where('mxbns_affect_to >= ', $affect_date);
+                                                $this->db->like('mxbns_employement_type', ','.$new_data_1->mxemp_emp_type.',');
+                                                $this->db->where('mxbns_status', 1);
+                                                $bonus_qry = $this->db->get();
+                                                $error_qry = $this->db->last_query();
+                                                $bonus_res = $bonus_qry->result();
+                                                // echo "Employement Type = ( ".$emp_type_name." ), Div = ( ".$new_data_1->mxd_name." ), State = ( ".$new_data_1->mxst_state." ), Branch = ( ".$new_data_1->mxb_name." ) count = ".count($esi_res) . "<-------------->";
+                                                if(count($bonus_res) <= 0){
+                                                    // print_r($new_data_1);exit;
+                                                    // echo $error_qry;exit;
+                                                    // get_emp_data($cmp_id = null,$div_id = null,$state_id = null,$branch_id = null)
+                                                    $data_emp = $this->get_emp_data($new_data_1->mxemp_emp_comp_code,$new_data_1->mxemp_emp_division_code,$stat = null,$bran = null);
+                                                    // print_r($data_emp);exit;
+                                                    $message = "No DATA FOUND  IN BONUS Statutory For The Employement Type = ( ".$emp_type_name." ), Div = ( ".$data_emp->mxd_name." )......";
+                                                    getjsondata(0,$message);
+                                                }else if(count($esi_res) > 1){
+                                                    $message = "We Are Getting More than One Array from BONUS Statutory For The Employement Type = ( ".$emp_type_name." ), Div = ( ".$new_data_1->mxd_name." )......";
+                                                    getjsondata(0,$message);
+                                                }
+                                            }
+                                        }else{
+                                            $message = "In PayStructure CHILD Bonus is Checked For The Employement Type = ( ".$emp_type_name." ) But We Dont Have NEW ARRAY DATA AFTER FILTERING DISTINCT EMP DATA CONTACT DEVELOPER......";
+                                            getjsondata(0,$message);
+                                        }
+                                        //--------END AFTER FILTERING EMPLOYEE TYPE FROM DISTINCT EMP INFO CHECK ESI STATUTORY FOR ALL THE DISTINCT comp,div,state,branch
+                                    }
+
+
+                                }
+                                //------END BONUS
+
+
+                                //-------GRATUITY
+                                $is_gratuity = $pay_child_data->mxpsc_isgratuity;
+                                if($is_gratuity == 1){
+                                    $new_emp_distinct_data = array();
+                                    if(count($emp_div_data) > 0){
+                                        //---------FILTERING THE DISTINCT EMPLOYEE DATA WITH EMPLOYEE TYPE AND PUSHING TO NEW ARRAY
+                                        // print_r($emp_data);exit;
+                                        // echo "<------------>";
+                                        foreach($emp_div_data as $emp_data1){
+                                            $emp_data_emp_type = $emp_data1->mxemp_emp_type;
+                                            // print_r($emp_data1);
+                                            if($emp_data_emp_type == $emp_type_id){
+                                                $new_emp_distinct_data[] = $emp_data1;
+                                            }
+                                        }
+                                        // print_r($new_emp_distinct_data);
+                                        // echo "<------------>";
+                                        //---------END FILTERING THE DISTINCT EMPLOYEE DATA WITH EMPLOYEE TYPE AND PUSHING TO NEW ARRAY
+
+                                        //--------AFTER FILTERING EMPLOYEE TYPE FROM DISTINCT EMP INFO CHECK ESI STATUTORY FOR ALL THE DISTINCT comp,div,state,branch
+                                        if(count($new_emp_distinct_data) > 0){
+                                            foreach($new_emp_distinct_data as $new_data_1){
+                                                // print_r($new_data_1);
+                                                $this->db->select();
+                                                $this->db->from('maxwell_gratuity_master');
+                                                $this->db->where('mxgratuity_comp_id', $new_data_1->mxemp_emp_comp_code);
+                                                $this->db->where('mxgratuity_div_id', $new_data_1->mxemp_emp_division_code);
+                                                $this->db->where('mxgratuity_affect_from <= ', $affect_date);
+                                                $this->db->where('mxgratuity_affect_to >= ', $affect_date);
+                                                $this->db->like('mxgratuity_emp_types', ','.$new_data_1->mxemp_emp_type.',');
+                                                $this->db->where('mxgratuity_status', 1);
+                                                $gratuity_qry = $this->db->get();
+                                                $error_qry = $this->db->last_query();
+                                                $gratuity_res = $gratuity_qry->result();
+                                                // echo "Employement Type = ( ".$emp_type_name." ), Div = ( ".$new_data_1->mxd_name." ), State = ( ".$new_data_1->mxst_state." ), Branch = ( ".$new_data_1->mxb_name." ) count = ".count($esi_res) . "<-------------->";
+                                                if(count($gratuity_res) <= 0){
+                                                    // print_r($new_data_1);exit;
+                                                    // echo $error_qry;exit;
+                                                    // get_emp_data($cmp_id = null,$div_id = null,$state_id = null,$branch_id = null)
+                                                    $data_emp = $this->get_emp_data($new_data_1->mxemp_emp_comp_code,$new_data_1->mxemp_emp_division_code,$stat = null,$bran = null);
+                                                    // print_r($data_emp);exit;
+                                                    $message = "No DATA FOUND  IN GRATUITY Statutory For The Employement Type = ( ".$emp_type_name." ), Div = ( ".$data_emp->mxd_name." )......";
+                                                    getjsondata(0,$message);
+                                                }else if(count($esi_res) > 1){
+                                                    $message = "We Are Getting More than One Array from GRATUITY Statutory For The Employement Type = ( ".$emp_type_name." ), Div = ( ".$new_data_1->mxd_name." )......";
+                                                    getjsondata(0,$message);
+                                                }
+                                            }
+                                        }else{
+                                            $message = "In PayStructure CHILD Bonus is Checked For The Employement Type = ( ".$emp_type_name." ) But We Dont Have NEW ARRAY DATA AFTER FILTERING DISTINCT EMP DATA CONTACT DEVELOPER......";
+                                            getjsondata(0,$message);
+                                        }
+                                        //--------END AFTER FILTERING EMPLOYEE TYPE FROM DISTINCT EMP INFO CHECK ESI STATUTORY FOR ALL THE DISTINCT comp,div,state,branch
+                                    }
+
+
+                                }
+                                //-------END GRATUITY
+                            }
+
+                            //----------------------END CHECK ALL STATUTORY DATA FROM HERE ONWARDS
+                        }
+                    }else{
+                        $message = "PayStructure Data Getting More Than One Array for The Employement Type = ( ".$emp_type_name." )";
+                        getjsondata(0,$message);
+                    }
+                }
+            }
+            //-------------------END CHECK PAYSTRUCTURE DATA EXIST OR NOT
+        }else{
+            $message = "No Employees Found.......";
+            getjsondata(0,$message);
+        }
+        //-------------END GET DISTINCT EMPLOYEE TYPE
+
+        // echo "done";
+        // exit;
+
+
     }
 
 

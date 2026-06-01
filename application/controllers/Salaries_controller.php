@@ -3198,6 +3198,22 @@ $savePath = 'uploads/payslips/' . $customFileName;
 		}
 	}
     // END UNHOLD SALARY
+
+    public function assign_single_emp_sal_resign(){
+        $this->verifylogin();
+        $this->header();
+        $data['cmpmaster'] = $this->Adminmodel->getcompany_master();
+        $data['divisiondetails'] = $this->Adminmodel->getdivisiondetails($id = '');
+        $this->load->view("Salaries/salary_assign_single_employee_resign",$data);
+        $this->footer();
+    }
+
+    public function generate_single_emp_salarie_resign(){
+        $emp_data = $this->input->post();
+        $emp_data['sal_month_year'] = $emp_data['yearmonth'];
+        /// echo "<pre>";print_r($emp_data);exit;
+        $res =  $this->Salaries_model->generate_single_emp_salarie_resigned($emp_data);
+    }
 }
  function convertToIndianCurrencyWords($number) {
     $words = array(
@@ -3262,3 +3278,4 @@ $savePath = 'uploads/payslips/' . $customFileName;
     $unit = $num % 10;
     return trim($words[$tens] . ' ' . $words[$unit]);
 }
+

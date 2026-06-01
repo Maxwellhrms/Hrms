@@ -881,7 +881,7 @@
                                          <tr>
                                              <td> <?php echo $sno; ?> </td>
                                              <td> <?php echo $arr_inc->mxemp_arears_emp_code; ?> </td>
-                                             <td> <?php echo $arr_inc->mxemp_emp_fname .' '.$inc->mxemp_emp_lname; ?> </td>
+                                             <td> <?php echo $arr_inc->mxemp_emp_fname .' '.$arr_inc->mxemp_emp_lname; ?> </td>
                                              <td> <?php echo $arr_inc->mxemp_arears_amount; ?> </td>
                                              <td> <?php echo $arr_inc->mxemp_arears_start_dt; ?> </td>
                                              <td> <?php echo $arr_inc->mxemp_arears_affect_dt; ?> </td>

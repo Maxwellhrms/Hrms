@@ -82,7 +82,7 @@
 														<span class="formerror" id="brnameerror"></span>
 													</div>
 												</div>
-												
+
 												<div class="form-group row">
 													<label class="col-lg-3 col-form-label">Date Of Join</label>
 													<div class="col-lg-9">
@@ -210,7 +210,7 @@
 																				<span class="formerror" id="empfnameerror"></span>
 																			</div>
 																		</div>
-																		
+
 																		<div class="form-group row">
 																			<label class="col-lg-3 col-form-label">Employee Name As Per Bank</label>
 																			<div class="col-lg-9">
@@ -218,7 +218,7 @@
 																				<span class="formerror" id="empnameasperbankerror"></span>
 																			</div>
 																		</div>
-																		
+
 																	    <div class="form-group row">
 																			<label class="col-lg-3 col-form-label">Employee Relation</label>
 																			<div class="col-lg-9">
@@ -228,7 +228,7 @@
 																				<span class="formerror" id="emprelationerror"></span>
 																			</div>
 																		</div>
-																		
+
 																		<div class="form-group row">
 																			<label class="col-lg-3 col-form-label">Employee Relation Person</label>
 																			<div class="col-lg-9">
@@ -236,7 +236,7 @@
 																				<span class="formerror" id="emprelation_nameerror"></span>
 																			</div>
 																		</div>
-																		
+
 																		<div class="form-group row" style="display:none;">
 																			<label class="col-lg-3 col-form-label">Last Name</label>
 																			<div class="col-lg-9">
@@ -396,7 +396,7 @@
 																					<option value="Married">Married</option>
 																					<option value="UnMarried">UnMarried</option>
 																					<option value="Divorced">Divorced</option>
-																					
+
 																				</select>
 																				<span class="formerror" id="empmaritalerror"></span>
 																			</div>
@@ -545,7 +545,7 @@
 																<div class="row">
 																	<div class="col-xl-12">
 																		<div class="row">
-																		    <!-- 
+																		    <!--
 																			<div class="col-md-2">
 																				<div class="form-group">
 																					<label>Type:</label>
@@ -668,7 +668,7 @@
 													<a href="#solid-justified-tab2" data-toggle="tab" type = "button" class="btn btn-info" data-current_id = "#personalinformation" data-next_id="#familyinformation" id="next"> Next </a>
 												</div>
 												<!-- PreviousNext -->
-										
+
 											</div>
 											<!-- Personal Details -->
 											<!-- Bank -->
@@ -766,7 +766,6 @@
 			<input type="date" class="form-control" placeholder="" name="pfjoindate" id="pfjoindate" value= "" autocomplete="off">
 			<span class="formerror" id="pfjoindateerr"></span>
 		</div>
-	</div>
     <div class="row">
         <div class="col-sm-4">
             <div class="form-group">
@@ -814,7 +813,7 @@
 														<input type="text" class="form-control" name="gratuityname" id="gratuityname" autocomplete="off">
 												</div>
 												</div>
-											
+
     											<div class="col-sm-4">
     												<div class="form-group">
     													<label class="col-form-label">Gratuity </label>
@@ -839,7 +838,7 @@
 											<!-- PreviousNext -->
 											</div>
 											<!-- Bank -->
-											
+
 
 
 											<!-- Address -->
@@ -998,7 +997,7 @@
 													<a href="#solid-justified-tab7" data-toggle="tab"  type = "button" class="btn btn-info " data-current_id = "#addressinformation" data-next_id="#refrenceinformation" id="next"> Next </a>
 												</div>
 											<!-- PreviousNext -->
-											
+
 											</div>
 											<!-- Address -->
 											<!-- Family Information -->
@@ -1079,7 +1078,7 @@
 													<a  href="#solid-justified-tab3" data-toggle="tab" type = "button" class="btn btn-info " data-current_id = "#familyinformation" data-next_id="#previousempinformation" id="next"> Next </a>
 												</div>
 											<!-- PreviousNext -->
-										
+
 											</div>
 											<!-- Family Information -->
 											<!-- Previous Employment -->
@@ -1094,7 +1093,7 @@
 																<div class="row">
 																	<div class="col-xl-12">
 																		<div class="row">
-																		    <!-- 
+																		    <!--
 																			<div class="col-md-4">
 																				<div class="form-group">
 																					<label>Period From - To:</label>
@@ -1364,7 +1363,7 @@
 																<div class="row">
 																	<div class="col-xl-12">
 																		<div class="row">
-																		    <!--  
+																		    <!--
 																			<div class="col-md-2">
 																				<div class="form-group">
 																					<label>Company Type:</label>
@@ -1427,10 +1426,10 @@
 											<div>&nbsp</div>
 											    <div class="text-right">
 													<a href="#solid-justified-tab4" data-toggle="tab" type = "button" class="btn btn-warning " data-previous_id = "#addressinformation" data-current_id = "#refrenceinformation"  id="previous"> Previous </a>
-													<a href="#solid-justified-tab8" data-toggle="tab" type = "button" class="btn btn-info " data-current_id = "#refrenceinformation" data-next_id="#authorizationinformation" id="next"> Next </a> 
+													<a href="#solid-justified-tab8" data-toggle="tab" type = "button" class="btn btn-info " data-current_id = "#refrenceinformation" data-next_id="#authorizationinformation" id="next"> Next </a>
 												</div>
 											<!-- PreviousNext -->
-											
+
 											</div>
 											<!-- Refrences -->
 											<!-- Nominee Details -->
@@ -1532,7 +1531,7 @@
 														</div>
 													</div>
 												</div>
-										
+
 											   <!-- PreviousNext -->
 											<div>&nbsp</div>
 												<div class="text-right">
@@ -1589,7 +1588,7 @@
 			<script src="<?php echo base_url() ?>assets/js/formsjs/employee.js"></script>
 
 			<script>
-				
+
 				$(document).on("click","#next",function(){
 					var next_id = $(this).data("next_id");
 					var current_id = $(this).data("current_id");
@@ -1617,7 +1616,7 @@
 						$(previous_id).addClass("active");
 				    	$(current_id).removeClass("active");
 				});
-			
+
 				$(function() {
 					var hash = window.location.hash;
 					hash && $('ul.nav a[href="' + hash + '"]').tab('show');
