@@ -1,3 +1,20 @@
+<style>
+    .nav-tabs .nav-link{
+    color:#6c757d;
+    font-weight:600;
+    border:none;
+}
+
+.nav-tabs .nav-link.active{
+    color:#0d6efd;
+    border-bottom:3px solid #0d6efd;
+    background:transparent;
+}
+
+.tab-content{
+    padding-top:10px;
+}
+</style>
 <div class="container-fluid p-4">
     <!-- PAGE TITLE -->
 <!--     <div class="hrms_page_title">
@@ -67,29 +84,83 @@
         </div>
     </div>
 
-
-<div class="row g-4 mt-1">
-    <!-- INCREMENTS -->
+   <!-- INCREMENTS -->
+<!-- <div class="row g-4 mt-1">
     <div class="col-lg-12">
         <div class="hrms_dashboard_card">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                 <div class="hrms_card_title mb-0">
                     Employees Increments
                 </div>
-                <!-- YEAR FILTER -->
-<!--                 <div style="min-width:150px;">
-                    <select class="form-select form-select-sm" id="incrementYearFilter">
-                        <option value="2026">2026</option>
-                        <option value="2025">2025</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
-                    </select>
-                </div> -->
             </div>
             <div id="hrms_increments_chart"></div>
         </div>
     </div>
+</div> -->
+<div class="row g-4 mt-1">
+    <div class="col-lg-12">
+        <div class="hrms_dashboard_card">
+
+            <!-- Tabs -->
+            <ul class="nav nav-tabs mb-3" id="hrmsDashboardTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active"
+                            id="movement-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#movement"
+                            type="button">
+                        Join / Resign
+                    </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link"
+                            id="increment-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#increment"
+                            type="button">
+                        Increments
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+
+                <!-- Employee Movement -->
+                <div class="tab-pane fade show active" id="movement" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fa fa-user-plus text-success"></i>
+                            /
+                            <i class="fa fa-minus text-danger"></i>
+                            All India Employee Movement
+                        </h5>
+                    </div>
+                    <div id="employee_movement_chart"></div>
+                </div>
+
+                <!-- Increment Chart -->
+                <div class="tab-pane fade"
+                     id="increment"
+                     role="tabpanel">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-money-bill-wave text-primary"></i>
+                            Employees Increments
+                        </h5>
+                    </div>
+
+                    <div id="hrms_increments_chart"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
 </div>
+
 
 
 <div class="row g-4 mt-1">
@@ -1308,5 +1379,123 @@ $(document).ready(function(){
     });
 
 });
+</script>
+<!-- JoinResignSummary -->
+<script>
+
+var joinResignDetails = <?php echo json_encode($joinResign['details']); ?>;
+
+var JoinResign = {
+    series: [
+        {
+            name: 'Joined',
+            data: <?php echo json_encode($joinResign['joined']); ?>
+        },
+        {
+            name: 'Resigned',
+            data: <?php echo json_encode($joinResign['resigned']); ?>
+        }
+    ],
+    chart: {
+        type: 'bar',
+        height: 350,
+        toolbar: {
+            show: false
+        },
+        events: {
+            dataPointSelection: function(event, chartContext, config) {
+
+                var monthData = joinResignDetails[config.dataPointIndex];
+
+                var seriesIndex = config.seriesIndex;
+
+                var employeecodes = '';
+                var categoryName = '';
+
+                if(seriesIndex == 0){
+                    categoryName = 'Joined';
+                    employeecodes = monthData.joined_employees.join(',');
+                }else{
+                    categoryName = 'Resigned';
+                    employeecodes = monthData.resigned_employees.join(',');
+                }
+
+                // Example: "Apr 2026"
+                var monthYear = monthData.monthname;
+
+                var dateObj = new Date('01 ' + monthYear);
+
+                var year = dateObj.getFullYear();
+                var month = dateObj.getMonth() + 1;
+
+                var fromdate =
+                    year + '-' +
+                    String(month).padStart(2,'0') +
+                    '-01';
+
+                var lastDay = new Date(year, month, 0);
+
+                var todate =
+                    year + '-' +
+                    String(month).padStart(2,'0') +
+                    '-' +
+                    String(lastDay.getDate()).padStart(2,'0');
+
+                showAttendanceEmployeeDetails(
+                    'JoinResign',
+                    employeecodes,
+                    '<?php echo $userfilters['esi_company_id']; ?>',
+                    '<?php echo $userfilters['esi_div_id']; ?>',
+                    '<?php echo $userfilters['esi_state_id']; ?>',
+                    '<?php echo $userfilters['esi_branch_id']; ?>',
+                    fromdate,
+                    todate,
+                    categoryName
+                );
+            }
+        }
+    },
+    colors: ['#28a745', '#dc3545'],
+    plotOptions: {
+        bar: {
+            horizontal: false,
+            columnWidth: '50%',
+            borderRadius: 6
+        }
+    },
+    dataLabels: {
+        enabled: true
+    },
+    stroke: {
+        show: true,
+        width: 1
+    },
+    legend: {
+        position: 'top'
+    },
+    xaxis: {
+        categories: <?php echo json_encode($joinResign['months']); ?>
+    },
+    yaxis: {
+        title: {
+            text: 'Employees'
+        }
+    },
+    tooltip: {
+        y: {
+            formatter: function(val) {
+                return val + ' Employee(s)';
+            }
+        }
+    }
+};
+
+var joinResignChart = new ApexCharts(
+    document.querySelector("#employee_movement_chart"),
+    JoinResign
+);
+
+joinResignChart.render();
+
 </script>
 </div>

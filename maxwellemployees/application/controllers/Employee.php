@@ -84,8 +84,9 @@ class Employee extends Common {
         $userdata = $this->input->post();
         $data['incrementData'] = $this->EmployeeModel->getEmployeeIncrementChartData($userdata);
         $data['dashboarddetails'] = $this->EmployeeModel->allemployeesattendancesummary($userdata);
+        $data['joinResign'] = $this->EmployeeModel->joinResignSummary($userdata);
         // echo '<pre>';
-        // print_r($data['dashboarddetails']); exit;
+        // print_r($data['joinResign']); exit;
         $data['userfilters'] = $userdata;
         $this->load->view('dashboard/employeedeatiledsummaryList',$data);
     }
@@ -97,6 +98,8 @@ class Employee extends Common {
             $data['popupdetails'] = $this->EmployeeModel->getAllEmployeesIncrements($userdata);
         }elseif ($userdata['categories'] == 'PENDING') {
             $data['popupdetails'] = $this->EmployeeModel->getAllEmployeesleaveesrequest($userdata);
+        }elseif($userdata['type'] == 'JoinResign'){
+            $data['popupdetails'] = $this->EmployeeModel->getAllemployeesJoinResignsummaryList($userdata);
         }else{
             $data['popupdetails'] = $this->EmployeeModel->getAllEmployeesAttendance($userdata);
         }

@@ -3326,4 +3326,212 @@ public function getAttendanceDashboard(){
             
     }
     #attedancesummary
+    #joinResignsummary
+    public function joinResignSummary($data = array()){
+        $currentdate = date('Y-m-d');
+        $fromdate = date('Y-m-d', strtotime('-1 year'));
+
+        $months = [];
+        $joined = [];
+        $resigned = [];
+        $details = [];
+
+        $qrj = "
+            SELECT
+                year,
+                month,
+                monthname,
+                SUM(joined_count) AS joined_count,
+                SUM(resigned_count) AS resigned_count,
+                GROUP_CONCAT(joined_employees) AS joined_employees,
+                GROUP_CONCAT(resigned_employees) AS resigned_employees
+            FROM
+            (
+                SELECT
+                    YEAR(mxemp_emp_date_of_join) AS year,
+                    MONTH(mxemp_emp_date_of_join) AS month,
+                    MONTHNAME(mxemp_emp_date_of_join) AS monthname,
+                    COUNT(*) AS joined_count,
+                    GROUP_CONCAT(mxemp_emp_id) AS joined_employees,
+                    0 AS resigned_count,
+                    '' AS resigned_employees
+                FROM maxwell_employees_info
+                INNER JOIN maxwell_division_master
+                    ON mxd_id = mxemp_emp_division_code
+                INNER JOIN maxwell_state_master
+                    ON mxst_id = mxemp_emp_state_code
+                INNER JOIN maxwell_branch_master
+                    ON mxb_id = mxemp_emp_branch_code
+                WHERE DATE(mxemp_emp_date_of_join)
+                    BETWEEN '$fromdate' AND '$currentdate'
+                GROUP BY
+                    YEAR(mxemp_emp_date_of_join),
+                    MONTH(mxemp_emp_date_of_join)
+
+                UNION ALL
+
+                SELECT
+                    YEAR(mxemp_emp_resignation_date) AS year,
+                    MONTH(mxemp_emp_resignation_date) AS month,
+                    MONTHNAME(mxemp_emp_resignation_date) AS monthname,
+                    0 AS joined_count,
+                    '' AS joined_employees,
+                    COUNT(*) AS resigned_count,
+                    GROUP_CONCAT(mxemp_emp_id) AS resigned_employees
+                FROM maxwell_employees_info
+                WHERE DATE(mxemp_emp_resignation_date)
+                    BETWEEN '$fromdate' AND '$currentdate'
+                    AND mxemp_emp_resignation_date IS NOT NULL
+                    AND mxemp_emp_resignation_date != '0000-00-00 00:00:00'
+                GROUP BY
+                    YEAR(mxemp_emp_resignation_date),
+                    MONTH(mxemp_emp_resignation_date)
+            ) AS subquery
+            GROUP BY year, month
+            ORDER BY year DESC, month DESC
+        ";
+
+        $queryrj = $this->db->query($qrj);
+        $result = $queryrj->result_array();
+
+        foreach ($result as $row) {
+
+            $monthLabel = date(
+                'M Y',
+                strtotime($row['year'] . '-' . $row['month'] . '-01')
+            );
+
+            $months[] = $monthLabel;
+            $joined[] = (int)$row['joined_count'];
+            $resigned[] = (int)$row['resigned_count'];
+
+            $joinedEmployees = [];
+
+            if (!empty($row['joined_employees'])) {
+                $joinedEmployees = array_values(
+                    array_unique(
+                        array_filter(
+                            explode(',', $row['joined_employees'])
+                        )
+                    )
+                );
+            }
+
+            $resignedEmployees = [];
+
+            if (!empty($row['resigned_employees'])) {
+                $resignedEmployees = array_values(
+                    array_unique(
+                        array_filter(
+                            explode(',', $row['resigned_employees'])
+                        )
+                    )
+                );
+            }
+
+            $details[] = array(
+                'monthname' => $monthLabel,
+                'joined' => (int)$row['joined_count'],
+                'resigned' => (int)$row['resigned_count'],
+                'employees' => array_values(
+                    array_unique(
+                        array_merge(
+                            $joinedEmployees,
+                            $resignedEmployees
+                        )
+                    )
+                ),
+                'joined_employees' => $joinedEmployees,
+                'resigned_employees' => $resignedEmployees
+            );
+        }
+
+        return array(
+            'months' => array_reverse($months),
+            'joined' => array_reverse($joined),
+            'resigned' => array_reverse($resigned),
+            'details' => array_reverse($details)
+        );
+    }
+
+    public function getAllemployeesJoinResignsummaryList($data){
+        // print_r($data);
+        $type = $data['type'];
+        $employeecodes = $data['employeecodes'];
+        $companyid = $data['companyid'];
+        $divisionid = $data['divisionid'];
+        $stateid = $data['stateid'];
+        $branchid = $data['branchid'];
+        $fromdate = $data['fromdate'];
+        $todate = $data['todate'];
+        $categories = $data['categories'];
+
+        $employeeArray = explode(',', $employeecodes);
+
+
+        $this->db->select('mxemp_emp_id as employeecode,mxemp_emp_fname as employeename,mxemp_emp_img as employeeimage,mxemp_emp_date_of_join as dateofjoin, mxemp_emp_resignation_date as dateofresignation, mxemp_emp_current_salary as employeecurrentsalary, mxcp_name as companyname, mxd_name as divisionname, mxst_state as statename, mxb_name as branchname'); 
+        $this->db->from('maxwell_employees_info');
+        $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
+        $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');
+        $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
+        $this->db->join('maxwell_branch_master', 'mxb_id = mxemp_emp_branch_code', 'INNER');
+        if(!empty($companyid)){
+        $this->db->where('mxemp_emp_comp_code', $companyid);
+        }
+        if(!empty($divisionid)){
+        $this->db->where('mxemp_emp_division_code', $divisionid);
+        }
+        if(!empty($stateid)){
+        $this->db->where('mxemp_emp_state_code', $stateid);
+        }
+        if(!empty($branchid)){
+        $this->db->where('mxemp_emp_branch_code', $branchid);
+        }
+        if (!empty($employeeArray)) {
+        $this->db->where_in('mxemp_emp_id', $employeeArray);
+        }
+        $query = $this->db->get();
+        $qry = $query->result_array();
+
+
+        $response = [];
+        $sno = 1;
+
+        foreach ($qry as $val) {
+
+            $row = array(
+                'Sno' => $sno,
+                'Employee Name' => $val['employeename'],
+                'Employee Image' => $val['employeeimage'],
+                'Employee Code' => $val['employeecode'],
+                'Current Salary' => $val['employeecurrentsalary'],
+            );
+
+            if ($categories == 'Joined') {
+
+                $row['Date Of Join'] = $val['dateofjoin'];
+
+            } elseif ($categories == 'Resigned') {
+
+                $row['Date Of Resignation'] = $val['dateofresignation'];
+
+            } else {
+
+                $row['Date Of Join'] = $val['dateofjoin'];
+                $row['Date Of Resignation'] = $val['dateofresignation'];
+            }
+
+            $row['Company'] = $val['companyname'];
+            $row['Division'] = $val['divisionname'];
+            $row['State'] = $val['statename'];
+            $row['Branch'] = $val['branchname'];
+
+            $response[] = $row;
+            $sno++;
+        }
+
+        return $response;
+
+    }
+    #joinResignsummary
 }
