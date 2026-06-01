@@ -2096,6 +2096,7 @@ public function getAttendanceDashboard(){
         $branch=!empty($data['esi_branch_id'])?$data['esi_branch_id']:'';
         $fromdate=!empty($data['fromdate'])?$data['fromdate']:date('Y-m-01');
         $todate=!empty($data['todate'])?$data['todate']:date('Y-m-d');
+        $attendanceSection = !empty($data['attendanceSection'])? (int)$data['attendanceSection']: 3;
 
         $from_date=date('Y-m-d',strtotime($fromdate));
         $to_date=date('Y-m-d',strtotime($todate));
@@ -2245,37 +2246,112 @@ public function getAttendanceDashboard(){
                 $first_half_punch=trim($row->mx_attendance_first_half_punch);
                 $second_half_punch=trim($row->mx_attendance_second_half_punch);
 
-                $is_ab_valid = (empty($first_half_punch) && empty($second_half_punch));
+                $is_ab_lop_valid = (empty($first_half_punch) && empty($second_half_punch));
 
-                if(in_array($first_half,$attendance_types)){
-                // AB should be counted only if both punches are empty
-                    if($first_half == 'AB' && !$is_ab_valid){
-                        // Skip AB counting
-                    }else{
-                        $resp[$first_half]['firsthalf']+=0.5;
-                        $resp[$first_half]['total']+=0.5;
-                        $resp['employee_wise_count'][$empcode][$first_half]+=0.5;
-                        $resp['employee_wise_count'][$empcode]['totaldays']+=0.5;
-                        if(!in_array($empcode,$resp[$first_half]['employeecodes'])){
-                            $resp[$first_half]['employeecodes'][]=$empcode;
+                if($attendanceSection == 1){
+
+                    if(in_array($first_half,$attendance_types)){
+
+                        if(in_array($first_half,['AB','LOP']) && !$is_ab_lop_valid){
+                            // Skip
+                        }else{
+                            $resp[$first_half]['firsthalf'] += 1;
+                            $resp[$first_half]['total'] += 1;
+
+                            $resp['employee_wise_count'][$empcode][$first_half] += 1;
+                            $resp['employee_wise_count'][$empcode]['totaldays'] += 1;
+
+                            if(!in_array($empcode,$resp[$first_half]['employeecodes'])){
+                                $resp[$first_half]['employeecodes'][] = $empcode;
+                            }
+                        }
+                    }
+
+                }elseif($attendanceSection == 2){
+
+                    if(!$is_current_date && in_array($second_half,$attendance_types)){
+
+                        if(in_array($second_half,['AB','LOP']) && !$is_ab_lop_valid){
+                            // Skip
+                        }else{
+                            $resp[$second_half]['secondhalf'] += 1;
+                            $resp[$second_half]['total'] += 1;
+
+                            $resp['employee_wise_count'][$empcode][$second_half] += 1;
+                            $resp['employee_wise_count'][$empcode]['totaldays'] += 1;
+
+                            if(!in_array($empcode,$resp[$second_half]['employeecodes'])){
+                                $resp[$second_half]['employeecodes'][] = $empcode;
+                            }
+                        }
+                    }
+
+                }else{ // Full Day
+
+                    // First Half
+                    if(in_array($first_half,$attendance_types)){
+
+                        if(!(in_array($first_half,['AB','LOP']) && !$is_ab_lop_valid)){
+
+                            $resp[$first_half]['firsthalf'] += 0.5;
+                            $resp[$first_half]['total'] += 0.5;
+
+                            $resp['employee_wise_count'][$empcode][$first_half] += 0.5;
+                            $resp['employee_wise_count'][$empcode]['totaldays'] += 0.5;
+
+                            if(!in_array($empcode,$resp[$first_half]['employeecodes'])){
+                                $resp[$first_half]['employeecodes'][] = $empcode;
+                            }
+                        }
+                    }
+
+                    // Second Half
+                    if(!$is_current_date && in_array($second_half,$attendance_types)){
+
+                        if(!(in_array($second_half,['AB','LOP']) && !$is_ab_lop_valid)){
+
+                            $resp[$second_half]['secondhalf'] += 0.5;
+                            $resp[$second_half]['total'] += 0.5;
+
+                            $resp['employee_wise_count'][$empcode][$second_half] += 0.5;
+                            $resp['employee_wise_count'][$empcode]['totaldays'] += 0.5;
+
+                            if(!in_array($empcode,$resp[$second_half]['employeecodes'])){
+                                $resp[$second_half]['employeecodes'][] = $empcode;
+                            }
                         }
                     }
                 }
 
-                if(!$is_current_date && in_array($second_half,$attendance_types)){
-                    // AB should be counted only if both punches are empty
-                    if($second_half == 'AB' && !$is_ab_valid){
-                        // Skip AB counting
-                    }else{
-                        $resp[$second_half]['secondhalf']+=0.5;
-                        $resp[$second_half]['total']+=0.5;
-                        $resp['employee_wise_count'][$empcode][$second_half]+=0.5;
-                        $resp['employee_wise_count'][$empcode]['totaldays']+=0.5;
-                        if(!in_array($empcode,$resp[$second_half]['employeecodes'])){
-                            $resp[$second_half]['employeecodes'][]=$empcode;
-                        }
-                    }
-                }
+                // if(in_array($first_half,$attendance_types)){
+                // // AB should be counted only if both punches are empty
+                //     if($first_half == 'AB' && !$is_ab_valid){
+                //         // Skip AB counting
+                //     }else{
+                //         $resp[$first_half]['firsthalf']+=0.5;
+                //         $resp[$first_half]['total']+=0.5;
+                //         $resp['employee_wise_count'][$empcode][$first_half]+=0.5;
+                //         $resp['employee_wise_count'][$empcode]['totaldays']+=0.5;
+                //         if(!in_array($empcode,$resp[$first_half]['employeecodes'])){
+                //             $resp[$first_half]['employeecodes'][]=$empcode;
+                //         }
+                //     }
+                // }
+
+                // if(!$is_current_date && in_array($second_half,$attendance_types)){
+                //     // AB should be counted only if both punches are empty
+                //     if($second_half == 'AB' && !$is_ab_valid){
+                //         // Skip AB counting
+                //     }else{
+                //         $resp[$second_half]['secondhalf']+=0.5;
+                //         $resp[$second_half]['total']+=0.5;
+                //         $resp['employee_wise_count'][$empcode][$second_half]+=0.5;
+                //         $resp['employee_wise_count'][$empcode]['totaldays']+=0.5;
+                //         if(!in_array($empcode,$resp[$second_half]['employeecodes'])){
+                //             $resp[$second_half]['employeecodes'][]=$empcode;
+                //         }
+                //     }
+                // }
                 // if(in_array($first_half,$attendance_types)){
 
                 //     $resp[$first_half]['firsthalf']+=0.5;

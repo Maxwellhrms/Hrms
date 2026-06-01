@@ -221,4 +221,17 @@
                 </div>
            </div>
         <?php } ?>
+            <?php if($selectedFilter['attendanceSection'] == 'Y'){ ?>
+            <div class="col-sm-6 col-md-2"> 
+                <div class="form-group form-focus select-focus">
+                    <select class="select select2" style="width: 100%" name="attendanceSection" id="attendanceSection">
+                            <option value="1" selected>First Half</option>
+                            <option value="2">Second Half</option>
+                            <option value="3">Full Day</option>
+                    </select>
+                    <label class="focus-label">Select Attendance Section</label>
+                </div>
+                <span class="formerror" id="attendanceSectionerror"></span>
+            </div>
+            <?php } ?>
 <!-- /Search Filter -->	

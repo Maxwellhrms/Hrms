@@ -20,6 +20,7 @@
                 'divisionfilter' => 'Y',
                 'statefilter' => 'Y',
                 'branchfilter' => 'Y',
+                'attendanceSection' => 'Y'
             )); 
             ?>
             <!-- Search Filter -->
@@ -57,6 +58,7 @@ $(document).ready(function(){
         var employecode = $('#employecodes').val();
         var fromdate    = $('#fromdate').val();
         var todate      = $('#todate').val();
+        var attendanceSection = $('#attendanceSection').val();
 
         // Validation
         if(fromdate == '' || todate == ''){
@@ -112,7 +114,8 @@ $(document).ready(function(){
                 esi_branch_id  : branchid,
                 employecode    : employecode,
                 fromdate       : fromdate,
-                todate         : todate
+                todate         : todate,
+                attendanceSection : attendanceSection
             },
 
             beforeSend:function(){
