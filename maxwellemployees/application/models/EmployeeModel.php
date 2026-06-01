@@ -3002,7 +3002,8 @@ public function getAttendanceDashboard(){
                 mxemp_prm_affect_dt AS affectivedate,
                 'Promotional Increment' AS incrementtype,
                 mxemp_emp_fname AS employeename,
-                mxemp_emp_img AS employeeimage
+                mxemp_emp_img AS employeeimage,
+                mxemp_emp_current_salary AS currentpay
             FROM maxwell_emp_promotion
             INNER JOIN maxwell_employees_info ON mxemp_emp_id = mxemp_prm_emp_code
             WHERE mxemp_prm_status = 1
@@ -3015,7 +3016,8 @@ public function getAttendanceDashboard(){
                 mxemp_spl_inc_affect_dt AS affectivedate,
                 'Current Month Increment' AS incrementtype,
                 mxemp_emp_fname AS employeename,
-                mxemp_emp_img AS employeeimage
+                mxemp_emp_img AS employeeimage,
+                mxemp_emp_current_salary AS currentpay
             FROM maxwell_emp_special_increaments
             INNER JOIN maxwell_employees_info ON mxemp_emp_id = mxemp_spl_inc_emp_code
             WHERE mxemp_spl_inc_status = 1
@@ -3028,7 +3030,8 @@ public function getAttendanceDashboard(){
                 mxemp_arears_affect_dt AS affectivedate,
                 'Arrears Increment' AS incrementtype,
                 mxemp_emp_fname AS employeename,
-                mxemp_emp_img AS employeeimage
+                mxemp_emp_img AS employeeimage,
+                mxemp_emp_current_salary AS currentpay
             FROM maxwell_emp_arears_increaments
             INNER JOIN maxwell_employees_info ON mxemp_emp_id = mxemp_arears_emp_code
             WHERE mxemp_arears_status = 1
@@ -3056,6 +3059,7 @@ public function getAttendanceDashboard(){
                     'Amount'          => $val->amount,
                     'Increment Type'  => $val->incrementtype,
                     'Affective Date'  => !empty($val->affectivedate) ? date('M Y', strtotime($val->affectivedate.'01')): '',
+                    'Current Salary'  => $val->currentpay,
                 );
                 $sno++;
             }
