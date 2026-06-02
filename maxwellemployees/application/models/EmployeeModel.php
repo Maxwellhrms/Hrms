@@ -3744,4 +3744,179 @@ public function getAttendanceDashboard(){
         ];
     }
     #branchwisesalaries
+    // Service History
+    public function getServiceCategorySummary($data){
+        $companyid  = $data['esi_company_id'];
+        $divisionid = $data['esi_div_id'];
+        $stateid    = $data['esi_state_id'];
+        $branchid   = $data['esi_branch_id'];
+        $employecode = $data['employecode'];
+
+        $query = $this->db->query("
+        SELECT *
+        FROM (
+            SELECT
+                mxemp_emp_id,
+                mxemp_emp_resignation_status,
+                CASE
+                    WHEN TIMESTAMPDIFF(DAY, mxemp_emp_date_of_join, NOW()) < 365 THEN 'Less than 1 year'
+                    WHEN TIMESTAMPDIFF(DAY, mxemp_emp_date_of_join, NOW()) < 2 * 365 THEN '1 year'
+                    WHEN TIMESTAMPDIFF(DAY, mxemp_emp_date_of_join, NOW()) < 3 * 365 THEN '2 years'
+                    WHEN TIMESTAMPDIFF(DAY, mxemp_emp_date_of_join, NOW()) < 4 * 365 THEN '3 years'
+                    WHEN TIMESTAMPDIFF(DAY, mxemp_emp_date_of_join, NOW()) < 5 * 365 THEN '4 years'
+                    WHEN TIMESTAMPDIFF(DAY, mxemp_emp_date_of_join, NOW()) < 6 * 365 THEN '5 years'
+                    WHEN TIMESTAMPDIFF(DAY, mxemp_emp_date_of_join, NOW()) < 7 * 365 THEN '6 years'
+                    WHEN TIMESTAMPDIFF(DAY, mxemp_emp_date_of_join, NOW()) < 8 * 365 THEN '7 years'
+                    WHEN TIMESTAMPDIFF(DAY, mxemp_emp_date_of_join, NOW()) < 9 * 365 THEN '8 years'
+                    WHEN TIMESTAMPDIFF(DAY, mxemp_emp_date_of_join, NOW()) < 10 * 365 THEN '9 years'
+                    WHEN TIMESTAMPDIFF(DAY, mxemp_emp_date_of_join, NOW()) < 11 * 365 THEN '10 years'
+                    ELSE 'More than 10 years'
+                END AS service_category
+            FROM maxwell_employees_info
+            INNER JOIN maxwell_division_master
+                ON mxd_id = mxemp_emp_division_code
+            INNER JOIN maxwell_state_master
+                ON mxst_id = mxemp_emp_state_code
+            INNER JOIN maxwell_branch_master
+                ON mxb_id = mxemp_emp_branch_code
+            WHERE mxemp_emp_resignation_status IN ('W','R')
+        ) t
+        ORDER BY FIELD(
+            service_category,
+            'Less than 1 year',
+            '1 year',
+            '2 years',
+            '3 years',
+            '4 years',
+            '5 years',
+            '6 years',
+            '7 years',
+            '8 years',
+            '9 years',
+            '10 years',
+            'More than 10 years'
+        )
+        ");
+
+        $rows = $query->result_array();
+
+        $response = [];
+
+        foreach ($rows as $row) {
+
+            $category = $row['service_category'];
+
+            if (!isset($response[$category])) {
+
+                $response[$category] = [
+                    'service_category'        => $category,
+                    'working_count'           => 0,
+                    'resigned_count'          => 0,
+                    'total_count'             => 0,
+                    'working_employee_codes'  => [],
+                    'resigned_employee_codes' => []
+                ];
+            }
+
+            if ($row['mxemp_emp_resignation_status'] == 'R') {
+
+                $response[$category]['resigned_count']++;
+
+                $response[$category]['resigned_employee_codes'][] =
+                    $row['mxemp_emp_id'];
+
+            } else {
+
+                $response[$category]['working_count']++;
+
+                $response[$category]['working_employee_codes'][] =
+                    $row['mxemp_emp_id'];
+            }
+
+            $response[$category]['total_count']++;
+        }
+
+        return array_values($response);
+    }
+
+    public function getServiceCategorySummaryList($data){
+        // print_r($data);exit;
+        $type = $data['type'];
+        $employeecodes = $data['employeecodes'];
+        $companyid = $data['companyid'];
+        $divisionid = $data['divisionid'];
+        $stateid = $data['stateid'];
+        $branchid = $data['branchid'];
+        $fromdate = $data['fromdate'];
+        $todate = $data['todate'];
+        $categories = $data['categories'];
+
+        $employeeArray = explode(',', $employeecodes);
+        // print_r($employeeArray); exit;
+
+        $this->db->select('mxemp_emp_id as employeecode,mxemp_emp_fname as employeename,mxemp_emp_img as employeeimage,mxemp_emp_date_of_join as dateofjoin, mxemp_emp_resignation_date as dateofresignation, mxemp_emp_current_salary as employeecurrentsalary, mxcp_name as companyname, mxd_name as divisionname, mxst_state as statename, mxb_name as branchname'); 
+        $this->db->from('maxwell_employees_info');
+        $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
+        $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');
+        $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
+        $this->db->join('maxwell_branch_master', 'mxb_id = mxemp_emp_branch_code', 'INNER');
+        if(!empty($companyid)){
+        $this->db->where('mxemp_emp_comp_code', $companyid);
+        }
+        if(!empty($divisionid)){
+        $this->db->where('mxemp_emp_division_code', $divisionid);
+        }
+        if(!empty($stateid)){
+        $this->db->where('mxemp_emp_state_code', $stateid);
+        }
+        if(!empty($branchid)){
+        $this->db->where('mxemp_emp_branch_code', $branchid);
+        }
+        if (!empty($employeeArray)) {
+        $this->db->where_in('mxemp_emp_id', $employeeArray);
+        }
+        $query = $this->db->get();
+        $qry = $query->result_array();
+
+
+        $response = [];
+        $sno = 1;
+
+        foreach ($qry as $val) {
+
+            $row = array(
+                'Sno' => $sno,
+                'Employee Name' => $val['employeename'],
+                'Employee Image' => $val['employeeimage'],
+                'Employee Code' => $val['employeecode'],
+                'Current Salary' => $val['employeecurrentsalary'],
+            );
+
+            if ($categories == 'Joined') {
+
+                $row['Date Of Join'] = $val['dateofjoin'];
+
+            } elseif ($categories == 'Resigned') {
+
+                $row['Date Of Resignation'] = $val['dateofresignation'];
+
+            } else {
+
+                $row['Date Of Join'] = $val['dateofjoin'];
+                $row['Date Of Resignation'] = $val['dateofresignation'];
+            }
+
+            $row['Company'] = $val['companyname'];
+            $row['Division'] = $val['divisionname'];
+            $row['State'] = $val['statename'];
+            $row['Branch'] = $val['branchname'];
+
+            $response[] = $row;
+            $sno++;
+        }
+
+        return $response;
+
+    }
+    // Service History
 }

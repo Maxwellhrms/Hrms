@@ -86,8 +86,9 @@ class Employee extends Common {
         $data['dashboarddetails'] = $this->EmployeeModel->allemployeesattendancesummary($userdata);
         $data['joinResign'] = $this->EmployeeModel->joinResignSummary($userdata);
         $data['branchwisesalary'] = $this->EmployeeModel->getBranchWiseSalarySummary($userdata);
+        $data['servicesummary'] = $this->EmployeeModel->getServiceCategorySummary($userdata);
         // echo '<pre>';
-        // print_r($data['branchwisesalary']); exit;
+        // print_r($data['servicesummary']); exit;
         $data['userfilters'] = $userdata;
         $this->load->view('dashboard/employeedeatiledsummaryList',$data);
     }
@@ -95,12 +96,15 @@ class Employee extends Common {
     public function getAllEmployeesAttendance(){
         $this->checkissession();
         $userdata = $this->input->post();
+        // print_r($userdata);exit;
         if($userdata['type'] == 'INCREMENT'){
             $data['popupdetails'] = $this->EmployeeModel->getAllEmployeesIncrements($userdata);
         }elseif ($userdata['categories'] == 'PENDING') {
             $data['popupdetails'] = $this->EmployeeModel->getAllEmployeesleaveesrequest($userdata);
         }elseif($userdata['type'] == 'JoinResign'){
             $data['popupdetails'] = $this->EmployeeModel->getAllemployeesJoinResignsummaryList($userdata);
+        }elseif($userdata['categories'] == 'ServiceSummary'){
+            $data['popupdetails'] = $this->EmployeeModel->getServiceCategorySummaryList($userdata);
         }else{
             $data['popupdetails'] = $this->EmployeeModel->getAllEmployeesAttendance($userdata);
         }

@@ -131,6 +131,15 @@
                         Branch Wise Salaries
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link"
+                            id="employeesservice-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#employeesservice"
+                            type="button">
+                        Employees Service Summary
+                    </button>
+                </li>
             </ul>
 
             <!-- Tab Content -->
@@ -173,6 +182,16 @@
                         </h5>
                     </div>
                     <div id="branch_salary_chart"></div>
+                </div>
+
+                <!-- Employees Service Summary -->
+                <div class="tab-pane fade" id="employeesservice" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            All India Employees Service Summary
+                        </h5>
+                    </div>
+                    <div id="employees_service_chart"></div>
                 </div>
 
             </div>
@@ -1544,7 +1563,7 @@ var options = {
         type: 'bar',
         height: 450,
         toolbar:{
-            show:true
+            show:false
         },
 
         events: {
@@ -1685,5 +1704,168 @@ new ApexCharts(
     options
 );
 window.salaryChart.render();
+</script>
+
+<!-- Employee Services Status -->
+<script>
+
+var serviceSummary =
+    <?php echo json_encode($servicesummary); ?>;
+
+var categories = [];
+var workingData = [];
+var resignedData = [];
+
+$.each(serviceSummary,function(index,row){
+
+    categories.push(row.service_category);
+
+    workingData.push(
+        parseInt(row.working_count)
+    );
+
+    resignedData.push(
+        parseInt(row.resigned_count)
+    );
+
+});
+
+if(window.serviceCategoryChart){
+    window.serviceCategoryChart.destroy();
+}
+
+var options = {
+
+    series: [
+        {
+            name: 'Working',
+            data: workingData
+        },
+        {
+            name: 'Resigned',
+            data: resignedData
+        }
+    ],
+
+    chart: {
+
+        type: 'bar',
+
+        height: 450,
+
+        toolbar:{
+            show:false
+        },
+
+        events: {
+
+            dataPointSelection: function(
+                event,
+                chartContext,
+                config
+            ){
+
+                var detail =
+                    serviceSummary[
+                        config.dataPointIndex
+                    ];
+
+                var employeeCodes = [];
+                var popupTitle = '';
+                var categories = 'ServiceSummary';
+
+                // Working Bar
+                if(config.seriesIndex == 0){
+
+                    employeeCodes =
+                        detail.working_employee_codes;
+
+                    popupTitle =
+                        detail.service_category +
+                        ' - Working Employees';
+                }else{
+                    employeeCodes =
+                        detail.resigned_employee_codes;
+
+                    popupTitle =
+                        detail.service_category +
+                        ' - Resigned Employees';
+                }
+
+                if(
+                    !employeeCodes ||
+                    employeeCodes.length == 0
+                ){
+                    return;
+                }
+
+
+                showAttendanceEmployeeDetails(
+                    popupTitle,
+                    employeeCodes.join(','),
+                    '<?php echo $userfilters['esi_company_id']; ?>',
+                    '<?php echo $userfilters['esi_div_id']; ?>',
+                    '<?php echo $userfilters['esi_state_id']; ?>',
+                    '<?php echo $userfilters['esi_branch_id']; ?>',
+                    '',
+                    '',
+                    categories
+                );
+            }
+        }
+    },
+
+    colors: [
+        '#28a745',
+        '#dc3545'
+    ],
+
+    plotOptions: {
+        bar: {
+            horizontal: false,
+            columnWidth: '45%',
+            borderRadius: 4
+        }
+    },
+
+    dataLabels: {
+        enabled: true
+    },
+
+    stroke: {
+        show: true,
+        width: 1
+    },
+
+    xaxis: {
+        categories: categories
+    },
+
+    yaxis: {
+        title: {
+            text: 'Employees'
+        }
+    },
+
+    legend: {
+        position: 'top'
+    },
+
+    tooltip: {
+        shared: false,
+        intersect: true
+    }
+};
+
+window.serviceCategoryChart =
+    new ApexCharts(
+        document.querySelector(
+            "#employees_service_chart"
+        ),
+        options
+    );
+
+window.serviceCategoryChart.render();
+
 </script>
 </div>
