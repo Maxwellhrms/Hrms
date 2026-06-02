@@ -292,5 +292,73 @@ class Developertools extends Common {
         $this->load->view('developertools/cronslist',$data);
         $this->footer(); 
     }
+
+    public function companyvalidations(){
+        $this->verifylogin();
+        $data['leavedetails'] = $this->Developertoolsmodels->getLeaveValidationRules();
+        // echo '<pre>'; print_r($data['leavedetails']);exit;
+        $this->header();
+        $this->load->view('developertools/companyvalidations',$data);
+        $this->footer(); 
+    }
+
+    public function saveLeaveValidationRules()
+{
+
+    $leaveTypes        = $this->input->post('leave_type');
+    $fromDays          = $this->input->post('from_days');
+    $toDays            = $this->input->post('to_days');
+    $allowCombination  = $this->input->post('allow_combination');
+
+    if(empty($leaveTypes)){
+
+        echo json_encode([
+            'status'  => false,
+            'message' => 'No data received'
+        ]);
+        exit;
+    }
+
+    foreach($leaveTypes as $key => $leaveType){
+
+        $combinationTypes = $this->input->post(
+            'allow_combination_type_'.$leaveType
+        );
+
+        $data = [
+
+            'leave_type' => $leaveType,
+
+            'from_days' => isset($fromDays[$key])
+                ? $fromDays[$key]
+                : 0,
+
+            'to_days' => isset($toDays[$key])
+                ? $toDays[$key]
+                : 0,
+
+            'allow_combination' => isset($allowCombination[$key])
+                ? $allowCombination[$key]
+                : 0,
+
+            'allow_combination_type' =>
+                !empty($combinationTypes)
+                ? implode(',', $combinationTypes)
+                : NULL,
+
+            'status' => 1
+
+        ];
+
+        $this->Developertoolsmodels->saveLeaveValidationRule($data);
+
+    }
+
+    echo json_encode([
+        'status'  => true,
+        'message' => 'Leave validation rules saved successfully'
+    ]);
+
+}
     
 }

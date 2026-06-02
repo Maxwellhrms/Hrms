@@ -577,6 +577,62 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         $query = $this->db->get();
         return $query->result_array();
     }
+
+    public function saveLeaveValidationRule($data)
+{
+
+    $existing = $this->db
+        ->where('leave_type',$data['leave_type'])
+        ->get('leave_validation_master')
+        ->row_array();
+
+    if(!empty($existing)){
+
+        $this->db
+            ->where('id',$existing['id'])
+            ->update(
+                'leave_validation_master',
+                [
+                    'from_days'              => $data['from_days'],
+                    'to_days'                => $data['to_days'],
+                    'allow_combination'      => $data['allow_combination'],
+                    'allow_combination_type' => $data['allow_combination_type'],
+                    'status'                 => $data['status']
+                ]
+            );
+
+    }else{
+
+        $this->db
+            ->insert(
+                'leave_validation_master',
+                $data
+            );
+
+    }
+
+    return true;
+
+}
+
+public function getLeaveValidationRules()
+{
+
+    $result = $this->db
+        ->get('leave_validation_master')
+        ->result_array();
+
+    $response = [];
+
+    foreach($result as $row){
+
+        $response[$row['leave_type']] = $row;
+
+    }
+
+    return $response;
+
+}
         
     }
 ?>
