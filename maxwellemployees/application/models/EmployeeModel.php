@@ -3568,7 +3568,7 @@ public function getAttendanceDashboard(){
             // Last 12 months filter
             $where[] = "
                 s.mxsal_year_month BETWEEN
-                '{$fromYearMonth}' AND '{$currentYearMonth}'
+                '{$fromYearMonth}' AND '{$currentYearMonth}'  AND mxsal_status = 1
             ";
 
             if (!empty($companyid) && $companyid != 0) {
