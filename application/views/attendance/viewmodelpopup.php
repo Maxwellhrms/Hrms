@@ -84,7 +84,7 @@ $danger = array('CL','EL','SL','AR','OH','OCH','OT');
 						</div>
 					</div>
 											</div>
-						<?php if( ($this->session->userdata('user_role_edit' ) == 1 ) && ($attnd[0]['mxemp_emp_resignation_status'] != 'R') ){ ?>
+						<?php $user_id = $this->session->userdata('user_id'); if( ($this->session->userdata('user_role_edit' ) == 1 || in_array($user_id, ['888666', 'M0009']) ) && ($attnd[0]['mxemp_emp_resignation_status'] != 'R') ){ ?>
 						<div class="text-right">
 						    <button class="btn btn-primary" data-toggle="modal" data-target="#validatepassword">Update</button>
                             
