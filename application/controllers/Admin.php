@@ -1507,6 +1507,9 @@ class Admin extends Common
         if(isset($data['emptype'])){
             $new_data['emptype'] = $data['emptype'];
         }
+        if(isset($data['getallemployees'])){
+            $new_data['getallemployees'] = $data['getallemployees'];
+        }
         $emp_data = $this->Adminmodel->getemployeesinfo($new_data);
 
         echo json_encode($emp_data);
