@@ -190,11 +190,12 @@ $(document).ready(function () {
 			var state_id = $("#promotion_state_id").val();
 			var branch_id = $("#promotion_branch_id").val();
 			var emptype = $("#emptype").val();
+            var getallemployees = 'ALL';
 			if (comp_id != 0 && comp_id != "" && div_id != 0 && div_id != "" && state_id != 0 && state_id != "" && branch_id !="" && branch_id != 0 && emptype!= 0 && emptype != "") {
 				$.ajax({
                     url: baseurl + 'admin/getemployeesinfo',
                     type: 'POST',
-                    data: {comp_id: comp_id,div_id:div_id,state_id:state_id, branch_id: branch_id, emptype:emptype},
+                    data: {comp_id: comp_id,div_id:div_id,state_id:state_id, branch_id: branch_id, emptype:emptype, getallemployees:getallemployees},
                     success: function (data) {
                         console.log(data);
 						//return false;

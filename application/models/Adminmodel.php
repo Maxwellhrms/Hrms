@@ -5912,9 +5912,13 @@ die;
         // $this->db->where('mxemp_emp_id', 'M00143');//---->comment these thing
         $this->db->where('mxemp_emp_status', 1);
         // $this->db->where('mxemp_emp_resignation_status', 0);
-        if (!isset($data['withResigned']) && !empty($data['withResigned'])) {
+        if(isset($data['getallemployees']) && !empty($data['getallemployees'])){
+
         }else{
-            $this->db->where('mxemp_emp_resignation_status !=', 'R');
+            if (!isset($data['withResigned']) && !empty($data['withResigned'])) {
+            }else{
+                $this->db->where('mxemp_emp_resignation_status !=', 'R');
+            }
         }
         $this->db->order_by('mxemp_emp_type,mxemp_emp_comp_code');
         $query = $this->db->get();
