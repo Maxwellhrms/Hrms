@@ -208,7 +208,7 @@ class Salaries_model extends Adminmodel
                     // print_r($arrear_inc_data);exit;
                     if(count($arrear_inc_data)>0){
                         $arear_inc_amount = $arrear_inc_data[0]->mxemp_arears_amount;
-                        $emp_data->mxemp_emp_current_salary += $arear_inc_amount;
+                        // $emp_data->mxemp_emp_current_salary += $arear_inc_amount;
                     }
                     // echo $emp_data->mxemp_emp_current_salary;exit;
                     //-------END AREARS PAYSHEET
@@ -7154,7 +7154,7 @@ class Salaries_model extends Adminmodel
                     // print_r($arrear_inc_data);exit;
                     if(count($arrear_inc_data)>0){
                         $arear_inc_amount = $arrear_inc_data[0]->mxemp_arears_amount;
-                        $emp_data->mxemp_emp_current_salary += $arear_inc_amount;
+                        // $emp_data->mxemp_emp_current_salary += $arear_inc_amount;
                     }
                     // echo $emp_data->mxemp_emp_current_salary;exit;
                     //-------END AREARS PAYSHEET
@@ -8519,7 +8519,7 @@ class Salaries_model extends Adminmodel
                         // print_r($arrear_inc_data);exit;
                         if (count($arrear_inc_data) > 0) {
                             $arear_inc_amount = $arrear_inc_data[0]->mxemp_arears_amount;
-                            $emp_data->mxemp_emp_current_salary += $arear_inc_amount;
+                            // $emp_data->mxemp_emp_current_salary += $arear_inc_amount;
                         }
                         // echo $emp_data->mxemp_emp_current_salary;exit;
                         //-------END AREARS PAYSHEET
@@ -10088,7 +10088,7 @@ class Salaries_model extends Adminmodel
                     // print_r($arrear_inc_data);exit;
                     if(count($arrear_inc_data)>0){
                         $arear_inc_amount = $arrear_inc_data[0]->mxemp_arears_amount;
-                        $emp_data->mxemp_emp_current_salary += $arear_inc_amount;
+                        // $emp_data->mxemp_emp_current_salary += $arear_inc_amount;
                     }
                     // echo $emp_data->mxemp_emp_current_salary;exit;
                     //-------END AREARS PAYSHEET
@@ -16023,7 +16023,7 @@ class Salaries_model extends Adminmodel
                     // print_r($arrear_inc_data);exit;
                     if(count($arrear_inc_data)>0){
                         $arear_inc_amount = $arrear_inc_data[0]->mxemp_arears_amount;
-                        $emp_data->mxemp_emp_current_salary += $arear_inc_amount;
+                        // $emp_data->mxemp_emp_current_salary += $arear_inc_amount;
                     }
                     // echo $emp_data->mxemp_emp_current_salary;exit;
                     //-------END AREARS PAYSHEET
