@@ -1043,14 +1043,14 @@ require 'PHPMailer/src/SMTP.php';
                 $ci->db->where('s.mxsal_branch_code', $branchid);
             }
 
-            if (!empty($employeeid) && $employeeid != 0) {
+            if (!empty($employeeid)) {
                 $ci->db->where('s.mxsal_emp_code', $employeeid);
             }
 
             $ci->db->limit(1);
-
-            $query = $ci->db->get();
             // echo $ci->db->get_compiled_select();exit;
+            $query = $ci->db->get();
+            
             if ($query->num_rows() > 0) {
                 return true;
             }
