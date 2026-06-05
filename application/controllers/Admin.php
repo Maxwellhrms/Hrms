@@ -1802,6 +1802,7 @@ class Admin extends Common
         $userdata = $this->input->post();
         $data['attnd'] = $this->Adminmodel->getemployeeattendancehistorywithuniqueid($userdata);
         $data['punchhistory'] = $this->Adminmodel->punch_history($userdata);
+        $data['userdata'] = $userdata;
         $this->load->view('attendance/viewmodelpopup',$data);
     }
 
