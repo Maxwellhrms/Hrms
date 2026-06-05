@@ -992,4 +992,70 @@ require 'PHPMailer/src/SMTP.php';
     
         return $rest . $last3 . '.' . $parts[1];
     }
+
+    function checkSalaryExists($data){
+        $companyid = $data['companyid'] ?? 0;
+        $divisionid = $data['divisionid'] ?? 0;
+        $stateid = $data['stateid'] ?? 0;
+        $branchid = $data['branchid'] ?? 0;
+        $employeeid = $data['employeeid'] ?? 0;
+        $attendancemonthyear = $data['attendancedate'];
+        $ci =& get_instance();
+        $ci->load->database();
+
+        $currentYearMonth = date('Ym', strtotime($attendancemonthyear));
+        $fromYearMonth    = date('Ym', strtotime($attendancemonthyear));
+
+        $tables = $ci->db->query("
+            SELECT DISTINCT mxemp_ty_table_name
+            FROM maxwell_employee_type_master
+            WHERE mxemp_ty_table_name IS NOT NULL
+            AND mxemp_ty_table_name != ''
+        ")->result_array();
+
+        foreach ($tables as $row) {
+
+            $table = trim($row['mxemp_ty_table_name']);
+
+            if (!$ci->db->table_exists($table)) {
+                continue;
+            }
+
+            $ci->db->select('1');
+            $ci->db->from($table . ' s');
+            $ci->db->where('s.mxsal_year_month >=', $fromYearMonth);
+            $ci->db->where('s.mxsal_year_month <=', $currentYearMonth);
+            $ci->db->where('s.mxsal_status', 1);
+
+            if (!empty($companyid) && $companyid != 0) {
+                $ci->db->where('s.mxsal_cmp_id', $companyid);
+            }
+
+            if (!empty($divisionid) && $divisionid != 0) {
+                $ci->db->where('s.mxsal_div_id', $divisionid);
+            }
+
+            if (!empty($stateid) && $stateid != 0) {
+                $ci->db->where('s.mxsal_state_code', $stateid);
+            }
+
+            if (!empty($branchid) && $branchid != 0) {
+                $ci->db->where('s.mxsal_branch_code', $branchid);
+            }
+
+            if (!empty($employeeid) && $employeeid != 0) {
+                $ci->db->where('s.mxsal_emp_code', $employeeid);
+            }
+
+            $ci->db->limit(1);
+
+            $query = $ci->db->get();
+            // echo $ci->db->get_compiled_select();exit;
+            if ($query->num_rows() > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 ?>

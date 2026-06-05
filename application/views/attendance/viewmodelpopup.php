@@ -90,8 +90,14 @@ $danger = array('CL','EL','SL','AR','OH','OCH','OT');
 						if (in_array($user_id, ['888666', 'M0009']) || ($this->session->userdata('user_role_edit') == 1 && $attnd[0]['mxemp_emp_resignation_status'] != 'R')) {
 							?>
 						<div class="text-right">
+							<?php
+							$salarystatus = checkSalaryExists(array('employeeid' => $userdata['empid'], 'attendancedate' => $userdata['attedancedate']));
+							?>
+							<?php if($salarystatus == false) { ?>
 						    <button class="btn btn-primary" data-toggle="modal" data-target="#validatepassword">Update</button>
-                            
+                            <?php }else{
+								echo '<span style="color:red;">Salary already processed for this month, So attendance can not be updated.</span>';
+							} ?>
                         </div>
                         <?php } ?>
 										</div>
