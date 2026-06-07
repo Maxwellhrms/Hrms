@@ -165,25 +165,59 @@ class Performanceappraisalmodel extends CI_Model {
 
 
     public function savequestion($data){
+
         $ip = $this->get_client_ip();
         $date = date('Y-m-d H:i:s');
+
         $department = $data['department'];
-        $category = $data['quecategory'];
+        $category   = $data['quecategory'];
+
         $this->db->trans_begin();
-        if(count($data['question']) > 0){
-            for ($i=0; $i < count($data['question']); $i++) { 
-                $question = $this->cleanInput($data['question'][$i]);
-                $inarray = array(
-                    "mxap_dep" => $department,
-                    "mxap_catg" => $category,
-                    "mxap_question" => $question,
-                    "mxap_createdby" =>  $this->session->userdata('user_id'),
-                    "mxap_createdtime" => $date,
-                    "mxap_created_ip" => $ip,
-                );
-                $this->db->insert('maxwell_apprasial_questions', $inarray);
+
+        if(!empty($data['question'])){
+
+            foreach($data['question'] as $i => $question){
+
+                $question = $this->cleanInput($question);
+                $id       = isset($data['id'][$i]) ? trim($data['id'][$i]) : '';
+                $type     = isset($data['type'][$i]) ? $data['type'][$i] : 'counts';
+
+                if(!empty($id)){
+
+                    // UPDATE EXISTING RECORD
+
+                    $updateArray = array(
+                        "mxap_dep"        => $department,
+                        "mxap_catg"       => $category,
+                        "mxap_question"   => $question,
+                        "mxap_type"       => $type,
+                        "mxap_modifyby"  => $this->session->userdata('user_id'),
+                        "mxap_modifiedtime"=> $date,
+                        "mxap_modified_ip" => $ip
+                    );
+
+                    $this->db->where('mxap_id', $id);
+                    $this->db->update('maxwell_apprasial_questions', $updateArray);
+
+                }else{
+
+                    // INSERT NEW RECORD
+
+                    $insertArray = array(
+                        "mxap_dep"         => $department,
+                        "mxap_catg"        => $category,
+                        "mxap_question"    => $question,
+                        "mxap_type"        => $type,
+                        "mxap_createdby"   => $this->session->userdata('user_id'),
+                        "mxap_createdtime" => $date,
+                        "mxap_created_ip"  => $ip
+                    );
+
+                    $this->db->insert('maxwell_apprasial_questions', $insertArray);
+                }
             }
         }
+
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
             return 401;
@@ -203,12 +237,17 @@ class Performanceappraisalmodel extends CI_Model {
     public function filterappraisalquestion($data){
         $department = $data['department'];
         $category = $data['quecategory'];
-        $this->db->select('mxap_id,mxap_question');
+        $this->db->select('mxap_id,mxap_question,mxap_type,mxap_status');
         $this->db->from('maxwell_apprasial_questions');
-        $this->db->where('mxap_status = 1');
+        if(isset($data['questatus']) && $data['questatus'] !=''){
+            $this->db->where('mxap_status', $data['questatus']);
+        }else{
+            $this->db->where('mxap_status', 1);
+        }
         $this->db->where('mxap_dep', $department);
         $this->db->where('mxap_catg', $category);
         $query = $this->db->get();
+        // echo $this->db->last_query();exit;
         $qry = $query->result_array();
         return $qry;
     }

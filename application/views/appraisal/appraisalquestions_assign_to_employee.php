@@ -132,6 +132,7 @@
 
 									<br>
 									<button type="submit" class="btn btn-success">Save</button>
+									<button type="button" class="btn btn-info btn-copy-row">Copy</button>
 								</div>
 							</div>
 						</div>
@@ -243,4 +244,55 @@ function getemp(){
 		});
 	}	
 }
+</script>
+
+<script>
+	$(document).on('click', '.btn-copy-row', function(){
+
+    var firstRow = $('.appraisal-row:first');
+
+    // Get values from first row
+    var objective    = firstRow.find('input[name="question_objective[]"]').val();
+    var assign       = firstRow.find('select[name="question_assign[]"]').val();
+    var unitmeasure  = firstRow.find('input[name="question_unit_measure[]"]').val();
+    var weightage    = firstRow.find('input[name="question_weightage_measure[]"]').val();
+
+    // Copy to all rows except first
+    $('.appraisal-row').not(':first').each(function(){
+        $(this).find('input[name="question_objective[]"]').val(objective);
+        $(this).find('select[name="question_assign[]"]').val(assign);
+        $(this).find('input[name="question_unit_measure[]"]').val(unitmeasure);
+        $(this).find('input[name="question_weightage_measure[]"]').val(weightage);
+
+        // Copy all monthly targets
+        $(this).find('td').each(function(index){
+
+            var sourceCell = firstRow.find('td:eq('+index+')');
+
+            var sourceInput = sourceCell.find('input.form-control');
+            var sourceSelect = sourceCell.find('select.form-control');
+
+            if(sourceInput.length){
+                var value = sourceInput.val();
+
+                var targetInput = $(this).find('input.form-control');
+                if(targetInput.length){
+                    targetInput.val(value);
+                }
+            }
+
+            if(sourceSelect.length){
+                var value = sourceSelect.val();
+
+                var targetSelect = $(this).find('select.form-control');
+                if(targetSelect.length){
+                    targetSelect.val(value);
+                }
+            }
+
+        });
+
+    });
+
+});
 </script>

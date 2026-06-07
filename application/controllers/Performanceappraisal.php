@@ -58,6 +58,7 @@ class Performanceappraisal extends Common {
         $this->header();
         $data['depart'] = $this->Performanceappraisalmodel->departmentmaster();
         $data['catg'] = array("1" => "KRA","2" => "KEY COMPENTENCIES",);
+        $data['controller'] = $this;
         $this->load->view('appraisal/appraisalquestions',$data);
         $this->footer();   
     }
@@ -74,7 +75,9 @@ class Performanceappraisal extends Common {
 
     public function filterappraisalquestion(){
         $userdata = $this->input->post();
+        $controller = $this;
         $dd = $this->Performanceappraisalmodel->filterappraisalquestion($userdata);
+        /*
         if($dd > 0){
             $sno = 1; foreach ($dd as $key => $value) {
                 $id = $value['mxap_id'];
@@ -85,6 +88,59 @@ class Performanceappraisal extends Common {
             $table .= "</tr>";
             echo $table;
             $sno++; }
+        }
+        */
+        if($dd > 0){
+            $sno = 1;
+            foreach ($dd as $key => $value) {
+
+                $id = $value['mxap_id'];
+                $question = htmlspecialchars($value['mxap_question']);
+                $type = $value['mxap_type'] ?? '';
+
+                $table = "<tr>";
+
+                $table .= "<td>".$sno."</td>";
+
+                // Editable Question
+                $table .= "<td>
+                            <input type='text'
+                                class='form-control'
+                                name='question[]'
+                                id='question_".$id."'
+                                value='".$question."'>
+                        </td>";
+
+                // Type Dropdown
+                $table .= "<td>
+                            <select class='form-control' name='type[]' id='type_".$id."'>
+                                ".$controller->display_options('performance', $type)."
+                            </select>
+                        </td>";
+
+                // Delete Button
+                $table .= "<td>
+                            <button type='button'
+                                    class='btn btn-danger'
+                                    onclick='deleteque(".$id.")'>
+                                <i class='fa fa-trash'></i>
+                            </button>
+                        </td>";
+
+                $table .= "<td style='display:none;'>
+                            <input type='hidden'
+                                class='form-control'
+                                name='id[]'
+                                id='id_".$id."'
+                                value='".$id."'>
+                        </td>";
+
+                $table .= "</tr>";
+
+                echo $table;
+
+                $sno++;
+            }
         }
     }
 
@@ -139,6 +195,7 @@ class Performanceappraisal extends Common {
         $enddate   = $financial_year[1] . '-01';
         if(count($questions) > 0){
             $sno = 1;
+             $class = 'appraisal-row';
             foreach ($questions as $key => $value) {
                 $id = $value['mxap_id'];
                 // Existing Data
@@ -153,7 +210,7 @@ class Performanceappraisal extends Common {
                     $weightage = $firstdata['mxap_assign_weightage'];
                     $show = $firstdata['mxap_assign_que_show'];
                 }
-                $table = "<tr>";
+                $table = "<tr class='$class'>";
                 $table .= "<input type='hidden' name='question_id[]' value='$id'>";
                 $table .= "<td>".$sno."</td>";
                 $table .= "<td>".$value['mxap_question']."</td>";

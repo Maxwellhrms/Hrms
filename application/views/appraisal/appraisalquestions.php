@@ -1,4 +1,4 @@
-								<form id="processapprisalquestions">
+		<form id="processapprisalquestions">
 					<!-- Page Wrapper -->
             <div class="page-wrapper">
                 <div class="content container-fluid">
@@ -46,6 +46,19 @@
 							<span class="formerror" id="quecategoryerror"></span>
 							
 						</div>
+
+						<div class="col-sm-6 col-md-3"> 
+							<div class="form-group form-focus select-focus">
+								<select class="select select2" style="width: 100%" name="questatus" id="questatus" onchange="getdetails()"> 
+									<option value="">Select Status</option>
+									<option value="1">Active</option>
+									<option value="0">Inactive</option>
+								</select>
+								<label class="focus-label">Select Status</label>
+							</div>
+							<span class="formerror" id="questatuserror"></span>
+							
+						</div>
    
                     </div>
 
@@ -65,9 +78,11 @@
 									<table class="table table-bordered table-review review-table mb-0" id="table_goals">
 										<thead>
 											<tr>
-												<th style="width:40px;">#</th>
+												<th>#</th>
 												<th>Question</th>
-												<th style="width: 64px;"><button type="button" class="btn btn-primary btn-add-row"><i class="fa fa-plus"></i></button></th>
+												<th>Type</th>
+        										<th>Action</th>
+												<th><button type="button" class="btn btn-primary btn-add-row"><i class="fa fa-plus"></i></button></th>
 											</tr>
 										</thead>
 										<tbody id="table_goals_tbody">
@@ -86,9 +101,10 @@
 
 
                 </div>
-								</form>
+		</form>
 				<!-- /Page Content -->	
 <script>
+	/*
 $(function () {
 	$(document).on("click", '.btn-add-row', function () {
 		var id = $(this).closest("table.table-review").attr('id');  // Id of particular table
@@ -97,13 +113,13 @@ $(function () {
 		$("#"+id+"_tbody").append(div);
 	});
 	$(document).on("click", "#comments_remove", function () {
-		$(this).closest("tr").prev().find('td:last-child').html('<button type="button" class="btn btn-danger" id="comments_remove"><i class="fa fa-trash-o"></i></button>');
+		$(this).closest("tr").prev().find('td:last-child').html('<button type="button" class="btn btn-danger" id="comments_remove"><i class="fa fa-trash"></i></button>');
 		$(this).closest("tr").remove();
 	});
 	function GetDynamicTextBox(table_id) {
 		$('#comments_remove').remove();
 		var rowsLength = document.getElementById(table_id).getElementsByTagName("tbody")[0].getElementsByTagName("tr").length+1;
-		return '<td>'+rowsLength+'</td>' + '<td><input type="text" name="question[]" class="form-control"></td>' + '<td><button type="button" class="btn btn-danger" id="comments_remove"><i class="fa fa-trash-o"></i></button></td>'
+		return '<td>'+rowsLength+'</td>' + '<td><input type="text" name="question[]" class="form-control"></td>' + '<td><button type="button" class="btn btn-danger" id="comments_remove"><i class="fa fa-trash"></i></button></td>'
 	}
 });
 
@@ -188,5 +204,165 @@ function deleteque(id){
 		    },
 		});
 	}
+}*/
+</script>
+<script>
+	var performanceOptions = '<?php echo $controller->display_options('performance',''); ?>';
+$(function () {
+
+    $(document).on("click", '.btn-add-row', function () {
+
+        var id = $(this).closest("table.table-review").attr('id');
+        var div = $("<tr />");
+
+        div.html(GetDynamicTextBox(id));
+
+        $("#" + id + "_tbody").append(div);
+    });
+
+    $(document).on("click", "#comments_remove", function () {
+
+        $(this).closest("tr").prev().find('td:last-child').html(
+            '<button type="button" class="btn btn-danger" id="comments_remove"><i class="fa fa-trash"></i></button>'
+        );
+
+        $(this).closest("tr").remove();
+
+        // Reorder serial numbers
+        $('table.table-review tbody tr').each(function(index){
+            $(this).find('td:first').text(index + 1);
+        });
+    });
+
+    function GetDynamicTextBox(table_id) {
+
+        $('#comments_remove').remove();
+
+        var rowsLength = document.getElementById(table_id)
+            .getElementsByTagName("tbody")[0]
+            .getElementsByTagName("tr").length + 1;
+
+        return '<td>' + rowsLength + '</td>' +
+               '<td>' +
+                    '<input type="text" name="question[]" class="form-control" required>' +
+               '</td>' +
+			   '<td><select name="type[]" class="form-control">' + performanceOptions + '</select></td>' +
+               '<td>' +
+                    '<button type="button" class="btn btn-danger" id="comments_remove">' +
+                        '<i class="fa fa-trash"></i>' +
+                    '</button>' +
+               '</td>' + 
+			   '<td> <input style="display:none;" type="hidden" class="form-control" name="id[]"> </td>' +
+			'<td></td>';
+    }
+});
+
+$(document).ready(function(){
+
+    $("form#processapprisalquestions").submit(function (e) {
+
+        e.preventDefault();
+
+        var department = $("#department").val();
+
+        if (department == "") {
+            $("#department").focus();
+            $('#departmenterror').html("Please Select Department...");
+            return false;
+        } else {
+            $('#departmenterror').html("");
+        }
+
+        var quecategory = $("#quecategory").val();
+
+        if (quecategory == "") {
+            $("#quecategory").focus();
+            $('#quecategoryerror').html("Please Select Category...");
+            return false;
+        } else {
+            $('#quecategoryerror').html("");
+        }
+
+        var mainurl = baseurl + 'Performanceappraisal/savequestion';
+
+        var formData = new FormData(this);
+
+        $.ajax({
+            url: mainurl,
+            type: 'POST',
+            data: formData,
+            async: false,
+            success: function (data) {
+
+                if (data == 200) {
+
+                    alert('Successfully Created');
+
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1000);
+                }
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+
+    });
+
+});
+
+function getdetails(){
+
+    var department = $("#department").val();
+    var quecategory = $("#quecategory").val();
+	var questatus = $("#questatus").val();
+
+    if(department != "" && quecategory != ""){
+
+        var mainurl = '<?php echo base_url() ?>Performanceappraisal/filterappraisalquestion';
+
+        $.ajax({
+            url: mainurl,
+            type: 'POST',
+            data: {
+                department : department,
+                quecategory : quecategory,
+				questatus : questatus
+            },
+            success: function (data) {
+                $('#displaydata').html(data);
+            }
+        });
+
+    }else{
+        return false;
+    }
+}
+
+function deleteque(id){
+
+    var result = confirm("Want to delete?");
+
+    if (result) {
+
+        var mainurl = '<?php echo base_url() ?>Performanceappraisal/updateappraisalquestion';
+
+        $.ajax({
+            url: mainurl,
+            type: 'POST',
+            data: {
+                id : id
+            },
+            success: function (data) {
+
+                alert('Successfully Deleted');
+
+                setTimeout(function () {
+                    window.location.reload();
+                }, 1000);
+            }
+        });
+    }
 }
 </script>
