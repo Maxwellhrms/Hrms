@@ -15850,7 +15850,7 @@ class Salaries_model extends Adminmodel
                 $res2 = $query->result();
                 if(count($res2) > 0){
                     $this->db->trans_rollback();
-                    $message = "SALARY ALREADY CREATED FOR THESE EMPLOYEE...";
+                    $message = "SALARY ALREADY GENERATED FOR THIS EMPLOYEE...";
                     getjsondata(0,$message);
                 }
                 #CHECK OTHER EMP SAL DATA
@@ -15871,12 +15871,14 @@ class Salaries_model extends Adminmodel
                 //-------------END VALIDATING
 
 
-                $user_data = array("cmpname" => $cmp_id,"emp_id" => $emp_code);
+                $user_data = array("cmpname" => $cmp_id,"emp_id" => $emp_code, "getallemployees" => "all");
                 //----NEW BY SHABABU(01-05-2022)
                 $unpaid_sal_emp_array = $data['unpaid_empids'];
                 // echo '<pre>';print_r($unpaid_sal_emp_array);exit;
                 //----END NEW BY SHABABU(01-05-2022)
                 //-------------GETTING ALL ARRAYS
+
+                // echo '<pre>';print_r($user_data);exit;
                 $employees_array = $this->getemployeesinfo($user_data);
                 //echo "<pre> Employee Array: ";print_r($employees_array);exit;
                 $table_names_array = $this->getemployeetypemasterdetails($id = null, $cmp_id);

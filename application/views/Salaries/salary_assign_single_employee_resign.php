@@ -94,15 +94,15 @@
                                                                             <div class="form-group col-md-4">
                                                                                 <label class="col-lg-12 col-form-label">Employee Type</label>
                                                                                 <div class="col-lg-12">
-                                                                                    <select class="form-control select2" name="emptype" id="emptype" style="width: 100%;"></select>
-                                                                                    <span class="formerror" id="emptype_error"></span>
+                                                                                    <select class="form-control select2" name="emptype" id="employeetype" style="width: 100%;"></select>
+                                                                                    <span class="formerror" id="employeetype_error"></span>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="form-group col-md-4">
                                                                                 <label class="col-lg-12 col-form-label">Employee Id</label>
                                                                                 <div class="col-lg-12">
-                                                                                    <select class="form-control select2" name="promotion_employeeid" id="promotion_employeeid" style="width: 100%;"></select>
-                                                                                    <span class="formerror" id="promotion_employeeid_error"></span>
+                                                                                    <select class="form-control select2" name="promotion_employeeid" id="resigned_employeeid" style="width: 100%;"></select>
+                                                                                    <span class="formerror" id="resigned_employeeid_error"></span>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="form-group col-md-4">

@@ -5914,6 +5914,27 @@ die;
         // $this->db->where('mxemp_emp_resignation_status', 0);
         if(isset($data['getallemployees']) && !empty($data['getallemployees'])){
 
+            // Status IN (W, R)
+            $this->db->where_in('mxemp_emp_resignation_status', array('W', 'R'));
+
+            // F&F not completed
+            $this->db->where('mxemp_emp_is_fandf_completed', 0);
+
+            // Group for relieving date condition
+            if(isset($data['yearmonth']) && !empty($data['yearmonth'])) {
+                $firstDay = date('Y-m-01', strtotime('01-' . $data['yearmonth']));
+                $lastDay  = date('Y-m-t', strtotime('01-' . $data['yearmonth']));
+
+                $this->db->group_start();
+                $this->db->where(
+                    array(
+                        'mxemp_emp_resignation_relieving_date >=' => $firstDay,
+                        'mxemp_emp_resignation_relieving_date <=' => $lastDay
+                    ));
+                $this->db->or_where('mxemp_emp_resignation_relieving_date IS NULL', null, false);
+                $this->db->group_end();    
+            }
+
         }else{
             if (!isset($data['withResigned']) && !empty($data['withResigned'])) {
             }else{
@@ -5925,6 +5946,7 @@ die;
         // if($flag == "test"){
             // echo $this->db->last_query();exit;
         // }
+
         $qry = $query->result();
         return $qry;
     }

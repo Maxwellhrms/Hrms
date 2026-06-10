@@ -3161,6 +3161,19 @@ $savePath = 'uploads/payslips/' . $customFileName;
     
     public function generate_single_emp_salarie(){
         $emp_data = $this->input->post();
+
+        if(!isset($emp_data['yearmonth']) || empty($emp_data['yearmonth'])){
+            echo json_encode(array("status" => 0, "message" => "Invalid Month and Year Selection"));exit();
+        }
+
+        if(!isset($emp_data['emptype']) || empty($emp_data['emptype'])){
+            echo json_encode(array("status" => 0, "message" => "Invalid Employement Type"));exit();
+        }
+
+        if(!isset($emp_data['emp_code']) || empty($emp_data['emp_code'])){
+            echo json_encode(array("status" => 0, "message" => "Invalid Employee Id"));exit();
+        }
+
         $emp_data['sal_month_year'] = $emp_data['yearmonth'];
         // print_r($emp_data);exit;
         $res =  $this->Salaries_model->generate_single_emp_salarie_new($emp_data);
@@ -3210,6 +3223,19 @@ $savePath = 'uploads/payslips/' . $customFileName;
 
     public function generate_single_emp_salarie_resign(){
         $emp_data = $this->input->post();
+
+        if(!isset($emp_data['yearmonth']) || empty($emp_data['yearmonth'])){
+            echo json_encode(array("status" => 0, "message" => "Invalid Month and Year Selection"));exit();
+        }
+
+        if(!isset($emp_data['emptype']) || empty($emp_data['emptype'])){
+            echo json_encode(array("status" => 0, "message" => "Invalid Employement Type"));exit();
+        }
+
+        if(!isset($emp_data['emp_code']) || empty($emp_data['emp_code'])){
+            echo json_encode(array("status" => 0, "message" => "Invalid Employee Id"));exit();
+        }
+
         $emp_data['sal_month_year'] = $emp_data['yearmonth'];
         /// echo "<pre>";print_r($emp_data);exit;
         $res =  $this->Salaries_model->generate_single_emp_salarie_resigned($emp_data);

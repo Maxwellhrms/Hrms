@@ -185,16 +185,17 @@ $(document).ready(function () {
 	//------END LOAD EMP
 	function load_employees(){
 // 	$("#promotion_branch_id").change(function(){
+            var yearmonth = $("#yearmonth").val();
 			var comp_id = $("#promotion_company_id").val();
 			var div_id = $("#promotion_div_id").val();
 			var state_id = $("#promotion_state_id").val();
 			var branch_id = $("#promotion_branch_id").val();
 			var emptype = $("#emptype").val();
-			if (comp_id != 0 && comp_id != "" && div_id != 0 && div_id != "" && state_id != 0 && state_id != "" && branch_id !="" && branch_id != 0 && emptype!= 0 && emptype != "") {
+			if (yearmonth != 0 && comp_id != 0 && comp_id != "" && div_id != 0 && div_id != "" && state_id != 0 && state_id != "" && branch_id !="" && branch_id != 0 && emptype!= 0 && emptype != "") {
 				$.ajax({
                     url: baseurl + 'admin/getemployeesinfo',
                     type: 'POST',
-                    data: {comp_id: comp_id,div_id:div_id,state_id:state_id, branch_id: branch_id, emptype:emptype},
+                    data: {yearmonth:yearmonth, comp_id: comp_id,div_id:div_id,state_id:state_id, branch_id: branch_id, emptype:emptype, getallemployees:'all'},
                     success: function (data) {
                         console.log(data);
 						//return false;
@@ -254,7 +255,7 @@ $(document).ready(function () {
             $.ajax({
                 url: baseurl + 'admin/checkemployeeexists',
                 type: 'POST',
-                data: {emp_id: emp_id},
+                data: {emp_id: emp_id, getallemployees:'all'},
                 success: function (data) {
                     var parse_data = JSON.parse(data);
 //						      console.log(parse_data);

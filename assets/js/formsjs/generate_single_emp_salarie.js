@@ -20,6 +20,12 @@ $(document).ready(function () {
             
             var option = '<option value="0">Select Emp Type</option>';
             $("#emptype").empty().append(option);
+
+            var $emptype = $("#employeetype");
+
+            if ($emptype.length) {
+                $emptype.empty().append(option);
+            }
         }
     });
 
@@ -185,17 +191,18 @@ $(document).ready(function () {
 	//------END LOAD EMP
 	function load_employees(){
 // 	$("#promotion_branch_id").change(function(){
+            var yearmonth = $("#yearmonth").val();
 			var comp_id = $("#promotion_company_id").val();
 			var div_id = $("#promotion_div_id").val();
 			var state_id = $("#promotion_state_id").val();
 			var branch_id = $("#promotion_branch_id").val();
 			var emptype = $("#emptype").val();
             var getallemployees = 'ALL';
-			if (comp_id != 0 && comp_id != "" && div_id != 0 && div_id != "" && state_id != 0 && state_id != "" && branch_id !="" && branch_id != 0 && emptype!= 0 && emptype != "") {
+			if (yearmonth != 0 && comp_id != 0 && comp_id != "" && div_id != 0 && div_id != "" && state_id != 0 && state_id != "" && branch_id !="" && branch_id != 0 && emptype!= 0 && emptype != "") {
 				$.ajax({
                     url: baseurl + 'admin/getemployeesinfo',
                     type: 'POST',
-                    data: {comp_id: comp_id,div_id:div_id,state_id:state_id, branch_id: branch_id, emptype:emptype, getallemployees:getallemployees},
+                    data: {yearmonth: yearmonth, comp_id: comp_id,div_id:div_id,state_id:state_id, branch_id: branch_id, emptype:emptype},
                     success: function (data) {
                         console.log(data);
 						//return false;
@@ -243,7 +250,7 @@ $(document).ready(function () {
 }
     //-------GET EMPLOYEE DATA
     //$("#search_emp_id_btn").click(function () {
-	$("#promotion_employeeid").change(function(){		
+	$("#promotion_employeeid").change(function(){
         $("#employeeiderror").html(' ');
         var emp_id_data = $("#promotion_employeeid").val();
 		var sp = emp_id_data.split('~');
@@ -755,6 +762,12 @@ function load_emp_type(cmp_id, incentive_selected_emp_type) {
         });
     }
     $("#emptype").html(option);
+
+    var $emptype = $("#employeetype");
+
+    if ($emptype.length) {
+        $emptype.empty().append(option);
+    }
 }
 //---------------END LOAD EMPLOYEE TYPE
 
@@ -762,12 +775,47 @@ $("#emptype").change(function(){
     load_employees();
 });
 
+$("#employeetype").change(function(){
+    load_resigned_employees();
+});
+
 
 $("#delete_sal").click(function(){
     yearmonth = $("#yearmonth").val();
-    emp_code = $("#promotion_employeeid").val();
+    if (yearmonth == 0 || yearmonth == "") {
+        $("#yearmonth").focus();
+        $('#yearmontherror').html("Please Select Date");
+        return false;
+    } else {
+        $('#yearmontherror').html("");
+    }
+
     cmp_id = $("#promotion_company_id").val();
+    if (cmp_id == 0 || cmp_id == "") {
+        $("#promotion_company_id").focus();
+        $('#promotion_company_id_error').html("Please Select Company Name");
+        return false;
+    } else {
+        $('#promotion_company_id_error').html("");
+    }
+
     emptype = $("#emptype").val();
+    if (emptype == 0 || emptype == "") {
+        $("#employeetype").focus();
+        $('#employeetype_error').html("Please Select Employee Type");
+        return false;
+    } else {
+        $('#emptype_error').html("");
+    }
+
+    emp_code = $("#promotion_employeeid").val();
+    if (emp_code == 0 || emp_code == "") {
+        $("#resigned_employeeid").focus();
+        $('#resigned_employeeid_error').html("Please Select Employee Id");
+        return false;
+    } else {
+        $('#resigned_employeeid_error').html("");
+    }
     $.ajax({
             async: false,
             type: "POST",
@@ -839,22 +887,22 @@ $("#generate_resigned_emp_sal").click(function(){
         } else {
             $('#promotion_branch_id_error').html("");
         }
-        var emptype = $("#emptype").val();
+        var emptype = $("#employeetype").val();
         if (emptype == 0 || emptype == "") {
-            $("#emptype").focus();
-            $('#emptype_error').html("Please Select Employee Type");
+            $("#employeetype").focus();
+            $('#employeetype_error').html("Please Select Employee Type");
             return false;
         } else {
             $('#emptype_error').html("");
         }
 
-        var emp_code = $("#promotion_employeeid").val();
+        var emp_code = $("#resigned_employeeid").val();
         if (emp_code == 0 || emp_code == "") {
-            $("#promotion_employeeid").focus();
-            $('#promotion_employeeid_error').html("Please Select Employee Id");
+            $("#resigned_employeeid").focus();
+            $('#resigned_employeeid_error').html("Please Select Employee Id");
             return false;
         } else {
-            $('#promotion_employeeid_error').html("");
+            $('#resigned_employeeid_error').html("");
         }
 
         $.ajax({
@@ -882,6 +930,120 @@ $("#generate_resigned_emp_sal").click(function(){
         });
     });
 
+
+    $("#resigned_employeeid").change(function(){
+        $("#employeeiderror").html(' ');
+        var emp_id_data = $("#resigned_employeeid").val();
+        var sp = emp_id_data.split('~');
+        var emp_id = sp[0];
+// 		get_promotion_inc_table(emp_id);
+        //if (emp_id.length >= 5) {
+//            alert(emp_id)
+
+        let getallemployees = 'All';
+
+        $.ajax({
+            url: baseurl + 'admin/checkemployeeexists',
+            type: 'POST',
+            data: {emp_id: emp_id, getallemployees: getallemployees},
+            success: function (data) {
+                var parse_data = JSON.parse(data);
+//						      console.log(parse_data);
+                if (parse_data.length <= 0) {
+                    alert("Invalid Employee Id");
+                    return false;
+                } else {
+
+                    console.log(parse_data);
+                    // var emp_name = parse_data[0].mxemp_emp_fname + " " + parse_data[0].mxemp_emp_lname;
+                    // $("#emp_name").val(emp_name);
+
+                    $("#cmpname_prm_from").empty();
+                    $("#cmpname_prm_from").append("<option value=" + parse_data[0].mxemp_emp_comp_code + "@~@" + parse_data[0].mxcp_name.replace(' ', '_') + " selected>" + parse_data[0].mxcp_name + "</option>");
+                    $("#divname_prm_from").empty();
+                    $("#divname_prm_from").append("<option value=" + parse_data[0].mxemp_emp_division_code + "@~@" + parse_data[0].mxd_name.replace(' ', '_') + " selected>" + parse_data[0].mxd_name + "</option>");
+                    $("#cmpstate_prm_from").empty();
+                    $("#cmpstate_prm_from").append("<option value=" + parse_data[0].mxemp_emp_state_code + "@~@" + parse_data[0].mxst_state.replace(' ', '_') + " selected>" + parse_data[0].mxst_state + "</option>");
+                    $("#brname_prm_from").empty();
+                    $("#brname_prm_from").append("<option value=" + parse_data[0].mxemp_emp_branch_code + "@~@" + parse_data[0].mxb_name.replace(' ', '_') + " selected>" + parse_data[0].mxb_name + "</option>");
+                    $("#desgname_prm_from").empty();
+                    $("#desgname_prm_from").append("<option value=" + parse_data[0].mxemp_emp_desg_code + "@~@" + parse_data[0].mxdesg_name.replace(' ', '_') + " selected>" + parse_data[0].mxdesg_name + "</option>");
+                    $("#gradename_prm_from").empty();
+                    $("#gradename_prm_from").append("<option value=" + parse_data[0].mxemp_emp_grade_code + "@~@" + parse_data[0].mxgrd_name.replace(' ', '_') + " selected>" + parse_data[0].mxgrd_name + "</option>");
+
+                }
+
+            }
+
+        });
+        //} else {
+
+        //  // alert(emp_code);
+        //$("#employeeiderror").html("Emp Code Length Should be Greather Or equal to 5 letters");
+        //}
+
+    });
+    //-------END GET EMPLOYEE DATA
+
+    function load_resigned_employees(){
+// 	$("#promotion_branch_id").change(function(){
+        var yearmonth = $("#yearmonth").val();
+        var comp_id = $("#promotion_company_id").val();
+        var div_id = $("#promotion_div_id").val();
+        var state_id = $("#promotion_state_id").val();
+        var branch_id = $("#promotion_branch_id").val();
+        var emptype = $("#emptype").val();
+        var getallemployees = 'ALL';
+        if (yearmonth !=0 && comp_id != 0 && comp_id != "" && div_id != 0 && div_id != "" && state_id != 0 && state_id != "" && branch_id !="" && branch_id != 0 && emptype!= 0 && emptype != "") {
+            $.ajax({
+                url: baseurl + 'admin/getemployeesinfo',
+                type: 'POST',
+                data: {yearmonth: yearmonth, comp_id: comp_id,div_id:div_id,state_id:state_id, branch_id: branch_id, emptype:emptype, getallemployees:getallemployees},
+                success: function (data) {
+                    console.log(data);
+                    //return false;
+                    var parse_data = JSON.parse(data);
+                    if (parse_data.length > 0) {
+                        $("#resigned_employeeid").empty();
+                        $("#resigned_employeeid").append('<option value="">Select Employee</option>');
+                        for (index in parse_data) {
+                            var auth_data = parse_data[index];
+                            var auth_emp_code = auth_data['mxemp_emp_id'];
+                            var auth_emp_name = auth_data['mxemp_emp_lname'] + " " + auth_data['mxemp_emp_fname'];
+                            //var auth_comp_code = auth_data['mxemp_emp_comp_code'];
+                            //var auth_comp_name = auth_data['mxcp_name'];
+                            //var auth_branch_code = auth_data['mxemp_emp_branch_code'];
+                            //var auth_branch_name = auth_data['mxb_name'];
+                            var auth_dept_code = auth_data['mxemp_emp_dept_code'];
+                            var auth_dept_name = auth_data['mxdpt_name'];
+                            //var auth_desg_code = auth_data['mxemp_emp_desg_code'];
+                            var auth_desg_name = auth_data['mxdesg_name'];
+                            //var auth_state_id = auth_data['mxemp_emp_state_code'];
+                            //var auth_state_name = auth_data['mxst_state'];
+                            //var auth_div_id = auth_data['mxemp_emp_division_code'];
+                            //var auth_div_name = auth_data['mxd_name'];
+                            var opt_data = auth_emp_code + " - " + auth_emp_name + " - " + auth_desg_name;
+                            var opt_val = auth_emp_code +'~'+ auth_emp_name+'~'+ auth_dept_code+'~'+ auth_dept_name;
+
+                            $("#resigned_employeeid").append('<option value="' + opt_val + '">' + opt_data + '</option>');
+                        }
+
+                    } else {
+                        $("#resigned_employeeid").empty();
+                        $("#resigned_employeeid").append('<option value="">Select Employee</option>');
+                        alert("No Employees Found In the Selected Branch");
+                        return false;
+                    }
+                }
+            });
+        }else{
+            $("#resigned_employeeid").empty();
+            $("#resigned_employeeid").append('<option value="">Select Employee</option>');
+            alert("No Employees Found In the Selected Branch");
+            return false;
+        }
+// 		});
+    }
 
 });
 

@@ -1495,6 +1495,11 @@ class Admin extends Common
         $data = $this->input->post();
         
         $new_data['cmpname'] = $data['comp_id'];
+
+        if(isset($data['yearmonth'])){
+            $new_data['yearmonth'] = $data['yearmonth'];
+        }
+
         if(isset($data['div_id'])){
             $new_data['divname'] = $data['div_id'];
         }
@@ -1510,6 +1515,8 @@ class Admin extends Common
         if(isset($data['getallemployees'])){
             $new_data['getallemployees'] = $data['getallemployees'];
         }
+
+        // echo "<pre>";print_r($new_data);exit();
         $emp_data = $this->Adminmodel->getemployeesinfo($new_data);
 
         echo json_encode($emp_data);
