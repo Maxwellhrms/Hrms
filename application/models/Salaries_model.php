@@ -13461,7 +13461,7 @@ class Salaries_model extends Adminmodel
                                     $rate_basic_sal = $final_rate_basic;
                                     $rate_basic_sal_for_el = $final_rate_basic;
                                     //$$$$$$$$$$$$$$$$$$$$$$$$$$$ CALCULATING ACTUAL BASIC  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-                                    $actual_basic = rounding_number(number_format(((($final_rate_basic) / $total_days_in_month) * $present_days_of_employees_in_month), 2, '.', ''),2);
+                                    $actual_basic = rounding_number(number_format(((($final_rate_basic) / $total_days_in_month) * $total_days), 2, '.', ''),2);
 
                                     // GET PF MASTER DATA
 
