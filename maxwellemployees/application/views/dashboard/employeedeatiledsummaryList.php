@@ -1116,6 +1116,9 @@ var incrementCounts =
 var incrementEmployeeCodes =
     <?php echo json_encode(array_column($incrementData, 'employeecodes')); ?>;
 
+var incrementAmounts =
+    <?php echo json_encode(array_column($incrementData, 'totalamount')); ?>;
+
 function openIncrementPopup(index){
     let month = incrementMonths[index];
     let selectedEmployeeCodes = incrementEmployeeCodes[index];
@@ -1209,9 +1212,12 @@ var onIncrementChart = new ApexCharts(
                 colors:['#111']
             },
             formatter:function(val, opts){
-                return incrementCounts[
-                    opts.dataPointIndex
-                ];
+                var count = incrementCounts[opts.dataPointIndex];
+                var amount = incrementAmounts[opts.dataPointIndex];
+                return count + '\n (₹' + Number(amount).toLocaleString('en-IN') + ')';
+                // return incrementCounts[
+                //     opts.dataPointIndex
+                // ];
             }
         },
         xaxis:{
