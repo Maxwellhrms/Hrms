@@ -1241,9 +1241,16 @@ var onIncrementChart = new ApexCharts(
         tooltip:{
             y:{
                 formatter:function(val, opts){
-                    return incrementCounts[
-                        opts.dataPointIndex
-                    ] + ' Employees';
+                    // return incrementCounts[
+                    //     opts.dataPointIndex
+                    // ] + ' Employees';
+                    var count = incrementCounts[opts.dataPointIndex];
+                    var amount = incrementAmounts[opts.dataPointIndex] || 0;
+
+                    return count +
+                    ' Employees | ₹' +
+                    Number(amount).toLocaleString('en-IN');
+                    }
                 }
             }
         },
