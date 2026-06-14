@@ -1250,7 +1250,6 @@ var onIncrementChart = new ApexCharts(
                     return count +
                     ' Employees | ₹' +
                     Number(amount).toLocaleString('en-IN');
-                    }
                 }
             }
         },
