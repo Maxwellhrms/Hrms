@@ -85,6 +85,7 @@ class Employee extends Common {
         $data['incrementData'] = $this->EmployeeModel->getEmployeeIncrementChartData($userdata);
         $data['dashboarddetails'] = $this->EmployeeModel->allemployeesattendancesummary($userdata);
         $data['joinResign'] = $this->EmployeeModel->joinResignSummary($userdata);
+        //  echo '<pre>'; print_r($data['joinResign']); exit;
         $data['branchwisesalary'] = $this->EmployeeModel->getBranchWiseSalarySummary($userdata);
         $data['servicesummary'] = $this->EmployeeModel->getServiceCategorySummary($userdata);
         // echo '<pre>';
@@ -471,6 +472,7 @@ class Employee extends Common {
         $this->footer();
     }
     # End Employee Geo Locations
+
     #Appraisal
     public function Appraisal(){
         $this->checkissession();
@@ -502,7 +504,6 @@ class Employee extends Common {
     public function saveemployeekra(){
         $this->checkissession();
         $data = $this->input->post();
-        // echo '<pre>'; print_r($data); exit;
         $result = $this->EmployeeModel->saveemployeekra($data);
         echo json_encode(array('status'  => $result,'message' => ($result == 1)? 'Appraisal saved successfully.': 'Unable to save appraisal.')); exit;
     }
@@ -510,8 +511,7 @@ class Employee extends Common {
     public function saveemployeekc(){
         $this->checkissession();
         $data = $this->input->post();
-        // echo '<pre>'; print_r($data); exit;
-        $result = $this->EmployeeModel->saveemployeekc($data);
+        $result = $this->EmployeeModel->saveEmployeeKeyCompetencies($data);
         echo json_encode(array('status'  => $result,'message' => ($result == 1)? 'Key Competencies saved successfully.': 'Unable to save Key Competencies.')); exit;
     }
 

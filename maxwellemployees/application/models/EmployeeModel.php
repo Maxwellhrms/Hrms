@@ -4080,20 +4080,107 @@ public function getAttendanceDashboard(){
         }
     }
 
-    // public function saveClientDetails($data){
-    //     foreach($data['client_name'] as $key => $name){
-    //         $ins = array(
-    //             'macd_assign_id'    => $data['modal_assignid'],
-    //             'macd_employee_code' => $data['modal_empcode'],
-    //             'macd_client_name' => $name,
-    //             'macd_description' => $data['client_description'][$key],
-    //             'macd_createdtime' => date('Y-m-d H:i:s'),
-    //             'macd_createdby' => $this->session->userdata('session_loginperson_id'),
-    //         );
-    //         $this->db->insert('maxwell_appraisal_client_details',$ins);
-    //     }
-    //     return true;
-    // }
+    public function saveEmployeeKeyCompetencies($data){
+        $role = $this->checkismanagerorhodoremployee();
+
+        $this->db->trans_begin();
+
+        for ($i = 0; $i < count($data['question_id']); $i++) {
+
+            $uparray = [];
+
+            $currentdata = $this->db
+                ->select('
+                    mxap_assign_emp_createdtime,
+                    mxap_assign_manager_createdtime,
+                    mxap_assign_hod_createdtime
+                ')
+                ->where('mxap_assign_id', $data['question_id'][$i])
+                ->get('maxwell_apprasial_assign_employees')
+                ->row_array();
+
+            $date = date('Y-m-d H:i:s');
+
+            /* ================= EMPLOYEE ================= */
+
+            if (in_array('EMPLOYEE', $role)) {
+
+                $uparray['mxap_assign_emp_noofaccounts']
+                    = $data['mxap_assign_emp_noofaccounts'][$i] ?? 0;
+
+                if (empty($currentdata['mxap_assign_emp_createdtime'])) {
+                    $uparray['mxap_assign_emp_createdtime'] = $date;
+                } else {
+                    $uparray['mxap_assign_emp_modifiedtime'] = $date;
+                }
+
+                $uparray['mxap_assign_emp_status'] = 'COMPLETED';
+            }
+
+            /* ================= MANAGER ================= */
+
+            if (in_array('MANAGER', $role)) {
+
+                $uparray['mxap_assign_manager_noofaccounts']
+                    = $data['mxap_assign_manager_noofaccounts'][$i] ?? 0;
+
+                $uparray['mxap_assign_manager_review']
+                    = $data['managerdesc'][$i] ?? '';
+
+                if (empty($currentdata['mxap_assign_manager_createdtime'])) {
+                    $uparray['mxap_assign_manager_createdtime'] = $date;
+                } else {
+                    $uparray['mxap_assign_manager_modifiedtime'] = $date;
+                }
+
+                $uparray['mxap_assign_manager_status'] = 'COMPLETED';
+            }
+
+            /* ================= HOD ================= */
+
+            if (in_array('HOD', $role)) {
+
+                $uparray['mxap_assign_hod_noofaccounts']
+                    = $data['mxap_assign_hod_noofaccounts'][$i] ?? 0;
+
+                $uparray['mxap_assign_hod_review']
+                    = $data['hoddesc'][$i] ?? '';
+
+                if (empty($currentdata['mxap_assign_hod_createdtime'])) {
+                    $uparray['mxap_assign_hod_createdtime'] = $date;
+                } else {
+                    $uparray['mxap_assign_hod_modifiedtime'] = $date;
+                }
+
+                $uparray['mxap_assign_hod_status'] = 'COMPLETED';
+            }
+
+            if (!empty($uparray)) {
+
+                $this->db->where(
+                    'mxap_assign_id',
+                    $data['question_id'][$i]
+                );
+
+                $this->db->update(
+                    'maxwell_apprasial_assign_employees',
+                    $uparray
+                );
+            }
+        }
+
+        if ($this->db->trans_status() === FALSE) {
+
+            $this->db->trans_rollback();
+            return 0;
+
+        } else {
+
+            $this->db->trans_commit();
+            return 1;
+        }
+    }
+
     public function saveClientDetails($data){
         $date = date('Y-m-d H:i:s');
         $userid = $this->session->userdata('session_loginperson_id');

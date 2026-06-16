@@ -1,13 +1,5 @@
 <form id="saveemployeekpa">
 
-<?php
-echo "<input type='hidden' name='employees' value='".$userdata['employees']."'>";
-echo "<input type='hidden' name='quecategory' value='".$userdata['quecategory']."'>";
-echo "<input type='hidden' name='department' value='".$userdata['department']."'>";
-echo "<input type='hidden' name='year' value='".$userdata['year']."'>";
-echo "<input type='hidden' name='month' value='".$userdata['month']."'>";
-?>
-
 <div class="accordion" id="kcAccordion">
 
 <?php
