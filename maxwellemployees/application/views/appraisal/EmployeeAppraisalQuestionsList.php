@@ -349,7 +349,9 @@
 <?php } ?>
 
 </div>
+<?php if(count($assigned) > 0) { ?>
 <button type="button" id="saveAppraisalBtn" class="btn btn-primary" onclick="saveAppraisal()">Save Appraisal</button>
+<?php } ?>
 </form>
 
 <!-- Modal -->
