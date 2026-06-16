@@ -471,4 +471,78 @@ class Employee extends Common {
         $this->footer();
     }
     # End Employee Geo Locations
+    #Appraisal
+    public function Appraisal(){
+        $this->checkissession();
+        $this->header(); 
+        $data['title']= "Slelf Appraisals";
+        $data['controller'] = $this;
+        // $data['employeerole'] = $this->EmployeeModel->checkismanagerorhodoremployee();
+        $this->load->view('appraisal/employeeappraisals', $data);
+        $this->footer();
+    }
+
+    public function AppraisalQuestionsList(){
+        $this->checkissession();
+        $data['controller'] = $this;
+        $userdata = $this->input->post();
+        // print_r($userdata); exit;
+        $data['assigned'] = $this->EmployeeModel->getassignquestionlist($userdata,'1');
+        $data['employeerole'] = $this->EmployeeModel->checkismanagerorhodoremployee();
+        // print_r($data['employeerole']); exit;
+        $data['kc'] = array("0"=>"Select","1" => "Excellent","2" => "Very Good","3" => "Good","4" => "Need Improvement", "5" => "Unsatisfactory");
+        if($userdata['appraisalcategory'] == '2'){
+            $this->load->view('appraisal/EmployeeAppraisalQuestionsListKC', $data);
+        }else{
+            $this->load->view('appraisal/EmployeeAppraisalQuestionsList', $data);
+        }
+        
+    }
+
+    public function saveemployeekra(){
+        $this->checkissession();
+        $data = $this->input->post();
+        // echo '<pre>'; print_r($data); exit;
+        $result = $this->EmployeeModel->saveemployeekra($data);
+        echo json_encode(array('status'  => $result,'message' => ($result == 1)? 'Appraisal saved successfully.': 'Unable to save appraisal.')); exit;
+    }
+
+    public function saveemployeekc(){
+        $this->checkissession();
+        $data = $this->input->post();
+        // echo '<pre>'; print_r($data); exit;
+        $result = $this->EmployeeModel->saveemployeekc($data);
+        echo json_encode(array('status'  => $result,'message' => ($result == 1)? 'Key Competencies saved successfully.': 'Unable to save Key Competencies.')); exit;
+    }
+
+    public function saveClientDetails(){
+        $this->checkissession();
+        $data = $this->input->post();
+        $result = $this->EmployeeModel->saveClientDetails($data);
+        echo json_encode(array('status'  => $result ? 1 : 0,'message' => $result ? 'Details saved successfully.' : 'Unable to save details.'));
+    }
+
+    public function getClientDetails(){
+        $assignid = $this->input->post('assignid');
+        $empcode  = $this->input->post('empcode');
+        $data = $this->EmployeeModel->getClientDetails($assignid,$empcode);
+        if(!empty($data)){
+            echo json_encode(array(
+                'status' => 1,
+                'data'   => $data
+            ));
+        }else{
+            echo json_encode(array(
+                'status' => 0
+            ));
+
+        }
+    }
+
+    public function deleteClientDetail(){
+        $detailid = $this->input->post('detailid');
+        $result = $this->EmployeeModel->deleteClientDetails($detailid);
+        echo json_encode(array('status'  => $result ? 1 : 0,'message' => $result ? 'Details deleted successfully.' : 'Unable to delete details.'));
+    }
+    #Appraisal
 }

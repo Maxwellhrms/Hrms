@@ -3919,4 +3919,226 @@ public function getAttendanceDashboard(){
 
     }
     // Service History
+    #Appraisal
+    public function checkismanagerorhodoremployee(){
+        $employeeid = $this->session->userdata('session_loginperson_id');
+        $approval = array();
+        // Everyone is an employee
+        $approval['employee'] = 'EMPLOYEE';
+        // Check Manager
+        $managerExists = $this->db->where('mxauth_reporting_head_emp_code', $employeeid)->where('mxauth_status', 1)->where('mxauth_auth_type', 1)->count_all_results('maxwell_emp_authorsations');
+        if($managerExists > 0){
+            $approval['manager'] = 'MANAGER';
+        }
+        // Check HOD
+        $hodExists = $this->db->where('mxhod_emp_code', $employeeid)->where('mxhod_status', 1)->count_all_results('maxwell_hods');
+        if($hodExists > 0){
+            $approval['hod'] = 'HOD';
+        }
+        return $approval;
+    }
+    public function getassignquestionlist($data,$flag){
+
+        // $this->session->userdata('session_company');
+        // $this->session->userdata('session_division');
+        // $this->session->userdata('session_state');
+        // $this->session->userdata('session_branch');
+
+        $employees = $data['employees'];
+        if(!isset($employees) || empty($employees)){
+            $employees = $this->session->userdata('session_loginperson_id');
+        }
+        $quecategory = $data['appraisalcategory'];
+        $department = $data['department'];
+        if(!isset($department) || empty($department)){
+            $department = $this->session->userdata('session_department');
+        }
+        $year = $data['monthyear'];
+        $dateObj = DateTime::createFromFormat('m-Y', $year);
+        $yearmonth = $dateObj->format('Y-m');
+
+        $this->db->select('mxap_question,mxap_assign_id,mxap_assign_year_month,mxap_assign_dep,mxap_assign_catg,mxap_assign_queid,mxap_assign_employee_code,mxap_assign_unitmeasure,mxap_assign_weightage,mxap_assign_monthlytarget,mxap_assign_emp_noofaccounts,mxap_assign_emp_client_name,mxap_assign_emp_description,mxap_assign_emp_achievement,mxap_assign_emp_createdtime,mxap_assign_emp_modifiedtime,mxap_assign_manager_noofaccounts,mxap_assign_manager_client_name,mxap_assign_manager_review,mxap_assign_manager_actual_assesment,mxap_assign_manager_createdtime,mxap_assign_manager_modifiedtime,mxap_assign_hod_noofaccounts,mxap_assign_hod_client_name,mxap_assign_hod_review,mxap_assign_hod_actual_assesment,mxap_assign_hod_createdtime,mxap_assign_hod_modifiedtime,mxap_assign_que_show,mxap_assign_objective,mxap_type');
+        $this->db->from('maxwell_apprasial_assign_employees');
+        $this->db->join('maxwell_apprasial_questions', 'mxap_id = mxap_assign_queid', 'INNER');
+        $this->db->where('mxap_assign_status = 1');
+        $this->db->where('mxap_assign_employee_code', $employees);
+        $this->db->where('mxap_assign_dep', $department);
+        $this->db->where('mxap_assign_catg', $quecategory);
+        $this->db->where('mxap_assign_year_month', $yearmonth);
+        if($flag == 1){
+            $this->db->where('mxap_assign_que_show = 1');
+        }
+        $query = $this->db->get();
+        return $qry = $query->result_array();
+    }
+
+    public function saveemployeekra($data){
+        $role = $this->checkismanagerorhodoremployee();
+
+        $this->db->trans_begin();
+
+        for ($i = 0; $i < count($data['assignid']); $i++) {
+
+            $uparray = [];
+
+            $currentdata = $this->db
+                ->select('mxap_assign_emp_createdtime,mxap_assign_manager_createdtime,mxap_assign_hod_createdtime')
+                ->where('mxap_assign_id', $data['assignid'][$i])
+                ->get('maxwell_apprasial_assign_employees')
+                ->row_array();
+
+            $date = date('Y-m-d H:i:s');
+
+            /* ================= EMPLOYEE ================= */
+
+            if (in_array('EMPLOYEE', $role)) {
+
+                $uparray['mxap_assign_emp_noofaccounts'] =
+                    $data['noofaccounts'][$i] ?? '';
+
+                $uparray['mxap_assign_emp_client_name'] =
+                    $data['clientname'][$i] ?? '';
+
+                $uparray['mxap_assign_emp_description'] =
+                    $data['desc'][$i] ?? '';
+
+                $uparray['mxap_assign_emp_achievement'] =
+                    $data['empachivement'][$i] ?? '';
+
+                if (empty($currentdata['mxap_assign_emp_createdtime'])) {
+                    $uparray['mxap_assign_emp_createdtime'] = $date;
+                } else {
+                    $uparray['mxap_assign_emp_modifiedtime'] = $date;
+                }
+                $uparray['mxap_assign_emp_status'] = 'COMPLETED';
+            }
+
+            /* ================= MANAGER ================= */
+
+            if (in_array('MANAGER', $role)) {
+
+                $uparray['mxap_assign_manager_noofaccounts'] =
+                    $data['managernoofaccounts'][$i] ?? '';
+
+                $uparray['mxap_assign_manager_client_name'] =
+                    $data['managerclientname'][$i] ?? '';
+
+                $uparray['mxap_assign_manager_review'] =
+                    $data['managerdesc'][$i] ?? '';
+
+                $uparray['mxap_assign_manager_actual_assesment'] =
+                    $data['managerachivement'][$i] ?? '';
+
+                if (empty($currentdata['mxap_assign_manager_createdtime'])) {
+                    $uparray['mxap_assign_manager_createdtime'] = $date;
+                } else {
+                    $uparray['mxap_assign_manager_modifiedtime'] = $date;
+                }
+                $uparray['mxap_assign_manager_status'] = 'COMPLETED';
+            }
+
+            /* ================= HOD ================= */
+
+            if (in_array('HOD', $role)) {
+
+                $uparray['mxap_assign_hod_noofaccounts'] =
+                    $data['hodnoofaccounts'][$i] ?? '';
+
+                $uparray['mxap_assign_hod_client_name'] =
+                    $data['hodclientname'][$i] ?? '';
+
+                $uparray['mxap_assign_hod_review'] =
+                    $data['hoddesc'][$i] ?? '';
+
+                $uparray['mxap_assign_hod_actual_assesment'] =
+                    $data['hodachivement'][$i] ?? '';
+
+                if (empty($currentdata['mxap_assign_hod_createdtime'])) {
+                    $uparray['mxap_assign_hod_createdtime'] = $date;
+                } else {
+                    $uparray['mxap_assign_hod_modifiedtime'] = $date;
+                }
+                $uparray['mxap_assign_hod_status'] = 'COMPLETED';
+            }
+
+            $this->db->where('mxap_assign_id', $data['assignid'][$i]);
+            $this->db->update(
+                'maxwell_apprasial_assign_employees',
+                $uparray
+            );
+        }
+
+        if ($this->db->trans_status() === FALSE) {
+
+            $this->db->trans_rollback();
+            return 0;
+
+        } else {
+
+            $this->db->trans_commit();
+            return 1;
+        }
+    }
+
+    // public function saveClientDetails($data){
+    //     foreach($data['client_name'] as $key => $name){
+    //         $ins = array(
+    //             'macd_assign_id'    => $data['modal_assignid'],
+    //             'macd_employee_code' => $data['modal_empcode'],
+    //             'macd_client_name' => $name,
+    //             'macd_description' => $data['client_description'][$key],
+    //             'macd_createdtime' => date('Y-m-d H:i:s'),
+    //             'macd_createdby' => $this->session->userdata('session_loginperson_id'),
+    //         );
+    //         $this->db->insert('maxwell_appraisal_client_details',$ins);
+    //     }
+    //     return true;
+    // }
+    public function saveClientDetails($data){
+        $date = date('Y-m-d H:i:s');
+        $userid = $this->session->userdata('session_loginperson_id');
+
+        foreach($data['client_name'] as $key => $name){
+
+            $detailid = $data['detailid'][$key] ?? '';
+
+            if(!empty($detailid)){
+                $uparray = array(
+                    'macd_client_name' => $name,
+                    'macd_description' => $data['client_description'][$key],
+                    'macd_client_email' => $data['client_email'][$key],
+                    'macd_client_mobile' => $data['client_mobile'][$key],
+                    'macd_modifiedtime' => $date,
+                    'macd_modifiedby' => $userid
+                );
+
+                $this->db->where('macd_id', $detailid);
+                $this->db->update('maxwell_appraisal_client_details',$uparray);
+            }else{
+                $ins = array(
+                    'macd_assign_id' => $data['modal_assignid'],
+                    'macd_employee_code' => $data['modal_empcode'],
+                    'macd_client_name' => $name,
+                    'macd_description' => $data['client_description'][$key],
+                    'macd_client_email' => $data['client_email'][$key],
+                    'macd_client_mobile' => $data['client_mobile'][$key],
+                    'macd_createdtime' => $date,
+                    'macd_createdby' => $userid
+                );
+                $this->db->insert('maxwell_appraisal_client_details',$ins);
+            }
+        }
+
+        return true;
+    }
+
+    public function getClientDetails($assignid,$empcode){
+        return $this->db->where('macd_assign_id',$assignid)->where('macd_employee_code',$empcode)->order_by('macd_id','ASC')->get('maxwell_appraisal_client_details')->result_array();
+    }
+
+    public function deleteClientDetails($detailid){
+        $this->db->where('macd_id', $detailid);
+        return $this->db->delete('maxwell_appraisal_client_details');
+    }
+    #Appraisal
 }
