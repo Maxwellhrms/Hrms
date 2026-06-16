@@ -288,7 +288,7 @@ $sno++;
 </div>
 
 <div class="mt-3 text-end">
-
+<?php if(count($assigned) > 0) { ?>
 <button type="submit"
         id="saveKpaBtn"
         class="btn btn-success">
@@ -296,7 +296,7 @@ $sno++;
     Save Key Competencies
 
 </button>
-
+<?php } ?>
 </div>
 
 </form>
