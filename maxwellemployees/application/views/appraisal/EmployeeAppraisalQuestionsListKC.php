@@ -122,7 +122,7 @@ $id = $row['mxap_assign_id'];
 
             <!-- Manager -->
 
-            <?php #if(isset($employeerole['manager'])){ ?>
+            <?php if(in_array('MANAGER', $employeerole)){ ?>
 
             <div class="accordion role-accordion">
 
@@ -195,11 +195,11 @@ $id = $row['mxap_assign_id'];
 
             </div>
 
-            <?php #} ?>
+            <?php } ?>
 
             <!-- HOD -->
 
-            <?php #if(isset($employeerole['hod'])){ ?>
+            <?php if(in_array('HOD', $employeerole)){ ?>
 
             <div class="accordion role-accordion">
 
@@ -272,7 +272,7 @@ $id = $row['mxap_assign_id'];
 
             </div>
 
-            <?php #} ?>
+            <?php } ?>
 
         </div>
 
