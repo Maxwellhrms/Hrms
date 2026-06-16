@@ -234,4 +234,16 @@
                 <span class="formerror" id="attendanceSectionerror"></span>
             </div>
             <?php } ?>
+            <?php if($selectedFilter['appraisalcategory'][0] == 'Y'){ ?>
+            <div class="col-sm-6 col-md-2"> 
+                <div class="form-group form-focus select-focus">
+                    <select class="select select2" style="width: 100%" name="<?php echo $selectedFilter['appraisalcategory'][1]; ?>" id="<?php echo $selectedFilter['appraisalcategory'][1]; ?>">
+                            <option value="1" selected>KRA</option>
+                            <option value="2">KEY COMPENTENCIES</option>
+                    </select>
+                    <label class="focus-label">Select Appraisal Category</label>
+                </div>
+                <span class="formerror" id="<?php echo $selectedFilter['appraisalcategory'][1].'error'; ?>"></span>
+            </div>
+            <?php } ?>
 <!-- /Search Filter -->	
