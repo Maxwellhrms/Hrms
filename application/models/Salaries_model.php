@@ -1511,9 +1511,9 @@ class Salaries_model extends Adminmodel
         $this->db->join('maxwell_designation_master', 'mxdesg_id = mxemp_emp_desg_code', 'INNER');
         $this->db->join('maxwell_department_master', 'mxdpt_id = mxemp_emp_dept_code', 'INNER');
         $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');
-        $this->db->join('maxwell_branch_master', 'mxb_id = mxemp_emp_branch_code', 'INNER');
+        $this->db->join('maxwell_branch_master', 'mxb_id = mxsal_branch_code', 'INNER');
         $this->db->join('maxwell_grade_master', 'mxgrd_id = mxemp_emp_grade_code', 'INNER');
-        $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
+        $this->db->join('maxwell_state_master', 'mxst_id = mxsal_state_code', 'INNER');
         if ($date != null && $date != 0) {
             $year_month = date("Ym", strtotime("01-" . $date));
             $this->db->where("mxsal_year_month", $year_month);
@@ -9566,8 +9566,10 @@ class Salaries_model extends Adminmodel
                         // echo $tds_amount;exit;
                         //---------END GET TDS AMOUNT
 
-
-                        $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;//----->NEW BY SHABABU(30-07-2022);
+                        $final_emp_esi_cont_basic = rounding_number(($esi_emp_cont_on_basic + $esi_emp_cont_on_hra), $esi_emp_cont_round_type);
+                        // $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;
+                        //----->commeneted By Varaprasd(16-06-2026)
+                        $total_deductions = $emp_pf_12 + ($final_emp_esi_cont_basic) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;//----->NEW BY SHABABU(30-07-2022);
 
                         //-----
                         // get_leaves_count_data($employeecode = null, $ym = null);
@@ -9709,7 +9711,7 @@ class Salaries_model extends Adminmodel
                         // echo "esi_emp_cont_on_basic=".$esi_emp_cont_on_basic."esi_emp_cont_on_hra=".$esi_emp_cont_on_hra;die;
                         // echo $esi_emp_cont_round_type;exit;
                         //-----------NEW BY SHABABU(30-06-2022)
-                        $final_emp_esi_cont_basic = rounding_number(($esi_emp_cont_on_basic + $esi_emp_cont_on_hra), $esi_emp_cont_round_type);
+
                         $final_comp_esi_cont_basic = rounding_number(($esi_comp_cont_on_basic + $esi_comp_cont_on_hra), $esi_comp_cont_round_type);
                         $final_array['mxsal_esi_emp_cont'] = $final_emp_esi_cont_basic;
                         $final_array['mxsal_esi_comp_cont'] = $final_comp_esi_cont_basic;
@@ -11153,9 +11155,11 @@ class Salaries_model extends Adminmodel
                     // echo $tds_amount;exit;
                     //---------END GET TDS AMOUNT
 
+                    $final_emp_esi_cont_basic = rounding_number(($esi_emp_cont_on_basic + $esi_emp_cont_on_hra),$esi_emp_cont_round_type);
 
-                    // $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $loan_amount + $miscellenous_amount;//----->commeneted By shababu(30-07-2022)
-                    $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;//----->NEW BY SHABABU(30-07-2022)
+                    // $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;
+                    //----->commeneted By Varaprasd(16-06-2026)
+                    $total_deductions = $emp_pf_12 + ($final_emp_esi_cont_basic) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;//----->NEW BY SHABABU(30-07-2022)
                     // echo "tds_amount =".$tds_amount."<br>";
                     // echo "emp_pf_12 = ".$emp_pf_12."<br>";
                     // echo "esi_emp_cont_on_basic =".$esi_emp_cont_on_basic."<br>";
@@ -11300,7 +11304,7 @@ class Salaries_model extends Adminmodel
                     // echo "esi_emp_cont_on_basic=".$esi_emp_cont_on_basic."esi_emp_cont_on_hra=".$esi_emp_cont_on_hra;die;
                     // echo $esi_emp_cont_round_type;exit;
                     //-----------NEW BY SHABABU(30-06-2022)
-                    $final_emp_esi_cont_basic = rounding_number(($esi_emp_cont_on_basic + $esi_emp_cont_on_hra),$esi_emp_cont_round_type);
+
                     $final_comp_esi_cont_basic = rounding_number(($esi_comp_cont_on_basic + $esi_comp_cont_on_hra),$esi_comp_cont_round_type);
                     $final_array['mxsal_esi_emp_cont'] = $final_emp_esi_cont_basic;
                     $final_array['mxsal_esi_comp_cont'] = $final_comp_esi_cont_basic;
@@ -12778,7 +12782,10 @@ class Salaries_model extends Adminmodel
 
 
                     //$total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $loan_amount + $miscellenous_amount+ $tds_amount;
-                    $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $loan_amount + $miscellenous_amount;
+
+                    $final_emp_esi_cont_basic = rounding_number(($esi_emp_cont_on_basic + $esi_emp_cont_on_hra),$esi_emp_cont_round_type);
+                    // $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $loan_amount + $miscellenous_amount;                            //----->commeneted By Varaprasd(16-06-2026)
+                    $total_deductions = $emp_pf_12 + ($final_emp_esi_cont_basic) + $pt_amount + $lwf_emp_rs + $loan_amount + $miscellenous_amount;
                     //----->NEW BY VARAPRASAD (10-05-2026); NO TDS in Total Deductions
 
                     //-----
@@ -12837,7 +12844,7 @@ class Salaries_model extends Adminmodel
                     $final_array['mxsal_eps_wages'] = $pf_eps_wages;
                     $final_array['mxsal_edli_wages'] = $pf_edli_wages;
                     //-----------NEW BY SHABABU(30-06-2022)
-                    $final_emp_esi_cont_basic = rounding_number(($esi_emp_cont_on_basic + $esi_emp_cont_on_hra),$esi_emp_cont_round_type);
+
                     $final_comp_esi_cont_basic = rounding_number(($esi_comp_cont_on_basic + $esi_comp_cont_on_hra),$esi_comp_cont_round_type);
                     $final_array['mxsal_esi_emp_cont'] = $final_emp_esi_cont_basic;
                     $final_array['mxsal_esi_comp_cont'] = $final_comp_esi_cont_basic;
@@ -14132,8 +14139,9 @@ class Salaries_model extends Adminmodel
                 // echo $tds_amount;exit;
                 //---------END GET TDS AMOUNT
 
-
-                $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;//----->NEW BY SHABABU(30-07-2022);
+                $final_emp_esi_cont_basic = rounding_number(($esi_emp_cont_on_basic + $esi_emp_cont_on_hra),$esi_emp_cont_round_type);
+                // $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;                            //----->commeneted By Varaprasd(16-06-2026)
+                $total_deductions = $emp_pf_12 + ($final_emp_esi_cont_basic) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;//----->NEW BY SHABABU(30-07-2022);
 
                 //-----
                 // get_leaves_count_data($employeecode = null, $ym = null);
@@ -14244,7 +14252,7 @@ class Salaries_model extends Adminmodel
                 $final_array['mxsal_eps_wages'] = $pf_eps_wages;
                 $final_array['mxsal_edli_wages'] = $pf_edli_wages;
                 //-----------NEW BY SHABABU(30-06-2022)
-                $final_emp_esi_cont_basic = rounding_number(($esi_emp_cont_on_basic + $esi_emp_cont_on_hra),$esi_emp_cont_round_type);
+
                 $final_comp_esi_cont_basic = rounding_number(($esi_comp_cont_on_basic + $esi_comp_cont_on_hra),$esi_comp_cont_round_type);
                 $final_array['mxsal_esi_emp_cont'] = $final_emp_esi_cont_basic;
                 $final_array['mxsal_esi_comp_cont'] = $final_comp_esi_cont_basic;
@@ -15504,8 +15512,9 @@ class Salaries_model extends Adminmodel
                 // echo $tds_amount;exit;
                 //---------END GET TDS AMOUNT
 
-
-                $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;//----->NEW BY SHABABU(30-07-2022);
+                $final_emp_esi_cont_basic = rounding_number(($esi_emp_cont_on_basic + $esi_emp_cont_on_hra),$esi_emp_cont_round_type);
+                // $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;                            //----->commeneted By Varaprasd(16-06-2026)
+                $total_deductions = $emp_pf_12 + ($final_emp_esi_cont_basic) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;//----->NEW BY SHABABU(30-07-2022);
 
                 //-----
                 // get_leaves_count_data($employeecode = null, $ym = null);
@@ -15613,7 +15622,7 @@ class Salaries_model extends Adminmodel
                 $final_array['mxsal_eps_wages'] = $pf_eps_wages;
                 $final_array['mxsal_edli_wages'] = $pf_edli_wages;
                 //-----------NEW BY SHABABU(30-06-2022)
-                $final_emp_esi_cont_basic = rounding_number(($esi_emp_cont_on_basic + $esi_emp_cont_on_hra),$esi_emp_cont_round_type);
+
                 $final_comp_esi_cont_basic = rounding_number(($esi_comp_cont_on_basic + $esi_comp_cont_on_hra),$esi_comp_cont_round_type);
                 $final_array['mxsal_esi_emp_cont'] = $final_emp_esi_cont_basic;
                 $final_array['mxsal_esi_comp_cont'] = $final_comp_esi_cont_basic;
@@ -17091,8 +17100,10 @@ class Salaries_model extends Adminmodel
                     //---------END GET TDS AMOUNT
 
 
-                    // $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $loan_amount + $miscellenous_amount;//----->commeneted By shababu(30-07-2022)
-                    $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;//----->NEW BY SHABABU(30-07-2022)
+                    $final_emp_esi_cont_basic = rounding_number(($esi_emp_cont_on_basic + $esi_emp_cont_on_hra),$esi_emp_cont_round_type);
+                    // $total_deductions = $emp_pf_12 + ($esi_emp_cont_on_basic + $esi_emp_cont_on_hra) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;
+                    //----->commeneted By Varaprasd(16-06-2026)
+                    $total_deductions = $emp_pf_12 + ($final_emp_esi_cont_basic) + $pt_amount + $lwf_emp_rs + $miscellenous_amount + $tds_amount;//----->NEW BY SHABABU(30-07-2022)
                     // echo "tds_amount =".$tds_amount."<br>";
                     // echo "emp_pf_12 = ".$emp_pf_12."<br>";
                     // echo "esi_emp_cont_on_basic =".$esi_emp_cont_on_basic."<br>";
@@ -17237,7 +17248,7 @@ class Salaries_model extends Adminmodel
                     // echo "esi_emp_cont_on_basic=".$esi_emp_cont_on_basic."esi_emp_cont_on_hra=".$esi_emp_cont_on_hra;die;
                     // echo $esi_emp_cont_round_type;exit;
                     //-----------NEW BY SHABABU(30-06-2022)
-                    $final_emp_esi_cont_basic = rounding_number(($esi_emp_cont_on_basic + $esi_emp_cont_on_hra),$esi_emp_cont_round_type);
+
                     $final_comp_esi_cont_basic = rounding_number(($esi_comp_cont_on_basic + $esi_comp_cont_on_hra),$esi_comp_cont_round_type);
                     $final_array['mxsal_esi_emp_cont'] = $final_emp_esi_cont_basic;
                     $final_array['mxsal_esi_comp_cont'] = $final_comp_esi_cont_basic;
