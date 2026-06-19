@@ -447,11 +447,12 @@ class Performanceappraisalmodel extends CI_Model {
     }
 
 
-    public function getappraisalAuthorizations(){
+    public function getappraisalAuthorizations($employeeid){
         return $this->db
             ->select('*')
             ->from('maxwell_emp_appraisal_authorizations')
             ->where('mxauth_status',1)
+            ->where('mxauth_assigned_employeeid',$employeeid)
             ->get()
             ->result_array();
     }

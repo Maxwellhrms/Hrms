@@ -286,8 +286,7 @@ class Performanceappraisal extends Common {
             $this->load->view('appraisal/assignemployeeKC',$data);
         }else if($userdata['quecategory'] == 3){
             $data['allemployees'] = $this->Performanceappraisalmodel->getallemployeeslist();
-            // echo '<pre>';print_r($data['allemployees']);
-            $data['allemployeesauthorizations'] = $this->Performanceappraisalmodel->getappraisalAuthorizations();
+            $data['allemployeesauthorizations'] = $this->Performanceappraisalmodel->getappraisalAuthorizations($userdata['employees']);
             $this->load->view('appraisal/assignemployeeauthorization',$data);
         }
     }
