@@ -262,7 +262,7 @@ class Performanceappraisalmodel extends CI_Model {
         $department = $data['department'];
         $this->db->select('mxemp_emp_id,mxemp_emp_fname,mxemp_emp_lname');
         $this->db->from('maxwell_employees_info');
-        $this->db->where('mxemp_emp_resignation_status !=', 'W');
+        $this->db->where('mxemp_emp_resignation_status', 'W');
         $this->db->where('mxemp_emp_dept_code', $department);
         $query = $this->db->get();
         $qry = $query->result_array();
