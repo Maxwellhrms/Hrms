@@ -269,93 +269,209 @@ class Performanceappraisalmodel extends CI_Model {
         return $qry;
     }
 
-    public function saveassignedquestion($data){
+    public function getallemployeeslist(){
+        $this->db->select("mxemp_emp_id,TRIM(CONCAT(COALESCE(mxemp_emp_fname, ''),' ',COALESCE(mxemp_emp_lname, ''))) AS employee_name, mxdpt_name, mxd_name, mxb_name, mxst_state");
+        $this->db->from('maxwell_employees_info');
+        $this->db->join('maxwell_department_master', 'mxdpt_id = mxemp_emp_dept_code', 'INNER');
+        $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');
+        $this->db->join('maxwell_branch_master', 'mxb_id = mxemp_emp_branch_code', 'INNER');
+        $this->db->join('maxwell_grade_master', 'mxgrd_id = mxemp_emp_grade_code', 'INNER');
+        $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
+        $this->db->join('maxwell_employee_type_master', 'mxemp_ty_id = mxemp_emp_type', 'INNER');
+        $this->db->where('mxemp_emp_resignation_status !=', 'R');
+        $query = $this->db->get();
+        $qry = $query->result_array();
+        return $qry;
+    }
 
-        $quecategory   = $data['quecategory'];
-        $department    = $data['department'];
-        $employees     = $data['employees'];
-        $financialyear = $data['financialyear'];
-        // Example:
-        // 2026-04_2027-03
-        $financial_year = explode('_', $financialyear);
-        $startdate = $financial_year[0] . '-01'; // 2026-04-01
-        $enddate   = $financial_year[1] . '-01'; // 2027-03-01
-        $date = date('Y-m-d H:i:s');
-        $ip   = $this->get_client_ip();
-        $tablename = 'maxwell_apprasial_assign_employees';
-        $this->db->trans_begin();
-        // Question Loop
-        for ($i = 0; $i < count($data['question_id']); $i++) {
-            // Start Month
-            $month = strtotime($startdate);
-            // End Month +1 month because loop uses <
-            $end = strtotime('+1 month', strtotime($enddate));
-            // Financial Year Month Loop
-            while ($month < $end) {
-                // Database Format
-                // 2026-04
-                $yearmonth_db = date('Y-m', $month);
-                // POST Array Key Format
-                // 2026_04
-                $yearmonth_key = date('Y_m', $month);
-                // Monthly Target Value
-                $monthly_target = '';
-                if (isset($data[$yearmonth_key][$i])) {
-                    $monthly_target = $data[$yearmonth_key][$i];
-                }
+    public function saveassignedquestion($data){
+    $quecategory   = $data['quecategory'];
+    $department    = $data['department'];
+    $employees     = $data['employees'];
+    $financialyear = $data['financialyear'];
+
+    $financial_year = explode('_', $financialyear);
+
+    $startdate = $financial_year[0] . '-01';
+    $enddate   = $financial_year[1] . '-01';
+
+    $date = date('Y-m-d H:i:s');
+    $ip   = $this->get_client_ip();
+
+    $tablename = 'maxwell_apprasial_assign_employees';
+
+    $this->db->trans_begin();
+
+    if(isset($data['monthly_target']) && count($data['monthly_target']) > 0){
+
+        foreach($data['monthly_target'] as $questionid => $months){
+
+            foreach($months as $yearmonth_key => $monthly_target){
+
+                $yearmonth_db = str_replace('_', '-', $yearmonth_key);
+
+                $objective = $data['objective'][$questionid][$yearmonth_key] ?? '';
+                $assign = $data['assign'][$questionid][$yearmonth_key] ?? 0;
+                $unitmeasure = $data['unit_measure'][$questionid][$yearmonth_key] ?? '';
+                $weightage = $data['weightage'][$questionid][$yearmonth_key] ?? '';
+
                 $inarray = array(
-                    "mxap_assign_dep"                => $department,
-                    "mxap_assign_catg"               => $quecategory,
-                    "mxap_assign_queid"              => $data['question_id'][$i],
-                    "mxap_assign_employee_code"      => $employees,
-                    "mxap_assign_objective"          => $data['question_objective'][$i],
-                    "mxap_assign_unitmeasure"        => $data['question_unit_measure'][$i],
-                    "mxap_assign_weightage"          => $data['question_weightage_measure'][$i],
-                    "mxap_assign_que_show"           => $data['question_assign'][$i],
-                    "mxap_assign_monthlytarget"      => $monthly_target,
-                    "mxap_assign_year_month"         => $yearmonth_db,
-                    "mxap_year_start_date"           => $startdate,
-                    "mxap_year_end_date"             => $enddate,
-                    "mxap_assign_createdby"          => $this->session->userdata('user_id'),
-                    "mxap_assign_createdtime"        => $date,
-                    "mxap_assign_created_ip"         => $ip
+                    "mxap_assign_dep"           => $department,
+                    "mxap_assign_catg"          => $quecategory,
+                    "mxap_assign_queid"         => $questionid,
+                    "mxap_assign_employee_code" => $employees,
+
+                    "mxap_assign_objective"     => $objective,
+                    "mxap_assign_unitmeasure"   => $unitmeasure,
+                    "mxap_assign_weightage"     => $weightage,
+                    "mxap_assign_que_show"      => $assign,
+                    "mxap_assign_monthlytarget" => $monthly_target,
+
+                    "mxap_assign_year_month"    => $yearmonth_db,
+
+                    "mxap_year_start_date"      => $startdate,
+                    "mxap_year_end_date"        => $enddate,
+
+                    "mxap_assign_createdby"     => $this->session->userdata('user_id'),
+                    "mxap_assign_createdtime"   => $date,
+                    "mxap_assign_created_ip"    => $ip
                 );
-                // Check Existing Record
+
                 $this->db->select('mxap_assign_id');
                 $this->db->from($tablename);
                 $this->db->where('mxap_assign_status', 1);
                 $this->db->where('mxap_assign_employee_code', $employees);
                 $this->db->where('mxap_assign_dep', $department);
                 $this->db->where('mxap_assign_catg', $quecategory);
-                $this->db->where('mxap_assign_queid', $data['question_id'][$i]);
+                $this->db->where('mxap_assign_queid', $questionid);
                 $this->db->where('mxap_assign_year_month', $yearmonth_db);
+
                 $query = $this->db->get();
-                // INSERT
-                if ($query->num_rows() <= 0) {
+
+                if($query->num_rows() <= 0){
+
                     $this->db->insert($tablename, $inarray);
-                } 
-                // UPDATE
-                else {
+
+                }else{
+
                     $this->db->where('mxap_assign_employee_code', $employees);
                     $this->db->where('mxap_assign_dep', $department);
                     $this->db->where('mxap_assign_catg', $quecategory);
-                    $this->db->where('mxap_assign_queid', $data['question_id'][$i]);
+                    $this->db->where('mxap_assign_queid', $questionid);
                     $this->db->where('mxap_assign_year_month', $yearmonth_db);
+
                     $this->db->update($tablename, $inarray);
                 }
-                // Next Month
-                $month = strtotime("+1 month", $month);
+            }
+        }
+    }
+
+    if ($this->db->trans_status() === FALSE) {
+
+        $this->db->trans_rollback();
+        return 401;
+
+    } else {
+
+        $this->db->trans_commit();
+        return 1;
+    }
+
+    }
+
+
+    public function saveappraisalAuthorizations($authorizationData){
+        $createdby = $this->session->userdata('user_id');
+
+        $this->db->trans_begin();
+
+        foreach ($authorizationData as $row) {
+
+            if (empty($row['employeeid'])) {
+                continue;
+            }
+
+            $saveData = [
+                'mxauth_assigned_employeeid' => $row['assignedemployee'],
+                'mxauth_assigned_department' => $row['department'],
+                'mxauth_assigned_year' => $row['financialyear'],
+                'mxauth_employeeid' => $row['employeeid'],
+                'mxauth_action' => $row['action'],
+                'mxauth_ismanager' => $row['ismanager'],
+                'mxauth_ishod' => $row['ishod']
+            ];
+
+            // UPDATE
+            if (!empty($row['authorizationid'])) {
+
+                $saveData['mxauth_updatedby'] = $createdby;
+                $saveData['mxauth_updateddate'] = date('Y-m-d H:i:s');
+
+                $this->db
+                    ->where('mxauth_id', $row['authorizationid'])
+                    ->update(
+                        'maxwell_emp_appraisal_authorizations',
+                        $saveData
+                    );
+
+            } 
+            // INSERT
+            else {
+
+                $saveData['mxauth_createdby'] = $createdby;
+                $saveData['mxauth_createddate'] = date('Y-m-d H:i:s');
+
+                $this->db->insert(
+                    'maxwell_emp_appraisal_authorizations',
+                    $saveData
+                );
             }
         }
 
-        // Transaction Status
         if ($this->db->trans_status() === FALSE) {
+
             $this->db->trans_rollback();
-            return 401;
-        } else {
-            $this->db->trans_commit();
-            return 1;
+
+            return [
+                'status' => 0,
+                'message' => 'Failed to save authorizations'
+            ];
         }
+
+        $this->db->trans_commit();
+
+        return [
+            'status' => 1,
+            'message' => 'Authorizations saved successfully'
+        ];
+    }
+
+
+    public function getappraisalAuthorizations(){
+        return $this->db
+            ->select('*')
+            ->from('maxwell_emp_appraisal_authorizations')
+            ->where('mxauth_status',1)
+            ->get()
+            ->result_array();
+    }
+
+    public function deleteappraisalAuthorization($authorizationid){
+        $this->db->where('mxauth_id', $authorizationid);
+        $delete = $this->db->delete('maxwell_emp_appraisal_authorizations');
+        if($delete){
+
+            return [
+                'status' => 1,
+                'message' => 'Deleted Successfully'
+            ];
+
+        }
+
+        return [
+            'status' => 0,
+            'message' => 'Delete Failed'
+        ];
     }
 
     public function getassignquestionlist($data){

@@ -1,3 +1,20 @@
+<style>
+	.appraisalTabs .nav-link{
+    font-weight:600;
+    border-radius:10px;
+    margin-right:5px;
+}
+
+.appraisalTabs .nav-link.active{
+    background:#4F46E5;
+    color:#fff;
+}
+
+.appraisalTabs .nav-link:not(.active){
+    background:#f5f5f5;
+    color:#333;
+}
+</style>			
 			<form id="processapprisalquestions">
 					<!-- Page Wrapper -->
             <div class="page-wrapper">
@@ -19,20 +36,7 @@
 					
 					<!-- Search Filter -->
 					<div class="row filter-row">
-
-						<div class="col-sm-6 col-md-3"> 
-							<div class="form-group form-focus select-focus">
-								<select class="select select2" style="width: 100%" name="quecategory" id="quecategory" onchange="getquestiondetails();getemp();"> 
-									<option value="">Select Category</option>
-									<?php foreach($catg as $ckey => $cval){ 
-										echo "<option value=".$ckey." >".$cval."</option>";
-									} ?>
-								</select>
-								<label class="focus-label">Select Category</label>
-							</div>
-							<span class="formerror" id="quecategoryerror"></span>
-							
-						</div>
+						<input type="hidden" name="quecategory" id="quecategory" value="1">
 
 						<div class="col-sm-6 col-md-3"> 
 							<div class="form-group form-focus select-focus">
@@ -91,56 +95,46 @@
 
 					<!-- /Search Filter -->
 					
-					<div id="displayappersialquestions"></div>
+					<div class="col-md-12 mb-3">
+
+						<ul class="nav nav-pills nav-fill appraisalTabs">
+
+							<li class="nav-item">
+								<a href="javascript:void(0)"
+								class="nav-link active appraisal-tab"
+								data-category="1">
+									<i class="fa fa-bullseye"></i>
+									KRA
+								</a>
+							</li>
+
+							<li class="nav-item">
+								<a href="javascript:void(0)"
+								class="nav-link appraisal-tab"
+								data-category="2">
+									<i class="fa fa-star"></i>
+									KEY COMPETENCIES
+								</a>
+							</li>
+
+							<li class="nav-item">
+								<a href="javascript:void(0)"
+								class="nav-link authorization-tab"
+								data-category="3">
+									<i class="fa fa-user-shield"></i>
+									AUTHORIZATIONS
+								</a>
+							</li>
+						</ul>
+
+					</div>
 
 
-					<section class="review-section">
-<!-- 						<div class="review-header text-center">
-							<h3 class="review-title">Professional Goals Achieved for last year</h3>
-							<p class="text-muted">Lorem ipsum dollar</p>
-						</div> -->
-						<div class="row">
-							<div class="col-md-12">
-								<div class="table-responsive">
-									<table class="table table-bordered table-review review-table mb-0">
-										<thead>
-											<tr>
-												<th>#</th>
-												<th>Question</th>
-												<th>Objective</th>
-												<th>Assign&nbspQuestion</th>
-												<th>Unit&nbspOf&nbspMeasure</th>
-												<th>Weightage Marks %</th>
-												<?php 
-										            $start = $month = strtotime(date('Y').'-04-01');
-										            $end = strtotime((date('Y')+1).'-04-01');
-										            while($month < $end)
-										            {
-										           	 $yearmonth = date('M Y', $month);
-									                echo "<th>Monthly&nbspTargets <span style='color:red'>$yearmonth</span></th>";
-									                 $month = strtotime("+1 month", $month);
-										            }
-												?>
-												<!-- <th>Accounts Target</th> -->
-												<!-- <th style="width: 64px;">Status</th> -->
-											</tr>
-										</thead>
-										<tbody id="displaydata">
-
-										</tbody>
-									</table>
-
-									<br>
-									<button type="submit" class="btn btn-success">Save</button>
-									<button type="button" class="btn btn-info btn-copy-row">Copy</button>
-								</div>
-							</div>
-						</div>
-					</section>
+					<div id="displaydata"></div>
 
 
                 </div>
-								</form>
+			</form>
 				<!-- /Page Content -->	
 <script>
 $(document).ready(function(){
@@ -205,28 +199,47 @@ $(document).ready(function(){
   	});
 });
 function getquestiondetails(){
-	var department = $("#department").val();
-	var quecategory = $("#quecategory").val();
-	var employees = $("#employees").val();
-	var financialyear = $("#financialyear").val();
-	if(employees == "" || employees == null){
-		return false;
-	}
-	if(department != "" && quecategory != "" && employees !="" && financialyear !=""){
 
-	var mainurl ='<?php echo base_url() ?>Performanceappraisal/filterappraisalquestion_details';
-	$.ajax({
-	    url: mainurl,
-	    type: 'POST',
-	    data: {department : department, quecategory : quecategory, employees : employees, financialyear : financialyear},
-	    success: function (data) {
-	        $('#displaydata').html(data);
-	    },
-	});
+    var department = $("#department").val();
+    var quecategory = $("#quecategory").val();
+    var employees = $("#employees").val();
+    var financialyear = $("#financialyear").val();
 
-	}else{
-		return false;
-	}
+    if(employees == "" || employees == null){
+        return false;
+    }
+
+    if(department != "" && quecategory != "" && employees != "" && financialyear != ""){
+
+        $('#displaydata').empty(); // Remove existing HTML
+
+        var mainurl ='<?php echo base_url() ?>Performanceappraisal/filterappraisalquestion_details';
+
+        $.ajax({
+            url: mainurl,
+            type: 'POST',
+            data: {
+                department : department,
+                quecategory : quecategory,
+                employees : employees,
+                financialyear : financialyear
+            },
+            beforeSend:function(){
+                $('#displaydata').html(
+                    '<div class="text-center p-4">' +
+                    '<i class="fa fa-spinner fa-spin"></i> Loading...' +
+                    '</div>'
+                );
+            },
+            success: function (data) {
+                $('#displaydata').empty();
+                $('#displaydata').html(data);
+            }
+        });
+
+    }else{
+        return false;
+    }
 }
 
 function getemp(){
@@ -244,55 +257,152 @@ function getemp(){
 		});
 	}	
 }
+
+// $(document).on('click','.appraisal-tab,.authorization-tab',function(){
+
+//     $('.appraisal-tab,.authorization-tab').removeClass('active');
+
+//     $(this).addClass('active');
+
+//     var category = $(this).data('category');
+
+//     $('#quecategory').val(category);
+
+//     if(category == 3){
+
+//         $('#displaydata').hide().empty();
+//         $('#authorizationDiv').show();
+
+//     }else{
+
+//         $('#authorizationDiv').hide();
+//         $('#displaydata').show().empty();
+
+//         getquestiondetails();
+//     }
+
+// });
+$(document).on('click','.appraisal-tab,.authorization-tab',function(){
+
+    $('.appraisal-tab,.authorization-tab')
+        .removeClass('active');
+
+    $(this).addClass('active');
+
+    var category = $(this).data('category');
+
+    $('#quecategory').val(category);
+
+    $('#displaydata').empty();
+
+    getquestiondetails();
+
+});
 </script>
 
+
 <script>
-	$(document).on('click', '.btn-copy-row', function(){
+    $(document).on('click','#copyAprilToAll',function(){
 
-    var firstRow = $('.appraisal-row:first');
+    var aprilMonth = '';
 
-    // Get values from first row
-    var objective    = firstRow.find('input[name="question_objective[]"]').val();
-    var assign       = firstRow.find('select[name="question_assign[]"]').val();
-    var unitmeasure  = firstRow.find('input[name="question_unit_measure[]"]').val();
-    var weightage    = firstRow.find('input[name="question_weightage_measure[]"]').val();
+    $('.month-body').each(function(){
 
-    // Copy to all rows except first
-    $('.appraisal-row').not(':first').each(function(){
-        $(this).find('input[name="question_objective[]"]').val(objective);
-        $(this).find('select[name="question_assign[]"]').val(assign);
-        $(this).find('input[name="question_unit_measure[]"]').val(unitmeasure);
-        $(this).find('input[name="question_weightage_measure[]"]').val(weightage);
+        var month = $(this).data('month');
 
-        // Copy all monthly targets
-        $(this).find('td').each(function(index){
+        if(month.indexOf('_04') !== -1){
+            aprilMonth = month;
+            return false;
+        }
+    });
 
-            var sourceCell = firstRow.find('td:eq('+index+')');
+    if(aprilMonth == ''){
+        alert('April Month Not Found');
+        return false;
+    }
 
-            var sourceInput = sourceCell.find('input.form-control');
-            var sourceSelect = sourceCell.find('select.form-control');
+    $(".month-body[data-month='"+aprilMonth+"'] tr[data-question]").each(function(){
 
-            if(sourceInput.length){
-                var value = sourceInput.val();
+        var questionid = $(this).data('question');
 
-                var targetInput = $(this).find('input.form-control');
-                if(targetInput.length){
-                    targetInput.val(value);
-                }
+        var objective = $(this).find('.objective-field').val();
+        var assign = $(this).find('.assign-field').val();
+        var unit = $(this).find('.unit-field').val();
+        var weightage = $(this).find('.weightage-field').val();
+        var target = $(this).find('.target-field').val();
+
+        $('.month-body').each(function(){
+
+            var currentMonth = $(this).data('month');
+
+            if(currentMonth != aprilMonth){
+
+                var row = $(this).find(
+                    "tr[data-question='"+questionid+"']"
+                );
+
+                row.find('.objective-field').val(objective);
+                row.find('.assign-field').val(assign);
+                row.find('.unit-field').val(unit);
+                row.find('.weightage-field').val(weightage);
+                row.find('.target-field').val(target);
             }
+        });
+    });
 
-            if(sourceSelect.length){
-                var value = sourceSelect.val();
+    alert('April Data Copied To All Months');
+});
 
-                var targetSelect = $(this).find('select.form-control');
-                if(targetSelect.length){
-                    targetSelect.val(value);
+function calculateMonthWeightage(){
+
+    $('.month-body').each(function(){
+
+        var month = $(this).data('month');
+
+        var total = 0;
+
+        $(this).find('tr[data-question]').each(function(){
+
+            var assign = $(this).find('.assign-field').val();
+
+            if(assign == '1'){
+
+                var weightage = parseFloat(
+                    $(this).find('.weightage-field').val()
+                );
+
+                if(!isNaN(weightage)){
+                    total += weightage;
                 }
             }
 
         });
 
+        var badge = $('.weightage-total[data-month="'+month+'"]');
+
+        badge.html('Weightage : '+total+'%');
+
+        if(total == 100){
+
+            badge.removeClass(
+                'badge-success badge-warning badge-danger'
+            ).addClass('badge-success');
+
+        }else if(total > 100){
+
+            badge.removeClass(
+                'badge-success badge-warning badge-danger'
+            ).addClass('badge-danger');
+
+        }else{
+
+            badge.removeClass(
+                'badge-success badge-warning badge-danger'
+            ).addClass('badge-warning');
+
+        }
+
     });
 
-});
+}
 </script>

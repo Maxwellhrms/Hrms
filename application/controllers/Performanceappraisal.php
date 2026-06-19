@@ -164,19 +164,21 @@ class Performanceappraisal extends Common {
     }
 
     public function filterappraisalquestion_details(){
-        $kc = array(
-            "0" => "Select",
-            "1" => "Excellent",
-            "2" => "Very Good",
-            "3" => "Good",
-            "4" => "Need Improvement",
-            "5" => "Unsatisfactory"
-        );
+        // $kc = array(
+        //     "0" => "Select",
+        //     "1" => "Excellent",
+        //     "2" => "Very Good",
+        //     "3" => "Good",
+        //     "4" => "Need Improvement",
+        //     "5" => "Unsatisfactory"
+        // );
         $userdata = $this->input->post();
+        $data['userdata'] = $userdata;
         // Questions List
-        $questions = $this->Performanceappraisalmodel->filterappraisalquestion($userdata);
+        $data['questions'] = $this->Performanceappraisalmodel->filterappraisalquestion($userdata);
         // Already Assigned Data
-        $assigneddata = $this->Performanceappraisalmodel->getassignquestionlist($userdata);
+        $data['assigneddata'] = $this->Performanceappraisalmodel->getassignquestionlist($userdata);
+        /*
         // Convert Assigned Data Array
         $assignedarray = array();
         if(count($assigneddata) > 0){
@@ -275,6 +277,38 @@ class Performanceappraisal extends Common {
                 $sno++;
             }
         }
+            */
+        // $data['assigned'] = $this->Performanceappraisalmodel->geteditassignquestionlist($userdata,'0');
+        // print_r($userdata['quecategory']);exit;
+        if($userdata['quecategory'] == 1){
+            $this->load->view('appraisal/assignemployeeKRA',$data);
+        }else if($userdata['quecategory'] == 2){
+            $this->load->view('appraisal/assignemployeeKC',$data);
+        }else if($userdata['quecategory'] == 3){
+            $data['allemployees'] = $this->Performanceappraisalmodel->getallemployeeslist();
+            // echo '<pre>';print_r($data['allemployees']);
+            $data['allemployeesauthorizations'] = $this->Performanceappraisalmodel->getappraisalAuthorizations();
+            $this->load->view('appraisal/assignemployeeauthorization',$data);
+        }
+    }
+
+    public function saveappraisalAuthorizations(){
+        $authorizationData = $this->input->post('authorizationData');
+        if(empty($authorizationData)){
+            echo json_encode([
+                'status' => 0,
+                'message' => 'No data found'
+            ]);
+            exit;
+        }
+        $result = $this->Performanceappraisalmodel->saveappraisalAuthorizations($authorizationData);
+        echo json_encode($result);
+    }
+
+    public function deleteappraisalAuthorization(){
+        $authorizationid = $this->input->post('authorizationid');
+        $result = $this->Performanceappraisalmodel->deleteappraisalAuthorization($authorizationid);
+        echo json_encode($result);
     }
 /*
     public function filterappraisalquestion_details(){
