@@ -398,7 +398,8 @@ class Performanceappraisalmodel extends CI_Model {
                 'mxauth_employeeid' => $row['employeeid'],
                 'mxauth_action' => $row['action'],
                 'mxauth_ismanager' => $row['ismanager'],
-                'mxauth_ishod' => $row['ishod']
+                'mxauth_ishod' => $row['ishod'],
+                'mxauth_ishr' => $row['ishr']
             ];
 
             // UPDATE

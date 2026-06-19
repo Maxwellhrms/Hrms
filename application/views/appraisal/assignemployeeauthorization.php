@@ -28,6 +28,7 @@
                     <th width="20%">Action</th>
                     <th width="15%">Is Manager</th>
                     <th width="15%">Is HOD</th>
+                    <th width="10%">Is HR</th>
                     <th width="15%">Remove</th>
                 </tr>
             </thead>
@@ -91,6 +92,13 @@
                                 class="hod-checkbox"
                                 name="ishod[]"
                                 <?php echo ($auth['mxauth_ishod']==1)?'checked':''; ?>>
+                        </td>
+
+                        <td class="text-center">
+                            <input type="checkbox"
+                                class="hr-checkbox"
+                                name="ishr[]"
+                                <?php echo ($auth['mxauth_ishr']==1)?'checked':''; ?>>
                         </td>
 
                         <td class="text-center">
@@ -215,7 +223,11 @@ function formatEmployee(employee) {
                        class="hod-checkbox"
                        name="ishod[]">
             </td>
-
+            <td class="text-center">
+                <input type="checkbox"
+                    class="hr-checkbox"
+                    name="ishr[]">
+            </td>
             <td class="text-center">
                 <button type="button"
                         class="btn btn-danger remove-row">
@@ -299,6 +311,17 @@ function formatEmployee(employee) {
 
     });
 
+    $(document).on('change', '.hr-checkbox', function () {
+
+        if ($(this).is(':checked')) {
+
+            $('.hr-checkbox').not(this)
+                .prop('checked', false);
+
+        }
+
+    });
+
     // Save Validation
     $('#saveAuthorization').click(function () {
         if ($('.manager-checkbox:checked').length > 1) {
@@ -311,6 +334,13 @@ function formatEmployee(employee) {
             return false;
         }
 
+        if ($('.hr-checkbox:checked').length > 1) {
+
+            alert('Only one HR can be selected');
+            return false;
+
+        }
+
         var authorizationData = [];
 
         $('#authorizationBody tr').each(function () {
@@ -320,6 +350,7 @@ function formatEmployee(employee) {
                 action: $(this).find('select[name="action[]"]').val(),
                 ismanager: $(this).find('.manager-checkbox').is(':checked') ? 1 : 0,
                 ishod: $(this).find('.hod-checkbox').is(':checked') ? 1 : 0,
+                ishr: $(this).find('.hr-checkbox').is(':checked') ? 1 : 0,
                 department:  $('#department').val(),
                 assignedemployee: $('#employees').val(),
                 financialyear: $('#financialyear').val(),

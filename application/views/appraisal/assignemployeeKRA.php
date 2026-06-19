@@ -151,7 +151,7 @@ while($month <= $end){
                             <th width="25%">Question</th>
                             <th width="20%">Objective</th>
                             <th width="10%">Assign</th>
-                            <th width="15%">Unit Measure</th>
+                            <!-- <th width="15%">Unit Measure</th> -->
                             <th width="10%">Weightage %</th>
                             <th width="15%">Monthly Target</th>
                         </tr>
@@ -216,14 +216,14 @@ while($month <= $end){
 
                 </select>
             </td>
-
+            <!--
             <td>
                 <input type="text"
                        class="form-control unit-field"
                        name="unit_measure['.$questionid.']['.$yearmonth.']"
                        value="'.$unitmeasure.'">
             </td>
-
+            -->
             <td>
                 <input type="text"
                        class="form-control weightage-field"
