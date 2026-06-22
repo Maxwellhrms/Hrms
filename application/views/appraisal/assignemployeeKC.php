@@ -45,14 +45,7 @@
 }
 </style>
 <?php
-$kc = array(
-    "0" => "Select",
-    "1" => "Excellent",
-    "2" => "Very Good",
-    "3" => "Good",
-    "4" => "Need Improvement",
-    "5" => "Unsatisfactory"
-);
+$kc = array("0"=>"Select","1" => "Unsatisfactory","2" => "Need Improvement","3" => "Good","4" => "Very Good", "5" => "Excellent");
 $assignedarray = array();
 
 if(!empty($assigneddata)){

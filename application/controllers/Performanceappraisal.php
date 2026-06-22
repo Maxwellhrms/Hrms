@@ -403,7 +403,7 @@ class Performanceappraisal extends Common {
 
 
     public function editfilterappraisalquestion_details(){
-        $kc = array("0"=>"Select","1" => "Excellent","2" => "Very Good","3" => "Good","4" => "Need Improvement", "5" => "Unsatisfactory");
+        $kc = array("0"=>"Select","1" => "Unsatisfactory","2" => "Need Improvement","3" => "Good","4" => "Very Good", "5" => "Excellent");
         $userdata = $this->input->post();
         $assigned = $this->Performanceappraisalmodel->geteditassignquestionlist($userdata,'0');
         if(count($assigned) > 0){
@@ -523,7 +523,7 @@ class Performanceappraisal extends Common {
 
 
     public function getemployeekpadata(){
-        $data['kc'] = array("0"=>"Select","1" => "Excellent","2" => "Very Good","3" => "Good","4" => "Need Improvement", "5" => "Unsatisfactory");
+        $data['kc'] = array("0"=>"Select","1" => "Unsatisfactory","2" => "Need Improvement","3" => "Good","4" => "Very Good", "5" => "Excellent");
         $userdata = $this->input->post();
         $data['assigned'] = $this->Performanceappraisalmodel->geteditassignquestionlist($userdata,'1');
         $data['userdata'] = $this->input->post();
@@ -589,7 +589,7 @@ class Performanceappraisal extends Common {
 
     public function getmgemployeekpadata(){
         $this->verifylogin();
-        $data['kc'] = array("0"=>"Select","1" => "Excellent","2" => "Very Good","3" => "Good","4" => "Need Improvement", "5" => "Unsatisfactory");
+        $data['kc'] = array("0"=>"Select","1" => "Unsatisfactory","2" => "Need Improvement","3" => "Good","4" => "Very Good", "5" => "Excellent");
         $userdata = $this->input->post();
         $data['assigned'] = $this->Performanceappraisalmodel->geteditassignquestionlist($userdata,'1');
         $data['userdata'] = $this->input->post();
@@ -649,7 +649,7 @@ class Performanceappraisal extends Common {
 
     public function gethodemployeekpadata(){
         $this->verifylogin();
-        $data['kc'] = array("0"=>"Select","1" => "Excellent","2" => "Very Good","3" => "Good","4" => "Need Improvement", "5" => "Unsatisfactory");
+        $data['kc'] = array("0"=>"Select","1" => "Unsatisfactory","2" => "Need Improvement","3" => "Good","4" => "Very Good", "5" => "Excellent");
         $userdata = $this->input->post();
         $data['assigned'] = $this->Performanceappraisalmodel->geteditassignquestionlist($userdata,'1');
         $data['userdata'] = $this->input->post();
