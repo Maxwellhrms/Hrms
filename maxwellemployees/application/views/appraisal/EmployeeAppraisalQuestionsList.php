@@ -1631,8 +1631,8 @@ $(document).off('click', '.removeRow').on('click', '.removeRow', function(){
                         break;
                 }
                     calculateAllSummaries();
-                alert(response.message);
-
+                    alert(response.message);
+                    saveAppraisal();
             }else{
 
                 alert(response.message);
