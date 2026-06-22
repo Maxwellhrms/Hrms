@@ -246,4 +246,29 @@
                 <span class="formerror" id="<?php echo $selectedFilter['appraisalcategory'][1].'error'; ?>"></span>
             </div>
             <?php } ?>
+            <?php if($selectedFilter['appraisaltype'][0] == 'Y'){ ?>
+            <div class="col-sm-6 col-md-2"> 
+                <div class="form-group form-focus select-focus">
+                    <select class="select select2" style="width: 100%" name="<?php echo $selectedFilter['appraisaltype'][1]; ?>" id="<?php echo $selectedFilter['appraisaltype'][1]; ?>">
+                            <option value="1" selected>Self</option>
+                            <option value="2">Reviewer</option>
+                    </select>
+                    <label class="focus-label">Select Appraisal Type</label>
+                </div>
+                <span class="formerror" id="<?php echo $selectedFilter['appraisaltype'][1].'error'; ?>"></span>
+            </div>
+            <?php } ?>
+        <?php if($selectedFilter['appraisalemployees'][0] == 'Y'){ ?>
+           <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12"> 
+                <div class="form-group form-focus select-focus">
+                    <select class="select2 floating" name="<?php echo $selectedFilter['appraisalemployees'][1]; ?>" id="<?php echo $selectedFilter['appraisalemployees'][1]; ?>"> 
+                        <option value=""> Select Employee </option>
+                        <?php foreach ($appraisalemployees as $key => $val) { ?>
+                            <option value="<?php echo $val['employeecode'] ?>"> <?php echo $val['employeename'].' ('.$val['employeecode'].')'; ?> </option>
+                        <?php } ?>
+                    </select>
+                    <label class="focus-label">Employees</label>
+                </div>
+           </div>
+        <?php } ?>
 <!-- /Search Filter -->	

@@ -65,6 +65,7 @@ class Common extends CI_Controller {
         $data['selectedFilter'] = $data;
         $data['companyFilter'] = $this->CommonModel->getCompanyfilter();
         $data['assignedemployees'] = $this->CommonModel->getEmployeesWhoAreAssignToAuthorsations($reporting_head_emp_code = '');
+        $data['appraisalemployees'] = $this->CommonModel->getAssignedAppraisalEmployees($employeeid = '');
         if($data['customvalue']!= ''){
             $data['customOptions'] = $this->CommonModel->displayOptions($data);
         }

@@ -507,4 +507,19 @@ class CommonModel extends CI_Model
                                 // exit;
         return $result;
     }
+
+    public function getAssignedAppraisalEmployees($employeeid = ''){
+        if (empty($employeeid)) {
+            $employeeid = $this->session->userdata('session_loginperson_id');
+        }
+
+    return $this->db->select('mxauth_assigned_employeeid as employeecode, mxemp_emp_fname as employeename')
+        ->from('maxwell_emp_appraisal_authorizations')
+        ->join('maxwell_employees_info', 'mxemp_emp_id = mxauth_assigned_employeeid', 'INNER')
+        ->where('mxauth_employeeid', $employeeid)
+        ->where('mxauth_status', 1)
+        ->group_by('mxauth_assigned_employeeid')
+        ->get()
+        ->result_array();
+    }
 }

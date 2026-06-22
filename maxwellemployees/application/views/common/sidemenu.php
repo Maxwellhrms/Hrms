@@ -52,6 +52,10 @@ $menu = [
                 "url"   => "Employee/employeesleaves"
             ],
             [
+                "label" => "Performance Appraisal",
+                "url"   => "Employee/Appraisal"
+            ],
+            [
                 "label" => "Pay Slips",
                 "url"   => "Employee/employeepayslips"
             ]

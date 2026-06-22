@@ -11,12 +11,17 @@
 	<form method="post" id="appraisalList">
 		<div class="row filter-row">
             <!-- Search Filter -->
-            <?php 
-            $controller->commonFiltersWithoutForm(array(
-                'monthyearfilter' => array('Y', 'monthyear', 'default' => date('m-Y')),
-                'appraisalcategory' => array('Y', 'appraisalcategory', 'default' => '1')
-            )); 
-            ?>
+                <?php
+                $otherRoles = array_diff($employeerole['roles'], ['EMPLOYEE']);
+                $controller->commonFiltersWithoutForm(array_merge(
+                    array(
+                        'monthyearfilter' => array('Y', 'monthyear', 'default' => date('m-Y')),
+                        'appraisalcategory' => array('Y', 'appraisalcategory', 'default' => '1')
+                    ),
+                    !empty($otherRoles)? array('appraisaltype' => array('Y', 'appraisaltype', 'default' => '1')): array(),
+                    !empty($otherRoles)? array('appraisalemployees' => array('Y', 'appraisalemployees')): array()
+                ));
+                ?>
             <!-- Search Filter -->
 		   <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12">  
 				<a class="btn btn-success w-100" id="employeeappraisalList" type="button" onclick="loadAppraisalListData()">Search</a>

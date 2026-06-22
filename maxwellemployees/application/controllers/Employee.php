@@ -479,7 +479,8 @@ class Employee extends Common {
         $this->header(); 
         $data['title']= "Slelf Appraisals";
         $data['controller'] = $this;
-        // $data['employeerole'] = $this->EmployeeModel->checkismanagerorhodoremployee();
+        $data['employeerole'] = $this->EmployeeModel->checkismanagerorhodoremployee();
+        // print_r($data['employeerole']);exit;
         $this->load->view('appraisal/employeeappraisals', $data);
         $this->footer();
     }
@@ -488,22 +489,33 @@ class Employee extends Common {
         $this->checkissession();
         $data['controller'] = $this;
         $userdata = $this->input->post();
-        // print_r($userdata); exit;
-        $data['assigned'] = $this->EmployeeModel->getassignquestionlist($userdata,'1');
-        $data['employeerole'] = $this->EmployeeModel->checkismanagerorhodoremployee();
-        // print_r($data['employeerole']); exit;
-        $data['kc'] = array("0"=>"Select","1" => "Excellent","2" => "Very Good","3" => "Good","4" => "Need Improvement", "5" => "Unsatisfactory");
-        if($userdata['appraisalcategory'] == '2'){
-            $this->load->view('appraisal/EmployeeAppraisalQuestionsListKC', $data);
-        }else{
-            $this->load->view('appraisal/EmployeeAppraisalQuestionsList', $data);
+        if(!isset($userdata['appraisaltype'])){
+            $userdata['appraisaltype'] = 1;
         }
+        // print_r($userdata); exit;
+        $data['userdata'] = $userdata;
+        $data['assigned'] = $this->EmployeeModel->getassignquestionlist($userdata,'1');
+    //    echo '<pre>'; print_r($data['assigned']);exit;
+        // if($userdata['appraisaltype'] == 2){
+        // $data['viewerstatus'] = $this->EmployeeModel->getAssignedAppraisalEmployees($userdata['appraisalemployees']);
+        // }
+        // print_r($data['viewerstatus']);
+        // $data['employeerole'] = $this->EmployeeModel->checkismanagerorhodoremployee();
+        // print_r($data['employeerole']); exit;
+        $data['kc'] = array("0"=>"Select","1" => "Unsatisfactory","2" => "Need Improvement","3" => "Good","4" => "Very Good", "5" => "Excellent");
+        // if($userdata['appraisalcategory'] == '2'){
+            // $this->load->view('appraisal/EmployeeAppraisalQuestionsListKC', $data);
+        // }else{
+            $this->load->view('appraisal/EmployeeAppraisalQuestionsList', $data);
+        // }
         
     }
 
     public function saveemployeekra(){
         $this->checkissession();
         $data = $this->input->post();
+        $filterdata = json_decode($this->input->post('filterdata'), true);
+        $data['filterdata'] = $filterdata;
         $result = $this->EmployeeModel->saveemployeekra($data);
         echo json_encode(array('status'  => $result,'message' => ($result == 1)? 'Appraisal saved successfully.': 'Unable to save appraisal.')); exit;
     }
@@ -518,14 +530,34 @@ class Employee extends Common {
     public function saveClientDetails(){
         $this->checkissession();
         $data = $this->input->post();
+        // print_r($data);exit;
         $result = $this->EmployeeModel->saveClientDetails($data);
-        echo json_encode(array('status'  => $result ? 1 : 0,'message' => $result ? 'Details saved successfully.' : 'Unable to save details.'));
+        // echo json_encode(array('status'  => $result ? 1 : 0,'message' => $result ? 'Details saved successfully.' : 'Unable to save details.'));
+        if($result['status']){
+            echo json_encode(array(
+                'status' => 1,
+                'message' => 'Details saved successfully.',
+                'assignid' => $result['assignid'],
+                'employeecount' => $result['employeecount'],
+                'managercount' => $result['managercount'],
+                'hodcount' => $result['hodcount'],
+                'hrcount' => $result['hrcount'],
+                'reviewercount' => $result['reviewercount']
+            ));
+
+        }else{
+            echo json_encode(array(
+                'status' => 0,
+                'message' => 'Unable to save details.'
+            ));
+        }
     }
 
     public function getClientDetails(){
         $assignid = $this->input->post('assignid');
         $empcode  = $this->input->post('empcode');
         $data = $this->EmployeeModel->getClientDetails($assignid,$empcode);
+        // print_r($data);exit;
         if(!empty($data)){
             echo json_encode(array(
                 'status' => 1,
@@ -542,7 +574,7 @@ class Employee extends Common {
     public function deleteClientDetail(){
         $detailid = $this->input->post('detailid');
         $result = $this->EmployeeModel->deleteClientDetails($detailid);
-        echo json_encode(array('status'  => $result ? 1 : 0,'message' => $result ? 'Details deleted successfully.' : 'Unable to delete details.'));
+        echo json_encode($result);
     }
     #Appraisal
 }
