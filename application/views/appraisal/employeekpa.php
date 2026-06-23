@@ -22,6 +22,8 @@
                 <th>Employee</th>
                 <th>Manager</th>
                 <th>Manager Review</th>
+                <th>Hod</th>
+                <th>Hod Review</th>
                </tr>
         </thead>
         <tbody>
@@ -42,6 +44,9 @@
             $managerclientname = $value['mxap_assign_manager_client_name'];
             $managerdesc = $value['mxap_assign_manager_review'];
             $managerachivement = $value['mxap_assign_manager_actual_assesment'];
+
+            $hodachivement = $value['mxap_assign_hod_actual_assesment'];
+            $hoddesc = $value['mxap_assign_hod_review'];
 
             // $employees = $userdata['employees'];
             // $quecategory = $userdata['quecategory'];
@@ -64,9 +69,9 @@
                 $table .= "<option value='$kckey' $sel>$kcval</option>";
                 }
             $table .="</select></td>";
-            $table .= "<td><select name='mxap_assign_emp_noofaccounts[]' class='form-control'>";
+            $table .= "<td><select name='mxap_assign_emp_achievement[]' class='form-control'>";
                 foreach($kc as $kckeys => $kcvals){
-                    if($kckeys == $empnoofaccounts){
+                    if($kckeys == $empachivement){
                         $sel = "selected";
                     }else{
                         $sel = "";
@@ -74,9 +79,9 @@
                 $table .= "<option value='$kckeys' $sel>$kcvals</option>";
                 }
             $table .="</select></td>";
-            $table .= "<td><select name='mxap_assign_manager_noofaccounts[]' class='form-control'>";
+            $table .= "<td><select name='mxap_assign_manager_actual_assesment[]' class='form-control'>";
                 foreach($kc as $kckeymp => $kcvalmp){
-                    if($kckeymp == $managernoofaccounts){
+                    if($kckeymp == $managerachivement){
                         $sel = "selected";
                     }else{
                         $sel = "";
@@ -85,6 +90,17 @@
                 }
             $table .="</select></td>";
             $table .= "<td><input type='text' name='managerdesc[]' class='form-control' value='$managerdesc'></td>";
+            $table .= "<td><select name='mxap_assign_hod_actual_assesment[]' class='form-control'>";
+                foreach($kc as $kckeyhp => $kcvalhp){
+                    if($kckeyhp == $hodachivement){
+                        $sel = "selected";
+                    }else{
+                        $sel = "";
+                    }
+                $table .= "<option value='$kckeyhp' $sel>$kcvalhp</option>";
+                }
+            $table .="</select></td>";
+            $table .= "<td><input type='text' name='hoddesc[]' class='form-control' value='$hoddesc'></td>";
             $table .= "</tr>";
             echo $table;
             $sno++; }

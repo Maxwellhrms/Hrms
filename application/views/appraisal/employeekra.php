@@ -75,16 +75,16 @@ $table .= "<input type='hidden' name='question_id[]' class='form-control' value=
 $table .= "  <table class='table table-hover'>
     <thead>
       <tr>
-        <th><span style='color:red'>Employee</span><br>No&nbspof&nbspAccounts&nbspTarget</th>
-        <th><span style='color:red'>Employee</span><br>Clients&nbspNames</th>
+        <!-- <th><span style='color:red'>Employee</span><br>No&nbspof&nbspAccounts&nbspTarget</th>
+        <th><span style='color:red'>Employee</span><br>Clients&nbspNames</th> -->
         <th><span style='color:red'>Employee</span><br>Description</th>
         <th><span style='color:red'>Employee</span><br>Actual Achievement</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><input type='text' name='noofaccounts[]' class='form-control' value='$empnoofaccounts' autocomplete='off'></td>
-        <td><input type='text' name='clientname[]' class='form-control' value='$empclientname' autocomplete='off'></td>
+        <!-- <td><input type='text' name='noofaccounts[]' class='form-control' value='$empnoofaccounts' autocomplete='off'></td>
+        <td><input type='text' name='clientname[]' class='form-control' value='$empclientname' autocomplete='off'></td> -->
         <td><input type='text' name='desc[]' class='form-control' value='$empdesc' autocomplete='off'></td>
         <td><input type='text' name='empachivement[]' class='form-control' value='$empachivement' autocomplete='off'></td>
       </tr>
@@ -92,16 +92,16 @@ $table .= "  <table class='table table-hover'>
 
     <thead>
       <tr>
-        <th><span style='color:red'>Manager</span><br>No&nbspof&nbspAccounts&nbspTarget</th>
-        <th><span style='color:red'>Manager</span><br>Clients&nbspNames</th>
+       <!-- <th><span style='color:red'>Manager</span><br>No&nbspof&nbspAccounts&nbspTarget</th>
+        <th><span style='color:red'>Manager</span><br>Clients&nbspNames</th> -->
         <th><span style='color:red'>Manager</span><br>Review</th>
         <th><span style='color:red'>Manager</span><br>Actual Assesment</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><input type='text' name='managernoofaccounts[]' class='form-control' value='$managernoofaccounts' autocomplete='off'></td>
-        <td><input type='text' name='managerclientname[]' class='form-control' value='$managerclientname' autocomplete='off'></td>
+       <!-- <td><input type='text' name='managernoofaccounts[]' class='form-control' value='$managernoofaccounts' autocomplete='off'></td>
+        <td><input type='text' name='managerclientname[]' class='form-control' value='$managerclientname' autocomplete='off'></td> -->
         <td><input type='text' name='managerdesc[]' class='form-control' value='$managerdesc' autocomplete='off'></td>
         <td><input type='text' name='managerachivement[]' class='form-control' value='$managerachivement' autocomplete='off'></td>
       </tr>
@@ -109,16 +109,16 @@ $table .= "  <table class='table table-hover'>
 
     <thead>
       <tr>
-        <th><span style='color:red'>HOD</span><br>No&nbspof&nbspAccounts&nbspTarget</th>
-        <th><span style='color:red'>HOD</span><br>Clients&nbspNames</th>
+       <!-- <th><span style='color:red'>HOD</span><br>No&nbspof&nbspAccounts&nbspTarget</th>
+        <th><span style='color:red'>HOD</span><br>Clients&nbspNames</th> -->
         <th><span style='color:red'>HOD</span><br>Review</th>
         <th><span style='color:red'>HOD</span><br>Actual Assesment</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><input type='text' name='hodnoofaccounts[]' class='form-control' value='$hodnoofaccounts' autocomplete='off'></td>
-        <td><input type='text' name='hodclientname[]' class='form-control' value='$hodclientname' autocomplete='off'></td>
+       <!-- <td><input type='text' name='hodnoofaccounts[]' class='form-control' value='$hodnoofaccounts' autocomplete='off'></td>
+        <td><input type='text' name='hodclientname[]' class='form-control' value='$hodclientname' autocomplete='off'></td> -->
         <td><input type='text' name='hoddesc[]' class='form-control' value='$hoddesc' autocomplete='off'></td>
         <td><input type='text' name='hodachivement[]' class='form-control' value='$hodachivement' autocomplete='off'></td>
       </tr>

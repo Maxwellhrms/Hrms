@@ -634,13 +634,18 @@ class Performanceappraisalmodel extends CI_Model {
               "mxap_assign_manager_client_name" => $data['managerclientname'][$i],
               "mxap_assign_manager_review" => $data['managerdesc'][$i],
               "mxap_assign_manager_actual_assesment" => $data['managerachivement'][$i],
-            "mxap_assign_hod_noofaccounts" => $data['hodnoofaccounts'][$i],
-            "mxap_assign_hod_client_name" => $data['hodclientname'][$i],
-            "mxap_assign_hod_review" => $data['hoddesc'][$i],
-            "mxap_assign_hod_actual_assesment" => $data['hodachivement'][$i],
+              "mxap_assign_hod_noofaccounts" => $data['hodnoofaccounts'][$i],
+              "mxap_assign_hod_client_name" => $data['hodclientname'][$i],
+              "mxap_assign_hod_review" => $data['hoddesc'][$i],
+              "mxap_assign_hod_actual_assesment" => $data['hodachivement'][$i],
               "mxap_assign_modifyby" => $this->session->userdata('user_id'),
               "mxap_assign_modifiedtime" => $date,
-              "mxap_assign_modified_ip" => $ip
+              "mxap_assign_modified_ip" => $ip,
+              "mxap_assign_emp_status" => "COMPLETED",
+              "mxap_assign_manager_status" => "COMPLETED",
+              "mxap_assign_hod_status" => "COMPLETED",
+              "mxap_manager_approvedby" => $this->session->userdata('user_id'),
+              "mxap_hod_approvedby" => $this->session->userdata('user_id'),
             ); 
             $this->db->where('mxap_assign_employee_code', $employees);
             $this->db->where('mxap_assign_dep', $department);
@@ -675,12 +680,19 @@ class Performanceappraisalmodel extends CI_Model {
         for ($i=0; $i <count($data['question_id']) ; $i++) { 
             $inarray = array(
               // "mxap_assign_monthlytarget" => $data['mxap_assign_monthlytarget'][$i],
-              "mxap_assign_emp_noofaccounts" => $data['mxap_assign_emp_noofaccounts'][$i],
-              "mxap_assign_manager_noofaccounts" => $data['mxap_assign_manager_noofaccounts'][$i],
+              "mxap_assign_emp_achievement" => $data['mxap_assign_emp_achievement'][$i],
+              "mxap_assign_manager_actual_assesment" => $data['mxap_assign_manager_actual_assesment'][$i],
               "mxap_assign_manager_review" => $data['managerdesc'][$i],
+              "mxap_assign_hod_actual_assesment" => $data['mxap_assign_hod_actual_assesment'][$i],
+              "mxap_assign_hod_review" => $data['hoddesc'][$i],
               "mxap_assign_modifyby" => $this->session->userdata('user_id'),
               "mxap_assign_modifiedtime" => $date,
               "mxap_assign_modified_ip" => $ip
+              "mxap_assign_emp_status" => "COMPLETED",
+              "mxap_assign_manager_status" => "COMPLETED",
+              "mxap_assign_hod_status" => "COMPLETED",
+              "mxap_manager_approvedby" => $this->session->userdata('user_id'),
+              "mxap_hod_approvedby" => $this->session->userdata('user_id'),
             );   
             $this->db->where('mxap_assign_employee_code', $employees);
             $this->db->where('mxap_assign_dep', $department);
