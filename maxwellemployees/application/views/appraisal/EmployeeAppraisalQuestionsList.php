@@ -492,6 +492,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
                                             echo $row['mxap_assign_monthlytarget'];
                                         }
                                         ?>
+                                        <br>(<?php echo $row['mxap_type']; ?>)
                                     </p>
                                 </div>
 
@@ -601,6 +602,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
                                             echo $row['mxap_assign_monthlytarget'];
                                         }
                                         ?>
+                                        <br>(<?php echo $row['mxap_type']; ?>)
                                     </p>
                                 </div>
 
@@ -708,6 +710,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
                                             echo $row['mxap_assign_monthlytarget'];
                                         }
                                         ?>
+                                        <br>(<?php echo $row['mxap_type']; ?>)
                                     </p>
                                 </div>
 
@@ -815,6 +818,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
                                             echo $row['mxap_assign_monthlytarget'];
                                         }
                                         ?>
+                                        <br>(<?php echo $row['mxap_type']; ?>)
                                         </p>
                                     </div>
 
@@ -925,6 +929,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
                                             echo $row['mxap_assign_monthlytarget'];
                                         }
                                         ?>
+                                        <br>(<?php echo $row['mxap_type']; ?>)
                                     </p>
                                 </div>
 
