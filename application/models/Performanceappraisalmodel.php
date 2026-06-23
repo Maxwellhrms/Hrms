@@ -641,9 +641,9 @@ class Performanceappraisalmodel extends CI_Model {
               "mxap_assign_modifyby" => $this->session->userdata('user_id'),
               "mxap_assign_modifiedtime" => $date,
               "mxap_assign_modified_ip" => $ip,
-              "mxap_assign_emp_status" => "COMPLETED",
-              "mxap_assign_manager_status" => "COMPLETED",
-              "mxap_assign_hod_status" => "COMPLETED",
+              "mxap_assign_emp_status" => 'COMPLETED',
+              "mxap_assign_manager_status" => 'COMPLETED',
+              "mxap_assign_hod_status" => 'COMPLETED',
               "mxap_manager_approvedby" => $this->session->userdata('user_id'),
               "mxap_hod_approvedby" => $this->session->userdata('user_id'),
             ); 
@@ -687,10 +687,10 @@ class Performanceappraisalmodel extends CI_Model {
               "mxap_assign_hod_review" => $data['hoddesc'][$i],
               "mxap_assign_modifyby" => $this->session->userdata('user_id'),
               "mxap_assign_modifiedtime" => $date,
-              "mxap_assign_modified_ip" => $ip
-              "mxap_assign_emp_status" => "COMPLETED",
-              "mxap_assign_manager_status" => "COMPLETED",
-              "mxap_assign_hod_status" => "COMPLETED",
+              "mxap_assign_modified_ip" => $ip,
+              "mxap_assign_emp_status" => 'COMPLETED',
+              "mxap_assign_manager_status" => 'COMPLETED',
+              "mxap_assign_hod_status" => 'COMPLETED',
               "mxap_manager_approvedby" => $this->session->userdata('user_id'),
               "mxap_hod_approvedby" => $this->session->userdata('user_id'),
             );   
