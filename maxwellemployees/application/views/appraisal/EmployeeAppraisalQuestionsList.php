@@ -221,9 +221,24 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                             <div class="card-body">
 
-                                <div class="d-flex justify-content-between">
+                                <!-- <div class="d-flex justify-content-between">
                                     <span>Target</span>
                                     <strong id="empTotalTarget">0</strong>
+                                </div> -->
+                                
+                                <div class="d-flex justify-content-between">
+                                    <span>Total Questions</span>
+                                    <strong id="empTotalQuestions">0</strong>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Filled Questions</span>
+                                    <strong id="empFilledQuestions">0 / 0</strong>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Achieved Weightage</span>
+                                    <strong id="empAchievedWeightage">0</strong>
                                 </div>
 
                                 <div class="d-flex justify-content-between">
@@ -257,9 +272,24 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                             <div class="card-body">
 
-                                <div class="d-flex justify-content-between">
+                                <!-- <div class="d-flex justify-content-between">
                                     <span>Target</span>
                                     <strong id="managerTotalTarget">0</strong>
+                                </div> -->
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Total Questions</span>
+                                    <strong id="managerTotalQuestions">0</strong>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Filled Questions</span>
+                                    <strong id="managerFilledQuestions">0 / 0</strong>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Achieved Weightage</span>
+                                    <strong id="managerAchievedWeightage">0</strong>
                                 </div>
 
                                 <div class="d-flex justify-content-between">
@@ -294,9 +324,24 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                             <div class="card-body">
 
-                                <div class="d-flex justify-content-between">
+                                <!-- <div class="d-flex justify-content-between">
                                     <span>Target</span>
                                     <strong id="hodTotalTarget">0</strong>
+                                </div> -->
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Total Questions</span>
+                                    <strong id="hodTotalQuestions">0</strong>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Filled Questions</span>
+                                    <strong id="hodFilledQuestions">0 / 0</strong>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Achieved Weightage</span>
+                                    <strong id="hodAchievedWeightage">0</strong>
                                 </div>
 
                                 <div class="d-flex justify-content-between">
@@ -332,9 +377,24 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                             <div class="card-body">
 
-                                <div class="d-flex justify-content-between">
+                                <!-- <div class="d-flex justify-content-between">
                                     <span>Target</span>
                                     <strong id="hrTotalTarget">0</strong>
+                                </div> -->
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Total Questions</span>
+                                    <strong id="hrTotalQuestions">0</strong>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Filled Questions</span>
+                                    <strong id="hrFilledQuestions">0 / 0</strong>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Achieved Weightage</span>
+                                    <strong id="hrAchievedWeightage">0</strong>
                                 </div>
 
                                 <div class="d-flex justify-content-between">
@@ -370,9 +430,24 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                             <div class="card-body">
 
-                                <div class="d-flex justify-content-between">
+                                <!-- <div class="d-flex justify-content-between">
                                     <span>Target</span>
                                     <strong id="reviewerTotalTarget">0</strong>
+                                </div> -->
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Total Questions</span>
+                                    <strong id="reviewerTotalQuestions">0</strong>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Filled Questions</span>
+                                    <strong id="reviewerFilledQuestions">0 / 0</strong>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Achieved Weightage</span>
+                                    <strong id="reviewerAchievedWeightage">0</strong>
                                 </div>
 
                                 <div class="d-flex justify-content-between">
@@ -476,7 +551,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
                          class="accordion-collapse collapse show">
 
                         <div class="accordion-body role-card">
-
+                             <input type="hidden" class="formula-type" value="<?php echo $row['mxap_formula_type']; ?>">
                             <div class="row g-3">
 
                                 <input type="hidden" name="assignid[]" value="<?php echo $row['mxap_assign_id']; ?>">
@@ -588,7 +663,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
                          class="accordion-collapse collapse">
 
                         <div class="accordion-body role-card">
-
+                             <input type="hidden" class="formula-type" value="<?php echo $row['mxap_formula_type']; ?>">
                             <div class="row g-3">
 
                                 <div class="col-md-1">
@@ -696,7 +771,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
                          class="accordion-collapse collapse">
 
                         <div class="accordion-body role-card">
-
+                             <input type="hidden" class="formula-type" value="<?php echo $row['mxap_formula_type']; ?>">
                             <div class="row g-3">
 
                                 <div class="col-md-1">
@@ -804,7 +879,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
                             class="accordion-collapse collapse">
 
                             <div class="accordion-body role-card">
-
+                                 <input type="hidden" class="formula-type" value="<?php echo $row['mxap_formula_type']; ?>">
                                 <div class="row g-3">
 
                                     <div class="col-md-1">
@@ -915,7 +990,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
                         class="accordion-collapse collapse">
 
                         <div class="accordion-body role-card">
-
+                             <input type="hidden" class="formula-type" value="<?php echo $row['mxap_formula_type']; ?>">
                             <div class="row g-3">
 
                                 <div class="col-md-1">
@@ -1748,10 +1823,84 @@ function saveClientDetails(){
 }
 
 
+// function calculateSummary(
+//     inputClass,
+//     achievedPercentClass,
+//     weightScoreClass,
+//     targetId,
+//     weightageId,
+//     achievementId,
+//     scoreId
+// )
+// {
+//     let totalTarget = 0;
+//     let totalWeightage = 0;
+//     let totalAchievement = 0;
+//     let totalWeightScore = 0;
+
+//     $(inputClass).each(function(){
+
+//         let roleCard = $(this).closest('.role-card');
+
+//         let target =
+//             parseFloat(
+//                 roleCard.find('.target-value').first().val()
+//             ) || 0;
+
+//         let weightage =
+//             parseFloat(
+//                 roleCard.find('.weightage-value').first().val()
+//             ) || 0;
+
+//         let achievement =
+//             parseFloat($(this).val()) || 0;
+
+//         totalTarget += target;
+//         totalWeightage += weightage;
+//         totalAchievement += achievement;
+
+//         let achievedPercent = 0;
+
+//         if(target > 0){
+//             achievedPercent = (achievement / target) * 100;
+//         }
+
+//         let weightScore =
+//             (achievedPercent * weightage) / 100;
+
+//         totalWeightScore += weightScore;
+
+//         roleCard.find(achievedPercentClass)
+//             .text(achievedPercent.toFixed(2) + '%');
+
+//         roleCard.find(weightScoreClass)
+//             .text(weightScore.toFixed(2));
+//     });
+
+//     $(targetId).text(totalTarget.toFixed(2));
+//     $(weightageId).text(totalWeightage.toFixed(2));
+//     $(achievementId).text(totalAchievement.toFixed(2));
+
+//     let overallScore = 0;
+
+//     if(totalWeightage > 0){
+//         overallScore =
+//             (totalWeightScore / totalWeightage) * 100;
+//     }
+
+//     $(scoreId).text(
+//         overallScore.toFixed(2) + '%'
+//     );
+// }
+
+
 function calculateSummary(
     inputClass,
     achievedPercentClass,
     weightScoreClass,
+    questionCountId,
+    filledCountId,
+    achievedWeightageId,
     targetId,
     weightageId,
     achievementId,
@@ -1763,7 +1912,12 @@ function calculateSummary(
     let totalAchievement = 0;
     let totalWeightScore = 0;
 
+    let totalQuestions = 0;
+    let filledQuestions = 0;
+
     $(inputClass).each(function(){
+
+        totalQuestions++;
 
         let roleCard = $(this).closest('.role-card');
 
@@ -1780,14 +1934,38 @@ function calculateSummary(
         let achievement =
             parseFloat($(this).val()) || 0;
 
+        let formulaType =
+            $(this)
+                .closest('.appraisal-item')
+                .find('.formula-type')
+                .first()
+                .val() || 'DIRECT';
+
+        formulaType = formulaType.toUpperCase();
+
+        if($(this).val() !== ''){
+            filledQuestions++;
+        }
+
         totalTarget += target;
         totalWeightage += weightage;
         totalAchievement += achievement;
 
         let achievedPercent = 0;
 
-        if(target > 0){
-            achievedPercent = (achievement / target) * 100;
+        if(formulaType == 'DIRECT'){
+
+            if(target > 0){
+                achievedPercent =
+                    (achievement / target) * 100;
+            }
+
+        }else if(formulaType == 'INDIRECT'){
+
+            if(achievement > 0){
+                achievedPercent =
+                    (target / achievement) * 100;
+            }
         }
 
         let weightScore =
@@ -1802,13 +1980,32 @@ function calculateSummary(
             .text(weightScore.toFixed(2));
     });
 
-    $(targetId).text(totalTarget.toFixed(2));
-    $(weightageId).text(totalWeightage.toFixed(2));
-    $(achievementId).text(totalAchievement.toFixed(2));
+    $(questionCountId).text(totalQuestions);
+
+    $(filledCountId).text(
+        filledQuestions + ' / ' + totalQuestions
+    );
+
+    $(achievedWeightageId).text(
+        totalWeightScore.toFixed(2)
+    );
+
+    $(targetId).text(
+        totalTarget.toFixed(2)
+    );
+
+    $(weightageId).text(
+        totalWeightage.toFixed(2)
+    );
+
+    $(achievementId).text(
+        totalAchievement.toFixed(2)
+    );
 
     let overallScore = 0;
 
     if(totalWeightage > 0){
+
         overallScore =
             (totalWeightScore / totalWeightage) * 100;
     }
@@ -1825,6 +2022,9 @@ function calculateAllSummaries()
         '.employee-achievement',
         '.employee-achieved-percent',
         '.employee-weight-score',
+        '#empTotalQuestions',
+        '#empFilledQuestions',
+        '#empAchievedWeightage',
         '#empTotalTarget',
         '#empTotalWeightage',
         '#empTotalAchievement',
@@ -1836,6 +2036,9 @@ function calculateAllSummaries()
         '.manager-achievement',
         '.manager-achieved-percent',
         '.manager-weight-score',
+        '#managerTotalQuestions',
+        '#managerFilledQuestions',
+        '#managerAchievedWeightage',
         '#managerTotalTarget',
         '#managerTotalWeightage',
         '#managerTotalAchievement',
@@ -1847,6 +2050,9 @@ function calculateAllSummaries()
         '.hod-achievement',
         '.hod-achieved-percent',
         '.hod-weight-score',
+        '#hodTotalQuestions',
+        '#hodFilledQuestions',
+        '#hodAchievedWeightage',
         '#hodTotalTarget',
         '#hodTotalWeightage',
         '#hodTotalAchievement',
@@ -1858,17 +2064,23 @@ function calculateAllSummaries()
         '.hr-achievement',
         '.hr-achieved-percent',
         '.hr-weight-score',
+        '#hrTotalQuestions',
+        '#hrFilledQuestions',
+        '#hrAchievedWeightage',
         '#hrTotalTarget',
         '#hrTotalWeightage',
         '#hrTotalAchievement',
         '#hrOverallScore'
     );
-    
+
     // Reviewer
     calculateSummary(
         '.reviewer-achievement',
         '.reviewer-achieved-percent',
         '.reviewer-weight-score',
+        '#reviewerTotalQuestions',
+        '#reviewerFilledQuestions',
+        '#reviewerAchievedWeightage',
         '#reviewerTotalTarget',
         '#reviewerTotalWeightage',
         '#reviewerTotalAchievement',

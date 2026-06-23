@@ -4077,7 +4077,8 @@ public function getAttendanceDashboard(){
             mxap_assign_reviewer_modifiedtime,
             mxap_assign_que_show,
             mxap_assign_objective,
-            mxap_type
+            mxap_type,
+            mxap_formula_type
         ');
         $this->db->from('maxwell_apprasial_assign_employees');
         $this->db->join(
