@@ -81,6 +81,7 @@
 												<th>#</th>
 												<th>Question</th>
 												<th>Type</th>
+												<th>Formal Type</th>
         										<th>Action</th>
 												<th><button type="button" class="btn btn-primary btn-add-row"><i class="fa fa-plus"></i></button></th>
 											</tr>
@@ -208,6 +209,7 @@ function deleteque(id){
 </script>
 <script>
 	var performanceOptions = '<?php echo $controller->display_options('performance',''); ?>';
+	var performanceformulas = '<?php echo $controller->display_options('performanceformulas',''); ?>';
 $(function () {
 
     $(document).on("click", '.btn-add-row', function () {
@@ -247,6 +249,7 @@ $(function () {
                     '<input type="text" name="question[]" class="form-control" required>' +
                '</td>' +
 			   '<td><select name="type[]" class="form-control">' + performanceOptions + '</select></td>' +
+			   '<td><select name="formulatype[]" class="form-control">' + performanceformulas + '</select></td>' +
                '<td>' +
                     '<button type="button" class="btn btn-danger" id="comments_remove">' +
                         '<i class="fa fa-trash"></i>' +

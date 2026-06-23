@@ -181,6 +181,7 @@ class Performanceappraisalmodel extends CI_Model {
                 $question = $this->cleanInput($question);
                 $id       = isset($data['id'][$i]) ? trim($data['id'][$i]) : '';
                 $type     = isset($data['type'][$i]) ? $data['type'][$i] : 'counts';
+                $formulatype = isset($data['formulatype'][$i]) ? $data['formulatype'][$i] : 'direct';
 
                 if(!empty($id)){
 
@@ -191,6 +192,7 @@ class Performanceappraisalmodel extends CI_Model {
                         "mxap_catg"       => $category,
                         "mxap_question"   => $question,
                         "mxap_type"       => $type,
+                        "mxap_formula_type" => $formulatype,
                         "mxap_modifyby"  => $this->session->userdata('user_id'),
                         "mxap_modifiedtime"=> $date,
                         "mxap_modified_ip" => $ip
@@ -208,6 +210,7 @@ class Performanceappraisalmodel extends CI_Model {
                         "mxap_catg"        => $category,
                         "mxap_question"    => $question,
                         "mxap_type"        => $type,
+                        "mxap_formula_type" => $formulatype,
                         "mxap_createdby"   => $this->session->userdata('user_id'),
                         "mxap_createdtime" => $date,
                         "mxap_created_ip"  => $ip
@@ -237,7 +240,7 @@ class Performanceappraisalmodel extends CI_Model {
     public function filterappraisalquestion($data){
         $department = $data['department'];
         $category = $data['quecategory'];
-        $this->db->select('mxap_id,mxap_question,mxap_type,mxap_status');
+        $this->db->select('mxap_id,mxap_question,mxap_type,mxap_status,mxap_formula_type');
         $this->db->from('maxwell_apprasial_questions');
         if(isset($data['questatus']) && $data['questatus'] !=''){
             $this->db->where('mxap_status', $data['questatus']);

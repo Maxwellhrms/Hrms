@@ -97,6 +97,7 @@ class Performanceappraisal extends Common {
                 $id = $value['mxap_id'];
                 $question = htmlspecialchars($value['mxap_question']);
                 $type = $value['mxap_type'] ?? '';
+                $formulatype = $value['mxap_formula_type'] ?? '';
 
                 $table = "<tr>";
 
@@ -115,6 +116,12 @@ class Performanceappraisal extends Common {
                 $table .= "<td>
                             <select class='form-control' name='type[]' id='type_".$id."'>
                                 ".$controller->display_options('performance', $type)."
+                            </select>
+                        </td>";
+
+                $table .= "<td>
+                            <select class='form-control' name='formulatype[]' id='formulatype_".$id."'>
+                                ".$controller->display_options('performanceformulas', $formulatype)."
                             </select>
                         </td>";
 
