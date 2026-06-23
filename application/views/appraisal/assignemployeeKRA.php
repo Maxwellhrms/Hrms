@@ -226,14 +226,16 @@ while($month <= $end){
             -->
             <td>
                 <input type="text"
-                       class="form-control weightage-field"
+                       class="form-control weightage-field" min="0"
+                        step="0.01"
                        name="weightage['.$questionid.']['.$yearmonth.']"
                        value="'.$weightage.'">
             </td>
 
             <td>
                 <input type="text"
-                       class="form-control target-field"
+                       class="form-control target-field" min="0"
+                        step="0.01"
                        name="monthly_target['.$questionid.']['.$yearmonth.']"
                        value="'.$monthtarget.'">
             </td>
@@ -275,5 +277,11 @@ echo $output;
 
 $(document).ready(function(){
     calculateMonthWeightage();
+});
+
+$(document).on('input', '.weightage-field, .target-field', function () {
+
+    this.value = this.value.replace(/[^0-9.]/g, '');
+
 });
 </script>

@@ -225,7 +225,7 @@ while($month <= $end){
             -->
             <td>
                 <input type="text"
-                       class="form-control weightage-field"
+                       class="form-control weightage-field" min="0" step="0.01"
                        name="weightage['.$questionid.']['.$yearmonth.']"
                        value="'.$weightage.'">
             </td>';
