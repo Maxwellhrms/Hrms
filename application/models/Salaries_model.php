@@ -8358,7 +8358,7 @@ class Salaries_model extends Adminmodel
             //--------CHECK ATTENDANCE TABLE EXIST OR NOT
             if ($this->db->table_exists($attendance_table_name)) {
                 $dateOfJoining = date('Y-m-t', strtotime("$year-$month-01"));
-                $user_data = array("cmpname" => $cmp_id,'doj' => $dateOfJoining, 'relieve_date' => $year . "-" . $month . '-01');
+                $user_data = array("cmpname" => $cmp_id,'doj' => $dateOfJoining, 'relieve_date' => $year . "-" . $month . '-01', 'getallemployees' => 'all');
                 //NEW BY SHABABU(21-10-2025)
                 $user_data['withResigned'] = 'Yes';
 
