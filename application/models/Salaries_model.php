@@ -51,7 +51,6 @@ class Salaries_model extends Adminmodel
                 $user_data = array("cmpname" => $cmp_id,'doj' => $year . "-" . $month . '-31','relieve_date' => $year . "-" . $month . '-01');
                 //NEW BY SHABABU(21-10-2025)
                 $user_data['withResigned'] = 'Yes';
-                $user_data['yearmonth'] = $year . "-" . $month;
 
                 // print_r($user_data);exit;
                 //----NEW BY SHABABU(01-05-2022)
@@ -8362,6 +8361,7 @@ class Salaries_model extends Adminmodel
                 $user_data = array("cmpname" => $cmp_id,'doj' => $dateOfJoining, 'relieve_date' => $year . "-" . $month . '-01', 'getallemployees' => 'all');
                 //NEW BY SHABABU(21-10-2025)
                 $user_data['withResigned'] = 'Yes';
+                $user_data['yearmonth'] = $year . "-" . $month;
 
                 // print_r($user_data);exit;
                 //----NEW BY SHABABU(01-05-2022)
