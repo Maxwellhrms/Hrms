@@ -1892,6 +1892,11 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
             $total_days = $present + $wo + $ph_oh + $cl + $sl + $el;
             $lop = $daysInMonth - $total_days;
 
+            $mxsal_actual_gross=$pData->mxsal_actual_gross;
+            $mxsal_total_ded=round($pData->mxsal_total_ded);
+            $mxsal_net_sal=$mxsal_actual_gross-$mxsal_total_ded;
+            $mxsal_net_sal=round($mxsal_net_sal);
+
             $sheet->setCellValueExplicit('A' . $rowIndex, $pData->mxsal_emp_code, PHPExcel_Cell_DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('A' . ($rowIndex + 1), $pData->mxemp_emp_uan_number, PHPExcel_Cell_DataType::TYPE_STRING);
             $sheet->setCellValue('B' . $rowIndex, $pData->mxemp_emp_fname . ' ' . $pData->mxemp_emp_lname);
@@ -1923,8 +1928,8 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
             $sheet->mergeCells('X'.$rowIndex.':X'.($rowIndex+1)); $sheet->setCellValue('X'.$rowIndex, $pData->mxsal_lwf_emp_cont);
             $sheet->mergeCells('Y'.$rowIndex.':Y'.($rowIndex+1)); $sheet->setCellValue('Y'.$rowIndex, $pData->mxsal_miscelleneous_amount);
             $sheet->mergeCells('Z'.$rowIndex.':Z'.($rowIndex+1)); $sheet->setCellValue('Z'.$rowIndex, $pData->mxsal_loan_amount);
-            $sheet->mergeCells('AA'.$rowIndex.':AB'.($rowIndex+1)); $sheet->setCellValue('AA'.$rowIndex, $pData->mxsal_total_ded);
-            $sheet->mergeCells('AC'.$rowIndex.':AC'.($rowIndex+1)); $sheet->setCellValue('AC'.$rowIndex, $pData->mxsal_net_sal);
+            $sheet->mergeCells('AA'.$rowIndex.':AB'.($rowIndex+1)); $sheet->setCellValue('AA'.$rowIndex, $mxsal_total_ded);
+            $sheet->mergeCells('AC'.$rowIndex.':AC'.($rowIndex+1)); $sheet->setCellValue('AC'.$rowIndex, $mxsal_net_sal);
             $sheet->mergeCells('AD'.$rowIndex.':AD'.($rowIndex+1)); $sheet->setCellValue('AD'.$rowIndex, ($pData->mxsal_paid_status_flag == 1 ? "PAID" : "UNPAID"));
 
             // Balances
@@ -1940,8 +1945,8 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
             $totals['eb'] += $pData->mxsal_actual_basic; $totals['eh'] += $pData->mxsal_actual_hra; $totals['emi'] += $pData->mxsal_incentive_amount;
             $totals['eg'] += $pData->mxsal_actual_gross; $totals['dpf'] += $pData->mxsal_pf_emp_cont; $totals['desi'] += $pData->mxsal_esi_emp_cont;
             $totals['dpt'] += $pData->mxsal_pt; $totals['dtds'] += $pData->mxsal_tds_amount; $totals['dlwf'] += $pData->mxsal_lwf_emp_cont;
-            $totals['dmisc'] += $pData->mxsal_miscelleneous_amount; $totals['dstf'] += $pData->mxsal_loan_amount; $totals['tded'] += $pData->mxsal_total_ded;
-            $totals['net'] += $pData->mxsal_net_sal;
+            $totals['dmisc'] += $pData->mxsal_miscelleneous_amount; $totals['dstf'] += $pData->mxsal_loan_amount; $totals['tded'] += $mxsal_total_ded;
+            $totals['net'] += $mxsal_net_sal;
 
             $rowIndex += 2;
         }
@@ -2467,6 +2472,11 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
                 $pay_days = $present + $lv->Week_Off + $ph_oh + $CL + $SL + $EL;
                 $lop = $daysInMonth - $pay_days;
 
+                $mxsal_actual_gross=$pData->mxsal_actual_gross;
+                $mxsal_total_ded=round($pData->mxsal_total_ded);
+                $mxsal_net_sal=$mxsal_actual_gross-$mxsal_total_ded;
+                $mxsal_net_sal=round($mxsal_net_sal);
+
                 $html .= '<tr nobr="true">
     <td width="'.$w['sno'].'" align="center">'.$i++.'</td>
     <td width="'.$w['code'].'">'.$pData->mxsal_emp_code.'<br>'.$pData->mxemp_emp_uan_number.'</td>
@@ -2494,8 +2504,8 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
     <td width="'.$w['lwf'].'" align="right">'.number_format($pData->mxsal_lwf_emp_cont,0).'</td>
     <td width="'.$w['lwf_mi'].'" align="right">'.number_format($pData->mxsal_miscelleneous_amount,0).'</td>
     <td width="'.$w['stf_ad'].'" align="right">'.number_format($pData->mxsal_loan_amount,0).'</td>
-    <td width="'.$w['tot_d'].'" align="right">'.number_format($pData->mxsal_total_ded,0).'</td>
-    <td width="'.$w['net'].'" align="right"><b>'.number_format($pData->mxsal_net_sal,0).'</b></td>
+    <td width="'.$w['tot_d'].'" align="right">'.number_format($mxsal_total_ded,0).'</td>
+    <td width="'.$w['net'].'" align="right"><b>'.number_format($mxsal_net_sal,0).'</b></td>
     <td width="'.$w['status'].'" align="center">'.($pData->mxsal_paid_status_flag == 1 ? "PAID" : "UNPAID").'</td>
     <td width="'.$w['bal_sa'].'" align="right">'.number_format($loan_bal,0).'</td>
     <td width="'.($w['bal_lv'] + 5).'" align="center">'.$lv->CurrentEL.'</td>
@@ -2507,7 +2517,7 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
                 $t['e_bs'] += $pData->mxsal_actual_basic; $t['e_hr'] += $pData->mxsal_actual_hra; $t['e_mi'] += $pData->mxsal_incentive_amount; $t['e_gr'] += $pData->mxsal_actual_gross;
                 $t['d_pf'] += $pData->mxsal_pf_emp_cont; $t['d_es'] += $pData->mxsal_esi_emp_cont; $t['d_pt'] += $pData->mxsal_pt; $t['d_td'] += $pData->mxsal_tds_amount;
                 $t['d_lw'] += $pData->mxsal_lwf_emp_cont; $t['d_mi'] += $pData->mxsal_miscelleneous_amount; $t['d_st'] += $pData->mxsal_loan_amount;
-                $t['t_de'] += $pData->mxsal_total_ded; $t['t_ne'] += $pData->mxsal_net_sal; $t['b_st'] += $loan_bal;
+                $t['t_de'] += $mxsal_total_ded; $t['t_ne'] += $mxsal_net_sal; $t['b_st'] += $loan_bal;
             }
 
             if ($page_index == ($total_pages - 1)) {
