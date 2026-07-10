@@ -2959,11 +2959,11 @@ $savePath = 'uploads/payslips/' . $customFileName;
 
                                 $mxsal_total_ded=round($paysheet_data->mxsal_total_ded);
 
-                                if($oldLead_id5>0 && $lastrowofareq5['0']['tot_loan_amt'] > 0){
+                                /*if($oldLead_id5>0 && $lastrowofareq5['0']['tot_loan_amt'] > 0){
                                     $mxsal_loan_amount = $paysheet_data->mxsal_loan_amount;
                                     $mxsal_total_ded = $mxsal_total_ded - $mxsal_loan_amount;
                                     $mxsal_total_ded = $mxsal_total_ded + $tot_loan_amt;
-                                }
+                                }*/
 
                                 //$html_data .= "<td>$paysheet_data->mxsal_total_ded</td>";//--->TOTAL DEDUCTIONS
                                 $html_data .= "<td>$mxsal_total_ded</td>";//--->TOTAL DEDUCTIONS
