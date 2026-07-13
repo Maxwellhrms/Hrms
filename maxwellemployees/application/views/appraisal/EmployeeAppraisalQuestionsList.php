@@ -1953,21 +1953,21 @@ function calculateSummary(
 
         let achievedPercent = 0;
 
-        if(formulaType == 'DIRECT'){
+        if (formulaType == 'DIRECT') {
 
-            if(target > 0){
-                achievedPercent =
-                    (achievement / target) * 100;
+            if (target > 0) {
+                achievedPercent = (achievement / target) * 100;
             }
 
-        }else if(formulaType == 'INDIRECT'){
+        } else if (formulaType == 'INDIRECT') {
 
-            if(achievement > 0){
-                achievedPercent =
-                    (target / achievement) * 100;
+            if (achievement > 0) {
+                achievedPercent = (target / achievement) * 100;
             }
         }
-
+        // Cap maximum achievement to 100%
+        // Restrict between 0 and 100
+        achievedPercent = Math.max(0, Math.min(achievedPercent, 100));
         let weightScore =
             (achievedPercent * weightage) / 100;
 
