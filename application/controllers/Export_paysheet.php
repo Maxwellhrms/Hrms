@@ -1933,8 +1933,18 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
             $sheet->mergeCells('AD'.$rowIndex.':AD'.($rowIndex+1)); $sheet->setCellValue('AD'.$rowIndex, ($pData->mxsal_paid_status_flag == 1 ? "PAID" : "UNPAID"));
 
             // Balances
-            $loan_details = $this->Loan_model->getloandetails_payslip($pData->mxsal_emp_code);
-            $loan_bal = isset($loan_details[0]) ? str_replace(["\r", "\n"], '', trim($loan_details[0]->mxemploan_emp_loan_outstanding_amt)) : 0;
+            /*$loan_details = $this->Loan_model->getloandetails_payslip($pData->mxsal_emp_code);
+            $loan_bal = isset($loan_details[0]) ? str_replace(["\r", "\n"], '', trim($loan_details[0]->mxemploan_emp_loan_outstanding_amt)) : 0;*/
+
+
+            /*  Updated BY  Varaprasad
+             * ON : 22 JUl 2026
+             * Purpose : Loan Outstanding should reflect the month-wise outstanding balance as of the generated report month instead of the current outstanding balance
+             */
+
+            $loan = $this->Loan_model->getEmployeeLoanOutstandingAfterDeduction($pData->mxsal_emp_code, $year.$month);
+            $loan_bal = isset($loan) ? (float)$loan: 0;
+
             $sheet->mergeCells('AE'.$rowIndex.':AE'.($rowIndex+1)); $sheet->setCellValueExplicit('AE'.$rowIndex, $loan_bal, PHPExcel_Cell_DataType::TYPE_STRING);
             $sheet->mergeCells('AF'.$rowIndex.':AF'.($rowIndex+1)); $sheet->setCellValue('AF'.$rowIndex, $leaves[0]->CurrentEL);
             $sheet->mergeCells('AG'.$rowIndex.':AG'.($rowIndex+1)); $sheet->setCellValue('AG'.$rowIndex, $leaves[0]->CurrentCL);
@@ -2463,8 +2473,17 @@ $sheet->getStyle('A'.$rowIndex.':AG'.$rowIndex)->applyFromArray($styleArray);
                 $present = $lv->Present + $lv->First_Half_Present + $lv->Second_Half_Present + $lv->regulation_full_day + $lv->First_Half_regulation + $lv->Second_Half_regulation + $lv->First_Half_Shortleave + $lv->Second_Half_Shortleave + $lv->ot_full_day + $lv->First_Half_ot + $lv->Second_Half_ot;
                 $ph_oh = $lv->Public_Holiday + $lv->First_Half_Public_Holiday + $lv->Second_Half_Public_Holiday + $lv->Optional_Holiday + $lv->First_Half_Optional_Holiday + $lv->Second_Half_Optional_Holiday;
 
-                $loan = $this->Loan_model->getloandetails_payslip($pData->mxsal_emp_code);
-                $loan_bal = isset($loan[0]) ? (float)$loan[0]->mxemploan_emp_loan_outstanding_amt : 0;
+                // $loan = $this->Loan_model->getloandetails_payslip($pData->mxsal_emp_code);
+                // $loan_bal = isset($loan[0]) ? (float)$loan[0]->mxemploan_emp_loan_outstanding_amt : 0;
+
+                /*  Updated BY  Varaprasad
+                 * ON : 22 JUl 2026
+                 * Purpose : Loan Outstanding should reflect the month-wise outstanding balance as of the generated report month instead of the current outstanding balance
+                 */
+
+                $loan = $this->Loan_model->getEmployeeLoanOutstandingAfterDeduction($pData->mxsal_emp_code, $year.$month);
+
+                $loan_bal = isset($loan) ? (float)$loan: 0;
 
                 $CL = $lv->Casualleave + $lv->First_Half_Casualleave + $lv->Second_Half_Casualleave;
                 $SL = $lv->Sickleave + $lv->First_Half_Sickleave + $lv->Second_Half_Sickleave;

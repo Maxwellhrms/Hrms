@@ -688,4 +688,27 @@ public function getemployeeslist($data)
         }
     }
 
+    public function getEmployeeLoanOutstandingAfterDeduction($empCode, $salaryMonth)
+    {
+        $subQuery = $this->db
+            ->select('DISTINCT mx_loan_transaction_id', FALSE)
+            ->from('maxwell_loan_sal_log')
+            ->where('mx_loan_emp_id', $empCode)
+            ->where('mx_loan_month', $salaryMonth)
+            ->where('mx_loan_status', '1')
+            ->get_compiled_select();
+
+        $this->db->select('SUM(mxemploan_emp_loan_outstanding_amt) AS mxemploan_emp_loan_outstanding_amt');
+        $this->db->from('maxwell_emp_loan_master_transaction');
+        $this->db->where('mxemploan_empcode', $empCode);
+        $this->db->where('mxemploan_status', 1);
+        $this->db->where("mxemploan_pri_id IN ($subQuery)", NULL, FALSE);
+
+        $query = $this->db->get();
+
+        return ($query->num_rows() > 0)
+            ? $query->row()->mxemploan_emp_loan_outstanding_amt
+            : 0;
+    }
+
 }

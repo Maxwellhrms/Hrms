@@ -8677,6 +8677,22 @@ class Salaries_model extends Adminmodel
                         }
                         //-----------END CHECK FILTERED TABE DATA
 
+                        /*  Updated BY  Varaprasad
+                         * ON : 22 JUl 2026
+                         * Purpose: Skip processing if the paysheet has already been generated for the employee and month.
+                         */
+
+
+                        $this->db->where('mxsal_emp_code', $emp_code);
+                        $this->db->where('mxsal_year_month', $year_month);
+                        $this->db->where('mxsal_status', 1);
+
+                        if ($this->db->count_all_results($filtered_table_name) > 0) {
+                            continue;
+                        }
+
+                        /*  end of Updated for 22 JUl 2026 record skipping */
+
 
                         //***************************************ATTENDANCE DATA
                         $attendance_array = $this->getPresentAttendance($year, $month, $emp_code, $emp_comp_code);

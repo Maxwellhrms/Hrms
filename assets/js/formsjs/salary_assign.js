@@ -34,26 +34,37 @@ $(document).ready(function () {
             if(!data_confirm){
                 return false;
             }
-            show_loader();
+
+        let submitBtn = $("#salary_submit_btn");
+
+        // Disable button and show processing
+        submitBtn.prop("disabled", true);
+        submitBtn.html('<span class="spinner-border spinner-border-sm"></span> Processing...');
+
+        //show_loader();
+
         //--------------END NEW BY SHABABU(17-06-2022)
-        
+
         $.ajax({
-            async: false,
             type: "POST",
-            async:false,
             data: { cmp_id: cmp_id, sal_month_year: sal_month_year,unpaid_empids:unpaid_empids },
             url: baseurl + 'salaries_controller/generate_salaries',
             datatype: "html",
             beforeSend: function(){
                     // $('.ajax-loader').css("visibility", "visible");
-                    $('.ajax-loader-hide').addClass("ajax-loader");
-                    $('.ajax-loader').removeClass("ajax-loader-hide");
+                   /* $('.ajax-loader-hide').addClass("ajax-loader");
+                    $('.ajax-loader').removeClass("ajax-loader-hide");*/
+
+                show_loader();
+                /*setTimeout(function () {
+                    console.log("timeout fired");
+                }, 100);*/
             },
             success: function (data) {
                 console.log(data);
                 hide_loader();
-                    $('.ajax-loader').addClass("ajax-loader-hide");
-                    $('.ajax-loader-hide').removeClass("ajax-loader");
+                    /*$('.ajax-loader').addClass("ajax-loader-hide");
+                    $('.ajax-loader-hide').removeClass("ajax-loader");*/
                 // $('.ajax-loader').css("visibility", "hidden");
                 var parsedData = JSON.parse(data);
                 // console.log(parsedData);
@@ -118,6 +129,21 @@ $(document).ready(function () {
                 // }
 
 
+            },
+            error: function (xhr, status, error) {
+                hide_loader();
+                console.error(xhr.responseText);
+                alert("Unable to process the request. Please try again.");
+            },
+            complete: function(){
+                // Hide loader
+                hide_loader();
+
+                /*$('.ajax-loader').addClass("ajax-loader-hide");
+                $('.ajax-loader-hide').removeClass("ajax-loader");*/
+
+                // Enable button back
+                submitBtn.prop("disabled", false).html("Submit");
             }
         });
 
@@ -147,7 +173,7 @@ $(document).ready(function () {
 
     // });
     
-    function show_loader(){
+ /*   function show_loader(){
         $('.ajax-loader').addClass("ajax-loader-hide");
         $('.ajax-loader-hide').removeClass("ajax-loader");
     }
@@ -155,7 +181,19 @@ $(document).ready(function () {
         $('.ajax-loader').addClass("ajax-loader-hide");
         $('.ajax-loader-hide').removeClass("ajax-loader");
     }
-    
+    */
+
+    function show_loader() {
+        $(".loader")
+            .removeClass("ajax-loader-hide")
+            .addClass("ajax-loader");
+    }
+
+    function hide_loader() {
+        $(".loader")
+            .removeClass("ajax-loader")
+            .addClass("ajax-loader-hide");
+    }
     $("#cmpname").change(function(){
     let cmp_id = $(this).val();
     // alert(cmp_id);
@@ -164,7 +202,6 @@ $(document).ready(function () {
                     url: baseurl + 'admin/getemployeesinfo',
                     type: 'POST',
                     data: {cmp_id: cmp_id},
-                    async: false,
                     success: function (data) {
                         console.log(data);
 				// 		return false;

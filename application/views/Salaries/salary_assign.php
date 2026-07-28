@@ -77,7 +77,10 @@
                             </div>
 
                             <div class="text-right">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <!--<button type="submit" class="btn btn-primary">Submit</button>-->
+                                <button type="submit" id="salary_submit_btn" class="btn btn-primary">
+                                    Submit
+                                </button>
                             </div>
                         </form>
                     </div>
