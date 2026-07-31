@@ -80,6 +80,7 @@
 											<tr>
 												<th>#</th>
 												<th>Question</th>
+												<th>KPI</th>
 												<th>Type</th>
 												<th>Formal Type</th>
         										<th>Action</th>
@@ -247,6 +248,9 @@ $(function () {
         return '<td>' + rowsLength + '</td>' +
                '<td>' +
                     '<input type="text" name="question[]" class="form-control" required>' +
+               '</td>' +
+			    '<td>' +
+                    '<input type="text" name="kpi[]" class="form-control">' +
                '</td>' +
 			   '<td><select name="type[]" class="form-control">' + performanceOptions + '</select></td>' +
 			   '<td><select name="formulatype[]" class="form-control">' + performanceformulas + '</select></td>' +

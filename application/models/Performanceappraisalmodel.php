@@ -191,6 +191,7 @@ class Performanceappraisalmodel extends CI_Model {
                         "mxap_dep"        => $department,
                         "mxap_catg"       => $category,
                         "mxap_question"   => $question,
+                        "mxap_kpi"        => isset($data['kpi'][$i]) ? $data['kpi'][$i] : '',
                         "mxap_type"       => $type,
                         "mxap_formula_type" => $formulatype,
                         "mxap_modifyby"  => $this->session->userdata('user_id'),
@@ -209,6 +210,7 @@ class Performanceappraisalmodel extends CI_Model {
                         "mxap_dep"         => $department,
                         "mxap_catg"        => $category,
                         "mxap_question"    => $question,
+                        "mxap_kpi"         => isset($data['kpi'][$i]) ? $data['kpi'][$i] : '',
                         "mxap_type"        => $type,
                         "mxap_formula_type" => $formulatype,
                         "mxap_createdby"   => $this->session->userdata('user_id'),
@@ -240,7 +242,7 @@ class Performanceappraisalmodel extends CI_Model {
     public function filterappraisalquestion($data){
         $department = $data['department'];
         $category = $data['quecategory'];
-        $this->db->select('mxap_id,mxap_question,mxap_type,mxap_status,mxap_formula_type');
+        $this->db->select('mxap_id,mxap_question,mxap_type,mxap_status,mxap_formula_type,mxap_kpi');
         $this->db->from('maxwell_apprasial_questions');
         if(isset($data['questatus']) && $data['questatus'] !=''){
             $this->db->where('mxap_status', $data['questatus']);

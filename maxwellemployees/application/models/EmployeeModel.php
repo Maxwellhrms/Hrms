@@ -4078,7 +4078,8 @@ public function getAttendanceDashboard(){
             mxap_assign_que_show,
             mxap_assign_objective,
             mxap_type,
-            mxap_formula_type
+            mxap_formula_type,
+            mxap_kpi
         ');
         $this->db->from('maxwell_apprasial_assign_employees');
         $this->db->join(

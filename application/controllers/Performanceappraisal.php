@@ -112,6 +112,14 @@ class Performanceappraisal extends Common {
                                 value='".$question."'>
                         </td>";
 
+                $table .= "<td>
+                            <input type='text'
+                                class='form-control'
+                                name='kpi[]'
+                                id='kpi_".$id."'
+                                value='".$value['mxap_kpi']."'>
+                        </td>";
+
                 // Type Dropdown
                 $table .= "<td>
                             <select class='form-control' name='type[]' id='type_".$id."'>

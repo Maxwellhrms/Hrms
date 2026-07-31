@@ -66,7 +66,6 @@
 }
 </style>
 <?php
-
 $employeeName = '';
 $managerName  = '';
 $hodName      = '';
@@ -507,7 +506,9 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                     <small class="question-meta text-muted">
                         Objective :
-                        <?php echo $row['mxap_assign_objective']; ?>
+                        <?php echo $row['mxap_assign_objective']; ?></br>
+                        Kpi : 
+                        <?php echo $row['mxap_kpi']; ?>
                     </small>
                 </div>
             </div>
@@ -552,6 +553,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                         <div class="accordion-body role-card">
                              <input type="hidden" class="formula-type" value="<?php echo $row['mxap_formula_type']; ?>">
+                             <input type="hidden" class="achievement-type" value="<?php echo strtolower($row['mxap_type']); ?>">
                             <div class="row g-3">
 
                                 <input type="hidden" name="assignid[]" value="<?php echo $row['mxap_assign_id']; ?>">
@@ -664,6 +666,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                         <div class="accordion-body role-card">
                              <input type="hidden" class="formula-type" value="<?php echo $row['mxap_formula_type']; ?>">
+                             <input type="hidden" class="achievement-type" value="<?php echo strtolower($row['mxap_type']); ?>">
                             <div class="row g-3">
 
                                 <div class="col-md-1">
@@ -772,6 +775,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                         <div class="accordion-body role-card">
                              <input type="hidden" class="formula-type" value="<?php echo $row['mxap_formula_type']; ?>">
+                             <input type="hidden" class="achievement-type" value="<?php echo strtolower($row['mxap_type']); ?>">
                             <div class="row g-3">
 
                                 <div class="col-md-1">
@@ -880,6 +884,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                             <div class="accordion-body role-card">
                                  <input type="hidden" class="formula-type" value="<?php echo $row['mxap_formula_type']; ?>">
+                                 <input type="hidden" class="achievement-type" value="<?php echo strtolower($row['mxap_type']); ?>">
                                 <div class="row g-3">
 
                                     <div class="col-md-1">
@@ -991,6 +996,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                         <div class="accordion-body role-card">
                              <input type="hidden" class="formula-type" value="<?php echo $row['mxap_formula_type']; ?>">
+                             <input type="hidden" class="achievement-type" value="<?php echo strtolower($row['mxap_type']); ?>">
                             <div class="row g-3">
 
                                 <div class="col-md-1">
@@ -2098,5 +2104,117 @@ $(document).on(
 
 $(document).ready(function(){
     calculateAllSummaries();
+});
+
+function calculateAchievementSummary(inputClass, outputId)
+{
+    var summary = {};
+
+    $(inputClass).each(function(){
+
+        var value = parseFloat($(this).val()) || 0;
+
+        var type = $(this)
+                    .closest('.role-card')
+                    .find('.achievement-type')
+                    .val();
+
+        if(type == undefined || type == ''){
+            return;
+        }
+
+        if(summary[type] == undefined){
+            summary[type] = 0;
+        }
+
+        summary[type] += value;
+
+    });
+
+    var html = '';
+
+    $.each(summary,function(type,total){
+
+        switch(type){
+
+            case 'amount':
+                html += '<div><b>Amount :</b> ₹'+Number(total).toLocaleString()+'</div>';
+            break;
+
+            case 'percentage':
+                html += '<div><b>Percentage :</b> '+total+'%</div>';
+            break;
+
+            case 'clients':
+                html += '<div><b>Clients :</b> '+total+'</div>';
+            break;
+
+            case 'days':
+                html += '<div><b>Days :</b> '+total+'</div>';
+            break;
+
+            case 'hours':
+                html += '<div><b>Hours :</b> '+total+'</div>';
+            break;
+
+            case 'count':
+                html += '<div><b>Count :</b> '+total+'</div>';
+            break;
+
+            case 'rating':
+                html += '<div><b>Rating :</b> '+total+'</div>';
+            break;
+
+            case 'score':
+                html += '<div><b>Score :</b> '+total+'</div>';
+            break;
+
+            case 'boolean':
+                html += '<div><b>Yes :</b> '+total+'</div>';
+            break;
+
+            default:
+                html += '<div><b>'+type+' :</b> '+total+'</div>';
+        }
+
+    });
+
+    if(html == ''){
+        html = '0';
+    }
+
+    $(outputId).html(html);
+}
+
+$(document).on('keyup change',
+'.employee-achievement,.manager-achievement,.hod-achievement,.hr-achievement,.reviewer-achievement',
+function(){
+
+
+    calculateAchievementSummary('.employee-achievement', '#empTotalAchievement');
+
+    calculateAchievementSummary('.manager-achievement', '#managerTotalAchievement');
+
+    calculateAchievementSummary('.hod-achievement', '#hodTotalAchievement');
+
+    calculateAchievementSummary('.hr-achievement', '#hrTotalAchievement');
+
+    calculateAchievementSummary('.reviewer-achievement', '#reviewerTotalAchievement');
+
+});
+
+$(document).ready(function () {
+
+    $('#empTotalAchievement').html('');
+    $('#managerTotalAchievement').html('');
+    $('#hodTotalAchievement').html('');
+    $('#hrTotalAchievement').html('');
+    $('#reviewerTotalAchievement').html('');
+
+    calculateAchievementSummary('.employee-achievement', '#empTotalAchievement');
+    calculateAchievementSummary('.manager-achievement', '#managerTotalAchievement');
+    calculateAchievementSummary('.hod-achievement', '#hodTotalAchievement');
+    calculateAchievementSummary('.hr-achievement', '#hrTotalAchievement');
+    calculateAchievementSummary('.reviewer-achievement', '#reviewerTotalAchievement');
 });
 </script>
