@@ -247,7 +247,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                                 <div class="d-flex justify-content-between">
                                     <span>Achievement</span>
-                                    <strong id="empTotalAchievement">0</strong>
+                                    <div id="empTotalAchievement">0</div>
                                 </div>
 
                                 <hr>
@@ -298,7 +298,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                                 <div class="d-flex justify-content-between">
                                     <span>Assessment</span>
-                                    <strong id="managerTotalAchievement">0</strong>
+                                    <div id="managerTotalAchievement">0</div>
                                 </div>
 
                                 <hr>
@@ -350,7 +350,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                                 <div class="d-flex justify-content-between">
                                     <span>Assessment</span>
-                                    <strong id="hodTotalAchievement">0</strong>
+                                    <div id="hodTotalAchievement">0</div>
                                 </div>
 
                                 <hr>
@@ -403,7 +403,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                                 <div class="d-flex justify-content-between">
                                     <span>Assessment</span>
-                                    <strong id="hrTotalAchievement">0</strong>
+                                    <div id="hrTotalAchievement">0</div>
                                 </div>
 
                                 <hr>
@@ -456,7 +456,7 @@ $appraisalName = ($userdata['appraisalcategory'] == 1)
 
                                 <div class="d-flex justify-content-between">
                                     <span>Assessment</span>
-                                    <strong id="reviewerTotalAchievement">0</strong>
+                                    <div id="reviewerTotalAchievement">0</div>
                                 </div>
 
                                 <hr>
@@ -2112,69 +2112,66 @@ function calculateAchievementSummary(inputClass, outputId)
 
     $(inputClass).each(function(){
 
-        var value = parseFloat($(this).val()) || 0;
+        var roleCard = $(this).closest('.role-card');
 
-        var type = $(this)
-                    .closest('.role-card')
-                    .find('.achievement-type')
-                    .val();
+        var achieved = parseFloat($(this).val()) || 0;
 
-        if(type == undefined || type == ''){
+        var target = parseFloat(
+            roleCard.find('.target-value').val()
+        ) || 0;
+
+        var type = roleCard.find('.achievement-type').val();
+
+        if(!type){
             return;
         }
 
         if(summary[type] == undefined){
-            summary[type] = 0;
+
+            summary[type] = {
+                target : 0,
+                achieved : 0
+            };
+
         }
 
-        summary[type] += value;
+        summary[type].target += target;
+        summary[type].achieved += achieved;
 
     });
 
     var html = '';
 
-    $.each(summary,function(type,total){
+    $.each(summary,function(type,item){
 
         switch(type){
 
             case 'amount':
-                html += '<div><b>Amount :</b> ₹'+Number(total).toLocaleString()+'</div>';
+                html += '<div><b>Amount :</b> ₹'
+                      + Number(item.target).toLocaleString()
+                      + ' / ₹'
+                      + Number(item.achieved).toLocaleString()
+                      + '</div>';
             break;
 
             case 'percentage':
-                html += '<div><b>Percentage :</b> '+total+'%</div>';
-            break;
-
-            case 'clients':
-                html += '<div><b>Clients :</b> '+total+'</div>';
-            break;
-
-            case 'days':
-                html += '<div><b>Days :</b> '+total+'</div>';
-            break;
-
-            case 'hours':
-                html += '<div><b>Hours :</b> '+total+'</div>';
-            break;
-
-            case 'count':
-                html += '<div><b>Count :</b> '+total+'</div>';
-            break;
-
-            case 'rating':
-                html += '<div><b>Rating :</b> '+total+'</div>';
-            break;
-
-            case 'score':
-                html += '<div><b>Score :</b> '+total+'</div>';
-            break;
-
-            case 'boolean':
-                html += '<div><b>Yes :</b> '+total+'</div>';
+                html += '<div><b>Percentage :</b> '
+                      + item.target
+                      + '% / '
+                      + item.achieved
+                      + '%</div>';
             break;
 
             default:
-                html += '<div><b>'+type+' :</b> '+total+'</div>';
+
+                html += '<div><b>'
+                      + type.charAt(0).toUpperCase()+type.slice(1)
+                      + ' :</b> '
+                      + item.target
+                      + ' / '
+                      + item.achieved
+                      + '</div>';
+
         }
 
     });
