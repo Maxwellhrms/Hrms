@@ -1,3 +1,45 @@
+		<style>
+			#displaydata td,
+#displaydata th{
+    vertical-align:middle;
+}
+
+#displaydata input,
+#displaydata select{
+    height:40px;
+    border-radius:8px;
+}
+
+#displaydata td:nth-child(1){
+    width:60px;
+    text-align:center;
+}
+
+#displaydata td:nth-child(2){
+    width:40%;
+}
+
+#displaydata td:nth-child(3){
+    width:20%;
+}
+
+#displaydata td:nth-child(4){
+    width:15%;
+}
+
+#displaydata td:nth-child(5){
+    width:15%;
+}
+
+#displaydata td:nth-child(6){
+    width:80px;
+    text-align:center;
+}
+
+#displaydata td{
+    padding:12px;
+}
+		</style>
 		<form id="processapprisalquestions">
 					<!-- Page Wrapper -->
             <div class="page-wrapper">
@@ -66,167 +108,78 @@
 					
 					<div id="displayappersialquestions"></div>
 
+<section class="review-section">
+    <div class="row">
+        <div class="col-md-12">
 
-					<section class="review-section">
-<!-- 						<div class="review-header text-center">
-							<h3 class="review-title">Professional Goals Achieved for last year</h3>
-							<p class="text-muted">Lorem ipsum dollar</p>
-						</div> -->
-						<div class="row">
-							<div class="col-md-12">
-								<div class="table-responsive">
-									<table class="table table-bordered table-review review-table mb-0" id="table_goals">
-										<thead>
-											<tr>
-												<th>#</th>
-												<th>Question</th>
-												<th>KPI</th>
-												<th>Type</th>
-												<th>Formal Type</th>
-        										<th>Action</th>
-												<th><button type="button" class="btn btn-primary btn-add-row"><i class="fa fa-plus"></i></button></th>
-											</tr>
-										</thead>
-										<tbody id="table_goals_tbody">
+            <div class="table-responsive">
 
-										</tbody>
-									</table>
-									<table class="table table-bordered table-review review-table mb-0" id="displaydata">
+                <table class="table table-bordered table-hover align-middle mb-0">
 
-									</table>
-									<br>
-									<button type="submit" class="btn btn-success">Save</button>
-								</div>
-							</div>
-						</div>
-					</section>
+                    <thead>
+
+                        <tr>
+
+                            <th style="width:60px;">#</th>
+
+                            <th>Question</th>
+
+                            <th>KPI</th>
+
+                            <th>Type</th>
+
+                            <th>Formal Type</th>
+
+                            <th style="width:100px;">Action                                 
+								<button
+                                    type="button"
+                                    class="btn btn-primary btn-add-row">
+
+                                    <i class="fa fa-plus"></i>
+
+                                </button></th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="displaydata">
+
+                    </tbody>
+
+                </table>
+
+                <br>
+
+                <button type="submit" class="btn btn-success">
+                    Save
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</section>
 
 
                 </div>
 		</form>
 				<!-- /Page Content -->	
 <script>
-	/*
-$(function () {
-	$(document).on("click", '.btn-add-row', function () {
-		var id = $(this).closest("table.table-review").attr('id');  // Id of particular table
-		var div = $("<tr />");
-		div.html(GetDynamicTextBox(id));
-		$("#"+id+"_tbody").append(div);
-	});
-	$(document).on("click", "#comments_remove", function () {
-		$(this).closest("tr").prev().find('td:last-child').html('<button type="button" class="btn btn-danger" id="comments_remove"><i class="fa fa-trash"></i></button>');
-		$(this).closest("tr").remove();
-	});
-	function GetDynamicTextBox(table_id) {
-		$('#comments_remove').remove();
-		var rowsLength = document.getElementById(table_id).getElementsByTagName("tbody")[0].getElementsByTagName("tr").length+1;
-		return '<td>'+rowsLength+'</td>' + '<td><input type="text" name="question[]" class="form-control"></td>' + '<td><button type="button" class="btn btn-danger" id="comments_remove"><i class="fa fa-trash"></i></button></td>'
-	}
-});
-
-$(document).ready(function(){
-
-
-	$("form#processapprisalquestions").submit(function (e) {
-    e.preventDefault();   
-
-    var department = $("#department").val();
-    if (department ==  "") {
-        $("#department").focus();
-        $('#departmenterror').html("Please Select Department...");
-        return false;
-    } else {
-        $('#departmenterror').html("");
-    }
-
-    var quecategory = $("#quecategory").val();
-    if (quecategory ==  "") {
-        $("#quecategory").focus();
-        $('#quecategoryerror').html("Please Select Category...");
-        return false;
-    } else {
-        $('#quecategoryerror').html("");
-    }
-		var mainurl = baseurl + 'Performanceappraisal/savequestion';
-      	var formData = new FormData(this);
-    	$.ajax({
-        url: mainurl,
-        type: 'POST',
-        data: formData,
-        async:false,
-        success: function (data) {
-            if (data == 200) {
-                alert('Successfully Created');
-                setTimeout(function () {                    
-                    window.location.reload();
-                }, 1000);
-        	}
-        },
-        cache: false,
-        contentType: false,
-        processData: false
-    });
-
-  	});
-});
-function getdetails(){
-	var department = $("#department").val();
-	var quecategory = $("#quecategory").val();
-	if(department != "" && quecategory != ""){
-
-	var mainurl ='<?php echo base_url() ?>Performanceappraisal/filterappraisalquestion';
-	$.ajax({
-	    url: mainurl,
-	    type: 'POST',
-	    data: {department : department, quecategory : quecategory},
-	    success: function (data) {
-	        $('#displaydata').html(data);
-	    },
-	});
-
-	}else{
-		return false;
-	}
-}
-
-function deleteque(id){
-	var result = confirm("Want to delete?");
-	if (result) {
-		var mainurl ='<?php echo base_url() ?>Performanceappraisal/updateappraisalquestion';
-		$.ajax({
-		    url: mainurl,
-		    type: 'POST',
-		    data: {id : id},
-		    success: function (data) {
-	            alert('Successfully Deleted');
-	            setTimeout(function () {                    
-	                window.location.reload();
-	            }, 1000);
-		    },
-		});
-	}
-}*/
-</script>
-<script>
 	var performanceOptions = '<?php echo $controller->display_options('performance',''); ?>';
 	var performanceformulas = '<?php echo $controller->display_options('performanceformulas',''); ?>';
 $(function () {
 
-    $(document).on("click", '.btn-add-row', function () {
+$(document).on("click", ".btn-add-row", function () {
 
-        var id = $(this).closest("table.table-review").attr('id');
-        var div = $("<tr />");
+    $("#displaydata").prepend(GetDynamicTextBox());
 
-        div.html(GetDynamicTextBox(id));
+});
 
-        $("#" + id + "_tbody").append(div);
-    });
-
-    $(document).on("click", "#comments_remove", function () {
+    $(document).on("click",".comments_remove",function(){
 
         $(this).closest("tr").prev().find('td:last-child').html(
-            '<button type="button" class="btn btn-danger" id="comments_remove"><i class="fa fa-trash"></i></button>'
+            '<button type="button" class="btn btn-danger" class="comments_remove"><i class="fa fa-trash"></i></button>'
         );
 
         $(this).closest("tr").remove();
@@ -237,31 +190,70 @@ $(function () {
         });
     });
 
-    function GetDynamicTextBox(table_id) {
+	function GetDynamicTextBox(){
 
-        $('#comments_remove').remove();
+		var rowsLength = $("#displaydata tr").length + 1;
 
-        var rowsLength = document.getElementById(table_id)
-            .getElementsByTagName("tbody")[0]
-            .getElementsByTagName("tr").length + 1;
+		return `
+			<tr>
 
-        return '<td>' + rowsLength + '</td>' +
-               '<td>' +
-                    '<input type="text" name="question[]" class="form-control" required>' +
-               '</td>' +
-			    '<td>' +
-                    '<input type="text" name="kpi[]" class="form-control">' +
-               '</td>' +
-			   '<td><select name="type[]" class="form-control">' + performanceOptions + '</select></td>' +
-			   '<td><select name="formulatype[]" class="form-control">' + performanceformulas + '</select></td>' +
-               '<td>' +
-                    '<button type="button" class="btn btn-danger" id="comments_remove">' +
-                        '<i class="fa fa-trash"></i>' +
-                    '</button>' +
-               '</td>' + 
-			   '<td> <input style="display:none;" type="hidden" class="form-control" name="id[]"> </td>' +
-			'<td></td>';
-    }
+				<td class="text-center">
+					${rowsLength}
+				</td>
+
+				<td>
+					<input
+						type="text"
+						name="question[]"
+						class="form-control"
+						placeholder="Enter Question">
+				</td>
+
+				<td>
+					<input
+						type="text"
+						name="kpi[]"
+						class="form-control"
+						placeholder="Enter KPI">
+				</td>
+
+				<td>
+					<select
+						name="type[]"
+						class="form-control">
+						${performanceOptions}
+					</select>
+				</td>
+
+				<td>
+					<select
+						name="formulatype[]"
+						class="form-control">
+						${performanceformulas}
+					</select>
+				</td>
+
+				<td class="text-center">
+
+					<button
+						type="button"
+						class="btn btn-danger comments_remove">
+
+						<i class="fa fa-trash"></i>
+
+					</button>
+
+				</td>
+
+				<td style="display:none;">
+					<input
+						type="hidden"
+						name="id[]">
+				</td>
+
+			</tr>
+		`;
+	}
 });
 
 $(document).ready(function(){

@@ -99,25 +99,25 @@ class Performanceappraisal extends Common {
                 $type = $value['mxap_type'] ?? '';
                 $formulatype = $value['mxap_formula_type'] ?? '';
 
-                $table = "<tr>";
+                $table = "<tr class='existing-row'>";
 
                 $table .= "<td>".$sno."</td>";
 
                 // Editable Question
                 $table .= "<td>
                             <input type='text'
-                                class='form-control'
+                                class='form-control form-control-lg'
                                 name='question[]'
                                 id='question_".$id."'
-                                value='".$question."'>
+                                value='".$question."' placeholder='Enter Question'>
                         </td>";
 
                 $table .= "<td>
                             <input type='text'
-                                class='form-control'
+                                class='form-control form-control-sm'
                                 name='kpi[]'
                                 id='kpi_".$id."'
-                                value='".$value['mxap_kpi']."'>
+                                value='".$value['mxap_kpi']."' placeholder='Enter KPI'>
                         </td>";
 
                 // Type Dropdown
