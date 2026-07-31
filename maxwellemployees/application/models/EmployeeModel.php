@@ -4026,12 +4026,14 @@ public function getAttendanceDashboard(){
         ->get('maxwell_employees_info')
         ->row_array();
 
+        // print_r($employeeInfo); exit;
+
         $quecategory = $data['appraisalcategory'];
 
         $department = $employeeInfo['mxemp_emp_dept_code'];
 
-        $year = $data['monthyear'];
-        $dateObj = DateTime::createFromFormat('m-Y', $year);
+        $year = $data['monthyear']; // 04-2026
+        $dateObj = DateTime::createFromFormat('!m-Y', $year);
         $yearmonth = $dateObj->format('Y-m');
 
         $this->db->select('
