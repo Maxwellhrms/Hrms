@@ -489,6 +489,25 @@ class Employee extends Common {
         $this->checkissession();
         $data['controller'] = $this;
         $userdata = $this->input->post();
+
+    // Validation
+    if (!empty($userdata['monthyear'])) {
+
+        $selectedMonth = DateTime::createFromFormat('!m-Y', $userdata['monthyear']);
+
+        $currentMonth = new DateTime(date('Y-m-01'));
+
+        if ($selectedMonth >= $currentMonth) {
+
+            echo '<div class="alert alert-danger text-center mt-3">
+                    <strong>Previous month appraisal only.</strong><br>
+                    You cannot apply appraisal for the current or future month.
+                  </div>';
+
+            return;
+        }
+    }
+
         if(!isset($userdata['appraisaltype'])){
             $userdata['appraisaltype'] = 1;
         }
