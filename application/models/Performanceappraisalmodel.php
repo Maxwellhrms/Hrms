@@ -1441,8 +1441,8 @@ public function getEmployeeWorkflow($data)
 
     public function getlettersdataforapprisaldata($data){
         $id = $data['id'];
-        $this->db->select('*');
-        $this->db->from('maxwell_letters');
+        $this->db->select('email_body as pdfdata');
+        $this->db->from('maxwell_email_templates');
         $this->db->where('id',$id);
         $query = $this->db->get();
         // echo $this->db->last_query();
