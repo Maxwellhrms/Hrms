@@ -697,4 +697,27 @@ class Performanceappraisal extends Common {
         $this->Performanceappraisalmodel->createappraisaltables();   
     }
 
+    public function allemployeesappraisallist(){
+        $this->verifylogin();
+        $this->header();
+        $this;
+        $data['depart'] = $this->Performanceappraisalmodel->departmentmaster();
+        $data['catg'] = array("1" => "KRA","2" => "KEY COMPENTENCIES",);
+        $this->load->view('appraisal/allemployeesappraisallist',$data);
+        $this->footer();   
+    }
+
+    public function getallemployeesappraisallistdata(){
+        $userdata = $this->input->post();
+        $data['userdata'] = $userdata;
+        $data['alldata'] = $this->Performanceappraisalmodel->getallemployeesappraisallist($userdata);
+        $this->load->view('appraisal/allemployeesappraisalltable',$data);
+    }
+
+    public function getEmployeeWorkflow(){
+        $userdata=$this->input->post();
+        $data['questions']=$this->Performanceappraisalmodel->getEmployeeWorkflow($userdata);
+        $this->load->view("appraisal/employee_workflow",$data);
+    }
+
 }

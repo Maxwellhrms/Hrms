@@ -1152,5 +1152,171 @@ public function createappraisaltables(){
     }
 }
 // Cron
+
+public function getallemployeesappraisallist($data)
+{
+    $yearMonth = sprintf('%04d-%02d', $data['year'], $data['month']);
+
+    $this->db->select("
+        dp.mxdpt_name as department_name,
+        ae.mxap_assign_employee_code,
+        ae.mxap_assign_year_month,
+        ae.mxap_assign_dep,
+
+        COUNT(ae.mxap_assign_id) AS total_questions,
+
+        SUM(CASE WHEN ae.mxap_assign_emp_status = 'COMPLETED' THEN 1 ELSE 0 END) AS emp_completed,
+
+        SUM(CASE WHEN ae.mxap_assign_manager_status = 'COMPLETED' THEN 1 ELSE 0 END) AS manager_completed,
+
+        SUM(CASE WHEN ae.mxap_assign_hod_status = 'COMPLETED' THEN 1 ELSE 0 END) AS hod_completed,
+
+        SUM(CASE WHEN ae.mxap_assign_hr_status = 'COMPLETED' THEN 1 ELSE 0 END) AS hr_completed,
+
+        SUM(CASE WHEN ae.mxap_assign_reviewer_status = 'COMPLETED' THEN 1 ELSE 0 END) AS reviewer_completed,
+
+        emp.mxemp_emp_fname
+    ");
+
+    $this->db->from('maxwell_apprasial_assign_employees ae');
+    $this->db->join('maxwell_department_master dp','dp.mxdpt_id = ae.mxap_assign_dep','inner');
+    $this->db->join(
+        'maxwell_employees_info emp',
+        'emp.mxemp_emp_id = ae.mxap_assign_employee_code',
+        'left'
+    );
+
+    if (!empty($yearMonth)) {
+        $this->db->where(
+            'ae.mxap_assign_year_month',
+            $yearMonth
+        );
+    }
+
+    if (!empty($data['department'])) {
+        $this->db->where(
+            'ae.mxap_assign_dep',
+            $data['department']
+        );
+    }
+
+    if (!empty($data['employees'])) {
+        $this->db->where(
+            'ae.mxap_assign_employee_code',
+            $data['employees']
+        );
+    }
+
+    if (!empty($data['quecategory'])) {
+        $this->db->where(
+            'ae.mxap_assign_catg',
+            $data['quecategory']
+        );
+    }
+
+    $this->db->where('ae.mxap_assign_que_show', 1);
+
+    $this->db->group_by(array(
+        'ae.mxap_assign_employee_code',
+        'ae.mxap_assign_year_month',
+        'ae.mxap_assign_dep'
+    ));
+
+    $this->db->order_by(
+        'emp.mxemp_emp_fname',
+        'ASC'
+    );
+
+    $result = $this->db->get()->result_array();
+
+    foreach ($result as &$row) {
+
+        $total = (int)$row['total_questions'];
+
+        // Progress
+        $row['emp_progress'] = $row['emp_completed'].'/'.$total;
+        $row['manager_progress'] = $row['manager_completed'].'/'.$total;
+        $row['hod_progress'] = $row['hod_completed'].'/'.$total;
+        $row['hr_progress'] = $row['hr_completed'].'/'.$total;
+        $row['reviewer_progress'] = $row['reviewer_completed'].'/'.$total;
+
+        // Status
+        $row['emp_status'] = ($row['emp_completed'] == $total) ? 'COMPLETED' : 'PENDING';
+        $row['manager_status'] = ($row['manager_completed'] == $total) ? 'COMPLETED' : 'PENDING';
+        $row['hod_status'] = ($row['hod_completed'] == $total) ? 'COMPLETED' : 'PENDING';
+        $row['hr_status'] = ($row['hr_completed'] == $total) ? 'COMPLETED' : 'PENDING';
+        $row['reviewer_status'] = ($row['reviewer_completed'] == $total) ? 'COMPLETED' : 'PENDING';
+
+        // Current Stage
+        if ($row['emp_completed'] < $total) {
+            $row['current_stage'] = 'EMPLOYEE';
+        } elseif ($row['manager_completed'] < $total) {
+            $row['current_stage'] = 'MANAGER';
+        } elseif ($row['hod_completed'] < $total) {
+            $row['current_stage'] = 'HOD';
+        } elseif ($row['hr_completed'] < $total) {
+            $row['current_stage'] = 'HR';
+        } elseif ($row['reviewer_completed'] < $total) {
+            $row['current_stage'] = 'REVIEWER';
+        } else {
+            $row['current_stage'] = 'COMPLETED';
+        }
+    }
+
+    return $result;
 }
-?>
+
+public function getEmployeeWorkflow($data)
+{
+
+    $this->db->select("
+        ae.mxap_assign_employee_code,
+        aq.mxap_question,
+
+        ae.mxap_assign_monthlytarget,
+
+        ae.mxap_assign_emp_achievement,
+        ae.mxap_assign_emp_status,
+
+        ae.mxap_assign_manager_actual_assesment,
+        ae.mxap_assign_manager_status,
+
+        ae.mxap_assign_hod_actual_assesment,
+        ae.mxap_assign_hod_status,
+
+        ae.mxap_assign_hr_actual_assesment,
+        ae.mxap_assign_hr_status,
+
+        ae.mxap_assign_reviewer_actual_assesment,
+        ae.mxap_assign_reviewer_status
+    ");
+
+    $this->db->from("maxwell_apprasial_assign_employees ae");
+
+    $this->db->join(
+        "maxwell_apprasial_questions aq",
+        "aq.mxap_id=ae.mxap_assign_queid",
+        "left"
+    );
+
+    $this->db->where(
+        "ae.mxap_assign_employee_code",
+        $data['employee']
+    );
+
+    $this->db->where(
+        "ae.mxap_assign_year_month",
+        $data['month']
+    );
+
+    $this->db->where(
+        "ae.mxap_assign_catg",
+        $data['category']
+    );
+    $this->db->where('ae.mxap_assign_que_show', 1);
+
+    return $this->db->get()->result_array();
+
+}
+
+}
