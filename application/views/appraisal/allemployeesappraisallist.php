@@ -105,24 +105,55 @@ overflow-y: auto;
 							<div class="form-group form-focus select-focus">
 								<select class="select select2" style="width: 100%" name="month" id="month"> 
 									<option value="">Select Month</option>
-                                        <?php
-                                        date_default_timezone_set('Asia/Kolkata');
+                                    <?php
+                                    date_default_timezone_set('Asia/Kolkata');
 
-                                        $currentMonth = date('n'); // 1 to 12
+                                    // Last month (1 to 12)
+                                    $lastMonth = date('n', strtotime('-1 month'));
 
-                                        for($i = 1; $i <= 12; $i++) {
+                                    for($i = 1; $i <= 12; $i++) {
 
-                                            $month = date('F', mktime(0, 0, 0, $i, 10));
+                                        $month = date('F', mktime(0, 0, 0, $i, 10));
 
-                                            $selected = ($i == $currentMonth) ? 'selected' : '';
+                                        $selected = ($i == $lastMonth) ? 'selected' : '';
 
-                                            echo "<option value='$i' $selected>$month</option>";
-                                        }
-                                        ?>
+                                        echo "<option value='$i' $selected>$month</option>";
+                                    }
+                                    ?>
 								</select>
 								<label class="focus-label">Select Month</label>
 							</div>
 							<span class="formerror" id="montherror"></span>
+							
+						</div>
+
+						<div class="col-sm-6 col-md-3"> 
+							<div class="form-group form-focus select-focus">
+								<select class="select select2" style="width: 100%" name="appstatus" id="appstatus"> 
+									<option value="">ALL</option>
+                                    <?php foreach($appstatus as $askey => $aspval){ ?>
+                                        <option value="<?php echo $askey; ?>" <?php echo ($askey == 'PENDING') ? 'selected' : ''; ?>>
+                                            <?php echo $aspval; ?>
+                                        </option>
+                                    <?php } ?>
+								</select>
+								<label class="focus-label">Select Status</label>
+							</div>
+							<span class="formerror" id="appstatuserror"></span>
+							
+						</div>
+
+                        <div class="col-sm-6 col-md-3"> 
+							<div class="form-group form-focus select-focus">
+								<select class="select select2" style="width: 100%" name="appstatustype" id="appstatustype"> 
+									<option value="">ALL</option>
+									<?php foreach($appstatustype as $astkey => $astval){ 
+										echo "<option value=".$astkey." >".$astval."</option>";
+									} ?>
+								</select>
+								<label class="focus-label">Select Type</label>
+							</div>
+							<span class="formerror" id="appstatustypeerror"></span>
 							
 						</div>
 
@@ -172,10 +203,13 @@ function getallemployeesappraisallistdata(){
     var employees = $("#employees").val();
     var year = $("#year").val();
     var month = $("#month").val();
+    var appstatus = $("#appstatus").val();
+    var appstatustype = $("#appstatustype").val();
 
-    // if(employees == "" || employees == null){
-    //     return false;
-    // }
+    if(department == "" || department == null){
+        alert("Please select department");
+        return false;
+    }
 
     if(department != "" && quecategory != "" && year != "" && month != ""){
 
@@ -192,7 +226,9 @@ function getallemployeesappraisallistdata(){
                 quecategory : quecategory,
                 employees : employees,
                 year : year,
-                month : month
+                month : month,
+                appstatus : appstatus,
+                appstatustype : appstatustype
             },
 
             success: function (data) {

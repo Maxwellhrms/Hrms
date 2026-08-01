@@ -703,6 +703,8 @@ class Performanceappraisal extends Common {
         $this;
         $data['depart'] = $this->Performanceappraisalmodel->departmentmaster();
         $data['catg'] = array("1" => "KRA","2" => "KEY COMPENTENCIES",);
+        $data['appstatus'] = array("COMPLETED" => "Completed","PENDING" => "Pending");
+        $data['appstatustype'] = array("1" => "Employee","2" => "Manager", "3" => "HOD", "4" => "HR", "5" => "Reviewer");
         $this->load->view('appraisal/allemployeesappraisallist',$data);
         $this->footer();   
     }
@@ -718,6 +720,28 @@ class Performanceappraisal extends Common {
         $userdata=$this->input->post();
         $data['questions']=$this->Performanceappraisalmodel->getEmployeeWorkflow($userdata);
         $this->load->view("appraisal/employee_workflow",$data);
+    }
+
+    public function openappraisalpdf(){
+        require 'mpdf/autoload.php';
+        $this->verifylogin();
+        $userdata = $this->input->get();
+        $userdata['id'] = 18;
+    
+        $data['list'] = $this->Performanceappraisalmodel->getlettersdataforapprisaldata($userdata);
+    // echo $data['list'][0]->pdfdata;exit;
+        $replace_desc = rendertags($tags,$data['list'][0]->pdfdata,'');
+        // echo $replace_desc;exit;
+            $html = $replace_desc;
+            $mpdf = new \Mpdf\Mpdf([
+                'format'=>'A4',
+                'margin_top'=>20,
+                'margin_right'=>20,
+                'margin_left'=>20,
+                'margin_bottom'=>20,
+            ]);
+            $mpdf->WriteHTML($html);
+            $mpdf->Output();
     }
 
 }

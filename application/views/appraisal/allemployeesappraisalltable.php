@@ -3,16 +3,20 @@
         <thead class="table-dark">
             <tr>
                 <th style="width:50px;">#</th>
+				<th>Current Stage</th>
                 <th>Employee Code</th>
                 <th>Employee Name</th>
                 <th>Department</th>
                 <th>Month</th>
                 <th>Employee</th>
                 <th>Manager</th>
+				<th>Manager Name</th>
                 <th>HOD</th>
+				<th>HOD Name</th>
                 <th>HR</th>
+				<th>HR Name</th>
                 <th>Reviewer</th>
-                <th>Current Stage</th>
+				<th>Reviewer Name</th>
             </tr>
         </thead>
 
@@ -43,8 +47,16 @@
 				</button>
 			</td>
 
+			<td>
+                <span class="badge bg-info">
+                    <?php echo $row['current_stage'];?>
+                </span>
+            </td>
+
             <td>
-                <?php echo $row['mxap_assign_employee_code'];?>
+                <a target="_blank" href="<?php echo base_url('performanceappraisal/openappraisalpdf'); ?>?employeeid=<?php echo $row['mxap_assign_employee_code']; ?>">
+                    <?php echo $row['mxap_assign_employee_code']; ?>
+                </a>
             </td>
 
             <td>
@@ -71,11 +83,15 @@
                 </span>
             </td>
 
+			<td><strong><?php echo $row['manager_name'] . ' (' . $row['manager_id'] . ')'; ?></strong></td>
+
             <td>
                 <span class="badge bg-<?php echo ($row['hod_status']=='COMPLETED')?'success':'warning';?>">
                     <?php echo $row['hod_progress'];?>
                 </span>
             </td>
+
+			<td><strong><?php echo $row['hod_name'] . ' (' . $row['hod_id'] . ')'; ?></strong></td>
 
             <td>
                 <span class="badge bg-<?php echo ($row['hr_status']=='COMPLETED')?'success':'warning';?>">
@@ -83,17 +99,15 @@
                 </span>
             </td>
 
+			<td><strong><?php echo $row['hr_name'] . ' (' . $row['hr_id'] . ')'; ?></strong></td>
+
             <td>
                 <span class="badge bg-<?php echo ($row['reviewer_status']=='COMPLETED')?'success':'warning';?>">
                     <?php echo $row['reviewer_progress'];?>
                 </span>
             </td>
 
-            <td>
-                <span class="badge bg-info">
-                    <?php echo $row['current_stage'];?>
-                </span>
-            </td>
+			<td><strong><?php echo $row['reviewer_name'] . ' (' . $row['reviewer_id'] . ')'; ?></strong></td>
 
         </tr>
 
