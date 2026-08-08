@@ -1824,6 +1824,13 @@ public function getAttendanceDashboard(){
             $cdate = date('Y-m-d');
             $year = date('Y');
         }
+        if(!empty($data['todate'])){
+            $tdate = date('Y-m-d',strtotime($data['todate']));
+            $year = date('Y',strtotime($data['todate']));  
+        }else{
+            $tdate = date('Y-m-d');
+            $year = date('Y');
+        }
 
         // Employee IDs
         if(count($employee_codes) > 0){
@@ -1833,70 +1840,73 @@ public function getAttendanceDashboard(){
             $employee_ids = array_column($employee_ids, 'mxauth_emp_code');
         }
 
-        $this->db->select('employee_code'); 
+        $this->db->select('employee_code, attendance_date, mxemp_emp_autouniqueid,mxemp_emp_id,mxemp_emp_fname,mxemp_emp_lname,mxemp_emp_img,mxdesg_name,mxemp_emp_resignation_status,mxemp_emp_date_of_join,mxemp_emp_is_without_notice_period,mxcp_name,mxd_name,mxb_name,mxst_state,mxemp_ty_name');
         $this->db->from('employee_punches_'.$year);
+        $this->db->join('maxwell_employees_info', 'mxemp_emp_id = employee_code', 'INNER');
         $this->db->join('maxwell_employees_login', 'mxemp_emp_lg_employee_id = employee_code', 'INNER');
         $this->db->join('maxwell_company_master', 'mxcp_id = company', 'INNER');
         $this->db->join('maxwell_division_master', 'mxd_id = division', 'INNER');
         $this->db->join('maxwell_state_master', 'mxst_id = state', 'INNER');
         $this->db->join('maxwell_branch_master', 'mxb_id = branch', 'INNER');
+        $this->db->join('maxwell_designation_master', 'mxdesg_id = mxemp_emp_desg_code', 'INNER');
+        $this->db->join('maxwell_department_master', 'mxdpt_id = mxemp_emp_dept_code', 'INNER');
+        $this->db->join('maxwell_grade_master', 'mxgrd_id = mxemp_emp_grade_code', 'INNER');
+        $this->db->join('maxwell_employee_type_master', 'mxemp_ty_id = mxemp_emp_type', 'INNER');
         
-        $this->db->where('attendance_date', $cdate);
+        $this->db->where('attendance_date >=', $cdate);
+        $this->db->where('attendance_date <=', $tdate);
         $this->db->where('latitudes !=','');
         $this->db->where('longitudes !=','');
         $this->db->where('mxemp_emp_google_map', 1);
+        $this->db->where('mxemp_emp_is_without_notice_period', 0); 
+        $this->db->where('mxemp_emp_status', 1);
         if(count($employee_ids) > 0){
             $this->db->where_In('employee_code',$employee_ids);
         }
+
+        if (!empty($data['cmpname'])) {
+            $this->db->where('company', $data['esi_company_id']);
+        }
+        if (!empty($data['divname'])) {
+            $this->db->where('division', $data['esi_div_id']);
+        }
+        if (!empty($data['cmpstate'])) {
+            $this->db->where('state', $data['esi_state_id']);
+        }
+        if (!empty($data['brname'])) {
+            $this->db->where('branch', $data['esi_branch_id']);
+        }
+
+        $this->db->group_by(array('employee_code','attendance_date'));
         $query = $this->db->get();
-        $qry = $query->result_array();
-        $gepemparry=[];
+        // echo $this->db->last_query(); exit;
+        $qry1 = $query->result();
+        // $gepemparry=[];
 
-            foreach($qry as $geokey =>$geoval){
-               $gepemparry[]= $geoval['employee_code'];
-            }   
-            $gepemparry1=array_values($gepemparry);
-            if(empty($gepemparry1)){
-                $gepemparry1 = array('1');
-            }
+        //     foreach($qry as $geokey =>$geoval){
+        //        $gepemparry[]= $geoval['employee_code'];
+        //     }   
+        //     $gepemparry1=array_values($gepemparry);
+        //     if(empty($gepemparry1)){
+        //         $gepemparry1 = array('1');
+        //     }
         
-            $this->db->select('mxemp_emp_autouniqueid,mxemp_emp_id,mxemp_emp_fname,mxemp_emp_lname,mxemp_emp_img,mxdesg_name,mxemp_emp_resignation_status,mxemp_emp_date_of_join,mxemp_emp_is_without_notice_period,mxcp_name,mxd_name,mxb_name,mxst_state,mxemp_ty_name');
-            $this->db->from('maxwell_employees_info');
-            $this->db->join('maxwell_employees_login', 'mxemp_emp_lg_employee_id = mxemp_emp_id', 'INNER');
-            $this->db->join('maxwell_designation_master', 'mxdesg_id = mxemp_emp_desg_code', 'INNER');
-            $this->db->join('maxwell_company_master', 'mxcp_id = mxemp_emp_comp_code', 'INNER');
-            $this->db->join('maxwell_department_master', 'mxdpt_id = mxemp_emp_dept_code', 'INNER');
-            $this->db->join('maxwell_division_master', 'mxd_id = mxemp_emp_division_code', 'INNER');
-            $this->db->join('maxwell_branch_master', 'mxb_id = mxemp_emp_branch_code', 'INNER');
-            $this->db->join('maxwell_grade_master', 'mxgrd_id = mxemp_emp_grade_code', 'INNER');
-            $this->db->join('maxwell_state_master', 'mxst_id = mxemp_emp_state_code', 'INNER');
-            $this->db->join('maxwell_employee_type_master', 'mxemp_ty_id = mxemp_emp_type', 'INNER');
-            if (!empty($data['cmpname'])) {
-                $this->db->where('mxemp_emp_comp_code', $data['esi_company_id']);
-            }
-            if (!empty($data['divname'])) {
-                $this->db->where('mxemp_emp_division_code', $data['esi_div_id']);
-            }
-            if (!empty($data['cmpstate'])) {
-                $this->db->where('mxemp_emp_state_code', $data['esi_state_id']);
-            }
-            if (!empty($data['brname'])) {
-                $this->db->where('mxemp_emp_branch_code', $data['esi_branch_id']);
-            }
+            // $this->db->select('mxemp_emp_autouniqueid,mxemp_emp_id,mxemp_emp_fname,mxemp_emp_lname,mxemp_emp_img,mxdesg_name,mxemp_emp_resignation_status,mxemp_emp_date_of_join,mxemp_emp_is_without_notice_period,mxcp_name,mxd_name,mxb_name,mxst_state,mxemp_ty_name');
+            // $this->db->from('maxwell_employees_info');
 
-            $this->db->where_In('mxemp_emp_id',$gepemparry1);
-            $this->db->where('mxemp_emp_is_without_notice_period', 0); 
-            $this->db->where('mxemp_emp_status', 1);
-            $this->db->where('mxemp_emp_google_map', 1);
-            $query1 = $this->db->get();
-            $qry1 = $query1->result();
+
+
+            // $this->db->where_In('mxemp_emp_id',$gepemparry1);
+
+            // $query1 = $this->db->get();
+            // $qry1 = $query1->result();
             // echo $this->db->last_query(); exit;
 
            $retrunarray = array();
 
             foreach ($qry1 as $key => $val){
                 $buldarray = (object)array(
-                    "attendancedate" => '<a href="'.base_url().'Employee/TeamMembersGeoLocationAttendance?employeeid='.$val->mxemp_emp_id.'&date='.$cdate.'" target="_blank">' . $cdate . '</a>',
+                    "attendancedate" => '<a href="'.base_url().'Employee/TeamMembersGeoLocationAttendance?employeeid='.$val->mxemp_emp_id.'&date='.$val->attendance_date.'" target="_blank">' . $val->attendance_date . '</a>',
                     "mxemp_emp_id" => $val->mxemp_emp_id,
                     "mxemp_emp_fname" => $val->mxemp_emp_fname .' '.$val->mxemp_emp_lname,
                     "mxcp_name" => $val->mxcp_name,

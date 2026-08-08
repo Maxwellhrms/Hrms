@@ -17,6 +17,7 @@
 <?php 
 $controller->commonFiltersForm(array(
     'fromdatefilter' => 'Y',
+    'todatefilter' => 'Y',
     'employeecodeFilter' => 'Y',
     'companyfilter' => 'Y',
     'divisionfilter' => 'Y',
