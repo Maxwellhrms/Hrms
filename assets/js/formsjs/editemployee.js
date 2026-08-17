@@ -26,6 +26,32 @@ $(document).ready(function () {
 	    alert(resp);
 	});
 	// End Training
+  // Employee Documents
+$("form#addnew_employee_document").submit(function (e) {
+    e.preventDefault();
+
+    var formData = new FormData(this);
+
+    mainurl = baseurl + 'employee/addemployeedocument';
+
+    var resp = ajaxfunction(mainurl, formData);
+
+    alert(resp);
+});
+// End Employee Documents
+// Update Employee Documents
+$("form#updateemployeedocuments").submit(function (e) {
+    e.preventDefault();
+
+    var formData = new FormData(this);
+
+    mainurl = baseurl + 'employee/updateemployeedocuments';
+
+    var resp = ajaxfunction(mainurl, formData);
+
+    alert(resp);
+});
+// End Update Employee Documents
 	// Family Information
 	$("form#updatefamily").submit(function (e) {
 		e.preventDefault();
