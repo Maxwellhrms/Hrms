@@ -756,6 +756,117 @@ $write = $val1->mxemp_emp_lng_write;
 </div>
 </form>
 <!-- Training -->
+<br>
+<!-- Employee Documents -->
+<form id="updateemployeedocuments">
+<div class="row">
+	<div class="col-md-12">
+		<div class="card mb-0">
+			<div class="card-header text-left">
+				<h4 class="card-title mb-0">Employee Documents</h4>
+			</div>
+			<div class="card-body">
+						<?php //echo '<pre>'; print_r($emp['employeedocuments']);
+						 ?>
+<?php foreach ($emp['employeedocuments'] as $dockey => $docvalue) { ?>
+
+    <div class="row">
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label>Document Type:</label>
+                <select class="form-control" name="empdoc_type[]" id="empdoc_type">
+                    <option value="">Select Document</option>
+
+                    <?php foreach ($documenttype as $key => $value) { ?>
+                        <option value="<?php echo $key; ?>"
+                            <?php echo ($docvalue->document_type == $key) ? 'selected' : ''; ?>>
+                            <?php echo $value; ?>
+                        </option>
+                    <?php } ?>
+
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label>Document Name:</label>
+                <input type="text"
+                       class="form-control"
+                       name="empdocname[]"
+                       id="empdocname"
+                       value="<?php echo $docvalue->document_name; ?>"
+                       autocomplete="off">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <label>Issued Date:</label>
+                <input type="text"
+                       class="form-control datetimepicker"
+                       name="empdocissueddate[]"
+                       id="empdocissueddate"
+                       value="<?php echo !empty($docvalue->issued_date) ? date('d-m-Y', strtotime($docvalue->issued_date)) : ''; ?>"
+                       autocomplete="off">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <label>Employee Approved Date:</label>
+                <input type="text" class="form-control datetimepicker" name="empdocapproveddate[]" id="empdocapproveddate" value="<?php echo !empty($docvalue->employee_approved_date) ? date('d-m-Y', strtotime($docvalue->employee_approved_date)) : ''; ?>"
+                       autocomplete="off">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <label>Document:</label>
+                <input type="file" class="form-control" name="empdocfile[]" id="empdocfile" autocomplete="off">
+
+                <?php if (!empty($docvalue->file_name)) { ?>
+                    <small>
+                        Existing:
+                        <a href="<?php echo base_url($docvalue->file_path); ?>"
+                           target="_blank">
+                            <?php echo $docvalue->file_name; ?>
+                        </a>
+                    </small>
+                <?php } ?>
+            </div>
+        </div>
+
+        <input type="hidden" name="empdocuniqid[]" value="<?php echo $docvalue->id; ?>">
+        <input type="hidden" name="empdocemployeeid[]" value="<?php echo $docvalue->employee_code; ?>">
+
+    </div>
+
+<?php } ?>
+<div class="text-right">
+    <?php if (sizeof($emp['employeedocuments']) > 0) { ?>
+        <button type="submit"
+                class="btn btn-info"
+                style="color: #fff;">
+            Update Documents
+        </button>
+    <?php } ?>
+
+    <a style="color:#fff"
+       class="btn add-btn"
+       data-toggle="modal"
+       data-target="#add_employee_document">
+        <i class="fa fa-plus"></i> Add New
+    </a>
+</div>
+	
+</div>
+</div>
+</div>
+</div>
+</form>
+<!-- Employee Documents -->
 </div>
 
 <!-- Bank -->
@@ -2064,6 +2175,132 @@ $write = $val1->mxemp_emp_lng_write;
 	</div>
 </div>
 <!-- new training popup -->
+<!-- new employee document popup -->
+<div id="add_employee_document" class="modal custom-modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Add Employee Document</h5>
+
+                <button type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <form id="addnew_employee_document"
+                      enctype="multipart/form-data">
+
+                    <div class="row">
+
+                        <div class="col-xl-12">
+
+                            <div class="row">
+
+                                <!-- Document Type -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Document Type:</label>
+
+                                        <select class="form-control"
+                                                name="add_empdoc_type"
+                                                id="add_empdoc_type">
+
+                                            <option value="">Select Document Type</option>
+
+                                            <?php foreach ($documenttype as $key => $value) { ?>
+                                                <option value="<?php echo $key; ?>">
+                                                    <?php echo $value; ?>
+                                                </option>
+                                            <?php } ?>
+
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Document Name -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Document Name:</label>
+
+                                        <input type="text"
+                                               class="form-control"
+                                               name="add_empdocname"
+                                               id="add_empdocname"
+                                               autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <!-- Issued Date -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Issued Date:</label>
+
+                                        <input type="text"
+                                               class="form-control datetimepicker"
+                                               name="add_empdocissueddate"
+                                               id="add_empdocissueddate"
+                                               autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <!-- Employee Approved Date -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Employee Approved Date:</label>
+
+                                        <input type="text"
+                                               class="form-control datetimepicker"
+                                               name="add_empdocapproveddate"
+                                               id="add_empdocapproveddate"
+                                               autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <!-- Document File -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Document:</label>
+
+                                        <input type="file"
+                                               class="form-control"
+                                               name="add_empdocfile"
+                                               id="add_empdocfile"
+                                               accept=".pdf,.doc,.docx">
+                                    </div>
+                                </div>
+
+                                <!-- Employee ID -->
+                                <input type="hidden"
+                                       name="add_empdocemployeeid"
+                                       id="add_empdocemployeeid"
+                                       value="<?php echo $emp['employeeinfo'][0]->mxemp_emp_id; ?>">
+
+                            </div>
+
+                            <div class="submit-section">
+                                <button type="submit"
+                                        class="btn btn-primary submit-btn">
+                                    Submit
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- new employee document popup -->
 <!-- new Previous Employment popup -->
 <div id="add_previous_employment" class="modal custom-modal fade" role="dialog">
 	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">

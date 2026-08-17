@@ -273,6 +273,12 @@ class Employeemodel extends Adminmodel
 
 // ---------------  added chandana 19-05-2021---------
 
+        $this->db->select('id,employee_code,document_type,document_name,file_name,file_path,issued_date,employee_approved_date,status,"maxwell_employee_documents" as tblname');
+        $this->db->from('maxwell_employee_documents');
+        $this->db->where('employee_code',$qry1[0]->mxemp_emp_id);
+        $query8 = $this->db->get();
+        $returnarray['employeedocuments'] = $query8->result();
+
         return $returnarray;
     }
 
@@ -472,6 +478,185 @@ public function updateemployeetraining($data){
             $this->db->trans_commit();
             return 1;
         }
+}
+
+public function addemployeedocument($data)
+{
+    $this->db->trans_begin();
+
+    $employeeid = $this->cleanInput($data['add_empdocemployeeid']);
+    $documenttype = $this->cleanInput($data['add_empdoc_type']);
+    $documentname = $this->cleanInput($data['add_empdocname']);
+    $issueddate = $this->cleanInput($data['add_empdocissueddate']);
+    $approveddate = $this->cleanInput($data['add_empdocapproveddate']);
+
+    $issueddate = !empty($issueddate)
+        ? date('Y-m-d', strtotime($issueddate))
+        : NULL;
+
+    $approveddate = !empty($approveddate)
+        ? date('Y-m-d', strtotime($approveddate))
+        : NULL;
+
+    $ip = $this->get_client_ip();
+    $date = date('Y-m-d H:i:s');
+
+    $docarray = array(
+        "employee_code" => $employeeid,
+        "document_type" => $documenttype,
+        "document_name" => $documentname,
+        "issued_date" => $issueddate,
+        "employee_approved_date" => $approveddate,
+        "status" => 1,
+        "created_by" => $this->session->userdata('user_id'),
+        "created_at" => $date
+    );
+
+    // Document Upload
+    if (is_uploaded_file($_FILES["add_empdocfile"]["tmp_name"])) {
+
+        $targetfolder14 = "uploads/empdocuments/letters/";
+
+        $fileext14 = pathinfo(
+            $_FILES['add_empdocfile']['name'],
+            PATHINFO_EXTENSION
+        );
+
+        $docfile = $targetfolder14
+            . $employeeid . "_"
+            . $documenttype . "_"
+            . time() . "."
+            . $fileext14;
+
+        move_uploaded_file(
+            $_FILES['add_empdocfile']['tmp_name'],
+            $docfile
+        );
+
+        $docarray["file_name"] = $_FILES['add_empdocfile']['name'];
+        $docarray["file_path"] = $docfile;
+    }
+
+    $this->db->insert(
+        'maxwell_employee_documents',
+        $docarray
+    );
+
+    if ($this->db->trans_status() === FALSE) {
+
+        $this->db->trans_rollback();
+        return 2;
+
+    } else {
+
+        $this->db->trans_commit();
+        return 1;
+    }
+}
+
+public function updateemployeedocuments($data)
+{
+    $this->db->trans_begin();
+
+    if (count($data['empdoc_type']) > 0 && !empty($data['empdoc_type'])) {
+
+        $doc = 1;
+
+        for ($i = 0; $i < count($data['empdoc_type']); $i++) {
+
+            $documenttype = $this->cleanInput($data['empdoc_type'][$i]);
+            $documentname = $this->cleanInput($data['empdocname'][$i]);
+            $issueddate = $this->cleanInput($data['empdocissueddate'][$i]);
+            $approveddate = $this->cleanInput($data['empdocapproveddate'][$i]);
+
+            $employeeid = $this->cleanInput(
+                $data['empdocemployeeid'][$i]
+            );
+
+            $documentid = $this->cleanInput(
+                $data['empdocuniqid'][$i]
+            );
+
+            // Optional dates
+            $issueddate = !empty($issueddate)
+                ? date('Y-m-d', strtotime($issueddate))
+                : NULL;
+
+            $approveddate = !empty($approveddate)
+                ? date('Y-m-d', strtotime($approveddate))
+                : NULL;
+
+            $ip = $this->get_client_ip();
+            $date = date('Y-m-d H:i:s');
+
+            $uparraydoc = array(
+                "document_type" => $documenttype,
+                "document_name" => $documentname,
+                "issued_date" => $issueddate,
+                "employee_approved_date" => $approveddate,
+                "updated_by" => $this->session->userdata('user_id'),
+                "updated_at" => $date
+            );
+
+            // Document Upload
+            if (
+                isset($_FILES["empdocfile"]["tmp_name"][$i]) &&
+                is_uploaded_file($_FILES["empdocfile"]["tmp_name"][$i])
+            ) {
+
+                $targetfolder14 = "uploads/empdocuments/letters/";
+
+                $fileext14 = pathinfo(
+                    $_FILES['empdocfile']['name'][$i],
+                    PATHINFO_EXTENSION
+                );
+
+                $docfile = $targetfolder14
+                    . $employeeid . "_"
+                    . $documenttype . "_"
+                    . $doc . "."
+                    . $fileext14;
+
+                move_uploaded_file(
+                    $_FILES['empdocfile']['tmp_name'][$i],
+                    $docfile
+                );
+
+                $uparraydoc["file_name"] =
+                    $_FILES['empdocfile']['name'][$i];
+
+                $uparraydoc["file_path"] = $docfile;
+            }
+
+            $this->db->where(
+                'id',
+                $documentid
+            );
+
+            $this->db->where(
+                'employee_code',
+                $employeeid
+            );
+
+            $this->db->update(
+                'maxwell_employee_documents',
+                $uparraydoc
+            );
+
+            $doc++;
+        }
+    }
+
+    if ($this->db->trans_status() === FALSE) {
+
+        $this->db->trans_rollback();
+        return 2;
+
+    } else {
+
+        $this->db->trans_commit();
+        return 1;
+    }
 }
 
 public function updateemployeefamily($data){

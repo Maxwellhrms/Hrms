@@ -56,6 +56,7 @@ class Employee extends Common {
 		$data['academy'] = array('General' => 'General','Professional' => 'Professional','NON Mertic' => 'NON Mertic','Mertic' => 'Mertic','SSC' => 'SSC','Inter' => 'Inter','Degree' => 'Degree','Diploma' => 'Diploma','PHD' => 'PHD','Senior Secondary' => 'Senior Secondary');
 		$data['bloodgp'] = array('A+'=>'A+','B+'=>'B+','AB+'=>'AB+','O+'=>'O+','A-'=>'A-','B-'=>'B-','AB-'=>'AB-','O-'=>'O-' );
 		$data['grautitynos'] = $this->Employeemodel->companygratuity('1');
+		$data['documenttype'] = array('1'=>'Appoinment','2'=>'Manager Appoinment','3'=>'Offer Letter','4'=>'Confirmation Letter');
 		$data['controller'] = $this;
 		$this->load->view('employee/editemployeeprofile',$data);
 		$this->footer();	
@@ -79,6 +80,17 @@ class Employee extends Common {
 		echo $this->responsemsg($res);
 	}
 
+	public function addemployeedocument(){
+		$userdata = $this->input->post();
+		$res = $this->Employeemodel->addemployeedocument($userdata);
+		echo $this->responsemsg($res);
+	}
+
+	public function updateemployeedocuments(){
+		$userdata = $this->input->post();
+		$res = $this->Employeemodel->updateemployeedocuments($userdata);
+		echo $this->responsemsg($res);
+	}
 	public function updateemployeefamily(){
 		$userdata = $this->input->post();
 		$res = $this->Employeemodel->updateemployeefamily($userdata);	
