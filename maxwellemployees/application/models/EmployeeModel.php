@@ -1857,7 +1857,7 @@ public function getAttendanceDashboard(){
         $this->db->where('attendance_date <=', $tdate);
         $this->db->where('latitudes !=','');
         $this->db->where('longitudes !=','');
-        $this->db->where('mxemp_emp_google_map', 1);
+        // $this->db->where('mxemp_emp_google_map', 1);
         $this->db->where('mxemp_emp_is_without_notice_period', 0); 
         $this->db->where('mxemp_emp_status', 1);
         if(count($employee_ids) > 0){
