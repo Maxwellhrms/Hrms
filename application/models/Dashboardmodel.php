@@ -503,7 +503,7 @@ class Dashboardmodel extends CI_Model
         inner join maxwell_branch_master on mxb_id = mxemp_emp_branch_code
         inner join maxwell_state_master on mxst_id = mxemp_emp_state_code
         inner join maxwell_division_master on mxd_id = mxemp_emp_division_code
-        where mxar_from >= '$currentdate' AND mxar_to <= '$currentdate'";
+        where mxar_from <= '$currentdate' AND mxar_to >= '$currentdate'";
         if($this->session->userdata('user_limiteddropdowns') == 1){
             $bruser = $this->session->userdata('user_branch');
             $brselected = $this->session->userdata('user_custom_branches');
