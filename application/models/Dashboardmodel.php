@@ -168,7 +168,7 @@ class Dashboardmodel extends CI_Model
     }
     
     public function birthdays_summary(){
-        $qb ="select mxemp_emp_id as employeecode, mxemp_emp_fname as name, mxemp_emp_img as image, mxemp_emp_date_of_birth, mxemp_emp_email_id as email from maxwell_employees_info 
+        $qb ="select mxemp_emp_id as employeecode, mxemp_emp_fname as name, mxemp_emp_img as image, mxemp_emp_date_of_birth, mxemp_emp_email_id as email, mxb_name as Branch_Name, mxb_bremail as Branch_Email from maxwell_employees_info 
         inner join maxwell_division_master on mxd_id = mxemp_emp_division_code
         inner join maxwell_state_master on mxst_id = mxemp_emp_state_code
         inner join maxwell_branch_master on mxb_id = mxemp_emp_branch_code
