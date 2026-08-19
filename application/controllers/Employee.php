@@ -56,7 +56,7 @@ class Employee extends Common {
 		$data['academy'] = array('General' => 'General','Professional' => 'Professional','NON Mertic' => 'NON Mertic','Mertic' => 'Mertic','SSC' => 'SSC','Inter' => 'Inter','Degree' => 'Degree','Diploma' => 'Diploma','PHD' => 'PHD','Senior Secondary' => 'Senior Secondary');
 		$data['bloodgp'] = array('A+'=>'A+','B+'=>'B+','AB+'=>'AB+','O+'=>'O+','A-'=>'A-','B-'=>'B-','AB-'=>'AB-','O-'=>'O-' );
 		$data['grautitynos'] = $this->Employeemodel->companygratuity('1');
-		$data['documenttype'] = array('1' => 'Appointment','2' => 'Manager Appointment','3' => 'Offer Letter','4' => 'Confirmation Letter','5' => 'BGV');
+		$data['documenttype'] = array('1' => 'Appointment','2' => 'Manager Appointment','3' => 'Offer Letter','4' => 'Confirmation Letter','5' => 'BGV','6' => 'Relieving Letter');
 		$data['controller'] = $this;
 		$this->load->view('employee/editemployeeprofile',$data);
 		$this->footer();	

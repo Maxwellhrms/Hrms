@@ -163,6 +163,7 @@
 									<li class="nav-item"><a href="#emp_inc" data-toggle="tab" class="nav-link">Increments</a></li>
 									<li class="nav-item"><a href="#emp_arr_inc" data-toggle="tab" class="nav-link">Arrears Increments</a></li>
 									<li class="nav-item"><a href="#emp_auth" data-toggle="tab" class="nav-link">Authorization Under You</a></li>
+									<li class="nav-item"><a href="#emp_letters" data-toggle="tab" class="nav-link">Letters</a></li>
 									<!-- <li class="nav-item"><a href="#bank_statutory" data-toggle="tab" class="nav-link">Bank & Statutory <small class="text-danger">(Admin Only)</small></a></li> -->
 								</ul>
 							</div>
@@ -1030,6 +1031,119 @@
 							</div>
 						</div>
 						<!--END Authorization -->
+
+						<!--Employee Letters -->
+	<div class="tab-pane fade" id="emp_letters">
+    <div class="row">
+        <div class="col-lg-12 col-sm-12 col-md-4 col-xl-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="table-responsive">
+
+                        <table class="datatable table table-stripped mb-0">
+
+                            <thead>
+                                <tr>
+                                    <th>Sno</th>
+                                    <th>Document Type</th>
+                                    <th>Document Name</th>
+                                    <th>Issued Date</th>
+                                    <th>Employee Approved Date</th>
+                                    <th>Document</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <?php
+                                $sno = 1;
+
+                                foreach ($emp['employeedocuments'] as $doc) {
+                                ?>
+
+                                    <tr>
+
+                                        <td>
+                                            <?php echo $sno; ?>
+                                        </td>
+
+                                        <td>
+                                            <?php
+                                            echo isset($documenttype[$doc->document_type])
+                                                ? $documenttype[$doc->document_type]
+                                                : '';
+                                            ?>
+                                        </td>
+
+                                        <td>
+                                            <?php echo $doc->document_name; ?>
+                                        </td>
+
+                                        <td>
+                                            <?php
+                                            echo !empty($doc->issued_date)
+                                                ? date('d-m-Y', strtotime($doc->issued_date))
+                                                : '';
+                                            ?>
+                                        </td>
+
+                                        <td>
+                                            <?php
+                                            echo !empty($doc->employee_approved_date)
+                                                ? date('d-m-Y', strtotime($doc->employee_approved_date))
+                                                : '';
+                                            ?>
+                                        </td>
+
+                                        <td>
+                                            <?php if (!empty($doc->file_path)) { ?>
+
+                                                <a href="<?php echo base_url($doc->file_path); ?>"
+                                                   target="_blank"
+                                                   class="btn btn-sm btn-info">
+                                                    <i class="fa fa-eye"></i> View
+                                                </a>
+
+                                            <?php } else { ?>
+
+                                                <span class="text-muted">
+                                                    No Document
+                                                </span>
+
+                                            <?php } ?>
+                                        </td>
+
+                                        <td>
+                                            <?php
+                                            if ($doc->status == 1) {
+                                                echo 'Active';
+                                            } else {
+                                                echo 'Inactive';
+                                            }
+                                            ?>
+                                        </td>
+
+                                    </tr>
+
+                                <?php
+                                    $sno++;
+                                }
+                                ?>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+						<!--END Employee Letters -->
 						
 						<!-- Bank Statutory Tab -->
 						<div class="tab-pane fade" id="bank_statutory">

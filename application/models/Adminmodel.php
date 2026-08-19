@@ -3260,6 +3260,13 @@ die;
         $this->db->order_by("mxauth_status", "desc");
         $query12 = $this->db->get();
         $returnarray['authorizationemployees_underyou'] = $query12->result();
+
+        $this->db->select('id,employee_code,document_type,document_name,file_name,file_path,issued_date,employee_approved_date,status,"maxwell_employee_documents" as tblname');
+        $this->db->from('maxwell_employee_documents');
+        $this->db->where('employee_code',$qry1[0]->mxemp_emp_id);
+        $query13 = $this->db->get();
+        $returnarray['employeedocuments'] = $query13->result();
+
         return $returnarray;
     }
     

@@ -797,6 +797,7 @@ class Admin extends Common
         $data['emp'] = $this->Adminmodel->getemployeecompletedetails($id);
         // echo"<pre>";print_r($data);exit;
         $data['controller'] = $this;
+        $data['documenttype'] = array('1' => 'Appointment','2' => 'Manager Appointment','3' => 'Offer Letter','4' => 'Confirmation Letter','5' => 'BGV','6' => 'Relieving Letter');
         $this->load->view('employee/employeesprofile', $data);
         $this->footer();
     }
