@@ -1864,16 +1864,16 @@ public function getAttendanceDashboard(){
             $this->db->where_In('employee_code',$employee_ids);
         }
 
-        if (!empty($data['cmpname'])) {
+        if (!empty($data['esi_company_id'])) {
             $this->db->where('company', $data['esi_company_id']);
         }
-        if (!empty($data['divname'])) {
+        if (!empty($data['esi_div_id'])) {
             $this->db->where('division', $data['esi_div_id']);
         }
-        if (!empty($data['cmpstate'])) {
+        if (!empty($data['esi_state_id'])) {
             $this->db->where('state', $data['esi_state_id']);
         }
-        if (!empty($data['brname'])) {
+        if (!empty($data['esi_branch_id'])) {
             $this->db->where('branch', $data['esi_branch_id']);
         }
 
