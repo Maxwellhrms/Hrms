@@ -596,4 +596,180 @@ class Employee extends Common {
         echo json_encode($result);
     }
     #Appraisal
+
+    #Common Export to excel
+    public function exporttoexcel()
+    {
+        $this->checkissession();
+
+        $userdata = $this->input->get();
+
+        $name = isset($userdata['name'])
+            ? $userdata['name']
+            : 'Export';
+
+        $callmodel = isset($userdata['callmodel'])
+            ? $userdata['callmodel']
+            : 1;
+
+        if ($callmodel == 0) {
+
+            // Excel array coming from View
+            $excelarraydata = isset($userdata['excelarraydata'])
+                ? $userdata['excelarraydata']
+                : '';
+
+            // Convert JSON string to PHP array
+            $data = json_decode($excelarraydata, true);
+
+            // Validate JSON
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                echo 'JSON Error: ' . json_last_error_msg();
+                exit;
+            }
+
+            // Make sure data is an array
+            if (!is_array($data)) {
+                echo 'Excel data is not a valid array.';
+                exit;
+            }
+
+        } else {
+
+            $mdfn = isset($userdata['mdfn'])
+                ? $userdata['mdfn']
+                : '';
+
+            if (!empty($mdfn)) {
+                $data = $this->EmployeeModel->$mdfn($userdata);
+            } else {
+                $data = array();
+            }
+        }
+
+        $this->excel_generate($data, $name);
+    }
+
+    public function excel_generate($data, $name)
+    {
+        if (!is_array($data)) {
+            echo 'Excel data must be an array.';
+            exit;
+        }
+
+        array_walk($data, function (&$row) {
+            if (isset($row['image'])) {
+                unset($row['image']);
+            }
+        });
+
+        $list = $data;
+
+        if (empty($list)) {
+            echo 'No data available for Excel export.';
+            exit;
+        }
+
+        $this->load->library('excel');
+
+        $this->excel->setActiveSheetIndex(0);
+
+        $this->excel->getActiveSheet()->setTitle(
+            'Maxwell_HRMS_' . substr($name, 0, 11)
+        );
+
+        $cou = 1;
+        $cou_1 = 2;
+
+        $apl_arr = array();
+        $apl_arr1 = array();
+
+        for ($i = 'a'; $i <= 'zz'; $i++) {
+
+            $apl_arr1[$cou] = $i . $cou_1;
+            $apl_arr[$cou] = $i;
+
+            $cou++;
+        }
+
+        /*
+        * Get Excel column headers
+        */
+        $array_keys1 = array_keys($list[0]);
+
+        $array_keys = array();
+
+        foreach ($array_keys1 as $key) {
+
+            $t = str_replace('_1_', '(', $key);
+            $t = str_replace('_2_', ')', $t);
+            $t = str_replace('_3_', '/', $t);
+            $t = str_replace('_4_', '#', $t);
+            $t = str_replace('_', ' ', $t);
+            $t = str_replace('$', '', $t);
+
+            $array_keys[] = trim($t);
+        }
+
+        /*
+        * Company name
+        */
+        $this->excel->getActiveSheet()->mergeCells('A1:AZ1');
+
+        $this->excel->getActiveSheet()->setCellValue(
+            'A1',
+            ' MAXWELL LOGISTICS PRIVATE LIMITED '
+        );
+
+        /*
+        * Headers
+        */
+        for ($i = 0; $i < count($array_keys); $i++) {
+
+            $this->excel->getActiveSheet()
+                ->getColumnDimension($apl_arr[$i + 1])
+                ->setWidth(25);
+
+            $this->excel->getActiveSheet()->setCellValue(
+                $apl_arr1[$i + 1],
+                strtoupper($array_keys[$i])
+            );
+        }
+
+        $this->excel->getActiveSheet()
+            ->getRowDimension('1')
+            ->setRowHeight(22);
+
+        /*
+        * Data
+        */
+        $this->excel->getActiveSheet()->fromArray(
+            $list,
+            null,
+            'A3'
+        );
+
+        /*
+        * Download
+        */
+        $filename = $name . time() . '.xls';
+
+        header('Content-Type: application/vnd.ms-excel');
+
+        header(
+            'Content-Disposition: attachment;filename="' . $filename . '"'
+        );
+
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter(
+            $this->excel,
+            'Excel5'
+        );
+
+        $objWriter->save('php://output');
+
+        exit;
+    }
+    #Common Export to excel
 }

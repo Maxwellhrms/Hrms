@@ -289,6 +289,48 @@ foreach($locations['list'] as $i => $row){
 }
 
 ?>
+
+<?php
+
+$excelData = array();
+
+foreach ($locations['list'] as $i => $row) {
+
+    // Distance from previous location
+    if ($i == 0) {
+        $distance = 0;
+    } else {
+
+        $distance = distance(
+            $locations['list'][$i - 1]['latitudes'],
+            $locations['list'][$i - 1]['longitudes'],
+            $row['latitudes'],
+            $row['longitudes'],
+            "K"
+        );
+    }
+
+    $excelData[] = array(
+        'employee_name'   => $row['mxemp_emp_fname'],
+        'employee_code'   => $row['employee_code'],
+        'attendance_date' => $row['attendance_date'],
+        'punch_time'      => $row['attendance_time'],
+        'type'            => $row['entry_type'],
+        'company'         => $row['mxcp_name'],
+        'division'        => $row['mxd_name'],
+        'state'           => $row['mxst_state'],
+        'branch'          => $row['mxb_name'],
+        'latitude'        => $row['latitudes'],
+        'longitude'       => $row['longitudes'],
+        'location'        => $row['location'],
+        'is_location'     => $row['islocation'],
+        'distance'        => number_format($distance, 2) . ' Km'
+    );
+}
+
+$excelJson = urlencode(json_encode($excelData));
+
+?>
 <div class="d-flex gap-2 flex-wrap">
 
     <div class="mxgeo-route-count">
@@ -298,6 +340,14 @@ foreach($locations['list'] as $i => $row){
     <div class="mxgeo-route-count" style="background:#0d6efd;">
         Total Distance : <?php echo number_format($totalDistance,2); ?> KM
     </div>
+
+<a href="<?php echo base_url('Employee/exporttoexcel'); ?>?name=<?php echo rawurlencode('Geolocation Attendance'); ?>&excelarraydata=<?php echo $excelJson; ?>&callmodel=0"
+   class="btn btn-success">
+
+    <i class="fa fa-file-excel-o"></i>
+    Download Excel
+
+</a>
 
 </div>
 <!-- SCROLL -->
