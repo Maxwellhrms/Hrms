@@ -6961,7 +6961,7 @@ die;
         // print_r($attendance_array);exit;
 
         //------------PUBLIC HOLIDAY
-        $this->db->select('mx_holiday_date,mx_holiday_catgfsf');
+        $this->db->select('mx_holiday_date,mx_holiday_catgfsf,mx_holiday_type');
         $this->db->from('maxwell_holiday_master');
         $this->db->where('mx_holiday_company_id', $cmpid);
         $this->db->where('mx_holiday_state_id', $stateid);
@@ -7004,16 +7004,27 @@ die;
                     foreach ($holiday_array as $hold_array) {
                         $hold_date = $hold_array->mx_holiday_date;
                         $full_half_days = $hold_array->mx_holiday_catgfsf;//----> 1 first half,2=second half, 3= full day
+                        $holiday_type = $hold_array->mx_holiday_type;      // 1 = PH, 2 = OCH, 3 = OH
+
                         if ($hold_date == $date) {
+                            // Holiday type
+                            if ($holiday_type == 1) {
+                                $holiday_status = 'PH';
+                            } elseif ($holiday_type == 2) {
+                                $holiday_status = 'OCH';
+                            } elseif ($holiday_type == 3) {
+                                $holiday_status = 'OH';
+                            }
+
                             if($full_half_days == 1){//--->first half
-                                $attendance_array['mx_attendance_first_half'] = 'PH';
+                                $attendance_array['mx_attendance_first_half'] = $holiday_status;
                                 $attendance_array['mx_attendance_second_half'] = 'AB';
                             }else if($full_half_days == 2){//-------->second half
                                 $attendance_array['mx_attendance_first_half'] = 'AB';
-                                $attendance_array['mx_attendance_second_half'] = 'PH';
+                                $attendance_array['mx_attendance_second_half'] = $holiday_status;
                             }else if($full_half_days == 3){ //----------> FULL DAY
-                                $attendance_array['mx_attendance_first_half'] = 'PH';
-                                $attendance_array['mx_attendance_second_half'] = 'PH';
+                                $attendance_array['mx_attendance_first_half'] = $holiday_status;
+                                $attendance_array['mx_attendance_second_half'] = $holiday_status;
                             }
                         }
                     }
@@ -13507,7 +13518,7 @@ public function saveemployeerequesttype($data){
                         );
 
                         //------------PUBLIC HOLIDAY
-                        $this->db->select('mx_holiday_date,mx_holiday_catgfsf');
+                        $this->db->select('mx_holiday_date,mx_holiday_catgfsf,mx_holiday_type');
                         $this->db->from('maxwell_holiday_master');
                         $this->db->where('mx_holiday_company_id',$qry[0]->mxemp_emp_comp_code);
                         $this->db->where('mx_holiday_state_id', $qry[0]->mxemp_emp_state_code);
@@ -13557,16 +13568,25 @@ public function saveemployeerequesttype($data){
                                     foreach($holiday_array as $hold_array){
                                         $hold_date = $hold_array->mx_holiday_date;
                                         $full_half_days = $hold_array->mx_holiday_catgfsf;//----> 1 first half, 2=second half, 3= full day
+                                        $holiday_type = $hold_array->mx_holiday_type;      // 1 = PH, 2 = OCH, 3 = OH
                                         if ($hold_date == $date){
+                                            // Holiday type
+                                            if ($holiday_type == 1) {
+                                                $holiday_status = 'PH';
+                                            } elseif ($holiday_type == 2) {
+                                                $holiday_status = 'OCH';
+                                            } elseif ($holiday_type == 3) {
+                                                $holiday_status = 'OH';
+                                            }
                                             if($full_half_days == 1){//--->first half
-                                                $attendance_array['mx_attendance_first_half'] = 'PH';
+                                                $attendance_array['mx_attendance_first_half'] = $holiday_status;
                                                 $attendance_array['mx_attendance_second_half'] = 'AB';
                                             }else if($full_half_days == 2){//-------->second half
                                                 $attendance_array['mx_attendance_first_half'] = 'AB';
-                                                $attendance_array['mx_attendance_second_half'] = 'PH';
+                                                $attendance_array['mx_attendance_second_half'] = $holiday_status;
                                             }else if($full_half_days == 3){ //----------> FULL DAY
-                                                $attendance_array['mx_attendance_first_half'] = 'PH';
-                                                $attendance_array['mx_attendance_second_half'] = 'PH';
+                                                $attendance_array['mx_attendance_first_half'] = $holiday_status;
+                                                $attendance_array['mx_attendance_second_half'] = $holiday_status;
                                             }
                                         }
                                     }
@@ -13624,7 +13644,7 @@ public function saveemployeerequesttype($data){
                     );
 
                     //------------PUBLIC HOLIDAY
-                    $this->db->select('mx_holiday_date,mx_holiday_catgfsf');
+                    $this->db->select('mx_holiday_date,mx_holiday_catgfsf,mx_holiday_type');
                     $this->db->from('maxwell_holiday_master');
                     $this->db->where('mx_holiday_company_id',$qry[0]->mxemp_emp_comp_code);
                     $this->db->where('mx_holiday_state_id', $qry[0]->mxemp_emp_state_code);
@@ -13683,16 +13703,25 @@ public function saveemployeerequesttype($data){
                                     foreach ($holiday_array as $hold_array) {
                                         $hold_date = $hold_array->mx_holiday_date;
                                         $full_half_days = $hold_array->mx_holiday_catgfsf;//----> 1 first half,2=second half, 3= full day
+                                        $holiday_type = $hold_array->mx_holiday_type;      // 1 = PH, 2 = OCH, 3 = OH
                                         if ($hold_date == $date) {
+                                            // Holiday type
+                                            if ($holiday_type == 1) {
+                                                $holiday_status = 'PH';
+                                            } elseif ($holiday_type == 2) {
+                                                $holiday_status = 'OCH';
+                                            } elseif ($holiday_type == 3) {
+                                                $holiday_status = 'OH';
+                                            }
                                             if($full_half_days == 1){//--->first half
-                                                $attendance_array['mx_attendance_first_half'] = 'PH';
+                                                $attendance_array['mx_attendance_first_half'] = $holiday_status;
                                                 $attendance_array['mx_attendance_second_half'] = 'AB';
                                             }else if($full_half_days == 2){//-------->second half
                                                 $attendance_array['mx_attendance_first_half'] = 'AB';
-                                                $attendance_array['mx_attendance_second_half'] = 'PH';
+                                                $attendance_array['mx_attendance_second_half'] = $holiday_status;
                                             }else if($full_half_days == 3){ //----------> FULL DAY
-                                                $attendance_array['mx_attendance_first_half'] = 'PH';
-                                                $attendance_array['mx_attendance_second_half'] = 'PH';
+                                                $attendance_array['mx_attendance_first_half'] = $holiday_status;
+                                                $attendance_array['mx_attendance_second_half'] = $holiday_status;
                                             }
                                         }
                                     }
