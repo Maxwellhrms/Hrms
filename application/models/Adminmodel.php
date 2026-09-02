@@ -7006,7 +7006,7 @@ die;
                         $full_half_days = $hold_array->mx_holiday_catgfsf;//----> 1 first half,2=second half, 3= full day
                         $holiday_type = $hold_array->mx_holiday_type;      // 1 = PH, 2 = OCH, 3 = OH
 
-                        if ($hold_date == $date) {
+                        if ($hold_date == $date  && $holiday_type == 1) {
                             // Holiday type
                             if ($holiday_type == 1) {
                                 $holiday_status = 'PH';
@@ -13569,7 +13569,7 @@ public function saveemployeerequesttype($data){
                                         $hold_date = $hold_array->mx_holiday_date;
                                         $full_half_days = $hold_array->mx_holiday_catgfsf;//----> 1 first half, 2=second half, 3= full day
                                         $holiday_type = $hold_array->mx_holiday_type;      // 1 = PH, 2 = OCH, 3 = OH
-                                        if ($hold_date == $date){
+                                        if ($hold_date == $date && $holiday_type == 1){
                                             // Holiday type
                                             if ($holiday_type == 1) {
                                                 $holiday_status = 'PH';
@@ -13704,7 +13704,7 @@ public function saveemployeerequesttype($data){
                                         $hold_date = $hold_array->mx_holiday_date;
                                         $full_half_days = $hold_array->mx_holiday_catgfsf;//----> 1 first half,2=second half, 3= full day
                                         $holiday_type = $hold_array->mx_holiday_type;      // 1 = PH, 2 = OCH, 3 = OH
-                                        if ($hold_date == $date) {
+                                        if ($hold_date == $date && $holiday_type == 1) {
                                             // Holiday type
                                             if ($holiday_type == 1) {
                                                 $holiday_status = 'PH';
