@@ -714,14 +714,149 @@ public function getAttendanceDashboard(){
     }
 
     public function family($emp_id, $id = ''){
-        $this->db->select('mxemp_emp_fm_id,mxemp_emp_fm_employee_id,mxemp_emp_fm_relation,mxemp_emp_fm_name,mxemp_emp_fm_age,mxemp_emp_fm_occupation,mxemp_emp_fm_title');
-        $this->db->from('maxwell_employees_family');
-        $this->db->join('maxwell_employee_familyinfo_request','reference_id = mxemp_emp_fm_id', 'LEFT');
-        $this->db->where('mxemp_emp_fm_employee_id', $emp_id);
-        if(!empty($id)){
-        $this->db->where('mxemp_emp_fm_id', $id);
+        $this->db->select("
+            f.mxemp_emp_fm_id,
+            f.mxemp_emp_fm_employee_id,
+
+            /* TITLE */
+            CASE
+                WHEN r.status IN (0, 2)
+                    AND r.status IS NOT NULL
+                    AND (
+                        SELECT COUNT(*)
+                        FROM maxwell_employee_familyinfo_request r1
+                        WHERE r1.reference_id = f.mxemp_emp_fm_id
+                        AND r1.field_name = 'mxemp_emp_fm_title'
+                        AND r1.status = r.status
+                    ) > 0
+                THEN (
+                    SELECT r1.new_value
+                    FROM maxwell_employee_familyinfo_request r1
+                    WHERE r1.reference_id = f.mxemp_emp_fm_id
+                    AND r1.field_name = 'mxemp_emp_fm_title'
+                    AND r1.status = r.status
+                    ORDER BY r1.id DESC
+                    LIMIT 1
+                )
+                ELSE f.mxemp_emp_fm_title
+            END AS mxemp_emp_fm_title,
+
+            /* RELATION */
+            CASE
+                WHEN r.status IN (0, 2)
+                THEN COALESCE(
+                    (
+                        SELECT r1.new_value
+                        FROM maxwell_employee_familyinfo_request r1
+                        WHERE r1.reference_id = f.mxemp_emp_fm_id
+                        AND r1.field_name = 'mxemp_emp_fm_relation'
+                        AND r1.status = r.status
+                        ORDER BY r1.id DESC
+                        LIMIT 1
+                    ),
+                    f.mxemp_emp_fm_relation
+                )
+                ELSE f.mxemp_emp_fm_relation
+            END AS mxemp_emp_fm_relation,
+
+            /* NAME */
+            CASE
+                WHEN r.status IN (0, 2)
+                THEN COALESCE(
+                    (
+                        SELECT r1.new_value
+                        FROM maxwell_employee_familyinfo_request r1
+                        WHERE r1.reference_id = f.mxemp_emp_fm_id
+                        AND r1.field_name = 'mxemp_emp_fm_name'
+                        AND r1.status = r.status
+                        ORDER BY r1.id DESC
+                        LIMIT 1
+                    ),
+                    f.mxemp_emp_fm_name
+                )
+                ELSE f.mxemp_emp_fm_name
+            END AS mxemp_emp_fm_name,
+
+            /* AGE / DATE OF BIRTH */
+            CASE
+                WHEN r.status IN (0, 2)
+                THEN COALESCE(
+                    (
+                        SELECT r1.new_value
+                        FROM maxwell_employee_familyinfo_request r1
+                        WHERE r1.reference_id = f.mxemp_emp_fm_id
+                        AND r1.field_name = 'mxemp_emp_fm_age'
+                        AND r1.status = r.status
+                        ORDER BY r1.id DESC
+                        LIMIT 1
+                    ),
+                    f.mxemp_emp_fm_age
+                )
+                ELSE f.mxemp_emp_fm_age
+            END AS mxemp_emp_fm_age,
+
+            /* OCCUPATION */
+            CASE
+                WHEN r.status IN (0, 2)
+                THEN COALESCE(
+                    (
+                        SELECT r1.new_value
+                        FROM maxwell_employee_familyinfo_request r1
+                        WHERE r1.reference_id = f.mxemp_emp_fm_id
+                        AND r1.field_name = 'mxemp_emp_fm_occupation'
+                        AND r1.status = r.status
+                        ORDER BY r1.id DESC
+                        LIMIT 1
+                    ),
+                    f.mxemp_emp_fm_occupation
+                )
+                ELSE f.mxemp_emp_fm_occupation
+            END AS mxemp_emp_fm_occupation,
+
+            /* APPROVAL STATUS */
+            r.status AS status
+
+        ", false);
+
+        $this->db->from('maxwell_employees_family f');
+
+        /*
+        * Get only the latest request for each family record.
+        * This prevents duplicate family rows.
+        */
+        $this->db->join(
+            '(SELECT r1.*
+            FROM maxwell_employee_familyinfo_request r1
+            INNER JOIN (
+                SELECT reference_id, MAX(id) AS max_id
+                FROM maxwell_employee_familyinfo_request
+                GROUP BY reference_id
+            ) latest
+            ON latest.reference_id = r1.reference_id
+            AND latest.max_id = r1.id
+            ) r',
+            'r.reference_id = f.mxemp_emp_fm_id',
+            'LEFT',
+            false
+        );
+
+        $this->db->where(
+            'f.mxemp_emp_fm_employee_id',
+            $emp_id
+        );
+
+        if (!empty($id)) {
+            $this->db->where(
+                'f.mxemp_emp_fm_id',
+                $id
+            );
         }
+
         $query = $this->db->get();
+
+        // echo $this->db->last_query();
+        // exit;
+
         return $query->result();
     }
 
