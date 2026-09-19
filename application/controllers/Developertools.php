@@ -368,7 +368,7 @@ public function update_uat_database()
     // =========================================================
 
     set_time_limit(0);
-    ini_set('max_execution_time', 0);
+    ini_set('max_execution_time', '0');
     ini_set('output_buffering', 'off');
     ini_set('zlib.output_compression', '0');
 
@@ -395,22 +395,15 @@ public function update_uat_database()
         $time = date('H:i:s');
 
         if ($type === 'success') {
-
             $color = '#198754';
             $icon  = '✓';
-
         } elseif ($type === 'error') {
-
             $color = '#dc3545';
             $icon  = '✗';
-
         } elseif ($type === 'warning') {
-
             $color = '#fd7e14';
             $icon  = '⚠';
-
         } else {
-
             $color = '#0d6efd';
             $icon  = '→';
         }
@@ -433,7 +426,7 @@ public function update_uat_database()
 
 
     // =========================================================
-    // START PAGE
+    // START HTML
     // =========================================================
 
     echo '
@@ -498,17 +491,14 @@ public function update_uat_database()
     /*
      * IMPORTANT:
      *
-     * Put your UAT database password here.
+     * Put the current UAT database password here.
      *
-     * Do not commit this password to Git.
-     *
-     * The password previously exposed in the uploaded PHP
-     * file should be rotated after testing.
+     * Do not use the password that was previously exposed
+     * in the conversation. Rotate the password after testing.
      */
-
     $dbPassword = 'sairam-143';
 
-    $dbName = 'maxwellhrms_uat';
+    $dbName     = 'maxwellhrms_uat';
 
 
     // =========================================================
@@ -537,7 +527,7 @@ public function update_uat_database()
 
 
     // =========================================================
-    // CHECK BACKUP FILE
+    // CHECK BACKUP
     // =========================================================
 
     $log(
@@ -570,7 +560,7 @@ public function update_uat_database()
 
 
     // =========================================================
-    // CONNECT TO UAT DATABASE
+    // DATABASE CONNECTION
     // =========================================================
 
     $log(
@@ -613,7 +603,7 @@ public function update_uat_database()
 
 
     // =========================================================
-    // DROP STORED PROCEDURES
+    // DROP PROCEDURES
     // =========================================================
 
     $log(
@@ -653,6 +643,8 @@ public function update_uat_database()
 
             $procedureCount++;
         }
+
+        $result->free();
     }
 
     $log(
@@ -663,7 +655,7 @@ public function update_uat_database()
 
 
     // =========================================================
-    // DROP ALL TABLES
+    // DROP TABLES
     // =========================================================
 
     $log(
@@ -727,6 +719,8 @@ public function update_uat_database()
                 );
             }
         }
+
+        $result->free();
     }
 
     $mysqli->query(
@@ -754,14 +748,13 @@ public function update_uat_database()
     $modifiedSql =
         $tempSql . '.modified';
 
-
     $log(
         'Preparing SQL restore file...'
     );
 
 
     // =========================================================
-    // DECOMPRESS BACKUP
+    // DECOMPRESS
     // =========================================================
 
     $log(
@@ -775,7 +768,6 @@ public function update_uat_database()
         escapeshellarg($tempSql);
 
     $output = [];
-
     $returnCode = 0;
 
     exec(
@@ -816,85 +808,22 @@ public function update_uat_database()
     // =========================================================
 
     $log(
-        'Starting SQL structure analysis...'
+        'Starting intelligent SQL structure analysis...',
+        'warning'
     );
-
-
-    // =========================================================
-    // FORCE ROW_FORMAT=DYNAMIC
-    // =========================================================
 
     $log(
-        'Applying ROW_FORMAT=DYNAMIC to InnoDB tables...'
+        'Only CREATE TABLE definitions will be analysed.'
     );
-
-    $command =
-        "sed -i -E " .
-        "'s/ENGINE=InnoDB[[:space:]]*(ROW_FORMAT=[A-Za-z]+[[:space:]]*)?/ENGINE=InnoDB ROW_FORMAT=DYNAMIC /g' " .
-        escapeshellarg($tempSql);
-
-    $output = [];
-
-    $returnCode = 0;
-
-    exec(
-        $command,
-        $output,
-        $returnCode
-    );
-
-    if ($returnCode !== 0) {
-
-        $log(
-            'Failed to apply ROW_FORMAT=DYNAMIC.',
-            'error'
-        );
-
-        @unlink($tempSql);
-
-        $log(
-            'UAT DATABASE UPDATE FAILED',
-            'error'
-        );
-
-        echo '</div></div></body></html>';
-
-        flush();
-
-        return;
-    }
 
     $log(
-        'ROW_FORMAT=DYNAMIC applied successfully.',
-        'success'
+        'INSERT/data rows will NOT be scanned for VARCHAR definitions.'
     );
 
 
     // =========================================================
-    // LARGE VARCHAR PROCESSING
+    // OPEN SQL FILE
     // =========================================================
-
-    $log(
-        'Scanning all tables for oversized VARCHAR columns...'
-    );
-
-    /*
-     * We use >= 300 instead of > 500.
-     *
-     * This catches:
-     *
-     * VARCHAR(300)
-     * VARCHAR(355)
-     * VARCHAR(500)
-     * VARCHAR(555)
-     * VARCHAR(600)
-     * VARCHAR(1000)
-     *
-     * VARCHAR(255) remains unchanged.
-     *
-     * TEXT columns use virtually no row-data space under
-     * ROW_FORMAT=DYNAMIC, which helps solve ERROR 1118.
-     */
 
     $inputHandle = fopen(
         $tempSql,
@@ -910,18 +839,12 @@ public function update_uat_database()
 
         @unlink($tempSql);
 
-        $log(
-            'UAT DATABASE UPDATE FAILED',
-            'error'
-        );
-
         echo '</div></div></body></html>';
 
         flush();
 
         return;
     }
-
 
     $outputHandle = fopen(
         $modifiedSql,
@@ -939,11 +862,6 @@ public function update_uat_database()
 
         @unlink($tempSql);
 
-        $log(
-            'UAT DATABASE UPDATE FAILED',
-            'error'
-        );
-
         echo '</div></div></body></html>';
 
         flush();
@@ -952,172 +870,558 @@ public function update_uat_database()
     }
 
 
+    // =========================================================
+    // ANALYSIS VARIABLES
+    // =========================================================
+
+    $insideCreateTable = false;
+
     $currentTable = '';
 
-    $modifiedTables = [];
+    $createBuffer = [];
 
-    $modifiedColumns = [];
+    $tableCreateStatements = 0;
+
+    $modifiedTableNames = [];
+
+    $modifiedColumnCount = 0;
 
     $lineNumber = 0;
-
-    $fileSize = filesize($tempSql);
 
     $lastProgressTime = time();
 
 
     // =========================================================
-    // READ SQL FILE LINE BY LINE
+    // FUNCTION:
+    // PROCESS CREATE TABLE
     // =========================================================
 
-    while (($line = fgets($inputHandle)) !== false) {
+    $processCreateTable = function (
+        $createLines,
+        $tableName
+    ) use (
+        &$modifiedTableNames,
+        &$modifiedColumnCount,
+        &$log
+    ) {
+
+        if (empty($createLines)) {
+            return $createLines;
+        }
+
+        $fullCreate = implode(
+            '',
+            $createLines
+        );
+
+        /*
+         * -----------------------------------------------------
+         * Find KEY / INDEX columns
+         * -----------------------------------------------------
+         *
+         * We do NOT convert indexed VARCHAR columns to TEXT.
+         *
+         * Otherwise MySQL can produce:
+         *
+         * BLOB/TEXT column used in key specification
+         *
+         */
+
+        $indexedColumns = [];
+
+        foreach ($createLines as $createLine) {
+
+            if (
+                preg_match(
+                    '/^\s*(PRIMARY\s+KEY|UNIQUE\s+KEY|UNIQUE\s+INDEX|KEY|INDEX|FULLTEXT\s+KEY|SPATIAL\s+KEY)/i',
+                    trim($createLine)
+                )
+            ) {
+
+                if (
+                    preg_match_all(
+                        '/`([^`]+)`\s*(?:\(\d+\))?/i',
+                        $createLine,
+                        $indexMatches
+                    )
+                ) {
+
+                    foreach (
+                        $indexMatches[1]
+                        as $indexColumn
+                    ) {
+
+                        $indexedColumns[
+                            strtolower($indexColumn)
+                        ] = true;
+                    }
+                }
+            }
+        }
+
+
+        // -----------------------------------------------------
+        // Find VARCHAR columns
+        // -----------------------------------------------------
+
+        $varcharColumns = [];
+
+        foreach ($createLines as $index => $createLine) {
+
+            if (
+                preg_match(
+                    '/^\s*`([^`]+)`\s+varchar\s*\(\s*(\d+)\s*\)(.*)$/i',
+                    $createLine,
+                    $matches
+                )
+            ) {
+
+                $columnName =
+                    $matches[1];
+
+                $varcharLength =
+                    (int)$matches[2];
+
+                $rest =
+                    $matches[3];
+
+                $isIndexed =
+                    isset(
+                        $indexedColumns[
+                            strtolower($columnName)
+                        ]
+                    );
+
+                if (!$isIndexed) {
+
+                    /*
+                     * Approximate maximum bytes.
+                     *
+                     * The dump uses utf8/utf8mb4 in many places.
+                     * 4 bytes per character is therefore used
+                     * as the conservative estimate.
+                     */
+
+                    $estimatedBytes =
+                        $varcharLength * 4;
+
+                    $varcharColumns[] = [
+                        'line'          => $index,
+                        'column'        => $columnName,
+                        'length'        => $varcharLength,
+                        'bytes'         => $estimatedBytes,
+                        'rest'          => $rest
+                    ];
+                }
+            }
+        }
+
+
+        // -----------------------------------------------------
+        // Calculate approximate row size
+        // -----------------------------------------------------
+
+        $varcharBytes = 0;
+
+        foreach ($varcharColumns as $column) {
+
+            $varcharBytes +=
+                $column['bytes'];
+        }
+
+
+        /*
+         * MySQL's 8126 limit is not simply the sum of VARCHAR
+         * sizes. Fixed-length columns, nullable columns, record
+         * overhead, etc. also consume space.
+         *
+         * Therefore use a conservative working limit.
+         */
+
+        $safeLimit = 6000;
+
+
+        // -----------------------------------------------------
+        // No correction required
+        // -----------------------------------------------------
+
+        if ($varcharBytes <= $safeLimit) {
+
+            return $createLines;
+        }
+
+
+        $log(
+            'Table [' .
+            $tableName .
+            '] estimated VARCHAR row size: ' .
+            number_format($varcharBytes) .
+            ' bytes.',
+            'warning'
+        );
+
+
+        /*
+         * Largest VARCHAR columns first.
+         */
+
+        usort(
+            $varcharColumns,
+            function ($a, $b) {
+
+                return
+                    $b['bytes'] -
+                    $a['bytes'];
+            }
+        );
+
+
+        $converted = 0;
+
+        $currentEstimatedBytes =
+            $varcharBytes;
+
+
+        // -----------------------------------------------------
+        // Convert largest non-indexed VARCHAR columns
+        // -----------------------------------------------------
+
+        foreach (
+            $varcharColumns
+            as $column
+        ) {
+
+            if (
+                $currentEstimatedBytes <=
+                $safeLimit
+            ) {
+                break;
+            }
+
+
+            $lineIndex =
+                $column['line'];
+
+            $line =
+                $createLines[
+                    $lineIndex
+                ];
+
+
+            /*
+             * Remove DEFAULT from the definition.
+             *
+             * TEXT columns cannot have a normal DEFAULT
+             * value in the target MySQL configuration.
+             */
+
+            $rest =
+                preg_replace(
+                    "/\s+DEFAULT\s+(?:NULL|'(?:''|[^']*)')/i",
+                    '',
+                    $column['rest']
+                );
+
+
+            /*
+             * Also remove ON UPDATE if present.
+             */
+
+            $rest =
+                preg_replace(
+                    "/\s+ON\s+UPDATE\s+[^,\s]+/i",
+                    '',
+                    $rest
+                );
+
+
+            /*
+             * Preserve NOT NULL / NULL / COMMENT etc.
+             */
+
+            $createLines[$lineIndex] =
+                preg_replace(
+                    '/^(\s*`[^`]+`\s+)varchar\s*\(\s*\d+\s*\)/i',
+                    '$1TEXT',
+                    $line
+                );
+
+
+            /*
+             * Remove DEFAULT from the actual resulting line.
+             */
+
+            $createLines[$lineIndex] =
+                preg_replace(
+                    "/\s+DEFAULT\s+(?:NULL|'(?:''|[^']*)')/i",
+                    '',
+                    $createLines[$lineIndex]
+                );
+
+
+            $currentEstimatedBytes -=
+                $column['bytes'];
+
+            $converted++;
+
+            $modifiedColumnCount++;
+
+            $log(
+                '  ' .
+                $tableName .
+                '.' .
+                $column['column'] .
+                ' VARCHAR(' .
+                $column['length'] .
+                ') → TEXT',
+                'success'
+            );
+        }
+
+
+        if ($converted > 0) {
+
+            $modifiedTableNames[] =
+                $tableName;
+
+            $log(
+                'Table [' .
+                $tableName .
+                '] adjusted. Estimated VARCHAR bytes reduced from ' .
+                number_format($varcharBytes) .
+                ' to approximately ' .
+                number_format(max(0, $currentEstimatedBytes)) .
+                '.',
+                'success'
+            );
+        }
+
+
+        /*
+         * If all non-indexed VARCHAR columns were converted and
+         * the estimated size is still high, report it.
+         *
+         * The MySQL restore will then show the exact remaining
+         * table if there is another structural problem.
+         */
+
+        if (
+            $currentEstimatedBytes >
+            $safeLimit
+        ) {
+
+            $log(
+                'Table [' .
+                $tableName .
+                '] still has a high estimated row size after safe conversions. ' .
+                'Indexed VARCHAR columns were intentionally preserved.',
+                'warning'
+            );
+        }
+
+
+        return $createLines;
+    };
+
+
+    // =========================================================
+    // STREAM SQL FILE
+    // =========================================================
+
+    while (
+        ($line = fgets($inputHandle)) !== false
+    ) {
 
         $lineNumber++;
 
 
-        // =====================================================
-        // DETECT CREATE TABLE
-        // =====================================================
+        // -----------------------------------------------------
+        // Start CREATE TABLE
+        // -----------------------------------------------------
 
         if (
+            !$insideCreateTable &&
             preg_match(
-                '/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`([^`]+)`/i',
+                '/^\s*CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`([^`]+)`/i',
                 $line,
                 $tableMatch
             )
         ) {
 
+            $insideCreateTable = true;
+
             $currentTable =
                 $tableMatch[1];
 
-            $log(
-                'Checking table: ' .
-                $currentTable
-            );
+            $createBuffer = [];
+
+            $createBuffer[] =
+                $line;
+
+            $tableCreateStatements++;
+
+            continue;
         }
 
 
-        // =====================================================
-        // DETECT VARCHAR COLUMN
-        // =====================================================
+        // -----------------------------------------------------
+        // Inside CREATE TABLE
+        // -----------------------------------------------------
 
-        /*
-         * Supports:
-         *
-         * `column` varchar(555) DEFAULT ''
-         *
-         *     `column` VARCHAR(600) NOT NULL
-         *
-         * `column` varchar ( 1000 ) DEFAULT NULL
-         *
-         */
+        if ($insideCreateTable) {
 
-        if (
-            preg_match(
-                '/^(\s*`([^`]+)`\s+)varchar\s*\(\s*(\d+)\s*\)(.*)$/i',
-                $line,
-                $varcharMatch
-            )
-        ) {
-
-            $columnName =
-                $varcharMatch[2];
-
-            $varcharLength =
-                (int)$varcharMatch[3];
-
-            $remainingDefinition =
-                $varcharMatch[4];
+            $createBuffer[] =
+                $line;
 
 
-            // =================================================
-            // CONVERT VARCHAR >= 300
-            // =================================================
+            /*
+             * CREATE TABLE ends when we encounter:
+             *
+             * );
+             *
+             * optionally followed by ENGINE...
+             *
+             */
 
-            if ($varcharLength >= 300) {
+            if (
+                preg_match(
+                    '/^\s*\)\s*(?:ENGINE=.*)?;\s*$/i',
+                    trim($line)
+                )
+            ) {
 
-                // -------------------------------------------------
-                // Remove DEFAULT
-                // -------------------------------------------------
+                /*
+                 * Make ROW_FORMAT=DYNAMIC.
+                 */
 
-                $remainingDefinition =
-                    preg_replace(
-                        "/\s+DEFAULT\s+(?:NULL|'(?:''|[^'])*')/i",
-                        '',
-                        $remainingDefinition
-                    );
-
-
-                // -------------------------------------------------
-                // Remove ON UPDATE if present
-                // -------------------------------------------------
-
-                $remainingDefinition =
-                    preg_replace(
-                        '/\s+ON\s+UPDATE\s+[^\s,]+/i',
-                        '',
-                        $remainingDefinition
-                    );
+                $processedLines =
+                    $createBuffer;
 
 
-                // -------------------------------------------------
-                // Replace VARCHAR with TEXT
-                // -------------------------------------------------
+                /*
+                 * Remove an existing ROW_FORMAT.
+                 */
 
-                $line =
-                    $varcharMatch[1] .
-                    'TEXT' .
-                    $remainingDefinition;
-
-
-                // -------------------------------------------------
-                // Track table
-                // -------------------------------------------------
-
-                if (
-                    !isset(
-                        $modifiedTables[$currentTable]
-                    )
+                foreach (
+                    $processedLines
+                    as $index => $createLine
                 ) {
 
-                    $modifiedTables[$currentTable] = 0;
+                    if (
+                        stripos(
+                            $createLine,
+                            'ENGINE=InnoDB'
+                        ) !== false
+                    ) {
+
+                        $createLine =
+                            preg_replace(
+                                '/\s+ROW_FORMAT\s*=\s*[A-Za-z]+/i',
+                                '',
+                                $createLine
+                            );
+
+                        /*
+                         * Add ROW_FORMAT=DYNAMIC.
+                         */
+
+                        if (
+                            stripos(
+                                $createLine,
+                                'ROW_FORMAT=DYNAMIC'
+                            ) === false
+                        ) {
+
+                            $createLine =
+                                rtrim(
+                                    $createLine
+                                );
+
+                            $createLine =
+                                preg_replace(
+                                    '/;\s*$/',
+                                    '',
+                                    $createLine
+                                );
+
+                            $createLine .=
+                                ' ROW_FORMAT=DYNAMIC;';
+
+                        }
+
+                        $processedLines[$index] =
+                            $createLine;
+                    }
                 }
 
-                $modifiedTables[$currentTable]++;
+
+                /*
+                 * Process row-size issue.
+                 */
+
+                $processedLines =
+                    $processCreateTable(
+                        $processedLines,
+                        $currentTable
+                    );
 
 
-                // -------------------------------------------------
-                // Track column
-                // -------------------------------------------------
+                /*
+                 * Write corrected CREATE TABLE.
+                 */
 
-                $modifiedColumns[] =
-                    $currentTable .
-                    '.' .
-                    $columnName .
-                    ' VARCHAR(' .
-                    $varcharLength .
-                    ')';
+                foreach (
+                    $processedLines
+                    as $processedLine
+                ) {
+
+                    fwrite(
+                        $outputHandle,
+                        $processedLine
+                    );
+                }
 
 
-                // -------------------------------------------------
-                // Log
-                // -------------------------------------------------
+                $insideCreateTable = false;
 
-                $log(
-                    $currentTable .
-                    '.' .
-                    $columnName .
-                    ' VARCHAR(' .
-                    $varcharLength .
-                    ') → TEXT',
-                    'success'
-                );
+                $currentTable = '';
+
+                $createBuffer = [];
+
+                continue;
             }
+
+            continue;
         }
 
 
-        // =====================================================
-        // WRITE MODIFIED LINE
-        // =====================================================
+        // -----------------------------------------------------
+        // Outside CREATE TABLE
+        // -----------------------------------------------------
+
+        /*
+         * Remove DEFINER from procedures/functions.
+         *
+         * This avoids:
+         *
+         * ERROR 1227
+         * SUPER or SET_USER_ID privilege required
+         */
+
+        $line =
+            preg_replace(
+                '/DEFINER\s*=\s*`[^`]+`@`[^`]+`\s*/i',
+                '',
+                $line
+            );
+
+        $line =
+            preg_replace(
+                "/DEFINER\s*=\s*'[^']*'@'[^']*'\s*/i",
+                '',
+                $line
+            );
+
 
         fwrite(
             $outputHandle,
@@ -1125,13 +1429,18 @@ public function update_uat_database()
         );
 
 
-        // =====================================================
-        // PROGRESS
-        // =====================================================
+        // -----------------------------------------------------
+        // Progress
+        // -----------------------------------------------------
 
         if (
-            time() - $lastProgressTime >= 5
+            time() -
+            $lastProgressTime >=
+            10
         ) {
+
+            $fileSize =
+                filesize($tempSql);
 
             $currentPosition =
                 ftell($inputHandle);
@@ -1154,7 +1463,7 @@ public function update_uat_database()
             }
 
             $log(
-                'SQL scan progress: ' .
+                'SQL processing progress: ' .
                 $percentage .
                 '%'
             );
@@ -1165,56 +1474,28 @@ public function update_uat_database()
     }
 
 
+    // =========================================================
+    // CLOSE FILES
+    // =========================================================
+
     fclose($inputHandle);
 
     fclose($outputHandle);
 
 
     // =========================================================
-    // CHECK MODIFIED FILE
+    // CHECK CREATE TABLE PARSING
     // =========================================================
-
-    if (!file_exists($modifiedSql)) {
-
-        $log(
-            'Modified SQL file was not created.',
-            'error'
-        );
-
-        @unlink($tempSql);
-
-        $log(
-            'UAT DATABASE UPDATE FAILED',
-            'error'
-        );
-
-        echo '</div></div></body></html>';
-
-        flush();
-
-        return;
-    }
-
-
-    // =========================================================
-    // SUMMARY
-    // =========================================================
-
-    $modifiedTableCount =
-        count($modifiedTables);
-
-    $modifiedColumnCount =
-        count($modifiedColumns);
-
 
     $log(
-        'SQL structure analysis completed.',
+        'CREATE TABLE definitions processed: ' .
+        $tableCreateStatements,
         'success'
     );
 
     $log(
-        'Tables modified: ' .
-        $modifiedTableCount,
+        'Tables adjusted: ' .
+        count(array_unique($modifiedTableNames)),
         'success'
     );
 
@@ -1226,150 +1507,42 @@ public function update_uat_database()
 
 
     // =========================================================
-    // SHOW MODIFIED TABLES
+    // REPLACE TEMP SQL
     // =========================================================
 
-    if ($modifiedTableCount > 0) {
+    if (
+        !file_exists($modifiedSql)
+    ) {
 
-        foreach (
-            $modifiedTables
-            as $tableName => $columnCount
-        ) {
+        $log(
+            'Modified SQL file was not created.',
+            'error'
+        );
 
-            $log(
-                'Table [' .
-                $tableName .
-                '] - ' .
-                $columnCount .
-                ' VARCHAR columns converted.',
-                'success'
-            );
-        }
+        @unlink($tempSql);
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
     }
 
 
-    // =========================================================
-    // VERIFY maxwell_employees_info
-    // =========================================================
-
-    $log(
-        'Verifying maxwell_employees_info structure...'
-    );
-
-
-    $verifyCommand =
-        "awk '/CREATE TABLE `maxwell_employees_info`/{flag=1} " .
-        "flag{print} " .
-        "/ENGINE=/{if(flag) exit}' " .
-        escapeshellarg($modifiedSql) .
-        " | grep -Ei " .
-        escapeshellarg(
-            'mxemp_emp_lic_info1|mxemp_emp_lic_info2|mxemp_emp_lic_info3|mxemp_emp_lic_info4'
-        );
-
-
-    $verifyOutput = [];
-
-    $verifyReturnCode = 0;
-
-    exec(
-        $verifyCommand,
-        $verifyOutput,
-        $verifyReturnCode
-    );
-
-
-    if (!empty($verifyOutput)) {
-
-        foreach ($verifyOutput as $verifyLine) {
-
-            $log(
-                trim($verifyLine),
-                'success'
-            );
-        }
-
-    } else {
+    if (
+        !rename(
+            $modifiedSql,
+            $tempSql
+        )
+    ) {
 
         $log(
-            'Could not verify maxwell_employees_info columns.',
-            'warning'
-        );
-    }
-
-
-    // =========================================================
-    // CHECK FOR REMAINING LARGE VARCHAR
-    // =========================================================
-
-    $log(
-        'Checking processed SQL for remaining VARCHAR >= 300...'
-    );
-
-
-    $remainingCommand =
-        "grep -Ein " .
-        escapeshellarg(
-            '^[[:space:]]*`[^`]+`[[:space:]]+varchar[[:space:]]*\([[:space:]]*[3-9][0-9][0-9]|[1-9][0-9]{3,}[[:space:]]*\)'
-        ) .
-        ' ' .
-        escapeshellarg($modifiedSql) .
-        ' | head -20';
-
-
-    $remainingOutput = [];
-
-    $remainingReturnCode = 0;
-
-    exec(
-        $remainingCommand,
-        $remainingOutput,
-        $remainingReturnCode
-    );
-
-
-    if (!empty($remainingOutput)) {
-
-        $log(
-            'Remaining large VARCHAR definitions found:',
-            'warning'
-        );
-
-        foreach ($remainingOutput as $remainingLine) {
-
-            $log(
-                trim($remainingLine),
-                'warning'
-            );
-        }
-
-    } else {
-
-        $log(
-            'No VARCHAR >= 300 definitions remain in processed SQL.',
-            'success'
-        );
-    }
-
-
-    // =========================================================
-    // REPLACE ORIGINAL SQL
-    // =========================================================
-
-    if (!rename($modifiedSql, $tempSql)) {
-
-        $log(
-            'Failed to replace original SQL file.',
+            'Failed to replace temporary SQL file.',
             'error'
         );
 
         @unlink($modifiedSql);
         @unlink($tempSql);
-
-        $log(
-            'UAT DATABASE UPDATE FAILED',
-            'error'
-        );
 
         echo '</div></div></body></html>';
 
@@ -1380,28 +1553,33 @@ public function update_uat_database()
 
 
     $log(
-        'Processed SQL file is ready for restore.',
+        'SQL structure preparation completed successfully.',
         'success'
     );
 
 
     // =========================================================
-    // FIND MYSQL CLIENT
+    // MYSQL CLIENT
     // =========================================================
 
-    $mysql = '/usr/bin/mysql';
+    $mysql =
+        '/usr/bin/mysql';
 
-    if (!file_exists($mysql)) {
+    if (
+        !file_exists($mysql)
+    ) {
 
-        $mysql = trim(
-            shell_exec(
-                'command -v mysql'
-            )
-        );
+        $mysql =
+            trim(
+                shell_exec(
+                    'command -v mysql'
+                )
+            );
     }
 
-
-    if (empty($mysql)) {
+    if (
+        empty($mysql)
+    ) {
 
         $log(
             'MySQL command not found.',
@@ -1410,18 +1588,12 @@ public function update_uat_database()
 
         @unlink($tempSql);
 
-        $log(
-            'UAT DATABASE UPDATE FAILED',
-            'error'
-        );
-
         echo '</div></div></body></html>';
 
         flush();
 
         return;
     }
-
 
     $log(
         'MySQL client found: ' .
@@ -1431,14 +1603,12 @@ public function update_uat_database()
 
 
     // =========================================================
-    // MYSQL CONFIG FILE
+    // MYSQL TEMP CONFIG
     // =========================================================
 
     $mysqlConfig =
         '/tmp/uat_mysql_' .
         date('YmdHis') .
-        '_' .
-        mt_rand(1000, 9999) .
         '.cnf';
 
 
@@ -1456,7 +1626,9 @@ public function update_uat_database()
         );
 
 
-    if ($configCreated === false) {
+    if (
+        $configCreated === false
+    ) {
 
         $log(
             'Failed to create temporary MySQL configuration.',
@@ -1464,11 +1636,6 @@ public function update_uat_database()
         );
 
         @unlink($tempSql);
-
-        $log(
-            'UAT DATABASE UPDATE FAILED',
-            'error'
-        );
 
         echo '</div></div></body></html>';
 
@@ -1501,6 +1668,13 @@ public function update_uat_database()
         $restoreStart
     );
 
+
+    /*
+     * --force is intentionally NOT used.
+     *
+     * If a real SQL error occurs, restore must stop and show
+     * the error instead of silently continuing.
+     */
 
     $restoreCommand =
         escapeshellarg($mysql) .
@@ -1542,7 +1716,9 @@ public function update_uat_database()
         date('Y-m-d H:i:s');
 
 
-    if ($restoreReturnCode !== 0) {
+    if (
+        $restoreReturnCode !== 0
+    ) {
 
         $log(
             'Restore failed.',
@@ -1550,9 +1726,14 @@ public function update_uat_database()
         );
 
 
-        if (!empty($restoreOutput)) {
+        if (
+            !empty($restoreOutput)
+        ) {
 
-            foreach ($restoreOutput as $errorLine) {
+            foreach (
+                $restoreOutput
+                as $errorLine
+            ) {
 
                 $log(
                     $errorLine,
@@ -1564,8 +1745,7 @@ public function update_uat_database()
 
         $log(
             'End Time: ' .
-            $endTime,
-            'error'
+            $endTime
         );
 
         $log(
