@@ -395,15 +395,22 @@ public function update_uat_database()
         $time = date('H:i:s');
 
         if ($type === 'success') {
+
             $color = '#198754';
             $icon  = '✓';
+
         } elseif ($type === 'error') {
+
             $color = '#dc3545';
             $icon  = '✗';
+
         } elseif ($type === 'warning') {
+
             $color = '#fd7e14';
             $icon  = '⚠';
+
         } else {
+
             $color = '#0d6efd';
             $icon  = '→';
         }
@@ -426,7 +433,7 @@ public function update_uat_database()
 
 
     // =========================================================
-    // START
+    // START PAGE
     // =========================================================
 
     echo '
@@ -488,11 +495,20 @@ public function update_uat_database()
     $dbHost     = 'localhost';
     $dbUsername = 'maxwellhrms_uat';
 
-    // Put your current UAT database password here.
-    // Rotate the password after testing because it was exposed.
+    /*
+     * IMPORTANT:
+     *
+     * Put your UAT database password here.
+     *
+     * Do not commit this password to Git.
+     *
+     * The password previously exposed in the uploaded PHP
+     * file should be rotated after testing.
+     */
+
     $dbPassword = 'sairam-143';
 
-    $dbName     = 'maxwellhrms_uat';
+    $dbName = 'maxwellhrms_uat';
 
 
     // =========================================================
@@ -521,7 +537,7 @@ public function update_uat_database()
 
 
     // =========================================================
-    // CHECK BACKUP
+    // CHECK BACKUP FILE
     // =========================================================
 
     $log(
@@ -554,7 +570,7 @@ public function update_uat_database()
 
 
     // =========================================================
-    // DATABASE CONNECTION
+    // CONNECT TO UAT DATABASE
     // =========================================================
 
     $log(
@@ -597,7 +613,7 @@ public function update_uat_database()
 
 
     // =========================================================
-    // DROP PROCEDURES
+    // DROP STORED PROCEDURES
     // =========================================================
 
     $log(
@@ -647,7 +663,7 @@ public function update_uat_database()
 
 
     // =========================================================
-    // DROP TABLES
+    // DROP ALL TABLES
     // =========================================================
 
     $log(
@@ -735,13 +751,17 @@ public function update_uat_database()
         date('YmdHis') .
         '.sql';
 
+    $modifiedSql =
+        $tempSql . '.modified';
+
+
     $log(
         'Preparing SQL restore file...'
     );
 
 
     // =========================================================
-    // DECOMPRESS
+    // DECOMPRESS BACKUP
     // =========================================================
 
     $log(
@@ -755,6 +775,7 @@ public function update_uat_database()
         escapeshellarg($tempSql);
 
     $output = [];
+
     $returnCode = 0;
 
     exec(
@@ -791,7 +812,7 @@ public function update_uat_database()
 
 
     // =========================================================
-    // SQL STRUCTURE FIXES
+    // SQL STRUCTURE ANALYSIS
     // =========================================================
 
     $log(
@@ -800,7 +821,7 @@ public function update_uat_database()
 
 
     // =========================================================
-    // 1. ROW_FORMAT=DYNAMIC
+    // FORCE ROW_FORMAT=DYNAMIC
     // =========================================================
 
     $log(
@@ -813,6 +834,7 @@ public function update_uat_database()
         escapeshellarg($tempSql);
 
     $output = [];
+
     $returnCode = 0;
 
     exec(
@@ -849,7 +871,7 @@ public function update_uat_database()
 
 
     // =========================================================
-    // 2. GENERIC LARGE VARCHAR FIX
+    // LARGE VARCHAR PROCESSING
     // =========================================================
 
     $log(
@@ -857,28 +879,22 @@ public function update_uat_database()
     );
 
     /*
-     * IMPORTANT:
+     * We use >= 300 instead of > 500.
      *
-     * Do NOT load the complete SQL dump into memory.
+     * This catches:
      *
-     * The SQL backup can be very large.
+     * VARCHAR(300)
+     * VARCHAR(355)
+     * VARCHAR(500)
+     * VARCHAR(555)
+     * VARCHAR(600)
+     * VARCHAR(1000)
      *
-     * We process it line-by-line instead.
+     * VARCHAR(255) remains unchanged.
      *
-     * Any VARCHAR > 500 is converted to TEXT.
-     *
-     * Examples:
-     *
-     * VARCHAR(555)  -> TEXT
-     * VARCHAR(600)  -> TEXT
-     * VARCHAR(1000) -> TEXT
-     *
-     * VARCHAR(255) and VARCHAR(355) remain unchanged.
+     * TEXT columns use virtually no row-data space under
+     * ROW_FORMAT=DYNAMIC, which helps solve ERROR 1118.
      */
-
-    $modifiedSql =
-        $tempSql . '.modified';
-
 
     $inputHandle = fopen(
         $tempSql,
@@ -888,7 +904,7 @@ public function update_uat_database()
     if ($inputHandle === false) {
 
         $log(
-            'Unable to open SQL file for reading.',
+            'Unable to open SQL file.',
             'error'
         );
 
@@ -938,17 +954,19 @@ public function update_uat_database()
 
     $currentTable = '';
 
-    $modifiedTableNames = [];
+    $modifiedTables = [];
 
-    $modifiedColumnCount = 0;
+    $modifiedColumns = [];
 
     $lineNumber = 0;
+
+    $fileSize = filesize($tempSql);
 
     $lastProgressTime = time();
 
 
     // =========================================================
-    // PROCESS SQL FILE LINE BY LINE
+    // READ SQL FILE LINE BY LINE
     // =========================================================
 
     while (($line = fgets($inputHandle)) !== false) {
@@ -956,9 +974,9 @@ public function update_uat_database()
         $lineNumber++;
 
 
-        // -----------------------------------------------------
-        // Detect CREATE TABLE
-        // -----------------------------------------------------
+        // =====================================================
+        // DETECT CREATE TABLE
+        // =====================================================
 
         if (
             preg_match(
@@ -972,102 +990,119 @@ public function update_uat_database()
                 $tableMatch[1];
 
             $log(
-                'Processing table: ' .
+                'Checking table: ' .
                 $currentTable
             );
         }
 
 
-        // -----------------------------------------------------
-        // Detect VARCHAR definition
-        // -----------------------------------------------------
+        // =====================================================
+        // DETECT VARCHAR COLUMN
+        // =====================================================
 
         /*
-         * Example:
+         * Supports:
          *
-         * `column_name` varchar(555) DEFAULT ''
+         * `column` varchar(555) DEFAULT ''
          *
-         * We intentionally process only normal column
-         * definition lines.
+         *     `column` VARCHAR(600) NOT NULL
+         *
+         * `column` varchar ( 1000 ) DEFAULT NULL
+         *
          */
 
         if (
             preg_match(
-                '/^(\s*`([^`]+)`\s+)varchar\((\d+)\)(.*)$/i',
+                '/^(\s*`([^`]+)`\s+)varchar\s*\(\s*(\d+)\s*\)(.*)$/i',
                 $line,
-                $columnMatch
+                $varcharMatch
             )
         ) {
 
             $columnName =
-                $columnMatch[2];
+                $varcharMatch[2];
 
             $varcharLength =
-                (int)$columnMatch[3];
+                (int)$varcharMatch[3];
 
             $remainingDefinition =
-                $columnMatch[4];
+                $varcharMatch[4];
 
 
-            // -------------------------------------------------
-            // VARCHAR > 500
-            // -------------------------------------------------
+            // =================================================
+            // CONVERT VARCHAR >= 300
+            // =================================================
 
-            if ($varcharLength > 500) {
+            if ($varcharLength >= 300) {
 
-                /*
-                 * TEXT cannot have a DEFAULT value.
-                 *
-                 * Remove:
-                 *
-                 * DEFAULT ''
-                 * DEFAULT NULL
-                 * DEFAULT 'something'
-                 */
+                // -------------------------------------------------
+                // Remove DEFAULT
+                // -------------------------------------------------
 
                 $remainingDefinition =
                     preg_replace(
-                        '/\s+DEFAULT\s+(?:NULL|\'[^\']*\')/i',
+                        "/\s+DEFAULT\s+(?:NULL|'(?:''|[^'])*')/i",
                         '',
                         $remainingDefinition
                     );
 
 
-                /*
-                 * Replace VARCHAR(length) with TEXT.
-                 */
+                // -------------------------------------------------
+                // Remove ON UPDATE if present
+                // -------------------------------------------------
+
+                $remainingDefinition =
+                    preg_replace(
+                        '/\s+ON\s+UPDATE\s+[^\s,]+/i',
+                        '',
+                        $remainingDefinition
+                    );
+
+
+                // -------------------------------------------------
+                // Replace VARCHAR with TEXT
+                // -------------------------------------------------
 
                 $line =
-                    $columnMatch[1] .
+                    $varcharMatch[1] .
                     'TEXT' .
                     $remainingDefinition;
 
 
-                $modifiedColumnCount++;
-
+                // -------------------------------------------------
+                // Track table
+                // -------------------------------------------------
 
                 if (
-                    !in_array(
-                        $currentTable,
-                        $modifiedTableNames,
-                        true
+                    !isset(
+                        $modifiedTables[$currentTable]
                     )
                 ) {
 
-                    $modifiedTableNames[] =
-                        $currentTable;
-
-                    $log(
-                        'Table [' .
-                        $currentTable .
-                        '] requires row-size adjustment.',
-                        'warning'
-                    );
+                    $modifiedTables[$currentTable] = 0;
                 }
 
+                $modifiedTables[$currentTable]++;
+
+
+                // -------------------------------------------------
+                // Track column
+                // -------------------------------------------------
+
+                $modifiedColumns[] =
+                    $currentTable .
+                    '.' .
+                    $columnName .
+                    ' VARCHAR(' .
+                    $varcharLength .
+                    ')';
+
+
+                // -------------------------------------------------
+                // Log
+                // -------------------------------------------------
 
                 $log(
-                    '  ' .
                     $currentTable .
                     '.' .
                     $columnName .
@@ -1080,9 +1115,9 @@ public function update_uat_database()
         }
 
 
-        // -----------------------------------------------------
-        // Write line
-        // -----------------------------------------------------
+        // =====================================================
+        // WRITE MODIFIED LINE
+        // =====================================================
 
         fwrite(
             $outputHandle,
@@ -1090,16 +1125,13 @@ public function update_uat_database()
         );
 
 
-        // -----------------------------------------------------
-        // Progress every 10 seconds
-        // -----------------------------------------------------
+        // =====================================================
+        // PROGRESS
+        // =====================================================
 
         if (
-            time() - $lastProgressTime >= 10
+            time() - $lastProgressTime >= 5
         ) {
-
-            $fileSize =
-                filesize($tempSql);
 
             $currentPosition =
                 ftell($inputHandle);
@@ -1113,7 +1145,10 @@ public function update_uat_database()
 
                 $percentage =
                     round(
-                        ($currentPosition / $fileSize) * 100,
+                        (
+                            $currentPosition /
+                            $fileSize
+                        ) * 100,
                         1
                     );
             }
@@ -1162,38 +1197,14 @@ public function update_uat_database()
 
 
     // =========================================================
-    // REPLACE ORIGINAL TEMP SQL
-    // =========================================================
-
-    if (!rename($modifiedSql, $tempSql)) {
-
-        $log(
-            'Failed to replace temporary SQL file.',
-            'error'
-        );
-
-        @unlink($modifiedSql);
-        @unlink($tempSql);
-
-        $log(
-            'UAT DATABASE UPDATE FAILED',
-            'error'
-        );
-
-        echo '</div></div></body></html>';
-
-        flush();
-
-        return;
-    }
-
-
-    // =========================================================
-    // STRUCTURE SUMMARY
+    // SUMMARY
     // =========================================================
 
     $modifiedTableCount =
-        count($modifiedTableNames);
+        count($modifiedTables);
+
+    $modifiedColumnCount =
+        count($modifiedColumns);
 
 
     $log(
@@ -1214,17 +1225,168 @@ public function update_uat_database()
     );
 
 
-    if ($modifiedColumnCount === 0) {
+    // =========================================================
+    // SHOW MODIFIED TABLES
+    // =========================================================
+
+    if ($modifiedTableCount > 0) {
+
+        foreach (
+            $modifiedTables
+            as $tableName => $columnCount
+        ) {
+
+            $log(
+                'Table [' .
+                $tableName .
+                '] - ' .
+                $columnCount .
+                ' VARCHAR columns converted.',
+                'success'
+            );
+        }
+    }
+
+
+    // =========================================================
+    // VERIFY maxwell_employees_info
+    // =========================================================
+
+    $log(
+        'Verifying maxwell_employees_info structure...'
+    );
+
+
+    $verifyCommand =
+        "awk '/CREATE TABLE `maxwell_employees_info`/{flag=1} " .
+        "flag{print} " .
+        "/ENGINE=/{if(flag) exit}' " .
+        escapeshellarg($modifiedSql) .
+        " | grep -Ei " .
+        escapeshellarg(
+            'mxemp_emp_lic_info1|mxemp_emp_lic_info2|mxemp_emp_lic_info3|mxemp_emp_lic_info4'
+        );
+
+
+    $verifyOutput = [];
+
+    $verifyReturnCode = 0;
+
+    exec(
+        $verifyCommand,
+        $verifyOutput,
+        $verifyReturnCode
+    );
+
+
+    if (!empty($verifyOutput)) {
+
+        foreach ($verifyOutput as $verifyLine) {
+
+            $log(
+                trim($verifyLine),
+                'success'
+            );
+        }
+
+    } else {
 
         $log(
-            'No VARCHAR columns greater than 500 were found.',
+            'Could not verify maxwell_employees_info columns.',
             'warning'
         );
     }
 
 
     // =========================================================
-    // MYSQL CLIENT
+    // CHECK FOR REMAINING LARGE VARCHAR
+    // =========================================================
+
+    $log(
+        'Checking processed SQL for remaining VARCHAR >= 300...'
+    );
+
+
+    $remainingCommand =
+        "grep -Ein " .
+        escapeshellarg(
+            '^[[:space:]]*`[^`]+`[[:space:]]+varchar[[:space:]]*\([[:space:]]*[3-9][0-9][0-9]|[1-9][0-9]{3,}[[:space:]]*\)'
+        ) .
+        ' ' .
+        escapeshellarg($modifiedSql) .
+        ' | head -20';
+
+
+    $remainingOutput = [];
+
+    $remainingReturnCode = 0;
+
+    exec(
+        $remainingCommand,
+        $remainingOutput,
+        $remainingReturnCode
+    );
+
+
+    if (!empty($remainingOutput)) {
+
+        $log(
+            'Remaining large VARCHAR definitions found:',
+            'warning'
+        );
+
+        foreach ($remainingOutput as $remainingLine) {
+
+            $log(
+                trim($remainingLine),
+                'warning'
+            );
+        }
+
+    } else {
+
+        $log(
+            'No VARCHAR >= 300 definitions remain in processed SQL.',
+            'success'
+        );
+    }
+
+
+    // =========================================================
+    // REPLACE ORIGINAL SQL
+    // =========================================================
+
+    if (!rename($modifiedSql, $tempSql)) {
+
+        $log(
+            'Failed to replace original SQL file.',
+            'error'
+        );
+
+        @unlink($modifiedSql);
+        @unlink($tempSql);
+
+        $log(
+            'UAT DATABASE UPDATE FAILED',
+            'error'
+        );
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+
+    $log(
+        'Processed SQL file is ready for restore.',
+        'success'
+    );
+
+
+    // =========================================================
+    // FIND MYSQL CLIENT
     // =========================================================
 
     $mysql = '/usr/bin/mysql';
@@ -1232,9 +1394,12 @@ public function update_uat_database()
     if (!file_exists($mysql)) {
 
         $mysql = trim(
-            shell_exec('command -v mysql')
+            shell_exec(
+                'command -v mysql'
+            )
         );
     }
+
 
     if (empty($mysql)) {
 
@@ -1257,6 +1422,7 @@ public function update_uat_database()
         return;
     }
 
+
     $log(
         'MySQL client found: ' .
         $mysql,
@@ -1265,22 +1431,29 @@ public function update_uat_database()
 
 
     // =========================================================
-    // MYSQL TEMP CONFIG
+    // MYSQL CONFIG FILE
     // =========================================================
 
     $mysqlConfig =
         '/tmp/uat_mysql_' .
         date('YmdHis') .
+        '_' .
+        mt_rand(1000, 9999) .
         '.cnf';
 
 
-    $configCreated = file_put_contents(
-        $mysqlConfig,
+    $configContent =
         "[client]\n" .
         "host={$dbHost}\n" .
         "user={$dbUsername}\n" .
-        "password={$dbPassword}\n"
-    );
+        "password={$dbPassword}\n";
+
+
+    $configCreated =
+        file_put_contents(
+            $mysqlConfig,
+            $configContent
+        );
 
 
     if ($configCreated === false) {
@@ -1391,7 +1564,8 @@ public function update_uat_database()
 
         $log(
             'End Time: ' .
-            $endTime
+            $endTime,
+            'error'
         );
 
         $log(
