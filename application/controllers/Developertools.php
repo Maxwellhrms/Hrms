@@ -754,8 +754,8 @@ class Developertools extends Common {
         );
 
         $command =
-            "sed -i " .
-            "'s/ENGINE=InnoDB/ENGINE=InnoDB ROW_FORMAT=DYNAMIC/g' " .
+            "sed -i -E " .
+            "'s/ENGINE=InnoDB[[:space:]]*(ROW_FORMAT=[A-Za-z]+[[:space:]]*)?/ENGINE=InnoDB ROW_FORMAT=DYNAMIC /g' " .
             escapeshellarg($tempSql);
 
         exec(
