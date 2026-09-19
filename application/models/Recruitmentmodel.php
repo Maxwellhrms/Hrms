@@ -917,7 +917,7 @@ public function  editjobmangedetails($data){
         if($divisionid == 1){                                                                                                                     
         $ch = curl_init('https://maxwelllogistics.net/recruitment_services/update_recruitment.php');
         }elseif($divisionid == 2){
-        $ch = curl_init('https://www.maxwellrelocations.com/recruitment_services/update_recruitment.php');    
+        $ch = curl_init('https://maxwellrelocations.com/recruitment_services/update_recruitment.php');    
         }
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");                                                                     
         curl_setopt($ch, CURLOPT_POSTFIELDS, $crosssitedata);                                                                  
