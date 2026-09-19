@@ -363,6 +363,25 @@ class Developertools extends Common {
 
 public function update_uat_database()
 {
+    $selectedBackup = $this->input->get('file', true);
+
+    if (empty($selectedBackup)) {
+
+        echo 'Backup file was not selected.';
+        return;
+    }
+
+    // Only allow the expected backup filename format
+    if (
+        !preg_match(
+            '/^dbbackup_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.sql\.gz$/',
+            $selectedBackup
+        )
+    ) {
+
+        echo 'Invalid backup file.';
+        return;
+    }
     // =========================================================
     // LIVE OUTPUT SETTINGS
     // =========================================================
@@ -507,7 +526,7 @@ public function update_uat_database()
 
     $backupFile =
         '/home/maxwellhrms/public_html/backups/' .
-        'dbbackup_2026-09-19_21-40-01.sql.gz';
+        $selectedBackup;
 
 
     $startTime = date('Y-m-d H:i:s');

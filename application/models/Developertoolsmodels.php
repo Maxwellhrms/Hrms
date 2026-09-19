@@ -495,6 +495,22 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                     // Download URL
                     $downloadUrl = base_url('Developertools/downloadBackup?file=' . urlencode($file));
+                    $updateUatUrl = base_url('Developertools/update_uat_database?file=' . urlencode($file));
+
+                    $updateUatButton = '
+
+                            <a href="' . htmlspecialchars($updateUatUrl) . '"
+                            class="btn btn-sm btn-warning"
+                            title="Update UAT Database"
+                            onclick="return confirm(
+                                \'Are you sure you want to update the UAT database using this backup?\'
+                            );">
+
+                                <i class="fa fa-database"></i>
+                                Update UAT DB
+                            </a>
+
+                        ';
 
                     // Build Row
                     $buldarray = (object)array(
@@ -512,6 +528,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <i class="fa fa-download"></i>
                             </a>
                         ',
+                        "update_uat"       => $updateUatButton,
+                        
                     );
 
                     array_push($retrunarray, $buldarray);
@@ -526,13 +544,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             $columns = [
                 'backup_name',
                 'backup_date',
-                'download'
+                'download',
+                'update_uat'
             ];
 
             $renameHeaderColumns = [
                 'backup_name' => 'Backup File',
                 'backup_date' => 'Backup Date & Time',
-                'download'    => 'Download'
+                'download'    => 'Download',
+                'update_uat'  => 'Update UAT DB'
             ];
 
             // Mapping
