@@ -361,611 +361,685 @@ class Developertools extends Common {
 
 }
 
-    public function update_uat_database()
-    {
-        // =========================================================
-        // LIVE OUTPUT SETTINGS
-        // =========================================================
+public function update_uat_database()
+{
+    // =========================================================
+    // LIVE OUTPUT SETTINGS
+    // =========================================================
 
-        set_time_limit(0);
-        ini_set('max_execution_time', 0);
-        ini_set('output_buffering', 'off');
-        ini_set('zlib.output_compression', '0');
+    set_time_limit(0);
+    ini_set('max_execution_time', 0);
+    ini_set('output_buffering', 'off');
+    ini_set('zlib.output_compression', '0');
 
-        while (ob_get_level() > 0) {
-            ob_end_flush();
+    while (ob_get_level() > 0) {
+        ob_end_flush();
+    }
+
+    ob_implicit_flush(true);
+
+    header('Content-Type: text/html; charset=utf-8');
+    header('Cache-Control: no-cache');
+    header('X-Accel-Buffering: no');
+
+    echo str_repeat(' ', 4096);
+    flush();
+
+
+    // =========================================================
+    // HELPER FUNCTION
+    // =========================================================
+
+    $log = function ($message, $type = 'info') {
+
+        $time = date('H:i:s');
+
+        if ($type === 'success') {
+            $color = '#198754';
+            $icon  = '✓';
+        } elseif ($type === 'error') {
+            $color = '#dc3545';
+            $icon  = '✗';
+        } elseif ($type === 'warning') {
+            $color = '#fd7e14';
+            $icon  = '⚠';
+        } else {
+            $color = '#0d6efd';
+            $icon  = '→';
         }
 
-        ob_implicit_flush(true);
+        echo '<div style="
+                font-family:monospace;
+                font-size:14px;
+                padding:5px 10px;
+                color:' . $color . ';
+            ">
+                [' . $time . '] ' .
+                $icon . ' ' .
+                htmlspecialchars($message) .
+            '</div>';
 
-        header('Content-Type: text/html; charset=utf-8');
-        header('Cache-Control: no-cache');
-        header('X-Accel-Buffering: no');
+        echo str_repeat(' ', 1024);
 
-        // Send some initial data to force the browser to start
-        echo str_repeat(' ', 4096);
         flush();
+    };
 
 
-        // =========================================================
-        // HELPER FUNCTION
-        // =========================================================
+    // =========================================================
+    // START
+    // =========================================================
 
-        $log = function ($message, $type = 'info') {
+    echo '
+    <!DOCTYPE html>
+    <html>
+    <head>
 
-            $time = date('H:i:s');
+        <title>UAT Database Update</title>
 
-            if ($type === 'success') {
-                $color = '#198754';
-                $icon  = '✓';
-            } elseif ($type === 'error') {
-                $color = '#dc3545';
-                $icon  = '✗';
-            } elseif ($type === 'warning') {
-                $color = '#fd7e14';
-                $icon  = '⚠';
-            } else {
-                $color = '#0d6efd';
-                $icon  = '→';
+        <style>
+
+            body {
+                background:#111827;
+                color:#ffffff;
+                font-family:Arial, sans-serif;
+                padding:30px;
             }
 
-            echo '<div style="
-                    font-family:monospace;
-                    font-size:14px;
-                    padding:5px 10px;
-                    color:' . $color . ';
-                ">
-                    [' . $time . '] ' .
-                    $icon . ' ' .
-                    htmlspecialchars($message) .
-                '</div>';
+            .container {
+                max-width:1000px;
+                margin:auto;
+            }
 
-            echo str_repeat(' ', 1024);
+            .header {
+                background:#1f2937;
+                padding:20px;
+                border-radius:8px 8px 0 0;
+            }
 
-            flush();
-        };
+            .logs {
+                background:#000000;
+                padding:20px;
+                min-height:500px;
+                border-radius:0 0 8px 8px;
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+    <div class="container">
+
+        <div class="header">
+            <h2>UAT Database Update</h2>
+        </div>
+
+        <div class="logs">
+    ';
+
+    flush();
 
 
-        // =========================================================
-        // START
-        // =========================================================
+    // =========================================================
+    // DATABASE DETAILS
+    // =========================================================
 
-        echo '
-        <!DOCTYPE html>
-        <html>
-        <head>
+    $dbHost     = 'localhost';
+    $dbUsername = 'maxwellhrms_uat';
 
-            <title>UAT Database Update</title>
+    // Keep your existing UAT DB password here.
+    // Do not expose it publicly.
+    $dbPassword = 'YOUR_DATABASE_PASSWORD_HERE';
 
-            <style>
+    $dbName     = 'maxwellhrms_uat';
 
-                body {
-                    background:#111827;
-                    color:#ffffff;
-                    font-family:Arial, sans-serif;
-                    padding:30px;
-                }
 
-                .container {
-                    max-width:1000px;
-                    margin:auto;
-                }
+    // =========================================================
+    // BACKUP FILE
+    // =========================================================
 
-                .header {
-                    background:#1f2937;
-                    padding:20px;
-                    border-radius:8px 8px 0 0;
-                }
+    $backupFile =
+        '/home/maxwellhrms/public_html/backups/' .
+        'dbbackup_2026-09-19_21-40-01.sql.gz';
 
-                .logs {
-                    background:#000000;
-                    padding:20px;
-                    min-height:500px;
-                    border-radius:0 0 8px 8px;
-                }
 
-            </style>
+    $startTime = date('Y-m-d H:i:s');
 
-        </head>
+    $log('UAT Database Update Started', 'success');
+    $log('Start Time: ' . $startTime);
+    $log('Backup file: ' . basename($backupFile));
 
-        <body>
 
-        <div class="container">
+    // =========================================================
+    // CHECK BACKUP
+    // =========================================================
 
-            <div class="header">
-                <h2>UAT Database Update</h2>
-            </div>
+    $log('Checking backup file...');
 
-            <div class="logs">
-        ';
+    if (!file_exists($backupFile)) {
+
+        $log('Backup file not found.', 'error');
+        $log('UAT DATABASE UPDATE FAILED', 'error');
+
+        echo '</div></div></body></html>';
 
         flush();
 
+        return;
+    }
 
-        // =========================================================
-        // DATABASE DETAILS
-        // =========================================================
-
-        $dbHost     = 'localhost';
-        $dbUsername = 'maxwellhrms_uat';
-        $dbPassword = 'sairam-143';
-        $dbName     = 'maxwellhrms_uat';
+    $log('Backup file found.', 'success');
 
 
-        // =========================================================
-        // BACKUP FILE
-        // =========================================================
+    // =========================================================
+    // DATABASE CONNECTION
+    // =========================================================
 
-        $backupFile =
-            '/home/maxwellhrms/public_html/backups/' .
-            'dbbackup_2026-09-19_21-40-01.sql.gz';
+    $log('Connecting to UAT database...');
 
+    $mysqli = new mysqli(
+        $dbHost,
+        $dbUsername,
+        $dbPassword,
+        $dbName
+    );
 
-        $startTime = date('Y-m-d H:i:s');
+    if ($mysqli->connect_error) {
 
-        $log('UAT Database Update Started', 'success');
-        $log('Start Time: ' . $startTime);
-        $log('Backup file: ' . basename($backupFile));
-
-
-        // =========================================================
-        // CHECK BACKUP
-        // =========================================================
-
-        $log('Checking backup file...');
-
-        if (!file_exists($backupFile)) {
-
-            $log('Backup file not found.', 'error');
-            $log('UAT DATABASE UPDATE FAILED', 'error');
-
-            echo '</div></div></body></html>';
-
-            flush();
-
-            return;
-        }
-
-        $log('Backup file found.', 'success');
-
-
-        // =========================================================
-        // DATABASE CONNECTION
-        // =========================================================
-
-        $log('Connecting to UAT database...');
-
-        $mysqli = new mysqli(
-            $dbHost,
-            $dbUsername,
-            $dbPassword,
-            $dbName
+        $log(
+            'Database connection failed: ' .
+            $mysqli->connect_error,
+            'error'
         );
 
-        if ($mysqli->connect_error) {
+        $log('UAT DATABASE UPDATE FAILED', 'error');
 
-            $log(
-                'Database connection failed: ' .
-                $mysqli->connect_error,
-                'error'
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+    $mysqli->set_charset('utf8mb4');
+
+    $log(
+        'Connected to UAT database successfully.',
+        'success'
+    );
+
+
+    // =========================================================
+    // DROP PROCEDURES
+    // =========================================================
+
+    $log('Getting stored procedures...');
+
+    $result = $mysqli->query("
+        SELECT ROUTINE_NAME
+        FROM information_schema.ROUTINES
+        WHERE ROUTINE_SCHEMA = '{$dbName}'
+        AND ROUTINE_TYPE = 'PROCEDURE'
+    ");
+
+    $procedureCount = 0;
+
+    if ($result) {
+
+        while ($row = $result->fetch_assoc()) {
+
+            $procedureName = str_replace(
+                '`',
+                '``',
+                $row['ROUTINE_NAME']
             );
 
-            $log('UAT DATABASE UPDATE FAILED', 'error');
+            $mysqli->query(
+                "DROP PROCEDURE IF EXISTS `{$procedureName}`"
+            );
 
-            echo '</div></div></body></html>';
-
-            flush();
-
-            return;
+            $procedureCount++;
         }
+    }
 
-        $mysqli->set_charset('utf8mb4');
+    $log(
+        $procedureCount .
+        ' stored procedures dropped.',
+        'success'
+    );
 
-        $log('Connected to UAT database successfully.', 'success');
 
+    // =========================================================
+    // DROP TABLES
+    // =========================================================
 
-        // =========================================================
-        // DROP PROCEDURES
-        // =========================================================
+    $log('Starting table deletion...');
 
-        $log('Getting stored procedures...');
+    $mysqli->query(
+        "SET FOREIGN_KEY_CHECKS = 0"
+    );
 
-        $result = $mysqli->query("
-            SELECT ROUTINE_NAME
-            FROM information_schema.ROUTINES
-            WHERE ROUTINE_SCHEMA = '{$dbName}'
-            AND ROUTINE_TYPE = 'PROCEDURE'
-        ");
+    $result = $mysqli->query("
+        SELECT TABLE_NAME
+        FROM information_schema.TABLES
+        WHERE TABLE_SCHEMA = '{$dbName}'
+        AND TABLE_TYPE = 'BASE TABLE'
+    ");
 
-        $procedureCount = 0;
+    $tableCount = 0;
 
-        if ($result) {
+    if ($result) {
 
-            while ($row = $result->fetch_assoc()) {
+        while ($row = $result->fetch_assoc()) {
 
-                $procedureName = str_replace(
-                    '`',
-                    '``',
-                    $row['ROUTINE_NAME']
+            $tableName = str_replace(
+                '`',
+                '``',
+                $row['TABLE_NAME']
+            );
+
+            if (!$mysqli->query(
+                "DROP TABLE IF EXISTS `{$tableName}`"
+            )) {
+
+                $log(
+                    'Failed to drop table ' .
+                    $tableName . ': ' .
+                    $mysqli->error,
+                    'error'
                 );
 
                 $mysqli->query(
-                    "DROP PROCEDURE IF EXISTS `{$procedureName}`"
+                    "SET FOREIGN_KEY_CHECKS = 1"
                 );
 
-                $procedureCount++;
+                $mysqli->close();
+
+                echo '</div></div></body></html>';
+
+                flush();
+
+                return;
             }
-        }
 
-        $log(
-            $procedureCount .
-            ' stored procedures dropped.',
-            'success'
-        );
+            $tableCount++;
 
+            if ($tableCount % 25 === 0) {
 
-        // =========================================================
-        // DROP TABLES
-        // =========================================================
-
-        $log('Starting table deletion...');
-
-        $mysqli->query(
-            "SET FOREIGN_KEY_CHECKS = 0"
-        );
-
-        $result = $mysqli->query("
-            SELECT TABLE_NAME
-            FROM information_schema.TABLES
-            WHERE TABLE_SCHEMA = '{$dbName}'
-            AND TABLE_TYPE = 'BASE TABLE'
-        ");
-
-        $tableCount = 0;
-
-        if ($result) {
-
-            while ($row = $result->fetch_assoc()) {
-
-                $tableName = str_replace(
-                    '`',
-                    '``',
-                    $row['TABLE_NAME']
+                $log(
+                    $tableCount .
+                    ' tables dropped...'
                 );
-
-                if (!$mysqli->query(
-                    "DROP TABLE IF EXISTS `{$tableName}`"
-                )) {
-
-                    $log(
-                        'Failed to drop table ' .
-                        $tableName .
-                        ': ' .
-                        $mysqli->error,
-                        'error'
-                    );
-
-                    $mysqli->query(
-                        "SET FOREIGN_KEY_CHECKS = 1"
-                    );
-
-                    $mysqli->close();
-
-                    echo '</div></div></body></html>';
-
-                    flush();
-
-                    return;
-                }
-
-                $tableCount++;
-
-                /*
-                * Show progress every 25 tables
-                */
-                if ($tableCount % 25 === 0) {
-
-                    $log(
-                        $tableCount .
-                        ' tables dropped...'
-                    );
-                }
             }
         }
+    }
 
-        $mysqli->query(
-            "SET FOREIGN_KEY_CHECKS = 1"
-        );
+    $mysqli->query(
+        "SET FOREIGN_KEY_CHECKS = 1"
+    );
 
-        $log(
-            $tableCount .
-            ' tables dropped successfully.',
-            'success'
-        );
+    $log(
+        $tableCount .
+        ' tables dropped successfully.',
+        'success'
+    );
 
-
-        $mysqli->close();
-
-
-        // =========================================================
-        // TEMP SQL FILE
-        // =========================================================
-
-        $tempSql =
-            '/tmp/uat_restore_' .
-            date('YmdHis') .
-            '.sql';
+    $mysqli->close();
 
 
-        $log('Preparing SQL restore file...');
+    // =========================================================
+    // TEMP SQL FILE
+    // =========================================================
+
+    $tempSql =
+        '/tmp/uat_restore_' .
+        date('YmdHis') .
+        '.sql';
+
+    $log('Preparing SQL restore file...');
 
 
-        // =========================================================
-        // DECOMPRESS
-        // =========================================================
+    // =========================================================
+    // DECOMPRESS
+    // =========================================================
 
-        $log('Decompressing backup...');
+    $log('Decompressing backup...');
 
-        $command =
-            'gzip -dc ' .
-            escapeshellarg($backupFile) .
-            ' > ' .
-            escapeshellarg($tempSql);
+    $command =
+        'gzip -dc ' .
+        escapeshellarg($backupFile) .
+        ' > ' .
+        escapeshellarg($tempSql);
 
-        exec(
-            $command,
-            $output,
-            $returnCode
-        );
+    exec(
+        $command,
+        $output,
+        $returnCode
+    );
 
-        if ($returnCode !== 0) {
-
-            $log(
-                'Failed to decompress backup.',
-                'error'
-            );
-
-            @unlink($tempSql);
-
-            $log(
-                'UAT DATABASE UPDATE FAILED',
-                'error'
-            );
-
-            echo '</div></div></body></html>';
-
-            flush();
-
-            return;
-        }
+    if ($returnCode !== 0) {
 
         $log(
-            'Backup decompressed successfully.',
-            'success'
+            'Failed to decompress backup.',
+            'error'
         );
-
-
-        // =========================================================
-        // ROW FORMAT FIX
-        // =========================================================
-
-        $log(
-            'Applying ROW_FORMAT=DYNAMIC to InnoDB tables...'
-        );
-
-        $command =
-            "sed -i -E " .
-            "'s/ENGINE=InnoDB[[:space:]]*(ROW_FORMAT=[A-Za-z]+[[:space:]]*)?/ENGINE=InnoDB ROW_FORMAT=DYNAMIC /g' " .
-            escapeshellarg($tempSql);
-
-        exec(
-            $command,
-            $output,
-            $returnCode
-        );
-
-        if ($returnCode !== 0) {
-
-            $log(
-                'Failed to modify SQL file.',
-                'error'
-            );
-
-            @unlink($tempSql);
-
-            $log(
-                'UAT DATABASE UPDATE FAILED',
-                'error'
-            );
-
-            echo '</div></div></body></html>';
-
-            flush();
-
-            return;
-        }
-
-        $log(
-            'ROW_FORMAT=DYNAMIC applied successfully.',
-            'success'
-        );
-
-
-        // =========================================================
-        // MYSQL CLIENT
-        // =========================================================
-
-        $mysql = '/usr/bin/mysql';
-
-        if (!file_exists($mysql)) {
-
-            $mysql = trim(
-                shell_exec('command -v mysql')
-            );
-        }
-
-        if (empty($mysql)) {
-
-            $log(
-                'MySQL command not found.',
-                'error'
-            );
-
-            @unlink($tempSql);
-
-            $log(
-                'UAT DATABASE UPDATE FAILED',
-                'error'
-            );
-
-            echo '</div></div></body></html>';
-
-            flush();
-
-            return;
-        }
-
-
-        // =========================================================
-        // MYSQL TEMP CONFIG
-        // =========================================================
-
-        $mysqlConfig =
-            '/tmp/uat_mysql_' .
-            date('YmdHis') .
-            '.cnf';
-
-
-        file_put_contents(
-            $mysqlConfig,
-            "[client]\n" .
-            "host={$dbHost}\n" .
-            "user={$dbUsername}\n" .
-            "password={$dbPassword}\n"
-        );
-
-        chmod(
-            $mysqlConfig,
-            0600
-        );
-
-
-        // =========================================================
-        // RESTORE
-        // =========================================================
-
-        $log(
-            'Restore started...',
-            'warning'
-        );
-
-        $restoreStart = date('Y-m-d H:i:s');
-
-        $log(
-            'Restore Start Time: ' .
-            $restoreStart
-        );
-
-
-        $restoreCommand =
-            escapeshellarg($mysql) .
-            ' --defaults-extra-file=' .
-            escapeshellarg($mysqlConfig) .
-            ' ' .
-            escapeshellarg($dbName) .
-            ' < ' .
-            escapeshellarg($tempSql) .
-            ' 2>&1';
-
-
-        $restoreOutput = [];
-
-        $restoreReturnCode = 0;
-
-
-        exec(
-            $restoreCommand,
-            $restoreOutput,
-            $restoreReturnCode
-        );
-
-
-        // =========================================================
-        // CLEAN TEMP FILES
-        // =========================================================
 
         @unlink($tempSql);
-        @unlink($mysqlConfig);
-
-
-        // =========================================================
-        // RESTORE RESULT
-        // =========================================================
-
-        $endTime = date('Y-m-d H:i:s');
-
-
-        if ($restoreReturnCode !== 0) {
-
-            $log(
-                'Restore failed.',
-                'error'
-            );
-
-            if (!empty($restoreOutput)) {
-
-                foreach ($restoreOutput as $errorLine) {
-
-                    $log(
-                        $errorLine,
-                        'error'
-                    );
-                }
-            }
-
-            $log(
-                'End Time: ' .
-                $endTime
-            );
-
-            $log(
-                'UAT DATABASE UPDATE FAILED',
-                'error'
-            );
-
-            echo '
-                </div>
-                </div>
-                </body>
-                </html>
-            ';
-
-            flush();
-
-            return;
-        }
-
-
-        // =========================================================
-        // SUCCESS
-        // =========================================================
 
         $log(
-            'Restore completed successfully.',
+            'UAT DATABASE UPDATE FAILED',
+            'error'
+        );
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+    $log(
+        'Backup decompressed successfully.',
+        'success'
+    );
+
+
+    // =========================================================
+    // SQL STRUCTURE FIXES
+    // =========================================================
+
+    $log(
+        'Applying SQL structure fixes...'
+    );
+
+
+    // =========================================================
+    // 1. ROW_FORMAT=DYNAMIC
+    // =========================================================
+
+    $log(
+        'Applying ROW_FORMAT=DYNAMIC to InnoDB tables...'
+    );
+
+    $command =
+        "sed -i -E " .
+        "'s/ENGINE=InnoDB[[:space:]]*(ROW_FORMAT=[A-Za-z]+[[:space:]]*)?/ENGINE=InnoDB ROW_FORMAT=DYNAMIC /g' " .
+        escapeshellarg($tempSql);
+
+    exec(
+        $command,
+        $output,
+        $returnCode
+    );
+
+    if ($returnCode !== 0) {
+
+        $log(
+            'Failed to apply ROW_FORMAT=DYNAMIC.',
+            'error'
+        );
+
+        @unlink($tempSql);
+
+        $log(
+            'UAT DATABASE UPDATE FAILED',
+            'error'
+        );
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+    $log(
+        'ROW_FORMAT=DYNAMIC applied successfully.',
+        'success'
+    );
+
+
+    // =========================================================
+    // 2. FIX maxwell_employees_info ROW SIZE
+    // =========================================================
+
+    $log(
+        'Checking maxwell_employees_info row-size issue...'
+    );
+
+    /*
+     * The following four columns are VARCHAR(555) DEFAULT ''.
+     *
+     * They are converted to TEXT in the TEMP SQL file only.
+     *
+     * TEXT cannot have DEFAULT '', therefore the complete
+     * column definition is replaced.
+     *
+     * Original backup file is NOT modified.
+     */
+
+    $command =
+        "sed -i -E " .
+        "-e 's/^  `mxemp_emp_lic_info1` varchar\\(555\\) DEFAULT .*/  `mxemp_emp_lic_info1` text,/' " .
+        "-e 's/^  `mxemp_emp_lic_info2` varchar\\(555\\) DEFAULT .*/  `mxemp_emp_lic_info2` text,/' " .
+        "-e 's/^  `mxemp_emp_lic_info3` varchar\\(555\\) DEFAULT .*/  `mxemp_emp_lic_info3` text,/' " .
+        "-e 's/^  `mxemp_emp_lic_info4` varchar\\(555\\) DEFAULT .*/  `mxemp_emp_lic_info4` text,/' " .
+        escapeshellarg($tempSql);
+
+    exec(
+        $command,
+        $output,
+        $returnCode
+    );
+
+    if ($returnCode !== 0) {
+
+        $log(
+            'Failed to apply maxwell_employees_info row-size fix.',
+            'error'
+        );
+
+        @unlink($tempSql);
+
+        $log(
+            'UAT DATABASE UPDATE FAILED',
+            'error'
+        );
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+    $log(
+        'maxwell_employees_info row-size fix applied.',
+        'success'
+    );
+
+
+    // =========================================================
+    // VERIFY THE FOUR COLUMNS
+    // =========================================================
+
+    $log(
+        'Verifying modified employee table definition...'
+    );
+
+    $verifyCommand =
+        "sed -n '/CREATE TABLE `maxwell_employees_info`/,/ENGINE=InnoDB/p' " .
+        escapeshellarg($tempSql) .
+        " | grep -E 'mxemp_emp_lic_info[1-4]'";
+
+    $verifyOutput = [];
+
+    exec(
+        $verifyCommand,
+        $verifyOutput,
+        $verifyReturnCode
+    );
+
+    if (!empty($verifyOutput)) {
+
+        foreach ($verifyOutput as $verifyLine) {
+
+            $log(
+                trim($verifyLine)
+            );
+        }
+
+        $log(
+            'Employee table definition verified.',
             'success'
         );
+
+    } else {
+
+        $log(
+            'Could not verify employee table definition.',
+            'warning'
+        );
+    }
+
+
+    // =========================================================
+    // MYSQL CLIENT
+    // =========================================================
+
+    $mysql = '/usr/bin/mysql';
+
+    if (!file_exists($mysql)) {
+
+        $mysql = trim(
+            shell_exec('command -v mysql')
+        );
+    }
+
+    if (empty($mysql)) {
+
+        $log(
+            'MySQL command not found.',
+            'error'
+        );
+
+        @unlink($tempSql);
+
+        $log(
+            'UAT DATABASE UPDATE FAILED',
+            'error'
+        );
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+
+    // =========================================================
+    // MYSQL TEMP CONFIG
+    // =========================================================
+
+    $mysqlConfig =
+        '/tmp/uat_mysql_' .
+        date('YmdHis') .
+        '.cnf';
+
+    file_put_contents(
+        $mysqlConfig,
+        "[client]\n" .
+        "host={$dbHost}\n" .
+        "user={$dbUsername}\n" .
+        "password={$dbPassword}\n"
+    );
+
+    chmod(
+        $mysqlConfig,
+        0600
+    );
+
+
+    // =========================================================
+    // RESTORE
+    // =========================================================
+
+    $log(
+        'Restore started...',
+        'warning'
+    );
+
+    $restoreStart = date('Y-m-d H:i:s');
+
+    $log(
+        'Restore Start Time: ' .
+        $restoreStart
+    );
+
+    $restoreCommand =
+        escapeshellarg($mysql) .
+        ' --defaults-extra-file=' .
+        escapeshellarg($mysqlConfig) .
+        ' ' .
+        escapeshellarg($dbName) .
+        ' < ' .
+        escapeshellarg($tempSql) .
+        ' 2>&1';
+
+    $restoreOutput = [];
+
+    $restoreReturnCode = 0;
+
+    exec(
+        $restoreCommand,
+        $restoreOutput,
+        $restoreReturnCode
+    );
+
+
+    // =========================================================
+    // CLEAN TEMP FILES
+    // =========================================================
+
+    @unlink($tempSql);
+    @unlink($mysqlConfig);
+
+
+    // =========================================================
+    // RESTORE RESULT
+    // =========================================================
+
+    $endTime = date('Y-m-d H:i:s');
+
+    if ($restoreReturnCode !== 0) {
+
+        $log(
+            'Restore failed.',
+            'error'
+        );
+
+        if (!empty($restoreOutput)) {
+
+            foreach ($restoreOutput as $errorLine) {
+
+                $log(
+                    $errorLine,
+                    'error'
+                );
+            }
+        }
 
         $log(
             'End Time: ' .
-            $endTime,
-            'success'
+            $endTime
         );
 
         $log(
-            'UAT DATABASE UPDATE COMPLETED SUCCESSFULLY ✓',
-            'success'
+            'UAT DATABASE UPDATE FAILED',
+            'error'
         );
-
 
         echo '
             </div>
@@ -975,6 +1049,39 @@ class Developertools extends Common {
         ';
 
         flush();
+
+        return;
     }
+
+
+    // =========================================================
+    // SUCCESS
+    // =========================================================
+
+    $log(
+        'Restore completed successfully.',
+        'success'
+    );
+
+    $log(
+        'End Time: ' .
+        $endTime,
+        'success'
+    );
+
+    $log(
+        'UAT DATABASE UPDATE COMPLETED SUCCESSFULLY ✓',
+        'success'
+    );
+
+    echo '
+        </div>
+        </div>
+        </body>
+        </html>
+    ';
+
+    flush();
+}
     
 }
