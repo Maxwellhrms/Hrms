@@ -488,9 +488,8 @@ public function update_uat_database()
     $dbHost     = 'localhost';
     $dbUsername = 'maxwellhrms_uat';
 
-    // IMPORTANT:
-    // Keep your actual password here.
-    // Rotate this password because it has been exposed previously.
+    // Put your current UAT database password here.
+    // Rotate the password after testing because it was exposed.
     $dbPassword = 'sairam-143';
 
     $dbName     = 'maxwellhrms_uat';
@@ -850,41 +849,46 @@ public function update_uat_database()
 
 
     // =========================================================
-    // 2. AUTOMATIC LARGE VARCHAR FIX
+    // 2. GENERIC LARGE VARCHAR FIX
     // =========================================================
-
-    /*
-     * IMPORTANT
-     *
-     * We do NOT hard-code maxwell_employees_info.
-     *
-     * The backup can contain many tables with:
-     *
-     *     VARCHAR(555)
-     *     VARCHAR(600)
-     *     VARCHAR(1000)
-     *     etc.
-     *
-     * Large VARCHAR columns contribute heavily to the
-     * maximum InnoDB row size.
-     *
-     * We convert VARCHAR columns larger than 500 characters
-     * to TEXT.
-     *
-     * Normal VARCHAR(255), VARCHAR(355), etc. remain unchanged.
-     */
 
     $log(
         'Scanning all tables for oversized VARCHAR columns...'
     );
 
+    /*
+     * IMPORTANT:
+     *
+     * Do NOT load the complete SQL dump into memory.
+     *
+     * The SQL backup can be very large.
+     *
+     * We process it line-by-line instead.
+     *
+     * Any VARCHAR > 500 is converted to TEXT.
+     *
+     * Examples:
+     *
+     * VARCHAR(555)  -> TEXT
+     * VARCHAR(600)  -> TEXT
+     * VARCHAR(1000) -> TEXT
+     *
+     * VARCHAR(255) and VARCHAR(355) remain unchanged.
+     */
 
-    $sqlContent = file_get_contents($tempSql);
+    $modifiedSql =
+        $tempSql . '.modified';
 
-    if ($sqlContent === false) {
+
+    $inputHandle = fopen(
+        $tempSql,
+        'r'
+    );
+
+    if ($inputHandle === false) {
 
         $log(
-            'Unable to read temporary SQL file.',
+            'Unable to open SQL file for reading.',
             'error'
         );
 
@@ -903,258 +907,242 @@ public function update_uat_database()
     }
 
 
-    // =========================================================
-    // FIND CREATE TABLE BLOCKS
-    // =========================================================
-
-    /*
-     * Match every CREATE TABLE statement.
-     *
-     * We process each table separately so the log can show
-     * exactly which table was modified.
-     */
-
-    $tablePattern =
-        '/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`([^`]+)`\s*\((.*?)\)\s*ENGINE=InnoDB/si';
-
-    preg_match_all(
-        $tablePattern,
-        $sqlContent,
-        $tableMatches,
-        PREG_OFFSET_CAPTURE
+    $outputHandle = fopen(
+        $modifiedSql,
+        'w'
     );
 
+    if ($outputHandle === false) {
 
-    $modifiedTableCount  = 0;
-    $modifiedColumnCount = 0;
-
-
-    if (!empty($tableMatches[0])) {
-
-        $totalTables = count($tableMatches[0]);
+        fclose($inputHandle);
 
         $log(
-            'Found ' .
-            $totalTables .
-            ' InnoDB CREATE TABLE statements.'
+            'Unable to create modified SQL file.',
+            'error'
         );
 
+        @unlink($tempSql);
 
-        // =====================================================
-        // PROCESS EACH TABLE
-        // =====================================================
+        $log(
+            'UAT DATABASE UPDATE FAILED',
+            'error'
+        );
 
-        foreach ($tableMatches[0] as $index => $tableMatch) {
+        echo '</div></div></body></html>';
 
-            $fullTableStatement = $tableMatch[0];
+        flush();
 
-            $tableName = $tableMatches[1][$index][0];
-
-            $tableBody = $tableMatches[2][$index][0];
-
-
-            // -------------------------------------------------
-            // FIND LARGE VARCHAR COLUMNS
-            // -------------------------------------------------
-
-            /*
-             * Supported examples:
-             *
-             * `column` varchar(555) DEFAULT ''
-             * `column` VARCHAR(1000) NOT NULL
-             * `column` varchar(600) DEFAULT NULL
-             */
-
-            $columnPattern =
-                '/^(\s*`([^`]+)`\s+varchar\((\d+)\))' .
-                '(\s+(?:NOT\s+NULL|NULL))?' .
-                '(\s+DEFAULT\s+(?:\'[^\']*\'|NULL|[0-9]+))?' .
-                '(\s+COMMENT\s+\'[^\']*\')?' .
-                '(\s*,?)$/im';
+        return;
+    }
 
 
-            $largeColumns = [];
+    $currentTable = '';
 
-            preg_match_all(
-                $columnPattern,
-                $tableBody,
-                $columnMatches,
-                PREG_SET_ORDER
-            );
+    $modifiedTableNames = [];
 
+    $modifiedColumnCount = 0;
 
-            if (!empty($columnMatches)) {
+    $lineNumber = 0;
 
-                foreach ($columnMatches as $columnMatch) {
-
-                    $columnName = $columnMatch[2];
-                    $varcharLength = (int)$columnMatch[3];
-
-                    if ($varcharLength > 500) {
-
-                        $largeColumns[] = [
-                            'name'   => $columnName,
-                            'length' => $varcharLength
-                        ];
-                    }
-                }
-            }
+    $lastProgressTime = time();
 
 
-            // -------------------------------------------------
-            // NO LARGE COLUMNS
-            // -------------------------------------------------
+    // =========================================================
+    // PROCESS SQL FILE LINE BY LINE
+    // =========================================================
 
-            if (empty($largeColumns)) {
-                continue;
-            }
+    while (($line = fgets($inputHandle)) !== false) {
+
+        $lineNumber++;
 
 
-            // -------------------------------------------------
-            // LOG TABLE
-            // -------------------------------------------------
+        // -----------------------------------------------------
+        // Detect CREATE TABLE
+        // -----------------------------------------------------
+
+        if (
+            preg_match(
+                '/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`([^`]+)`/i',
+                $line,
+                $tableMatch
+            )
+        ) {
+
+            $currentTable =
+                $tableMatch[1];
 
             $log(
-                'Table [' .
-                $tableName .
-                '] contains ' .
-                count($largeColumns) .
-                ' oversized VARCHAR column(s).',
-                'warning'
+                'Processing table: ' .
+                $currentTable
             );
+        }
+
+
+        // -----------------------------------------------------
+        // Detect VARCHAR definition
+        // -----------------------------------------------------
+
+        /*
+         * Example:
+         *
+         * `column_name` varchar(555) DEFAULT ''
+         *
+         * We intentionally process only normal column
+         * definition lines.
+         */
+
+        if (
+            preg_match(
+                '/^(\s*`([^`]+)`\s+)varchar\((\d+)\)(.*)$/i',
+                $line,
+                $columnMatch
+            )
+        ) {
+
+            $columnName =
+                $columnMatch[2];
+
+            $varcharLength =
+                (int)$columnMatch[3];
+
+            $remainingDefinition =
+                $columnMatch[4];
 
 
             // -------------------------------------------------
-            // CONVERT LARGE VARCHAR → TEXT
+            // VARCHAR > 500
             // -------------------------------------------------
 
-            foreach ($largeColumns as $largeColumn) {
+            if ($varcharLength > 500) {
 
-                $columnName =
-                    $largeColumn['name'];
+                /*
+                 * TEXT cannot have a DEFAULT value.
+                 *
+                 * Remove:
+                 *
+                 * DEFAULT ''
+                 * DEFAULT NULL
+                 * DEFAULT 'something'
+                 */
 
-                $varcharLength =
-                    $largeColumn['length'];
+                $remainingDefinition =
+                    preg_replace(
+                        '/\s+DEFAULT\s+(?:NULL|\'[^\']*\')/i',
+                        '',
+                        $remainingDefinition
+                    );
 
 
                 /*
-                 * Find the exact column definition in the table
-                 * body.
-                 *
-                 * We remove DEFAULT because MySQL 8 does not
-                 * allow DEFAULT values on TEXT columns.
+                 * Replace VARCHAR(length) with TEXT.
                  */
 
-                $columnRegex =
-                    '/(`' .
-                    preg_quote($columnName, '/') .
-                    '`)\s+varchar\(' .
-                    preg_quote((string)$varcharLength, '/') .
-                    '\)' .
-                    '(\s+(?:NOT\s+NULL|NULL))?' .
-                    '(\s+DEFAULT\s+(?:\'[^\']*\'|NULL|[0-9]+))?' .
-                    '(\s+COMMENT\s+\'[^\']*\')?' .
-                    '(\s*,?)/i';
+                $line =
+                    $columnMatch[1] .
+                    'TEXT' .
+                    $remainingDefinition;
 
 
-                $newColumnDefinition =
-                    '$1 TEXT$2$4$5';
-
-
-                $newTableBody = preg_replace(
-                    $columnRegex,
-                    $newColumnDefinition,
-                    $tableBody,
-                    1,
-                    $replacementCount
-                );
+                $modifiedColumnCount++;
 
 
                 if (
-                    $replacementCount > 0 &&
-                    $newTableBody !== null
+                    !in_array(
+                        $currentTable,
+                        $modifiedTableNames,
+                        true
+                    )
                 ) {
 
-                    $tableBody = $newTableBody;
-
-                    $modifiedColumnCount++;
+                    $modifiedTableNames[] =
+                        $currentTable;
 
                     $log(
-                        '  ' .
-                        $tableName .
-                        '.' .
-                        $columnName .
-                        ' VARCHAR(' .
-                        $varcharLength .
-                        ') → TEXT',
-                        'success'
+                        'Table [' .
+                        $currentTable .
+                        '] requires row-size adjustment.',
+                        'warning'
                     );
                 }
+
+
+                $log(
+                    '  ' .
+                    $currentTable .
+                    '.' .
+                    $columnName .
+                    ' VARCHAR(' .
+                    $varcharLength .
+                    ') → TEXT',
+                    'success'
+                );
             }
+        }
 
 
-            // -------------------------------------------------
-            // REBUILD TABLE STATEMENT
-            // -------------------------------------------------
+        // -----------------------------------------------------
+        // Write line
+        // -----------------------------------------------------
 
-            if ($tableBody !== $tableMatches[2][$index][0]) {
+        fwrite(
+            $outputHandle,
+            $line
+        );
 
-                $newTableStatement =
-                    preg_replace(
-                        '/(\(\s*)' .
-                        preg_quote(
-                            $tableMatches[2][$index][0],
-                            '/'
-                        ) .
-                        '(\)\s*ENGINE=InnoDB)/s',
-                        '$1' .
-                        $tableBody .
-                        '$2',
-                        $fullTableStatement,
+
+        // -----------------------------------------------------
+        // Progress every 10 seconds
+        // -----------------------------------------------------
+
+        if (
+            time() - $lastProgressTime >= 10
+        ) {
+
+            $fileSize =
+                filesize($tempSql);
+
+            $currentPosition =
+                ftell($inputHandle);
+
+            $percentage = 0;
+
+            if (
+                $fileSize !== false &&
+                $fileSize > 0
+            ) {
+
+                $percentage =
+                    round(
+                        ($currentPosition / $fileSize) * 100,
                         1
                     );
-
-
-                if (
-                    $newTableStatement !== null &&
-                    $newTableStatement !== $fullTableStatement
-                ) {
-
-                    /*
-                     * Replace the original table statement in the
-                     * complete SQL content.
-                     *
-                     * str_replace is safe here because this is the
-                     * exact original statement captured above.
-                     */
-
-                    $sqlContent =
-                        str_replace(
-                            $fullTableStatement,
-                            $newTableStatement,
-                            $sqlContent
-                        );
-
-                    $modifiedTableCount++;
-                }
             }
+
+            $log(
+                'SQL scan progress: ' .
+                $percentage .
+                '%'
+            );
+
+            $lastProgressTime =
+                time();
         }
     }
 
 
+    fclose($inputHandle);
+
+    fclose($outputHandle);
+
+
     // =========================================================
-    // SAVE MODIFIED SQL
+    // CHECK MODIFIED FILE
     // =========================================================
 
-    if (
-        file_put_contents(
-            $tempSql,
-            $sqlContent
-        ) === false
-    ) {
+    if (!file_exists($modifiedSql)) {
 
         $log(
-            'Failed to save modified SQL file.',
+            'Modified SQL file was not created.',
             'error'
         );
 
@@ -1174,8 +1162,39 @@ public function update_uat_database()
 
 
     // =========================================================
-    // STRUCTURE FIX SUMMARY
+    // REPLACE ORIGINAL TEMP SQL
     // =========================================================
+
+    if (!rename($modifiedSql, $tempSql)) {
+
+        $log(
+            'Failed to replace temporary SQL file.',
+            'error'
+        );
+
+        @unlink($modifiedSql);
+        @unlink($tempSql);
+
+        $log(
+            'UAT DATABASE UPDATE FAILED',
+            'error'
+        );
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+
+    // =========================================================
+    // STRUCTURE SUMMARY
+    // =========================================================
+
+    $modifiedTableCount =
+        count($modifiedTableNames);
+
 
     $log(
         'SQL structure analysis completed.',
@@ -1255,13 +1274,36 @@ public function update_uat_database()
         '.cnf';
 
 
-    file_put_contents(
+    $configCreated = file_put_contents(
         $mysqlConfig,
         "[client]\n" .
         "host={$dbHost}\n" .
         "user={$dbUsername}\n" .
         "password={$dbPassword}\n"
     );
+
+
+    if ($configCreated === false) {
+
+        $log(
+            'Failed to create temporary MySQL configuration.',
+            'error'
+        );
+
+        @unlink($tempSql);
+
+        $log(
+            'UAT DATABASE UPDATE FAILED',
+            'error'
+        );
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
 
     chmod(
         $mysqlConfig,
@@ -1315,6 +1357,7 @@ public function update_uat_database()
     // =========================================================
 
     @unlink($tempSql);
+
     @unlink($mysqlConfig);
 
 
