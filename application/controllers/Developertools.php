@@ -490,7 +490,7 @@ public function update_uat_database()
 
     // Keep your existing UAT DB password here.
     // Do not expose it publicly.
-    $dbPassword = 'YOUR_DATABASE_PASSWORD_HERE';
+    $dbPassword = 'sairam-143';
 
     $dbName     = 'maxwellhrms_uat';
 
