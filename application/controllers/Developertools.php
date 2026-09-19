@@ -360,5 +360,256 @@ class Developertools extends Common {
     ]);
 
 }
+
+    public function update_uat_database()
+    {
+        set_time_limit(0);
+        ini_set('max_execution_time', 0);
+
+        // =========================================================
+        // DATABASE DETAILS
+        // =========================================================
+
+        $dbHost     = 'localhost';
+        $dbUsername = 'maxwellhrms_uat';
+        $dbPassword = 'sairam-143';
+        $dbName     = 'maxwellhrms_uat';
+
+        // =========================================================
+        // BACKUP FILE
+        // =========================================================
+
+        $backupFile = '/home/maxwellhrms/public_html/backups/dbbackup_2026-09-19_21-40-01.sql.gz';
+
+        // =========================================================
+        // CHECK BACKUP FILE
+        // =========================================================
+
+        if (!file_exists($backupFile)) {
+
+            echo json_encode([
+                'status'  => false,
+                'message' => 'Backup file not found.',
+                'file'    => $backupFile
+            ]);
+
+            return;
+        }
+
+        // =========================================================
+        // CONNECT TO DATABASE
+        // =========================================================
+
+        $mysqli = new mysqli(
+            $dbHost,
+            $dbUsername,
+            $dbPassword,
+            $dbName
+        );
+
+        if ($mysqli->connect_error) {
+
+            echo json_encode([
+                'status'  => false,
+                'message' => 'Database connection failed.',
+                'error'   => $mysqli->connect_error
+            ]);
+
+            return;
+        }
+
+        $mysqli->set_charset('utf8mb4');
+
+        // =========================================================
+        // STEP 1: DROP ALL STORED PROCEDURES
+        // =========================================================
+
+        $procedureResult = $mysqli->query("
+            SELECT ROUTINE_NAME
+            FROM information_schema.ROUTINES
+            WHERE ROUTINE_SCHEMA = '{$dbName}'
+            AND ROUTINE_TYPE = 'PROCEDURE'
+        ");
+
+        if ($procedureResult) {
+
+            while ($row = $procedureResult->fetch_assoc()) {
+
+                $procedureName = $row['ROUTINE_NAME'];
+
+                // Backtick escaping
+                $procedureName = str_replace('`', '``', $procedureName);
+
+                $dropProcedure = "
+                    DROP PROCEDURE IF EXISTS `{$procedureName}`
+                ";
+
+                if (!$mysqli->query($dropProcedure)) {
+
+                    $error = $mysqli->error;
+
+                    $mysqli->close();
+
+                    echo json_encode([
+                        'status'  => false,
+                        'message' => 'Failed to drop stored procedure.',
+                        'procedure' => $procedureName,
+                        'error'   => $error
+                    ]);
+
+                    return;
+                }
+            }
+        }
+
+        // =========================================================
+        // STEP 2: DROP ALL TABLES
+        // =========================================================
+
+        $mysqli->query("SET FOREIGN_KEY_CHECKS = 0");
+
+        $tableResult = $mysqli->query("
+            SELECT TABLE_NAME
+            FROM information_schema.TABLES
+            WHERE TABLE_SCHEMA = '{$dbName}'
+            AND TABLE_TYPE = 'BASE TABLE'
+        ");
+
+        if ($tableResult) {
+
+            while ($row = $tableResult->fetch_assoc()) {
+
+                $tableName = $row['TABLE_NAME'];
+
+                // Backtick escaping
+                $tableName = str_replace('`', '``', $tableName);
+
+                $dropTable = "
+                    DROP TABLE IF EXISTS `{$tableName}`
+                ";
+
+                if (!$mysqli->query($dropTable)) {
+
+                    $error = $mysqli->error;
+
+                    $mysqli->query("SET FOREIGN_KEY_CHECKS = 1");
+
+                    $mysqli->close();
+
+                    echo json_encode([
+                        'status'  => false,
+                        'message' => 'Failed to drop table.',
+                        'table'   => $tableName,
+                        'error'   => $error
+                    ]);
+
+                    return;
+                }
+            }
+        }
+
+        $mysqli->query("SET FOREIGN_KEY_CHECKS = 1");
+
+        $mysqli->close();
+
+        // =========================================================
+        // STEP 3: CREATE TEMPORARY MYSQL CONFIG
+        // =========================================================
+
+        $mysqlConfig = tempnam(sys_get_temp_dir(), 'uat_mysql_');
+
+        if ($mysqlConfig === false) {
+
+            echo json_encode([
+                'status'  => false,
+                'message' => 'Unable to create temporary MySQL configuration.'
+            ]);
+
+            return;
+        }
+
+        file_put_contents(
+            $mysqlConfig,
+            "[client]\n" .
+            "user={$dbUsername}\n" .
+            "password={$dbPassword}\n" .
+            "host={$dbHost}\n"
+        );
+
+        chmod($mysqlConfig, 0600);
+
+        // =========================================================
+        // STEP 4: FIND MYSQL CLIENT
+        // =========================================================
+
+        $mysql = '/usr/bin/mysql';
+
+        if (!file_exists($mysql)) {
+
+            $mysql = trim(shell_exec('command -v mysql'));
+
+            if (empty($mysql)) {
+
+                unlink($mysqlConfig);
+
+                echo json_encode([
+                    'status'  => false,
+                    'message' => 'MySQL command not found on server.'
+                ]);
+
+                return;
+            }
+        }
+
+        // =========================================================
+        // STEP 5: RESTORE SQL.GZ
+        // =========================================================
+
+        $command =
+            'gzip -dc ' .
+            escapeshellarg($backupFile) .
+            ' | ' .
+            escapeshellarg($mysql) .
+            ' --defaults-extra-file=' .
+            escapeshellarg($mysqlConfig) .
+            ' ' .
+            escapeshellarg($dbName) .
+            ' 2>&1';
+
+        $output = [];
+        $returnCode = 0;
+
+        exec($command, $output, $returnCode);
+
+        // Remove temporary credentials file
+        unlink($mysqlConfig);
+
+        // =========================================================
+        // STEP 6: RESTORE RESULT
+        // =========================================================
+
+        if ($returnCode !== 0) {
+
+            echo json_encode([
+                'status'  => false,
+                'message' => 'UAT database restore failed.',
+                'backup'  => basename($backupFile),
+                'error'   => implode("\n", $output)
+            ]);
+
+            return;
+        }
+
+        // =========================================================
+        // SUCCESS
+        // =========================================================
+
+        echo json_encode([
+            'status'  => true,
+            'message' => 'UAT database updated successfully.',
+            'database' => $dbName,
+            'backup'  => basename($backupFile)
+        ]);
+    }
     
 }
