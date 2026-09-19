@@ -499,18 +499,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                     $updateUatButton = '
 
-                            <a href="' . htmlspecialchars($updateUatUrl) . '"
-                            class="btn btn-sm btn-warning"
-                            title="Update UAT Database"
-                            onclick="return confirm(
-                                \'Are you sure you want to update the UAT database using this backup?\'
-                            );">
+                        <a href="' . htmlspecialchars($updateUatUrl) . '"
+                        class="btn btn-sm btn-warning"
+                        title="Update UAT Database"
+                        target="_blank"
+                        onclick="return confirm(
+                            \'Are you sure you want to update the UAT database using this backup?\'
+                        );">
 
-                                <i class="fa fa-database"></i>
-                                Update UAT DB
-                            </a>
+                            <i class="fa fa-database"></i>
+                            Update UAT DB
 
-                        ';
+                        </a>
+
+                    ';
 
                     // Build Row
                     $buldarray = (object)array(
