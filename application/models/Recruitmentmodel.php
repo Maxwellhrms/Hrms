@@ -97,7 +97,7 @@ class Recruitmentmodel extends CI_Model
         if($division == 1){                                                                                                                     
         $ch = curl_init('https://maxwelllogistics.net/recruitment_services/saver_recruitment.php');
         }elseif($division == 2){
-        $ch = curl_init('https://www.maxwellrelocations.com/recruitment_services/saver_recruitment.php');    
+        $ch = curl_init('https://maxwellrelocations.com/recruitment_services/saver_recruitment.php');    
         }
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");                                                                     
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);                                                                  
