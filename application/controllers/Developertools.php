@@ -365,6 +365,7 @@ class Developertools extends Common {
     {
         set_time_limit(0);
         ini_set('max_execution_time', 0);
+        ini_set('memory_limit', '512M');
 
         // =========================================================
         // DATABASE DETAILS
@@ -376,13 +377,13 @@ class Developertools extends Common {
         $dbName     = 'maxwellhrms_uat';
 
         // =========================================================
-        // BACKUP FILE
+        // LIVE SERVER BACKUP
         // =========================================================
 
         $backupFile = '/home/maxwellhrms/public_html/backups/dbbackup_2026-09-19_21-40-01.sql.gz';
 
         // =========================================================
-        // CHECK BACKUP FILE
+        // CHECK BACKUP
         // =========================================================
 
         if (!file_exists($backupFile)) {
@@ -390,14 +391,14 @@ class Developertools extends Common {
             echo json_encode([
                 'status'  => false,
                 'message' => 'Backup file not found.',
-                'file'    => $backupFile
+                'backup'  => $backupFile
             ]);
 
             return;
         }
 
         // =========================================================
-        // CONNECT TO DATABASE
+        // CONNECT TO UAT DATABASE
         // =========================================================
 
         $mysqli = new mysqli(
@@ -421,7 +422,8 @@ class Developertools extends Common {
         $mysqli->set_charset('utf8mb4');
 
         // =========================================================
-        // STEP 1: DROP ALL STORED PROCEDURES
+        // STEP 1
+        // DROP ALL STORED PROCEDURES
         // =========================================================
 
         $procedureResult = $mysqli->query("
@@ -435,16 +437,15 @@ class Developertools extends Common {
 
             while ($row = $procedureResult->fetch_assoc()) {
 
-                $procedureName = $row['ROUTINE_NAME'];
+                $procedureName = str_replace(
+                    '`',
+                    '``',
+                    $row['ROUTINE_NAME']
+                );
 
-                // Backtick escaping
-                $procedureName = str_replace('`', '``', $procedureName);
-
-                $dropProcedure = "
-                    DROP PROCEDURE IF EXISTS `{$procedureName}`
-                ";
-
-                if (!$mysqli->query($dropProcedure)) {
+                if (!$mysqli->query(
+                    "DROP PROCEDURE IF EXISTS `{$procedureName}`"
+                )) {
 
                     $error = $mysqli->error;
 
@@ -463,7 +464,8 @@ class Developertools extends Common {
         }
 
         // =========================================================
-        // STEP 2: DROP ALL TABLES
+        // STEP 2
+        // DROP ALL TABLES
         // =========================================================
 
         $mysqli->query("SET FOREIGN_KEY_CHECKS = 0");
@@ -479,20 +481,21 @@ class Developertools extends Common {
 
             while ($row = $tableResult->fetch_assoc()) {
 
-                $tableName = $row['TABLE_NAME'];
+                $tableName = str_replace(
+                    '`',
+                    '``',
+                    $row['TABLE_NAME']
+                );
 
-                // Backtick escaping
-                $tableName = str_replace('`', '``', $tableName);
-
-                $dropTable = "
-                    DROP TABLE IF EXISTS `{$tableName}`
-                ";
-
-                if (!$mysqli->query($dropTable)) {
+                if (!$mysqli->query(
+                    "DROP TABLE IF EXISTS `{$tableName}`"
+                )) {
 
                     $error = $mysqli->error;
 
-                    $mysqli->query("SET FOREIGN_KEY_CHECKS = 1");
+                    $mysqli->query(
+                        "SET FOREIGN_KEY_CHECKS = 1"
+                    );
 
                     $mysqli->close();
 
@@ -513,10 +516,14 @@ class Developertools extends Common {
         $mysqli->close();
 
         // =========================================================
-        // STEP 3: CREATE TEMPORARY MYSQL CONFIG
+        // STEP 3
+        // CREATE TEMPORARY MYSQL CONFIG
         // =========================================================
 
-        $mysqlConfig = tempnam(sys_get_temp_dir(), 'uat_mysql_');
+        $mysqlConfig = tempnam(
+            sys_get_temp_dir(),
+            'uat_mysql_'
+        );
 
         if ($mysqlConfig === false) {
 
@@ -539,22 +546,109 @@ class Developertools extends Common {
         chmod($mysqlConfig, 0600);
 
         // =========================================================
-        // STEP 4: FIND MYSQL CLIENT
+        // STEP 4
+        // CREATE TEMPORARY SQL FILE
+        // =========================================================
+
+        $temporarySql = tempnam(
+            sys_get_temp_dir(),
+            'uat_restore_'
+        );
+
+        if ($temporarySql === false) {
+
+            unlink($mysqlConfig);
+
+            echo json_encode([
+                'status'  => false,
+                'message' => 'Unable to create temporary SQL file.'
+            ]);
+
+            return;
+        }
+
+        // =========================================================
+        // STEP 5
+        // DECOMPRESS + MODIFY SQL
+        //
+        // Adds ROW_FORMAT=DYNAMIC to InnoDB tables.
+        // =========================================================
+
+        $gzipCommand =
+            'gzip -dc ' .
+            escapeshellarg($backupFile);
+
+        $sqlContent = shell_exec($gzipCommand);
+
+        if ($sqlContent === null || $sqlContent === '') {
+
+            unlink($temporarySql);
+            unlink($mysqlConfig);
+
+            echo json_encode([
+                'status'  => false,
+                'message' => 'Unable to decompress SQL backup.'
+            ]);
+
+            return;
+        }
+
+        // ---------------------------------------------------------
+        // Add ROW_FORMAT=DYNAMIC to InnoDB table definitions
+        // ---------------------------------------------------------
+
+        $sqlContent = preg_replace(
+            '/ENGINE\s*=\s*InnoDB(?!\s+ROW_FORMAT)/i',
+            'ENGINE=InnoDB ROW_FORMAT=DYNAMIC',
+            $sqlContent
+        );
+
+        // ---------------------------------------------------------
+        // Save modified SQL
+        // ---------------------------------------------------------
+
+        if (file_put_contents(
+            $temporarySql,
+            $sqlContent
+        ) === false) {
+
+            unset($sqlContent);
+
+            unlink($temporarySql);
+            unlink($mysqlConfig);
+
+            echo json_encode([
+                'status'  => false,
+                'message' => 'Unable to create modified SQL file.'
+            ]);
+
+            return;
+        }
+
+        // Free memory
+        unset($sqlContent);
+
+        // =========================================================
+        // STEP 6
+        // FIND MYSQL
         // =========================================================
 
         $mysql = '/usr/bin/mysql';
 
         if (!file_exists($mysql)) {
 
-            $mysql = trim(shell_exec('command -v mysql'));
+            $mysql = trim(
+                shell_exec('command -v mysql')
+            );
 
             if (empty($mysql)) {
 
+                unlink($temporarySql);
                 unlink($mysqlConfig);
 
                 echo json_encode([
                     'status'  => false,
-                    'message' => 'MySQL command not found on server.'
+                    'message' => 'MySQL command not found.'
                 ]);
 
                 return;
@@ -562,30 +656,38 @@ class Developertools extends Common {
         }
 
         // =========================================================
-        // STEP 5: RESTORE SQL.GZ
+        // STEP 7
+        // RESTORE DATABASE
         // =========================================================
 
-        $command =
-            'gzip -dc ' .
-            escapeshellarg($backupFile) .
-            ' | ' .
+        $restoreCommand =
             escapeshellarg($mysql) .
             ' --defaults-extra-file=' .
             escapeshellarg($mysqlConfig) .
             ' ' .
             escapeshellarg($dbName) .
+            ' < ' .
+            escapeshellarg($temporarySql) .
             ' 2>&1';
 
         $output = [];
         $returnCode = 0;
 
-        exec($command, $output, $returnCode);
+        exec(
+            $restoreCommand,
+            $output,
+            $returnCode
+        );
 
-        // Remove temporary credentials file
+        // =========================================================
+        // CLEANUP
+        // =========================================================
+
+        unlink($temporarySql);
         unlink($mysqlConfig);
 
         // =========================================================
-        // STEP 6: RESTORE RESULT
+        // RESTORE FAILED
         // =========================================================
 
         if ($returnCode !== 0) {
@@ -605,10 +707,10 @@ class Developertools extends Common {
         // =========================================================
 
         echo json_encode([
-            'status'  => true,
-            'message' => 'UAT database updated successfully.',
+            'status'   => true,
+            'message'  => 'UAT database updated successfully.',
             'database' => $dbName,
-            'backup'  => basename($backupFile)
+            'backup'   => basename($backupFile)
         ]);
     }
     
