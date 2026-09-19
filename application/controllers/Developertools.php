@@ -488,7 +488,7 @@ class Developertools extends Common {
 
         $dbHost     = 'localhost';
         $dbUsername = 'maxwellhrms_uat';
-        $dbPassword = 'YOUR_DATABASE_PASSWORD_HERE';
+        $dbPassword = 'sairam-143';
         $dbName     = 'maxwellhrms_uat';
 
 
