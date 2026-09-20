@@ -496,7 +496,7 @@ public function take_database_backup()
      * Do not use the password that was exposed in the chat.
      * Rotate the database password after testing.
      */
-    $dbPassword = 'YOUR_DATABASE_PASSWORD_HERE';
+    $dbPassword = 'sairam-143';
 
     $dbName = 'maxwellhrms_hr';
 
