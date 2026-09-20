@@ -491,14 +491,14 @@ public function take_database_backup()
     /*
      * IMPORTANT:
      *
-     * Use your current LIVE database password here.
+     * Put your CURRENT LIVE database password here.
      *
-     * Do not use a password that has been exposed publicly.
+     * Do not use the password that was exposed in the chat.
      * Rotate the database password after testing.
      */
-    $dbPassword = 'sairam-143';
+    $dbPassword = 'YOUR_DATABASE_PASSWORD_HERE';
 
-    $dbName     = 'maxwellhrms_hr';
+    $dbName = 'maxwellhrms_hr';
 
 
     // =========================================================
@@ -602,6 +602,42 @@ public function take_database_backup()
 
 
     // =========================================================
+    // GZIP
+    // =========================================================
+
+    $gzip = '/usr/bin/gzip';
+
+    if (!file_exists($gzip)) {
+
+        $gzip = trim(
+            shell_exec('command -v gzip')
+        );
+    }
+
+
+    if (empty($gzip)) {
+
+        $log(
+            'gzip command not found.',
+            'error'
+        );
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+
+    $log(
+        'gzip found: ' .
+        $gzip,
+        'success'
+    );
+
+
+    // =========================================================
     // TEMP MYSQL CONFIG
     // =========================================================
 
@@ -649,8 +685,21 @@ public function take_database_backup()
 
 
     $log(
-        'Temporary MySQL configuration created.'
+        'Temporary MySQL configuration created.',
+        'success'
     );
+
+
+    // =========================================================
+    // ERROR FILE
+    // =========================================================
+
+    $errorFile =
+        '/tmp/backup_error_' .
+        date('YmdHis') .
+        '_' .
+        getmypid() .
+        '.log';
 
 
     // =========================================================
@@ -665,16 +714,24 @@ public function take_database_backup()
         ' --routines' .
         ' --triggers' .
         ' --events' .
+        ' --single-transaction' .
         ' ' .
         escapeshellarg($dbName) .
-        ' | /usr/bin/gzip > ' .
-        escapeshellarg($backupFile) .
-        ' 2>&1';
+        ' 2> ' .
+        escapeshellarg($errorFile) .
+        ' | ' .
+        escapeshellarg($gzip) .
+        ' > ' .
+        escapeshellarg($backupFile);
 
 
     $log(
         'Database backup started...',
         'warning'
+    );
+
+    $log(
+        'Including tables, data, procedures, functions, triggers and events.'
     );
 
 
@@ -706,6 +763,23 @@ public function take_database_backup()
 
 
     // =========================================================
+    // READ MYSQLDUMP ERRORS
+    // =========================================================
+
+    $dumpError = '';
+
+    if (file_exists($errorFile)) {
+
+        $dumpError =
+            trim(
+                file_get_contents($errorFile)
+            );
+
+        @unlink($errorFile);
+    }
+
+
+    // =========================================================
     // REMOVE TEMP CONFIG
     // =========================================================
 
@@ -713,13 +787,72 @@ public function take_database_backup()
 
 
     // =========================================================
-    // CHECK RESULT
+    // CHECK MYSQLDUMP ERROR
+    // =========================================================
+
+    if (!empty($dumpError)) {
+
+        $log(
+            'mysqldump reported an error:',
+            'error'
+        );
+
+        $errorLines =
+            preg_split(
+                '/\r\n|\r|\n/',
+                $dumpError
+            );
+
+        foreach ($errorLines as $errorLine) {
+
+            if (trim($errorLine) !== '') {
+
+                $log(
+                    $errorLine,
+                    'error'
+                );
+            }
+        }
+
+
+        if (file_exists($backupFile)) {
+
+            @unlink($backupFile);
+        }
+
+
+        $log(
+            'Incomplete backup file removed.',
+            'warning'
+        );
+
+        $log(
+            'DATABASE BACKUP FAILED',
+            'error'
+        );
+
+
+        echo '
+            </div>
+            </div>
+            </body>
+            </html>
+        ';
+
+        flush();
+
+        return;
+    }
+
+
+    // =========================================================
+    // CHECK COMMAND RESULT
     // =========================================================
 
     if ($returnCode !== 0) {
 
         $log(
-            'Database backup failed.',
+            'Database backup command failed.',
             'error'
         );
 
@@ -736,7 +869,6 @@ public function take_database_backup()
         }
 
 
-        // Remove incomplete backup
         if (file_exists($backupFile)) {
 
             @unlink($backupFile);
@@ -744,7 +876,7 @@ public function take_database_backup()
 
 
         $log(
-            'Backup file removed because the backup was unsuccessful.',
+            'Incomplete backup file removed.',
             'warning'
         );
 
@@ -769,7 +901,7 @@ public function take_database_backup()
 
 
     // =========================================================
-    // VERIFY BACKUP FILE
+    // CHECK BACKUP FILE
     // =========================================================
 
     if (!file_exists($backupFile)) {
@@ -809,7 +941,183 @@ public function take_database_backup()
 
 
     // =========================================================
-    // FORMAT FILE SIZE
+    // VERIFY PROCEDURES
+    // =========================================================
+
+    $procedureCheckCommand =
+        escapeshellarg($gzip) .
+        ' -dc ' .
+        escapeshellarg($backupFile) .
+        ' | grep -i -E ' .
+        escapeshellarg(
+            'CREATE[[:space:]]+(DEFINER=[^[:space:]]+[[:space:]]+)?PROCEDURE'
+        );
+
+
+    $procedureOutput = [];
+
+    $procedureReturnCode = 0;
+
+
+    exec(
+        $procedureCheckCommand,
+        $procedureOutput,
+        $procedureReturnCode
+    );
+
+
+    $procedureCount =
+        count($procedureOutput);
+
+
+    if ($procedureCount > 0) {
+
+        $log(
+            'Stored procedures found in backup: ' .
+            $procedureCount,
+            'success'
+        );
+
+        foreach ($procedureOutput as $procedureLine) {
+
+            if (
+                preg_match(
+                    '/PROCEDURE\s+`([^`]+)`/i',
+                    $procedureLine,
+                    $procedureMatch
+                )
+            ) {
+
+                $log(
+                    '  Procedure: ' .
+                    $procedureMatch[1],
+                    'success'
+                );
+            }
+        }
+
+    } else {
+
+        $log(
+            'WARNING: No CREATE PROCEDURE statement was found in the generated backup.',
+            'warning'
+        );
+    }
+
+
+    // =========================================================
+    // VERIFY FUNCTIONS
+    // =========================================================
+
+    $functionCheckCommand =
+        escapeshellarg($gzip) .
+        ' -dc ' .
+        escapeshellarg($backupFile) .
+        ' | grep -i -E ' .
+        escapeshellarg(
+            'CREATE[[:space:]]+(DEFINER=[^[:space:]]+[[:space:]]+)?FUNCTION'
+        );
+
+
+    $functionOutput = [];
+
+    $functionReturnCode = 0;
+
+
+    exec(
+        $functionCheckCommand,
+        $functionOutput,
+        $functionReturnCode
+    );
+
+
+    $functionCount =
+        count($functionOutput);
+
+
+    $log(
+        'Stored functions found in backup: ' .
+        $functionCount,
+        $functionCount > 0 ? 'success' : 'info'
+    );
+
+
+    // =========================================================
+    // VERIFY TRIGGERS
+    // =========================================================
+
+    $triggerCheckCommand =
+        escapeshellarg($gzip) .
+        ' -dc ' .
+        escapeshellarg($backupFile) .
+        ' | grep -i -E ' .
+        escapeshellarg(
+            'CREATE[[:space:]]+(DEFINER=[^[:space:]]+[[:space:]]+)?TRIGGER'
+        );
+
+
+    $triggerOutput = [];
+
+    $triggerReturnCode = 0;
+
+
+    exec(
+        $triggerCheckCommand,
+        $triggerOutput,
+        $triggerReturnCode
+    );
+
+
+    $triggerCount =
+        count($triggerOutput);
+
+
+    $log(
+        'Triggers found in backup: ' .
+        $triggerCount,
+        $triggerCount > 0 ? 'success' : 'info'
+    );
+
+
+    // =========================================================
+    // VERIFY EVENTS
+    // =========================================================
+
+    $eventCheckCommand =
+        escapeshellarg($gzip) .
+        ' -dc ' .
+        escapeshellarg($backupFile) .
+        ' | grep -i -E ' .
+        escapeshellarg(
+            'CREATE[[:space:]]+(DEFINER=[^[:space:]]+[[:space:]]+)?EVENT'
+        );
+
+
+    $eventOutput = [];
+
+    $eventReturnCode = 0;
+
+
+    exec(
+        $eventCheckCommand,
+        $eventOutput,
+        $eventReturnCode
+    );
+
+
+    $eventCount =
+        count($eventOutput);
+
+
+    $log(
+        'Events found in backup: ' .
+        $eventCount,
+        $eventCount > 0 ? 'success' : 'info'
+    );
+
+
+    // =========================================================
+    // FILE SIZE
     // =========================================================
 
     $formattedSize =
@@ -853,9 +1161,32 @@ public function take_database_backup()
 
 
     $log(
-        'Included: Tables, Data, Procedures, Functions, Triggers and Events.',
+        'Procedures: ' .
+        $procedureCount .
+        ' | Functions: ' .
+        $functionCount .
+        ' | Triggers: ' .
+        $triggerCount .
+        ' | Events: ' .
+        $eventCount,
         'success'
     );
+
+
+    if ($procedureCount === 0) {
+
+        $log(
+            'IMPORTANT: Backup was created, but no stored procedures were detected.',
+            'warning'
+        );
+
+    } else {
+
+        $log(
+            'Stored procedures are confirmed inside the backup.',
+            'success'
+        );
+    }
 
 
     $log(
