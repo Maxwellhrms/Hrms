@@ -361,6 +361,519 @@ class Developertools extends Common {
 
 }
 
+public function take_database_backup()
+{
+    // =========================================================
+    // LIVE OUTPUT SETTINGS
+    // =========================================================
+
+    set_time_limit(0);
+    ini_set('max_execution_time', '0');
+    ini_set('output_buffering', 'off');
+    ini_set('zlib.output_compression', '0');
+
+    while (ob_get_level() > 0) {
+        ob_end_flush();
+    }
+
+    ob_implicit_flush(true);
+
+    header('Content-Type: text/html; charset=utf-8');
+    header('Cache-Control: no-cache');
+    header('X-Accel-Buffering: no');
+
+    echo str_repeat(' ', 4096);
+    flush();
+
+
+    // =========================================================
+    // LOG FUNCTION
+    // =========================================================
+
+    $log = function ($message, $type = 'info') {
+
+        $time = date('H:i:s');
+
+        if ($type === 'success') {
+            $color = '#198754';
+            $icon  = '✓';
+        } elseif ($type === 'error') {
+            $color = '#dc3545';
+            $icon  = '✗';
+        } elseif ($type === 'warning') {
+            $color = '#fd7e14';
+            $icon  = '⚠';
+        } else {
+            $color = '#0d6efd';
+            $icon  = '→';
+        }
+
+        echo '<div style="
+                font-family:monospace;
+                font-size:14px;
+                padding:5px 10px;
+                color:' . $color . ';
+            ">
+                [' . $time . '] ' .
+                $icon . ' ' .
+                htmlspecialchars($message) .
+            '</div>';
+
+        echo str_repeat(' ', 1024);
+
+        flush();
+    };
+
+
+    // =========================================================
+    // START HTML
+    // =========================================================
+
+    echo '
+    <!DOCTYPE html>
+    <html>
+    <head>
+
+        <title>Database Backup</title>
+
+        <style>
+
+            body {
+                background:#111827;
+                color:#ffffff;
+                font-family:Arial, sans-serif;
+                padding:30px;
+            }
+
+            .container {
+                max-width:1000px;
+                margin:auto;
+            }
+
+            .header {
+                background:#1f2937;
+                padding:20px;
+                border-radius:8px 8px 0 0;
+            }
+
+            .logs {
+                background:#000000;
+                padding:20px;
+                min-height:400px;
+                border-radius:0 0 8px 8px;
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+    <div class="container">
+
+        <div class="header">
+            <h2>Database Backup</h2>
+        </div>
+
+        <div class="logs">
+    ';
+
+    flush();
+
+
+    // =========================================================
+    // DATABASE DETAILS
+    // =========================================================
+
+    $dbHost     = 'localhost';
+    $dbUsername = 'maxwellhrms_root';
+
+    /*
+     * IMPORTANT:
+     *
+     * Use your current LIVE database password here.
+     *
+     * Do not use a password that has been exposed publicly.
+     * Rotate the database password after testing.
+     */
+    $dbPassword = 'sairam-143';
+
+    $dbName     = 'maxwellhrms_hr';
+
+
+    // =========================================================
+    // BACKUP DIRECTORY
+    // =========================================================
+
+    $backupDirectory =
+        '/home/maxwellhrms/public_html/backups/';
+
+
+    if (!is_dir($backupDirectory)) {
+
+        $log(
+            'Backup directory does not exist.',
+            'error'
+        );
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+
+    if (!is_writable($backupDirectory)) {
+
+        $log(
+            'Backup directory is not writable.',
+            'error'
+        );
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+
+    $log(
+        'Backup directory verified.',
+        'success'
+    );
+
+
+    // =========================================================
+    // BACKUP FILE NAME
+    // =========================================================
+
+    $backupFileName =
+        'dbbackup_' .
+        date('Y-m-d_H-i-s') .
+        '.sql.gz';
+
+    $backupFile =
+        $backupDirectory .
+        $backupFileName;
+
+
+    $log(
+        'Backup file: ' .
+        $backupFileName
+    );
+
+
+    // =========================================================
+    // MYSQLDUMP
+    // =========================================================
+
+    $mysqldump = '/usr/bin/mysqldump';
+
+    if (!file_exists($mysqldump)) {
+
+        $mysqldump = trim(
+            shell_exec('command -v mysqldump')
+        );
+    }
+
+
+    if (empty($mysqldump)) {
+
+        $log(
+            'mysqldump command not found.',
+            'error'
+        );
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+
+    $log(
+        'mysqldump found: ' .
+        $mysqldump,
+        'success'
+    );
+
+
+    // =========================================================
+    // TEMP MYSQL CONFIG
+    // =========================================================
+
+    $mysqlConfig =
+        '/tmp/backup_mysql_' .
+        date('YmdHis') .
+        '_' .
+        getmypid() .
+        '.cnf';
+
+
+    $configContent =
+        "[client]\n" .
+        "host={$dbHost}\n" .
+        "user={$dbUsername}\n" .
+        "password={$dbPassword}\n";
+
+
+    $configCreated =
+        file_put_contents(
+            $mysqlConfig,
+            $configContent
+        );
+
+
+    if ($configCreated === false) {
+
+        $log(
+            'Unable to create temporary MySQL configuration.',
+            'error'
+        );
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+
+    chmod(
+        $mysqlConfig,
+        0600
+    );
+
+
+    $log(
+        'Temporary MySQL configuration created.'
+    );
+
+
+    // =========================================================
+    // BACKUP COMMAND
+    // =========================================================
+
+    $command =
+        escapeshellarg($mysqldump) .
+        ' --defaults-extra-file=' .
+        escapeshellarg($mysqlConfig) .
+        ' --no-tablespaces' .
+        ' --routines' .
+        ' --triggers' .
+        ' --events' .
+        ' ' .
+        escapeshellarg($dbName) .
+        ' | /usr/bin/gzip > ' .
+        escapeshellarg($backupFile) .
+        ' 2>&1';
+
+
+    $log(
+        'Database backup started...',
+        'warning'
+    );
+
+
+    $startTime = microtime(true);
+
+    $output = [];
+
+    $returnCode = 0;
+
+
+    // =========================================================
+    // EXECUTE BACKUP
+    // =========================================================
+
+    exec(
+        $command,
+        $output,
+        $returnCode
+    );
+
+
+    $endTime = microtime(true);
+
+    $duration =
+        round(
+            $endTime - $startTime,
+            2
+        );
+
+
+    // =========================================================
+    // REMOVE TEMP CONFIG
+    // =========================================================
+
+    @unlink($mysqlConfig);
+
+
+    // =========================================================
+    // CHECK RESULT
+    // =========================================================
+
+    if ($returnCode !== 0) {
+
+        $log(
+            'Database backup failed.',
+            'error'
+        );
+
+
+        if (!empty($output)) {
+
+            foreach ($output as $errorLine) {
+
+                $log(
+                    $errorLine,
+                    'error'
+                );
+            }
+        }
+
+
+        // Remove incomplete backup
+        if (file_exists($backupFile)) {
+
+            @unlink($backupFile);
+        }
+
+
+        $log(
+            'Backup file removed because the backup was unsuccessful.',
+            'warning'
+        );
+
+
+        $log(
+            'DATABASE BACKUP FAILED',
+            'error'
+        );
+
+
+        echo '
+            </div>
+            </div>
+            </body>
+            </html>
+        ';
+
+        flush();
+
+        return;
+    }
+
+
+    // =========================================================
+    // VERIFY BACKUP FILE
+    // =========================================================
+
+    if (!file_exists($backupFile)) {
+
+        $log(
+            'Backup command completed but backup file was not created.',
+            'error'
+        );
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+
+    $backupSize =
+        filesize($backupFile);
+
+
+    if ($backupSize === false || $backupSize <= 0) {
+
+        $log(
+            'Backup file is empty.',
+            'error'
+        );
+
+        @unlink($backupFile);
+
+        echo '</div></div></body></html>';
+
+        flush();
+
+        return;
+    }
+
+
+    // =========================================================
+    // FORMAT FILE SIZE
+    // =========================================================
+
+    $formattedSize =
+        number_format(
+            $backupSize / 1024 / 1024,
+            2
+        ) .
+        ' MB';
+
+
+    // =========================================================
+    // SUCCESS
+    // =========================================================
+
+    $log(
+        'Backup completed successfully.',
+        'success'
+    );
+
+
+    $log(
+        'Backup file: ' .
+        $backupFileName,
+        'success'
+    );
+
+
+    $log(
+        'Backup size: ' .
+        $formattedSize,
+        'success'
+    );
+
+
+    $log(
+        'Backup duration: ' .
+        $duration .
+        ' seconds.',
+        'success'
+    );
+
+
+    $log(
+        'Included: Tables, Data, Procedures, Functions, Triggers and Events.',
+        'success'
+    );
+
+
+    $log(
+        'DATABASE BACKUP COMPLETED SUCCESSFULLY ✓',
+        'success'
+    );
+
+
+    echo '
+        </div>
+        </div>
+        </body>
+        </html>
+    ';
+
+    flush();
+}
+
 public function update_uat_database()
 {
     $selectedBackup = $this->input->get('file', true);
