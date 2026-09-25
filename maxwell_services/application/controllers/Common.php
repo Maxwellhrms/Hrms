@@ -15,10 +15,79 @@ class Common extends CI_Controller {
         #End Validate Token  
     }
 
-    public function api_decode(){
+    /*public function api_decode(){
         header('Content-type: application/json'); //Common For GET/POST-Methods
         $json = file_get_contents('php://input'); //Post-method
         return $obj = json_decode($json); //Post-method
+    }*/
+
+    public function api_decode()
+    {
+        header('Content-type: application/json');
+
+        // Get raw request body
+        $json = file_get_contents('php://input');
+
+        // Request information
+        $method = $_SERVER['REQUEST_METHOD'] ?? '';
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+
+        // Create log directory
+        $logDir = APPPATH . 'logs/mobile_api/';
+
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+
+        // Daily log file
+        $logFile = $logDir . 'mobile_api_' . date('Y-m-d') . '.log';
+
+        // Headers
+        $headers = [];
+
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+        }
+
+        // Don't log sensitive headers
+        if (isset($headers['Authorization'])) {
+            $headers['Authorization'] = '[HIDDEN]';
+        }
+
+        if (isset($headers['authorization'])) {
+            $headers['authorization'] = '[HIDDEN]';
+        }
+
+        // Prepare log data
+        $logData = [
+            'timestamp'  => date('Y-m-d H:i:s'),
+            'method'     => $method,
+            'uri'        => $uri,
+            'ip'         => $ip,
+            'user_agent' => $userAgent,
+            'headers'    => $headers,
+            'request'    => json_decode($json, true),
+        ];
+
+        // Convert to JSON
+        $logContent = json_encode(
+            $logData,
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+        );
+
+        // Write to log
+        file_put_contents(
+            $logFile,
+            "==============================\n" .
+            $logContent . "\n" .
+            "==============================\n\n",
+            FILE_APPEND | LOCK_EX
+        );
+
+        // Decode request
+        return json_decode($json);
     }
     
     public function api_encode($user_data,$user_desc=null){  
