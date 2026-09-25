@@ -52,8 +52,10 @@ class Employee_leave_service_model extends Common_model
                     $curr_month = date('Y-m');
                     //  $curr_month = date('2022-10');
 
-                    $fromcmd=$curr_month.'-01';
-                    $tocmd=$curr_month.'-31';
+                    // $fromcmd=$curr_month.'-01';
+                    // $tocmd=$curr_month.'-31';
+                    $fromcmd = $curr_month . '-01';
+                    $tocmd   = date('Y-m-t', strtotime($fromcmd));
                     $categort_tp=array(1,2,3);
                                 
                     $this->db->select('mxar_category_type,mxar_noofdays,mxar_final_accept_status,mxar_final_accept_status');
