@@ -363,11 +363,20 @@ class Employee_leave_service_model extends Common_model
       //   ---------------------- to apply short leave ------------------
       
     if($leave_cateory == 'SHRT'){
-        $fromdtch = date('m',strtotime($from));
-        $fromdtchyear = date('Y',strtotime($from));
-        if(strlen($fromdtch)==1){ $shmonthyear = '0'.$fromdtch; }else{ $shmonthyear = $fromdtch;  }
-        $shfrom = $fromdtchyear.'-'.$shmonthyear.'-01';
-        $shto = $fromdtchyear.'-'.$shmonthyear.'-31';
+        // $fromdtch = date('m',strtotime($from));
+        // $fromdtchyear = date('Y',strtotime($from));
+        // if(strlen($fromdtch)==1){ $shmonthyear = '0'.$fromdtch; }else{ $shmonthyear = $fromdtch;  }
+        // $shfrom = $fromdtchyear.'-'.$shmonthyear.'-01';
+        // $shto = $fromdtchyear.'-'.$shmonthyear.'-31';
+        $fromdtch = date('m', strtotime($from));
+        $fromdtchyear = date('Y', strtotime($from));
+        if(strlen($fromdtch) == 1){
+            $shmonthyear = '0' . $fromdtch;
+        }else{
+            $shmonthyear = $fromdtch;
+        }
+        $shfrom = $fromdtchyear . '-' . $shmonthyear . '-01';
+        $shto = date('Y-m-t', strtotime($shfrom));
 
         $this->db->select('mxar_appliedby_emp_code,mxar_noofdays,mxar_category_type,mxar_from,mxar_to');
         $this->db->from('attendance_user_leaveadjust');
