@@ -239,5 +239,9 @@ class Common extends CI_Controller {
     }
     #END JWT TOKEN VALIDATION
     //-------END NEW BY SHABABU(13-02-2022)
+
+    public function checkPaySheetSummary($employeecode = '', $from = '', $to = ''){
+        return $this->Common_model->checkPaySheetSummary($employeecode, $from, $to);
+    }
     
 }

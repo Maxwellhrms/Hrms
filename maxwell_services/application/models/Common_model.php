@@ -232,5 +232,73 @@ class Common_model extends CI_Model
             }
             return $authar;
         }
+
+    public function checkPaySheetSummary($employeecode = '', $from = '', $to = ''){
+        $employeetypeid = '';
+        $companyid = '';
+        $this->db->select('mxemp_emp_type,mxemp_emp_comp_code');
+        $this->db->from('maxwell_employees_info');
+        $this->db->where('mxemp_emp_id', $employeecode);
+        $ckempquery = $this->db->get();
+        $emptype = $ckempquery->result_array();
+        $employeetypeid = $emptype[0]['mxemp_emp_type'];
+        $companyid = $emptype[0]['mxemp_emp_comp_code'];
+
+        $yearmonth = !empty($from)? date('Ym', strtotime($from)) : date('Ym');
+
+        // STEP 1: Get dynamic table name
+        $this->db->select('mxemp_ty_table_name');
+        $this->db->from('maxwell_employee_type_master');
+        $this->db->where('mxemp_ty_cmpid', $companyid);
+        $this->db->where('mxemp_ty_id', $employeetypeid);
+        $this->db->where('mxemp_ty_status', 1);
+
+        $query = $this->db->get();
+        $result = $query->row_array();
+
+        if(empty($result)){
+            return array(
+                'workingdays' => 0,
+                'monthyear' => '',
+                'salarystatus' => 'Not Disbursed',
+                'status' => 0
+            );
+        }
+
+        $tableName = $result['mxemp_ty_table_name'];
+
+        // STEP 2: Get salary data
+        $this->db->select('mxsal_present_days, mxsal_year_month');
+        $this->db->from($tableName);
+        $this->db->where('mxsal_emp_code', $employeecode);
+        $this->db->where('mxsal_year_month', $yearmonth);
+
+        $query2 = $this->db->get();
+        $row = $query2->row_array();
+
+        // STEP 3: Format response
+        if(!empty($row)){
+
+            $ym = $row['mxsal_year_month'];
+
+            $monthYear = date('F Y', strtotime($ym . '01'));
+
+            return array(
+                'workingdays'  => (int)$row['mxsal_present_days'],
+                'monthyear'    => $monthYear,
+                'salarystatus' => 'Salary Disbursed For ' . $monthYear .' You Can Not Apply For Leave',
+                'status' => 1
+            );
+
+        } else {
+
+            return array(
+                'workingdays'  => 0,
+                'monthyear' => date('F Y', strtotime('-1 month')),
+                'salarystatus' => 'Not Disbursed',
+                'status' => 0
+            );
+        }
+    }
    
 }

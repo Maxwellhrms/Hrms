@@ -939,6 +939,19 @@ class Employee_leave_service_model extends Common_model
             $this->db->where('mxar_id', $uniqid);
             $query = $this->db->get();
             $res = $query->result_array();
+
+            $paySheetSummary = $this->Common_model->checkPaySheetSummary($employeeid, $res[0]['from'], $res[0]['to']);
+            if($paySheetSummary['status'] == 1){
+                create_notes($employeeid,'3','Failed to accept by '.$employeeid ,$employeeid);
+                $message = "Failed";
+                $statuscode = "500";
+                $leavedata1['status']=$statuscode;
+                $leavedata1['msg']=$message;
+                $leavedata1['description']=$paySheetSummary['salarystatus'];
+                // $leavedata1['leave_apply']="Failed To Accept";
+                return $leavedata1;
+            }
+
             if($approve == 1){
                 if( ($authtype == 3) && ($res[0]['authfinalemp'] == $employeeid) ){   
                     $autharry= array(
@@ -2319,7 +2332,19 @@ class Employee_leave_service_model extends Common_model
             $this->db->limit(1);
             $query= $this->db->get();
             $result1 = $query->result();
-                
+            
+            $paySheetSummary = $this->Common_model->checkPaySheetSummary($employeeid, $result[0]->from, $result[0]->to);
+            if($paySheetSummary['status'] == 1){
+                create_notes($employeeid,'3','Failed to accept by '.$employeeid ,$employeeid);
+                $message = "Failed";
+                $statuscode = "500";
+                $leavedata1['status']=$statuscode;
+                $leavedata1['msg']=$message;
+                $leavedata1['description']=$paySheetSummary['salarystatus'];
+                // $leavedata1['leave_apply']="Failed To Accept";
+                return $leavedata1;
+            }
+
             $this->db->trans_begin();
         /*    
             if($result[0]->leavetype == 'SHRT'){

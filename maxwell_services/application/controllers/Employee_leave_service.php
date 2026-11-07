@@ -41,6 +41,11 @@ class Employee_leave_service extends Common {
         $intime = $this->cleanInput($obj->{'intime'});
         $outtime = $this->cleanInput($obj->{'outtime'});
         $leave_address= $this->cleanInput($obj->{'leave_address'});
+
+        $paySheetSummary = $this->checkPaySheetSummary($employeeid, $from, $to);
+        if($paySheetSummary['status'] == 1){
+            echo $this->api_encodecheck(array('status'=> '500','msg'=>'Failed','description'=>$paySheetSummary['salarystatus']) ); exit;
+        }
         
         if($leave_cateory == 'SHRT'){
             $intime = date("H:i", strtotime($intime));
@@ -179,6 +184,11 @@ class Employee_leave_service extends Common {
         $leave_address = $this->cleanInput($obj->{'leave_address'});
         $daysrange = $this->date_rangewith_days($from,$to);
         $noofdays=$daysrange['noofday'];
+
+        $paySheetSummary = $this->checkPaySheetSummary($employeeid, $from, $to);
+        if($paySheetSummary['status'] == 1){
+            echo $this->api_encodecheck(array('status'=> '500','msg'=>'Failed','description'=>$paySheetSummary['salarystatus']) ); exit;
+        }
 
         if (!preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/",$from)) {
             echo $this->api_encodecheck(array('status'=> '500','msg'=>'Failed','description'=>'Please select date to apply leaves') ); exit;
