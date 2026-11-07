@@ -235,6 +235,11 @@ class Employee_attendance_service extends Common {
         $from = date('Y-m-d',strtotime($from));
         $to = date('Y-m-d',strtotime($to));
         $datechk=date('Y-m-d');
+
+        $paySheetSummary = $this->checkPaySheetSummary($employeeid, $from, $to);
+        if($paySheetSummary['status'] == 1){
+            echo $this->api_encodecheck(array('status'=> '500','msg'=>'Failed','description'=>$paySheetSummary['salarystatus']) ); exit;
+        }
         // print_r($from); exit;
         if ($datechk < $to) {
               echo $this->api_encodecheck(array('status'=> '500','msg'=>'Failed','description'=>'To date must not be greater than current date'));exit; 
@@ -300,6 +305,11 @@ class Employee_attendance_service extends Common {
         $second_half_punch = $this->cleanInput($obj->{'second_half_punch'});
         
         
+        $paySheetSummary = $this->checkPaySheetSummary($employeeid, $from, $to);
+        if($paySheetSummary['status'] == 1){
+            echo $this->api_encodecheck(array('status'=> '500','msg'=>'Failed','description'=>$paySheetSummary['salarystatus']) ); exit;
+        }
+
         $datechk=date('Y-m-d');
         if ($datechk < $to) {
               echo $this->api_encodecheck(array('status'=> '500','msg'=>'Failed','description'=>'To date must not be greater than current date'));exit; 

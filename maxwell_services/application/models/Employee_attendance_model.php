@@ -2615,6 +2615,14 @@ class Employee_attendance_model extends Common_model
                 continue;
             }
              }
+
+            $paySheetSummary = $this->Common_model->checkPaySheetSummary($employeeid, $res[0]['from'], $res[0]['to']);
+            if($paySheetSummary['status'] == 1){
+                $data['status']=500;
+                $data['msg']='Failed';
+                $data['description']=$paySheetSummary['salarystatus'];
+                return $data;
+            }
             // if($cnt[0]['authtype'] == 3){ 
             if($authtype == 3){ 
                 $applieddate = $res[0]['from'];
