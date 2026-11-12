@@ -11220,6 +11220,12 @@ public function saveemployeerequesttype($data){
            // echo $this->db->last_query();exit;
             if(count($result)>0){
                 if($approve == 1){
+
+                    $checkpaysheet = checkPaySheetSummary($result[0]['employeeid'], $result[0]['from'], $result[0]['to']);
+                    if($checkpaysheet['status'] == 1){
+                        return "Paysheet already generated for this employee for the selected date range. You cannot approve/reject this request.";
+                    }
+
                     $autharry= array(
                             "mxar_authfinal_remarks"=>$remarks,
                             "mxar_hrfinal_accept"=>$this->session->userdata('user_id'),
@@ -11362,7 +11368,11 @@ public function saveemployeerequesttype($data){
         $this->db->where('mxar_status',1);
         $query= $this->db->get();
         $result = $query->result();
-        
+
+            $checkpaysheet = checkPaySheetSummary($result[0]['employeeid'], $result[0]['from'], $result[0]['to']);
+            if($checkpaysheet['status'] == 1){
+                return "Paysheet already generated for this employee for the selected date range. You cannot approve/reject this request.";
+            }
         // echo $this->db->last_query(); die;
         
                if( ($result[0]->finalstatus == 1) && ($result[0]->authfinalstatus == 1) && ($result[0]->status == 1) ){
@@ -11997,6 +12007,11 @@ public function saveemployeerequesttype($data){
             $this->db->where('mxar_id', $uniqid);
             $query = $this->db->get();
             $res = $query->result_array();
+
+            $checkpaysheet = checkPaySheetSummary($res[0]['employeeid'], $res[0]['from'], $res[0]['to']);
+            if($checkpaysheet['status'] == 1){
+                return "Paysheet already generated for this employee for the selected date range. You cannot approve/reject this request.";
+            }
 
             $applieddate = $res[0]['from'];
             $tblappdate = date('Y_m',strtotime($applieddate));      
