@@ -11369,7 +11369,7 @@ public function saveemployeerequesttype($data){
         $query= $this->db->get();
         $result = $query->result();
 
-            $checkpaysheet = checkPaySheetSummary($result[0]['employeeid'], $result[0]['from'], $result[0]['to']);
+            $checkpaysheet = checkPaySheetSummary($result[0]->employeeid, $result[0]->from, $result[0]->to);
             if($checkpaysheet['status'] == 1){
                 return "Paysheet already generated for this employee for the selected date range. You cannot approve/reject this request.";
             }
