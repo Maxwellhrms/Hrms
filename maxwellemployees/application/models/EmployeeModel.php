@@ -2133,7 +2133,7 @@ public function getAttendanceDashboard(){
         $this->db->where('attendance_date', $cdate);
         $this->db->where('latitudes !=','');
         $this->db->where('longitudes !=','');
-        $this->db->where('entry_type !=','GEOTAG');
+        //$this->db->where('entry_type !=','GEOTAG');
         $query = $this->db->get();
         $qry1 = $query->result_array();
         // echo '<pre>';
